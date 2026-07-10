@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "../.."
+		},
+		{
+			"name": "smart-coffee-v2-hardware",
+			"path": ".."
+		}
+	],
+	"settings": {}
+}

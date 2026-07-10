@@ -1,0 +1,1 @@
+data arabica1-5 sensor tgs2620 kebalik sama tgs822
