@@ -65,12 +65,12 @@ def extract_features():
         # Ubah jadi format tabel dan simpan ke CSV
         df = pd.DataFrame(all_features)
         df.to_csv(OUTPUT_CSV, index=False)
-        print(f"\n✅ Ekstraksi selesai! Total {len(df)} sampel data diekstrak.")
-        print(f"✅ Data disimpan ke {OUTPUT_CSV}")
+        print(f"\n Ekstraksi selesai! Total {len(df)} sampel data diekstrak.")
+        print(f" Data disimpan ke {OUTPUT_CSV}")
         print("\nPreview Data:")
         print(df.head())
     else:
-        print("\n⚠️ Tidak ada data berlabel 'light', 'medium', atau 'dark' yang ditemukan di dalam file-file tersebut.")
+        print("\n Tidak ada data berlabel 'light', 'medium', atau 'dark' yang ditemukan di dalam file-file tersebut.")
 
 if __name__ == "__main__":
     extract_features()

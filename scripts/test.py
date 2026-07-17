@@ -1,10 +1,11 @@
+# library python
 from SerialHandler import SerialHandler
 import threading
 import time
 from datetime import datetime
 import json
 
-PORT = "COM5"
+PORT = "COM6"
 BAUDRATE = 115200
 
 serial_handler = SerialHandler(PORT, BAUDRATE)
@@ -13,7 +14,7 @@ filetime = datetime.now().isoweekday()
 filename = "output.txt"
 is_run = True
 
-def listen_serial():
+def baca_serial():
     global is_run
     while(is_run):
         global status
@@ -40,7 +41,7 @@ def listen_serial():
         o = "#" + status + ";"
         serial_handler.write(o.encode())
 
-def listen_sensor():
+def baca_sensor():
     global is_run
     while(is_run):
         try:
@@ -64,11 +65,11 @@ def listen_sensor():
             print(e)
             
 if __name__ == "__main__":
-    thread_serial_listen = threading.Thread(target=listen_sensor)
+    thread_serial_listen = threading.Thread(target=baca_sensor)
     thread_serial_listen.start()
 
     serial_handler.ser.flush()
 
-    listen_serial()
+    baca_serial()
     
         

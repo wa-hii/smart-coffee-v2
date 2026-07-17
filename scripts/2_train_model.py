@@ -7,7 +7,7 @@ import os
 try:
     from micromlgen import port
 except ImportError:
-    print("⚠️ micromlgen belum terinstall.")
+    print("micromlgen belum terinstall.")
     print("Silakan buka terminal dan ketik: pip install micromlgen scikit-learn pandas")
     exit()
 
@@ -17,13 +17,13 @@ OUTPUT_HEADER = '../include/model_rf.h'
 
 def train_and_export():
     if not os.path.exists(DATA_CSV):
-        print(f"❌ File {DATA_CSV} tidak ditemukan.")
+        print(f"File {DATA_CSV} tidak ditemukan.")
         print("Silakan jalankan 'python 1_ekstraksi_fitur.py' terlebih dahulu.")
         return
 
     # 1. Load Data
     df = pd.read_csv(DATA_CSV)
-    print("✅ Data Load Sukses. Distribusi kelas:")
+    print("Data Load Sukses. Distribusi kelas:")
     print(df['label'].value_counts())
     print("-" * 30)
 
