@@ -31,20 +31,20 @@ def main():
                          help="Matikan GridSearchCV (pakai kalau data sedikit / mau cepat)")
     args = parser.parse_args()
 
-    print("=== 1. Load dataset ===")
+    print(" 1. Load dataset ")
     records = load_dataset(args.data_dir, label_map=QUALITY_LABEL_MAP)
 
-    print("\n=== 2. Ekstraksi fitur ===")
+    print("\n 2. Ekstraksi fitur ")
     df = extract_features(records)
     print(df["quality_label"].value_counts())
 
-    print("\n=== 3. Training Random Forest (kualitas/cacat mutu) ===")
+    print("\n. Training Random Forest (kualitas/cacat mutu)")
     result = train_random_forest(
         df, model_dir=args.model_dir, test_size=args.test_size,
         use_grid_search=not args.no_grid_search
     )
 
-    print("\n=== 4. Evaluasi model ===")
+    print("\n 4. Evaluasi model ")
     evaluate(result, output_dir=args.output_dir)
 
     print("\nSelesai. Model tersimpan di:", args.model_dir)

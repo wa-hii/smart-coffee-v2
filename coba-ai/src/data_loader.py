@@ -1,23 +1,7 @@
-"""
-data_loader.py
---------------
-Membaca file .txt hasil pembacaan sensor e-nose (8 channel) yang disusun
-dalam folder per kelas, sesuai struktur dataset dari jurnal MDPI Sensors
-10(1):36 (AQ_Coffee, HQ_Coffee, LQ_Coffee).
-
-Format file .txt yang didukung:
-  1) Header 8 baris nama sensor, diikuti 1/lebih baris angka pembacaan, ATAU
-  2) File hanya berisi baris-baris angka (time-series 8 kolom).
-
-Target klasifikasi di pipeline ini adalah KUALITAS / CACAT MUTU kopi
-(Adulterated Quality / High Quality / Low Quality), sesuai label asli yang
-dipakai di dataset jurnal tersebut -- BUKAN tingkat roasting.
-"""
-
 import os
 import numpy as np
 
-# Urutan & nama 8 sensor sesuai spesifikasi yang diberikan
+#  8 sensor sesuai spesifikasi yang diberikan
 SENSOR_NAMES = [
     "SP12A_FlammableGases",
     "SP31_OrganicSolvents",
@@ -29,8 +13,7 @@ SENSOR_NAMES = [
     "TGS800",
 ]
 
-# Label kualitas/cacat mutu asli dari dataset jurnal -- ini yang dipakai
-# sebagai target klasifikasi Random Forest.
+# label kualitas kopi sesuai dataset
 QUALITY_LABEL_MAP = {
     "AQ_Coffee": "Adulterated_Quality",
     "HQ_Coffee": "High_Quality",
@@ -39,10 +22,6 @@ QUALITY_LABEL_MAP = {
 
 
 def _parse_txt_file(filepath):
-    """
-    Parse satu file txt e-nose menjadi array shape (n_timesteps, 8).
-    Baris non-numerik (nama sensor, keterangan channel) otomatis dilewati.
-    """
     rows = []
     with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
         for line in f:
@@ -66,21 +45,6 @@ def _parse_txt_file(filepath):
 
 
 def load_dataset(data_dir, label_map=None):
-    """
-    Membaca seluruh file .txt di data_dir/<nama_folder_kelas>/*.txt
-
-    Parameters
-    ----------
-    data_dir : str
-        Path ke folder utama berisi AQ_Coffee/, HQ_Coffee/, LQ_Coffee/
-    label_map : dict, optional
-        Mapping {nama_folder: label_kelas}. Default: QUALITY_LABEL_MAP.
-
-    Returns
-    -------
-    list of dict, tiap dict berisi:
-        sample_id, source_folder, quality_label, readings (np.ndarray)
-    """
     if label_map is None:
         label_map = QUALITY_LABEL_MAP
 

@@ -1,0 +1,9 @@
+                     precision    recall  f1-score   support
+
+Adulterated_Quality       1.00      0.50      0.67         2
+       High_Quality       0.75      0.75      0.75         4
+        Low_Quality       0.71      0.83      0.77         6
+
+           accuracy                           0.75        12
+          macro avg       0.82      0.69      0.73        12
+       weighted avg       0.77      0.75      0.75        12
