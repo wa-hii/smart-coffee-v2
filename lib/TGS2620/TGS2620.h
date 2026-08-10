@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <stdint.h>
-#include <cmath>
+#include <math.h>
 
 class TGS2620 { // TODO : minimal tulisan gak gede kecil
   private:

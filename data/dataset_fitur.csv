@@ -1,10 +1,4 @@
-file_sumber,label,adc_mq135_max,adc_mq136_max,adc_mq137_max,adc_mq138_max,adc_mq2_max,adc_mq3_max,adc_tgs822_max,adc_tgs2620_max
-arabica6.txt,light,22356,2971,20810,19405,15810,23273,23286,24260
-arabica6.txt,medium,22448,2968,20764,19543,14759,23399,23038,24063
-arabica6.txt,dark,22449,2966,20771,19544,14728,23407,22979,23998
-arabica7.txt,light,22451,3049,20524,19023,15059,23356,23038,24050
-arabica8.txt,light,22436,3043,20626,19053,15615,23387,23295,24210
-arabica8.txt,medium,22293,3036,20303,18728,13727,23404,22688,23748
-arabica9.txt,light,22538,3035,20736,19138,15833,23376,23456,24281
-arabica9.txt,medium,22389,3026,20381,18858,13822,23495,22912,23804
-arabica9.txt,dark,22444,3026,20432,18818,13814,23524,22925,23794
+source_file,label,cycle,n_samples,mean_adc_mq135,max_adc_mq135,mean_adc_mq136,max_adc_mq136,mean_adc_mq137,max_adc_mq137,mean_adc_mq138,max_adc_mq138,mean_adc_mq2,max_adc_mq2,mean_adc_mq3,max_adc_mq3,mean_adc_tgs822,max_adc_tgs822,mean_adc_tgs2620,max_adc_tgs2620
+D:\ENOSE\smart-coffee-v2-hardware\smart-coffee-v2-hardware\scripts\..\data\light_20260810_160508.csv,light,1,180,2980.5444444444443,2983.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1887.588888888889,1890.0,2000.8444444444444,2004.0
+D:\ENOSE\smart-coffee-v2-hardware\smart-coffee-v2-hardware\scripts\..\data\light_20260810_160508.csv,light,2,181,2980.817679558011,2986.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1890.2596685082874,1892.0,2003.0220994475137,2005.0
+D:\ENOSE\smart-coffee-v2-hardware\smart-coffee-v2-hardware\scripts\..\data\light_20260810_160508.csv,light,3,33,2981.909090909091,2986.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1891.7878787878788,1893.0,2004.7272727272727,2007.0

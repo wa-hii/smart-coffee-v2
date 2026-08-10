@@ -11,7 +11,7 @@
 #ifndef Included_SensorBase_H
 #define Included_SensorBase_H
 
-#include <cmath>
+#include <math.h>
 
 class SensorBase {
   public:
