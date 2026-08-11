@@ -77,8 +77,13 @@ def prompt_port():
             print(f"  [{i}] {p.device}  – {p.description}")
         idx = input("Pilih nomor port (atau ketik nama port langsung): ").strip()
         try:
-            return ports[int(idx)].device
-        except (ValueError, IndexError):
+            num = int(idx)
+            if 0 <= num < len(ports):
+                return ports[num].device
+            else:
+                # User mungkin mengetik angka port (misal 5 → COM5)
+                return f"COM{num}"
+        except ValueError:
             return idx
     else:
         return input("Masukkan nama port Serial (misal COM5): ").strip()
