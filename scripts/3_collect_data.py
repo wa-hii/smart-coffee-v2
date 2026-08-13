@@ -40,19 +40,41 @@ ACQ_REPETITIONS  = 10    # harus sama dengan ACQ_REPETITIONS di firmware
 
 VALID_LABELS = ['light', 'medium', 'dark']
 
+SAMPLE_OPTIONS = {
+    'light': [
+        ('Arabika Manglayang Jawa Barat', 'L-MAN'),
+        ('Arabika Ratawali Aceh', 'L-RAT'),
+        ('Arabika Gayo Aceh', 'L-GAY'),
+        ('Arabika Merapi', 'L-MER'),
+    ],
+    'medium': [
+        ('Arabika Manglayang Jawa Barat', 'M-MAN'),
+        ('Arabika Ratawali Aceh', 'M-RAT'),
+        ('Arabika Temanggung', 'M-TEM'),
+        ('Arabika Timor Leste', 'M-TIM'),
+    ],
+    'dark': [
+        ('Arabika Manglayang Jawa Barat', 'D-MAN'),
+        ('Arabika Ratawali Aceh', 'D-RAT'),
+        ('Arabika Gayo Aceh', 'D-GAY'),
+    ],
+}
+
 # Kolom ADC mentah (urutan 10 sensor E-NOSE v2)
 ADC_COLS = [
     'adc_tgs822', 'adc_mq135', 'adc_mq9', 'adc_tgs2611', 'adc_tgs2620',
     'adc_tgs2600', 'adc_tgs2602', 'adc_mq8', 'adc_tgs813', 'adc_tgs816'
 ]
 
-# ─── Argumen CLI ─────────────────────────────────────────────────────────────
+
 def parse_args():
     p = argparse.ArgumentParser(description='E-NOSE Kopi — Pengumpulan Data')
     p.add_argument('--port',  type=str, default=None,
                    help='Port Serial ESP32, misal COM5 atau /dev/ttyUSB0')
     p.add_argument('--label', type=str, default=None,
                    help=f'Label roasting: {VALID_LABELS}')
+    p.add_argument('--sample', type=str, default=None,
+                   help='Nama sampel kopi (misal "Arabika Manglayang Jawa Barat")')
     p.add_argument('--baud',  type=int, default=BAUD_RATE)
     p.add_argument('--collect-s', type=int, default=ACQ_COLLECT_S,
                    help='Durasi collecting (detik)')
@@ -77,8 +99,13 @@ def prompt_port():
             print(f"  [{i}] {p.device}  – {p.description}")
         idx = input("Pilih nomor port (atau ketik nama port langsung): ").strip()
         try:
-            return ports[int(idx)].device
-        except (ValueError, IndexError):
+            num = int(idx)
+            if 0 <= num < len(ports):
+                return ports[num].device
+            else:
+                # User mungkin mengetik angka port (misal 5 → COM5)
+                return f"COM{num}"
+        except ValueError:
             return idx
     else:
         return input("Masukkan nama port Serial (misal COM5): ").strip()
@@ -86,10 +113,59 @@ def prompt_port():
 
 def prompt_label():
     print(f"\n🏷️  Label tingkat roasting yang tersedia: {VALID_LABELS}")
-    label = input("Masukkan label: ").strip().lower()
+    label = input("Masukkan roast (light/medium/dark): ").strip().lower()
     if label not in VALID_LABELS:
-        print(f"⚠️  Label tidak dikenal. Tetap menggunakan '{label}' sebagai label kustom.")
+        print(f"⚠️  Roast tidak dikenal. Tetap menggunakan '{label}' sebagai roast kustom.")
     return label
+
+
+def make_label_code(label):
+    # Kode roast singkat untuk CSV / training
+    if label and label.lower() in VALID_LABELS:
+        return label[0].upper()
+    return 'X'
+
+
+def make_sample_code(label, sample):
+    # Buat kode otomatis berdasar roast dan nama kopi
+    roast_code = make_label_code(label)
+    words = [w for w in sample.replace('-', ' ').split() if w]
+    if not words:
+        return f"{roast_code}-UNK"
+    if len(words) == 1:
+        token = words[0][:3].upper()
+    else:
+        token = ''.join(w[0].upper() for w in words[:3])
+    return f"{roast_code}-{token}"
+
+
+def prompt_sample(label):
+    options = SAMPLE_OPTIONS.get(label, [])
+    print()
+    if options:
+        print("Pilih sampel kopi:")
+        for idx, (name, code) in enumerate(options, start=1):
+            print(f"  [{idx}] {name:30s} | {code}")
+
+        selection = input("Pilih nomor atau ketik nama/kode lalu tekan Enter: ").strip()
+        try:
+            idx = int(selection) - 1
+            if 0 <= idx < len(options):
+                return options[idx]
+        except ValueError:
+            pass
+
+        matched = next(((name, code) for name, code in options
+                        if selection.lower() == code.lower() or selection.lower() in name.lower()), None)
+        if matched:
+            return matched
+
+        print("⚠️ Pilihan tidak dikenali; masukkan nama kopi secara manual.")
+
+    sample = input("Masukkan nama kopi: ").strip()
+    code = make_sample_code(label, sample)
+    print(f"Kode otomatis: {code}")
+    return sample, code
 
 
 # ─── Progress bar helper ──────────────────────────────────────────────────────
@@ -121,6 +197,12 @@ def main():
     # ── Validasi / prompt parameter ──────────────────────────────────────────
     port  = args.port  or prompt_port()
     label = args.label or prompt_label()
+    sample, code = args.sample, None
+    if not sample:
+        sample, code = prompt_sample(label)
+    else:
+        code = make_sample_code(label, sample)
+        print(f"Kode otomatis: {code}")
 
     collect_s   = args.collect_s
     purge_s     = args.purge_s
@@ -250,7 +332,13 @@ def main():
 
             # Simpan semua sampel (collecting + purging) ke rows
             if phase in ('collecting', 'purging'):
-                row = {'label': label, 'source_file': out_csv}
+                row = {
+                    'label': label,
+                    'label_code': make_label_code(label),
+                    'sample': sample,
+                    'sample_code': code,
+                    'source_file': out_csv,
+                }
                 row.update(data)
                 rows.append(row)
 
