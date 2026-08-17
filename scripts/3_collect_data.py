@@ -40,11 +40,9 @@ ACQ_REPETITIONS  = 10    # harus sama dengan ACQ_REPETITIONS di firmware
 
 VALID_LABELS = ['light', 'medium', 'dark']
 
-# Kolom ADC mentah (urutan 10 sensor E-NOSE v2)
-ADC_COLS = [
-    'adc_tgs822', 'adc_mq135', 'adc_mq9', 'adc_tgs2611', 'adc_tgs2620',
-    'adc_tgs2600', 'adc_tgs2602', 'adc_mq8', 'adc_tgs813', 'adc_tgs816'
-]
+# Kolom ADC mentah (urutan fitur untuk inferensi on-device)
+ADC_COLS = ['adc_mq135', 'adc_mq136', 'adc_mq137', 'adc_mq138',
+            'adc_mq2',   'adc_mq3',   'adc_tgs822', 'adc_tgs2620']
 
 # ─── Argumen CLI ─────────────────────────────────────────────────────────────
 def parse_args():
@@ -77,13 +75,8 @@ def prompt_port():
             print(f"  [{i}] {p.device}  – {p.description}")
         idx = input("Pilih nomor port (atau ketik nama port langsung): ").strip()
         try:
-            num = int(idx)
-            if 0 <= num < len(ports):
-                return ports[num].device
-            else:
-                # User mungkin mengetik angka port (misal 5 → COM5)
-                return f"COM{num}"
-        except ValueError:
+            return ports[int(idx)].device
+        except (ValueError, IndexError):
             return idx
     else:
         return input("Masukkan nama port Serial (misal COM5): ").strip()
@@ -115,12 +108,6 @@ class PhaseBar:
 
 # ─── Main ─────────────────────────────────────────────────────────────────────
 def main():
-    if hasattr(sys.stdout, 'reconfigure'):
-        try:
-            sys.stdout.reconfigure(encoding='utf-8')
-        except Exception:
-            pass
-
     args = parse_args()
 
     # ── Validasi / prompt parameter ──────────────────────────────────────────
@@ -135,14 +122,14 @@ def main():
     total_purge   = purge_s  * repetitions   # jumlah sampel purging yang diharapkan
 
     print(f"""
-+------------------------------------------------------+
-|       E-NOSE Kopi -- Pengumpulan Data                |
-+------------------------------------------------------+
-|  Label      : {label:<36} |
-|  Port       : {port:<36} |
-|  Collecting : {collect_s} detik x {repetitions} siklus = {total_collect} sampel{'':<6} |
-|  Purging    : {purge_s} detik x {repetitions} siklus = {total_purge} sampel{'':<7} |
-+------------------------------------------------------+
+╔══════════════════════════════════════════════════════╗
+║       E-NOSE Kopi — Pengumpulan Data                ║
+╠══════════════════════════════════════════════════════╣
+║  Label      : {label:<36} ║
+║  Port       : {port:<36} ║
+║  Collecting : {collect_s} detik × {repetitions} siklus = {total_collect} sampel{'':<6} ║
+║  Purging    : {purge_s} detik × {repetitions} siklus = {total_purge} sampel{'':<7} ║
+╚══════════════════════════════════════════════════════╝
 """)
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -275,7 +262,7 @@ def main():
         df = pd.DataFrame(rows)
 
         # Urutkan kolom: metadata dulu, baru sensor
-        priority_cols = ['label', 'phase', 'cycle', 'sample_idx', 'timestamp'] + ADC_COLS
+        priority_cols = ['label', 'phase', 'cycle', 'sample_idx', 'timestamp'] + ADC_COLS + ['temp', 'humidity']
         other_cols    = [c for c in df.columns if c not in priority_cols and c != 'source_file']
         ordered_cols  = [c for c in priority_cols if c in df.columns] + other_cols
         if 'source_file' in df.columns:

@@ -25,42 +25,153 @@ namespace Eloquent {
                     * Predict class for features vector
                     */
                     int predict(float *x) {
-                        uint8_t votes[1] = { 0 };
+                        uint8_t votes[2] = { 0 };
                         // tree #1
-                        votes[0] += 1;
+                        if (x[15] <= 5915.0) {
+                            votes[1] += 1;
+                        }
+
+                        else {
+                            votes[0] += 1;
+                        }
+
                         // tree #2
-                        votes[0] += 1;
+                        if (x[8] <= 2981.0) {
+                            votes[0] += 1;
+                        }
+
+                        else {
+                            votes[1] += 1;
+                        }
+
                         // tree #3
-                        votes[0] += 1;
+                        if (x[15] <= 6035.5) {
+                            votes[1] += 1;
+                        }
+
+                        else {
+                            votes[0] += 1;
+                        }
+
                         // tree #4
-                        votes[0] += 1;
+                        if (x[8] <= 2981.0) {
+                            votes[0] += 1;
+                        }
+
+                        else {
+                            votes[1] += 1;
+                        }
+
                         // tree #5
-                        votes[0] += 1;
+                        if (x[15] <= 5915.0) {
+                            votes[1] += 1;
+                        }
+
+                        else {
+                            votes[0] += 1;
+                        }
+
                         // tree #6
-                        votes[0] += 1;
+                        if (x[15] <= 5993.0) {
+                            votes[1] += 1;
+                        }
+
+                        else {
+                            votes[0] += 1;
+                        }
+
                         // tree #7
-                        votes[0] += 1;
+                        if (x[0] <= 2976.9638671875) {
+                            votes[0] += 1;
+                        }
+
+                        else {
+                            votes[1] += 1;
+                        }
+
                         // tree #8
-                        votes[0] += 1;
+                        if (x[8] <= 2981.0) {
+                            votes[0] += 1;
+                        }
+
+                        else {
+                            if (x[7] <= 7008.416809082031) {
+                                votes[1] += 1;
+                            }
+
+                            else {
+                                votes[0] += 1;
+                            }
+                        }
+
                         // tree #9
-                        votes[0] += 1;
+                        if (x[7] <= 5987.177551269531) {
+                            votes[1] += 1;
+                        }
+
+                        else {
+                            votes[0] += 1;
+                        }
+
                         // tree #10
-                        votes[0] += 1;
+                        if (x[14] <= 7641.0) {
+                            votes[1] += 1;
+                        }
+
+                        else {
+                            votes[0] += 1;
+                        }
+
                         // tree #11
-                        votes[0] += 1;
+                        if (x[6] <= 7073.202087402344) {
+                            votes[1] += 1;
+                        }
+
+                        else {
+                            votes[0] += 1;
+                        }
+
                         // tree #12
-                        votes[0] += 1;
+                        if (x[6] <= 7073.202087402344) {
+                            votes[1] += 1;
+                        }
+
+                        else {
+                            votes[0] += 1;
+                        }
+
                         // tree #13
-                        votes[0] += 1;
+                        if (x[15] <= 6035.5) {
+                            votes[1] += 1;
+                        }
+
+                        else {
+                            votes[0] += 1;
+                        }
+
                         // tree #14
-                        votes[0] += 1;
+                        if (x[6] <= 6841.577575683594) {
+                            votes[1] += 1;
+                        }
+
+                        else {
+                            votes[0] += 1;
+                        }
+
                         // tree #15
-                        votes[0] += 1;
+                        if (x[0] <= 2974.2694091796875) {
+                            votes[0] += 1;
+                        }
+
+                        else {
+                            votes[1] += 1;
+                        }
+
                         // return argmax of votes
                         uint8_t classIdx = 0;
                         float maxVotes = votes[0];
 
-                        for (uint8_t i = 1; i < 1; i++) {
+                        for (uint8_t i = 1; i < 2; i++) {
                             if (votes[i] > maxVotes) {
                                 classIdx = i;
                                 maxVotes = votes[i];
