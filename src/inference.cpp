@@ -1,14 +1,3 @@
-// ═════════════════════════════════════════════════════════════════════════════
-// inference.cpp — Implementasi Modul Inferensi AI On-Device
-//
-// Fitur yang digunakan (16 nilai):
-//   [mean_mq135, mean_mq136, mean_mq137, mean_mq138,
-//    mean_mq2,   mean_mq3,   mean_tgs822, mean_tgs2620,
-//    max_mq135,  max_mq136,  max_mq137,  max_mq138,
-//    max_mq2,    max_mq3,    max_tgs822,  max_tgs2620]
-//
-// Urutan ini harus SAMA PERSIS dengan feature_cols di 4_train_rf.py
-// ═════════════════════════════════════════════════════════════════════════════
 #include "inference.h"
 
 #if USE_ON_DEVICE_INFERENCE
@@ -19,14 +8,12 @@
 static const char* const CLASS_LABELS[] = { "dark", "light", "medium" };
 #define NUM_CLASSES 3
 
-// ─────────────────────────────────────────────────────────────────────────────
 void Inference::reset() {
     memset(sum_, 0, sizeof(sum_));
     memset(max_, 0, sizeof(max_));
     count_ = 0;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 void Inference::accumulate(const uint16_t* adc) {
     for (uint8_t i = 0; i < NUM_SENSORS; i++) {
         sum_[i] += adc[i];
@@ -35,7 +22,6 @@ void Inference::accumulate(const uint16_t* adc) {
     count_++;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 int Inference::predict() {
 #if USE_ON_DEVICE_INFERENCE
     if (count_ == 0) return -1;
@@ -54,14 +40,12 @@ int Inference::predict() {
 #endif
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 const char* Inference::predictLabel() {
     int idx = predict();
     if (idx < 0 || idx >= NUM_CLASSES) return "N/A";
     return CLASS_LABELS[idx];
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 void Inference::printResult() {
 #if USE_ON_DEVICE_INFERENCE
     if (count_ == 0) {

@@ -1,0 +1,31 @@
+filename,sample_id,batch_id,roast_level,origin,run_id,purge_datapoints,collect_datapoints,total_datapoints,status,notes
+dark_20260810_163245.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,1,61,180,241,PASS,PASS (Semua kriteria terpenuhi)
+dark_20260810_163245.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,2,61,180,241,PASS,PASS (Semua kriteria terpenuhi)
+dark_20260810_163245.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,3,61,181,242,WARNING,Collecting (181) beda tipis dari target 180
+dark_20260810_163245.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,4,61,180,241,PASS,PASS (Semua kriteria terpenuhi)
+dark_20260810_163245.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,5,61,180,241,PASS,PASS (Semua kriteria terpenuhi)
+dark_20260810_163245.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,6,61,180,241,PASS,PASS (Semua kriteria terpenuhi)
+dark_20260810_163245.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,7,61,180,241,PASS,PASS (Semua kriteria terpenuhi)
+dark_20260810_163245.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,8,61,180,241,PASS,PASS (Semua kriteria terpenuhi)
+dark_20260810_163245.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,9,61,181,242,WARNING,Collecting (181) beda tipis dari target 180
+dark_20260810_163245.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,10,61,181,242,WARNING,Collecting (181) beda tipis dari target 180
+M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,1,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
+M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,2,61,180,241,PASS,PASS (Semua kriteria terpenuhi)
+M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,3,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
+M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,4,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
+M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,5,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
+M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,6,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
+M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,7,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
+M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,8,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
+M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,9,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
+M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,10,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
+medium_20260811_172251.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,1,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
+medium_20260811_172251.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,2,60,181,241,WARNING,Collecting (181) beda tipis dari target 180
+medium_20260811_172251.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,3,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
+medium_20260811_172251.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,4,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
+medium_20260811_172251.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,5,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
+medium_20260811_172251.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,6,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
+medium_20260811_172251.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,7,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
+medium_20260811_172251.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,8,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
+medium_20260811_172251.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,9,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
+medium_20260811_172251.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,10,60,180,240,PASS,PASS (Semua kriteria terpenuhi)

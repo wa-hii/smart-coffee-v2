@@ -45,15 +45,15 @@ try:
     HAS_PLOT = True
 except ImportError:
     HAS_PLOT = False
-    print("⚠️  matplotlib/seaborn tidak terinstall – plot dinonaktifkan.")
+    print("matplotlib belum terinstal")
 
 try:
     from micromlgen import port
     HAS_MICROMLGEN = True
 except ImportError:
     HAS_MICROMLGEN = False
-    print("⚠️  micromlgen tidak terinstall.")
-    print("   Jalankan: pip install micromlgen")
+    print("micromlgen belum terinstal")
+    print("Jalankan: pip install micromlgen")
 
 # ─── Path konfigurasi ────────────────────────────────────────────────────────
 SCRIPTS_DIR   = os.path.dirname(os.path.abspath(__file__))
