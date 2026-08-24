@@ -1,0 +1,28 @@
+=== BASELINE ===
+Train Acc: 100.00%
+Test  Acc: 57.50%
+
+              precision    recall  f1-score   support
+
+       light       1.00      0.20      0.33        10
+      medium       0.75      0.75      0.75        20
+        dark       0.33      0.60      0.43        10
+
+    accuracy                           0.57        40
+   macro avg       0.69      0.52      0.50        40
+weighted avg       0.71      0.57      0.57        40
+
+
+=== FINAL (TUNED) ===
+Train Acc: 99.29%
+Test  Acc: 55.00%
+
+              precision    recall  f1-score   support
+
+       light       1.00      0.30      0.46        10
+      medium       0.80      0.60      0.69        20
+        dark       0.32      0.70      0.44        10
+
+    accuracy                           0.55        40
+   macro avg       0.71      0.53      0.53        40
+weighted avg       0.73      0.55      0.57        40
