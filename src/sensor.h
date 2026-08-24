@@ -15,8 +15,8 @@
 #include "TGSSensor.h"
 
 // ─── Software I2C Pins ────────────────────────────────────────────────────────
-#define PIN_SDA   35
-#define PIN_SCL   34
+#define PIN_SDA   20
+#define PIN_SCL   21
 
 // ─── I2C Addresses (4× ADS1115) ──────────────────────────────────────────────
 #define I2C_ADDR_ADS1   0x48   // ADDR → GND

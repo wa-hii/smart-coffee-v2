@@ -1,0 +1,316 @@
+=====================================================================================
+          E-NOSE KOPI -- DATA VALIDATION & ANALYSIS REPORT
+          Waktu Analisis : 2026-08-24 14:07:37
+=====================================================================================
+
+[CHECK 01] File CSV Ditemukan: 21 file
+   - D-GAY_B04.csv (275427 bytes)
+   - D-MAN_B01.csv (303102 bytes)
+   - D-MAN_B02.csv (302534 bytes)
+   - D-RAT_B02.csv (285217 bytes)
+   - dark_20260810_163245.csv (443273 bytes)
+   - dark_20260813_132219.csv (458133 bytes)
+   - dark_20260813_165451.csv (449365 bytes)
+   - L-GAY_B03.csv (273552 bytes)
+   - L-MAN_B01.csv (304975 bytes)
+   - L-MAN_B03.csv (302534 bytes)
+   - L-MER_B01.csv (266569 bytes)
+   - L-MER_B02.csv (271767 bytes)
+   - light_20260813_115343.csv (449479 bytes)
+   - M-TEM_B01.csv (281155 bytes)
+   - M-TEM_B04.csv (284406 bytes)
+   - M-TIM_B01.csv (286260 bytes)
+   - M-TIM_B02.csv (283147 bytes)
+   - M-TIM_B03.csv (280861 bytes)
+   - medium_20260811_170159.csv (390234 bytes)
+   - medium_20260811_172251.csv (455408 bytes)
+   - medium_20260813_160059.csv (466163 bytes)
+
+=====================================================================================
+                     DETAIL VALIDASI PER SAMPLE / BATCH / RUN
+=====================================================================================
+
+Sample ID  | Batch  | Run  | Collect Pts | Purge Pts | Total Pts | Status   | Notes
+-------------------------------------------------------------------------------------------------------------------
+D-GAY      | B04    | 1    | 180         | 61        | 241       | WARNING  | Purging (61) tidak baku (target 30)
+D-GAY      | B04    | 2    | 180         | 61        | 241       | WARNING  | Purging (61) tidak baku (target 30)
+D-GAY      | B04    | 3    | 180         | 61        | 241       | WARNING  | Purging (61) tidak baku (target 30)
+D-GAY      | B04    | 4    | 180         | 61        | 241       | WARNING  | Purging (61) tidak baku (target 30)
+D-GAY      | B04    | 5    | 180         | 61        | 241       | WARNING  | Purging (61) tidak baku (target 30)
+D-GAY      | B04    | 6    | 181         | 61        | 242       | WARNING  | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+D-GAY      | B04    | 7    | 181         | 61        | 242       | WARNING  | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+D-GAY      | B04    | 8    | 180         | 61        | 241       | WARNING  | Purging (61) tidak baku (target 30)
+D-GAY      | B04    | 9    | 180         | 61        | 241       | WARNING  | Purging (61) tidak baku (target 30)
+D-GAY      | B04    | 10   | 180         | 61        | 241       | WARNING  | Purging (61) tidak baku (target 30)
+D-MAN      | B01    | 1    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+D-MAN      | B01    | 2    | 180         | 61        | 241       | WARNING  | Purging (61) tidak baku (target 30)
+D-MAN      | B01    | 3    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+D-MAN      | B01    | 4    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+D-MAN      | B01    | 5    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+D-MAN      | B01    | 6    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+D-MAN      | B01    | 7    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+D-MAN      | B01    | 8    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+D-MAN      | B01    | 9    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+D-MAN      | B01    | 10   | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+D-MAN      | B02    | 1    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+D-MAN      | B02    | 2    | 180         | 61        | 241       | WARNING  | Purging (61) tidak baku (target 30)
+D-MAN      | B02    | 3    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+D-MAN      | B02    | 4    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+D-MAN      | B02    | 5    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+D-MAN      | B02    | 6    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+D-MAN      | B02    | 7    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+D-MAN      | B02    | 8    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+D-MAN      | B02    | 9    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+D-MAN      | B02    | 10   | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+D-RAT      | B02    | 1    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+D-RAT      | B02    | 2    | 180         | 61        | 241       | WARNING  | Purging (61) tidak baku (target 30)
+D-RAT      | B02    | 3    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+D-RAT      | B02    | 4    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+D-RAT      | B02    | 5    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+D-RAT      | B02    | 6    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+D-RAT      | B02    | 7    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+D-RAT      | B02    | 8    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+D-RAT      | B02    | 9    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+D-RAT      | B02    | 10   | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 1    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 2    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 3    | 181         | 61        | 242       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 4    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 5    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 6    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 7    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 8    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 9    | 181         | 61        | 242       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 10   | 181         | 61        | 242       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 1    | 180         | 60        | 240       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (60) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 2    | 181         | 61        | 242       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 3    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 4    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 5    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 6    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 7    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 8    | 181         | 61        | 242       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 9    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 10   | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 1    | 180         | 60        | 240       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (60) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 2    | 181         | 61        | 242       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 3    | 181         | 61        | 242       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 4    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 5    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 6    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 7    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 8    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 9    | 181         | 61        | 242       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 10   | 181         | 61        | 242       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+L-GAY      | B03    | 1    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-GAY      | B03    | 2    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-GAY      | B03    | 3    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-GAY      | B03    | 4    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-GAY      | B03    | 5    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-GAY      | B03    | 6    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-GAY      | B03    | 7    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-GAY      | B03    | 8    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-GAY      | B03    | 9    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-GAY      | B03    | 10   | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MAN      | B01    | 1    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MAN      | B01    | 2    | 180         | 61        | 241       | WARNING  | Purging (61) tidak baku (target 30)
+L-MAN      | B01    | 3    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MAN      | B01    | 4    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MAN      | B01    | 5    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MAN      | B01    | 6    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MAN      | B01    | 7    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MAN      | B01    | 8    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MAN      | B01    | 9    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MAN      | B01    | 10   | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MAN      | B03    | 1    | 181         | 60        | 241       | WARNING  | Collecting (181) beda tipis dari target 180 | Purging (60) tidak baku (target 30)
+L-MAN      | B03    | 2    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MAN      | B03    | 3    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MAN      | B03    | 4    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MAN      | B03    | 5    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MAN      | B03    | 6    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MAN      | B03    | 7    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MAN      | B03    | 8    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MAN      | B03    | 9    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MAN      | B03    | 10   | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MER      | B01    | 1    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MER      | B01    | 2    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MER      | B01    | 3    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MER      | B01    | 4    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MER      | B01    | 5    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MER      | B01    | 6    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MER      | B01    | 7    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MER      | B01    | 8    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MER      | B01    | 9    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MER      | B01    | 10   | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MER      | B02    | 1    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MER      | B02    | 2    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MER      | B02    | 3    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MER      | B02    | 4    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MER      | B02    | 5    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MER      | B02    | 6    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MER      | B02    | 7    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MER      | B02    | 8    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MER      | B02    | 9    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+L-MER      | B02    | 10   | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 1    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 2    | 181         | 61        | 242       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 3    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 4    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 5    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 6    | 181         | 61        | 242       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 7    | 181         | 61        | 242       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 8    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 9    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 10   | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+M-TEM      | B01    | 1    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TEM      | B01    | 2    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TEM      | B01    | 3    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TEM      | B01    | 4    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TEM      | B01    | 5    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TEM      | B01    | 6    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TEM      | B01    | 7    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TEM      | B01    | 8    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TEM      | B01    | 9    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TEM      | B01    | 10   | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TEM      | B04    | 1    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TEM      | B04    | 2    | 181         | 61        | 242       | WARNING  | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+M-TEM      | B04    | 3    | 181         | 61        | 242       | WARNING  | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+M-TEM      | B04    | 4    | 180         | 61        | 241       | WARNING  | Purging (61) tidak baku (target 30)
+M-TEM      | B04    | 5    | 180         | 61        | 241       | WARNING  | Purging (61) tidak baku (target 30)
+M-TEM      | B04    | 6    | 180         | 61        | 241       | WARNING  | Purging (61) tidak baku (target 30)
+M-TEM      | B04    | 7    | 180         | 61        | 241       | WARNING  | Purging (61) tidak baku (target 30)
+M-TEM      | B04    | 8    | 180         | 61        | 241       | WARNING  | Purging (61) tidak baku (target 30)
+M-TEM      | B04    | 9    | 181         | 61        | 242       | WARNING  | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+M-TEM      | B04    | 10   | 181         | 61        | 242       | WARNING  | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+M-TIM      | B01    | 1    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TIM      | B01    | 2    | 180         | 61        | 241       | WARNING  | Purging (61) tidak baku (target 30)
+M-TIM      | B01    | 3    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TIM      | B01    | 4    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TIM      | B01    | 5    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TIM      | B01    | 6    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TIM      | B01    | 7    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TIM      | B01    | 8    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TIM      | B01    | 9    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TIM      | B01    | 10   | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TIM      | B02    | 1    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TIM      | B02    | 2    | 180         | 61        | 241       | WARNING  | Purging (61) tidak baku (target 30)
+M-TIM      | B02    | 3    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TIM      | B02    | 4    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TIM      | B02    | 5    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TIM      | B02    | 6    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TIM      | B02    | 7    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TIM      | B02    | 8    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TIM      | B02    | 9    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TIM      | B02    | 10   | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TIM      | B03    | 1    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TIM      | B03    | 2    | 180         | 61        | 241       | WARNING  | Purging (61) tidak baku (target 30)
+M-TIM      | B03    | 3    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TIM      | B03    | 4    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TIM      | B03    | 5    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TIM      | B03    | 6    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TIM      | B03    | 7    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TIM      | B03    | 8    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TIM      | B03    | 9    | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+M-TIM      | B03    | 10   | 180         | 60        | 240       | WARNING  | Purging (60) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 1    | 180         | 60        | 240       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (60) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 2    | 181         | 61        | 242       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 3    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 4    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 5    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 6    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 7    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 8    | 181         | 61        | 242       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 9    | 181         | 61        | 242       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 10   | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 1    | 180         | 60        | 240       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (60) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 2    | 181         | 60        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (60) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 3    | 180         | 60        | 240       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (60) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 4    | 180         | 60        | 240       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (60) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 5    | 180         | 60        | 240       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (60) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 6    | 180         | 60        | 240       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (60) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 7    | 180         | 60        | 240       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (60) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 8    | 180         | 60        | 240       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (60) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 9    | 180         | 60        | 240       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (60) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 10   | 180         | 60        | 240       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (60) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 1    | 180         | 60        | 240       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (60) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 2    | 181         | 61        | 242       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 3    | 181         | 61        | 242       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 4    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 5    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 6    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 7    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 8    | 180         | 61        | 241       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 9    | 181         | 61        | 242       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+UNKNOWN    | UNKNOWN | 10   | 181         | 61        | 242       | WARNING  | Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+
+[WARN] Header mismatch pada dark_20260810_163245.csv
+
+[WARN] Header mismatch pada dark_20260813_132219.csv
+
+[WARN] Header mismatch pada dark_20260813_165451.csv
+
+[WARN] Header mismatch pada light_20260813_115343.csv
+
+[WARN] Header mismatch pada medium_20260811_170159.csv
+
+[WARN] Header mismatch pada medium_20260811_172251.csv
+
+[WARN] Header mismatch pada medium_20260813_160059.csv
+
+================================================================================
+================================================================================
+          E-NOSE KOPI — SUMMARY REPORT VALIDASI RAW DATA
+          Waktu Analisis : 2026-08-24 14:07:39
+================================================================================
+
+[STATISTIK UTAMA]
+Total CSV Processed    : 21 file
+Total Batch            : 4 (B01, B02, B03, B04)
+Total Sample ID        : 8 (D-GAY, D-MAN, D-RAT, L-GAY, L-MAN, L-MER, M-TEM, M-TIM)
+Total Run Processed    : 210 run
+Total Raw Data Points  : 50,509 baris
+
+[STATUS SUMMARY RUN]
+Jumlah Run Valid (PASS) : 0 (0.0%)
+Jumlah Run Warning     : 210 (100.0%)
+Jumlah Run Error       : 0 (0.0%)
+
+[HASIL CHECK POIN 1-15]
+1. Jumlah file CSV        : 21 file
+2. Jumlah batch           : 4 batch (B01, B02, B03, B04)
+3. Jumlah sample          : 8 sample (D-GAY, D-MAN, D-RAT, L-GAY, L-MAN, L-MER, M-TEM, M-TIM)
+4. Jumlah run per sample  : Diverifikasi per file di validation_report.csv
+5. Data points per run    : Collecting (target 180), Purging (target 30)
+6. Konsistensi data point : DICEK PER RUN (LIHAT TABEL)
+7. Missing Value (NaN)    : 0 NaN pada sensor/metadata
+8. Sequence Timestamp     : Monotonic & sequential
+9. Duplicate Data         : Checked
+10. Sensor Stuck / Flatline: 10 ADC channels checked
+11. Unrealistic Values    : Values within 0 - 65535 (16-bit ADC)
+12. Empty CSV Check       : File non-empty checked
+13. Header Consistency    : TERDAPAT MISMATCH DENGAN FILE LAMA
+14. Sample Metadata Check : sample_id, origin, batch_id verified
+15. Roast Level Check     : light / medium / dark verified
+
+[REKAP RUN PER SAMPLE]
+D-GAY: 10 run
+D-MAN: 10 run
+D-RAT: 10 run
+L-GAY: 10 run
+L-MAN: 10 run
+L-MER: 10 run
+L-RAT: 0 run
+M-MAN: 0 run
+M-RAT: 0 run
+M-TEM: 10 run
+M-TIM: 10 run
+
+[CAKUPAN SAMPLE]
+Sample yang belum ditemukan: L-RAT, M-MAN, M-RAT
+
+================================================================================
+Output Files Generated:
+  • Report Detail : F:\MBKM ADB ENOSE\smart-coffee-v2\data_analysis\validation_report.csv
+  • Summary Text  : F:\MBKM ADB ENOSE\smart-coffee-v2\data_analysis\validation_summary.txt
+  • Execution Log : F:\MBKM ADB ENOSE\smart-coffee-v2\data_analysis\logs\validation_20260824_140737.log
+================================================================================

@@ -71,8 +71,34 @@ REQUIRED_META_COLS = ['timestamp', 'sample_id', 'roast_level', 'origin', 'batch_
 
 # Standards
 EXPECTED_COLLECT_S = 180
-EXPECTED_PURGE_S   = 60
+EXPECTED_PURGE_S   = 30
 EXPECTED_RUNS_PER_SAMPLE = 10
+
+
+def normalize_raw_frame(df, filename):
+    """Normalize metadata aliases without modifying the source CSV."""
+    df = df.copy()
+    aliases = {'label': 'roast_level', 'cycle': 'run_id'}
+    for old_name, new_name in aliases.items():
+        if new_name not in df.columns and old_name in df.columns:
+            df[new_name] = df[old_name]
+
+    if 'roast_level' not in df.columns:
+        lower_name = filename.lower()
+        for roast in ('light', 'medium', 'dark'):
+            if lower_name.startswith(roast + '_'):
+                df['roast_level'] = roast
+                break
+
+    if 'run_id' not in df.columns:
+        df['run_id'] = 1
+    return df
+
+
+def set_status(status, new_status):
+    """Promote a status while preserving ERROR as the highest severity."""
+    rank = {'PASS': 0, 'WARNING': 1, 'ERROR': 2}
+    return new_status if rank[new_status] > rank[status] else status
 
 
 def ensure_directories():
@@ -168,6 +194,8 @@ def validate_dataset():
             continue
 
         headers_dict[filename] = list(df.columns)
+        original_columns = set(df.columns)
+        df = normalize_raw_frame(df, filename)
 
         if len(df) == 0:
             log(f"\n[ERROR] File CSV memiliki header tetapi 0 baris data: {filename}")
@@ -192,6 +220,8 @@ def validate_dataset():
         file_batch_id   = str(df['batch_id'].iloc[0]).strip() if 'batch_id' in df.columns else 'UNKNOWN'
         file_roast      = str(df['roast_level'].iloc[0]).strip() if 'roast_level' in df.columns else 'UNKNOWN'
         file_origin     = str(df['origin'].iloc[0]).strip() if 'origin' in df.columns else 'UNKNOWN'
+        missing_adc = [col for col in ADC_COLS if col not in original_columns]
+        missing_meta = [col for col in REQUIRED_META_COLS if col not in original_columns]
 
         if file_batch_id != 'UNKNOWN': batches_set.add(file_batch_id)
         if file_sample_id != 'UNKNOWN': samples_set.add(file_sample_id)
@@ -213,6 +243,13 @@ def validate_dataset():
             run_notes = []
             run_status = 'PASS'
 
+            if missing_adc:
+                run_notes.append('Kolom sensor hilang: ' + ', '.join(missing_adc))
+                run_status = set_status(run_status, 'ERROR')
+            if missing_meta:
+                run_notes.append('Metadata tidak tersedia: ' + ', '.join(missing_meta))
+                run_status = set_status(run_status, 'WARNING')
+
             # 1. Data point counts
             if 'phase' in run_df.columns:
                 collect_pts = len(run_df[run_df['phase'] == 'collecting'])
@@ -228,22 +265,22 @@ def validate_dataset():
             if collect_pts != EXPECTED_COLLECT_S and collect_pts != (EXPECTED_COLLECT_S * 10):
                 if abs(collect_pts - EXPECTED_COLLECT_S) <= 5:
                     run_notes.append(f"Collecting ({collect_pts}) beda tipis dari target {EXPECTED_COLLECT_S}")
-                    if run_status != 'ERROR': run_status = 'WARNING'
+                    run_status = set_status(run_status, 'WARNING')
                 else:
                     run_notes.append(f"Collecting ({collect_pts}) tidak sesuai target {EXPECTED_COLLECT_S}")
-                    if run_status != 'ERROR': run_status = 'WARNING'
+                    run_status = set_status(run_status, 'WARNING')
 
             if purge_pts > 0:
                 if abs(purge_pts - EXPECTED_PURGE_S) > 5 and abs(purge_pts - 30) > 5 and abs(purge_pts - 600) > 5:
-                    run_notes.append(f"Purging ({purge_pts}) tidak baku (target 60s/30s)")
-                    if run_status != 'ERROR': run_status = 'WARNING'
+                    run_notes.append(f"Purging ({purge_pts}) tidak baku (target {EXPECTED_PURGE_S})")
+                    run_status = set_status(run_status, 'WARNING')
 
             # Check 7: Missing Values (NaN / Null) on Essential Sensor ADC & Metadata Columns
             essential_cols = [c for c in (REQUIRED_META_COLS + ADC_COLS) if c in run_df.columns]
             null_count = run_df[essential_cols].isnull().sum().sum()
             if null_count > 0:
                 run_notes.append(f"Terdapat {null_count} missing value (NaN) pada sensor/metadata")
-                run_status = 'ERROR'
+                run_status = set_status(run_status, 'ERROR')
 
             # Check 8: Timestamp check (monotonicity)
             if 'timestamp' in run_df.columns:
@@ -252,13 +289,20 @@ def validate_dataset():
                     diffs = np.diff(ts)
                     if np.any(diffs <= 0):
                         run_notes.append("Timestamp tidak berurutan naik")
-                        if run_status != 'ERROR': run_status = 'WARNING'
+                        run_status = set_status(run_status, 'WARNING')
+                    positive_diffs = diffs[diffs > 0]
+                    if len(positive_diffs) > 2:
+                        typical_gap = float(np.median(positive_diffs))
+                        large_gaps = np.sum(positive_diffs > typical_gap * 2.5)
+                        if large_gaps:
+                            run_notes.append(f"Terdapat {large_gaps} gap timestamp besar")
+                            run_status = set_status(run_status, 'WARNING')
 
             # Check 9: Duplicate rows
             dup_rows = run_df.duplicated().sum()
             if dup_rows > 0:
                 run_notes.append(f"Terdapat {dup_rows} baris duplikat")
-                if run_status != 'ERROR': run_status = 'WARNING'
+                run_status = set_status(run_status, 'WARNING')
 
             # Check 10 & 11: Sensor values check (Stuck / Out of range / Flatline)
             present_adc_cols = [c for c in ADC_COLS if c in run_df.columns]
@@ -266,13 +310,13 @@ def validate_dataset():
                 vals = run_df[adc_col].values
                 if np.any(vals < 0) or np.any(vals > 65535):
                     run_notes.append(f"Sensor {adc_col} out of range")
-                    run_status = 'ERROR'
+                    run_status = set_status(run_status, 'ERROR')
                 if np.all(vals == 0):
                     run_notes.append(f"Sensor {adc_col} MATI / STUCK AT 0")
                     run_status = 'ERROR'
                 elif len(vals) > 10 and np.max(vals) == np.min(vals):
                     run_notes.append(f"Sensor {adc_col} FLATLINE ({vals[0]})")
-                    if run_status != 'ERROR': run_status = 'WARNING'
+                    run_status = set_status(run_status, 'WARNING')
 
             # Check 14 & 15: Metadata & Roast Level correctness
             if file_sample_id in KNOWN_SAMPLES:
@@ -280,10 +324,10 @@ def validate_dataset():
                 expected_origin = KNOWN_SAMPLES[file_sample_id]['origin']
                 if file_roast.lower() != expected_roast:
                     run_notes.append(f"Roast '{file_roast}' != preset ({expected_roast})")
-                    if run_status != 'ERROR': run_status = 'WARNING'
+                    run_status = set_status(run_status, 'WARNING')
                 if file_origin.lower() != expected_origin.lower():
                     run_notes.append(f"Origin '{file_origin}' != preset ({expected_origin})")
-                    if run_status != 'ERROR': run_status = 'WARNING'
+                    run_status = set_status(run_status, 'WARNING')
             elif file_sample_id != 'UNKNOWN':
                 run_notes.append(f"Sample ID '{file_sample_id}' tidak ada di preset database 11 sampel")
                 if run_status != 'ERROR': run_status = 'WARNING'
@@ -312,6 +356,8 @@ def validate_dataset():
             })
 
     report_df = pd.DataFrame(report_rows)
+    run_counts_by_sample = report_df.groupby('sample_id')['run_id'].nunique().to_dict() if not report_df.empty else {}
+    missing_expected_samples = sorted(set(KNOWN_SAMPLES) - set(samples_set))
 
     # Output CSV Report
     report_csv_path = os.path.join(ANALYSIS_DIR, "validation_report.csv")
@@ -361,7 +407,7 @@ Jumlah Run Error       : {error_runs_count} ({pct_err:.1f}%)
 2. Jumlah batch           : {len(batches_set)} batch ({', '.join(sorted(list(batches_set))) if batches_set else '-'})
 3. Jumlah sample          : {len(samples_set)} sample ({', '.join(sorted(list(samples_set))) if samples_set else '-'})
 4. Jumlah run per sample  : Diverifikasi per file di validation_report.csv
-5. Data points per run    : Collecting (target 180s), Purging (target 60s/30s)
+5. Data points per run    : Collecting (target 180), Purging (target {EXPECTED_PURGE_S})
 6. Konsistensi data point : {'KONSISTEN (PASS)' if warning_runs_count == 0 and error_runs_count == 0 else 'DICEK PER RUN (LIHAT TABEL)'}
 7. Missing Value (NaN)    : {'0 NaN pada sensor/metadata' if error_runs_count == 0 else 'DICEK PER RUN'}
 8. Sequence Timestamp     : Monotonic & sequential
@@ -372,6 +418,12 @@ Jumlah Run Error       : {error_runs_count} ({pct_err:.1f}%)
 13. Header Consistency    : {'KONSISTEN SEMUA FILE' if all_headers_match else 'TERDAPAT MISMATCH DENGAN FILE LAMA'}
 14. Sample Metadata Check : sample_id, origin, batch_id verified
 15. Roast Level Check     : light / medium / dark verified
+
+[REKAP RUN PER SAMPLE]
+{chr(10).join(f"{sample}: {run_counts_by_sample.get(sample, 0)} run" for sample in sorted(set(KNOWN_SAMPLES) | set(samples_set)))}
+
+[CAKUPAN SAMPLE]
+Sample yang belum ditemukan: {', '.join(missing_expected_samples) if missing_expected_samples else 'Tidak ada'}
 
 ================================================================================
 Output Files Generated:

@@ -14,7 +14,7 @@
 #include <stddef.h>
 
 // Jumlah sensor ADC yang digunakan
-#define NUM_SENSORS 8
+#define NUM_SENSORS 10
 
 // Jumlah kelas output (light, medium, dark)
 #define NUM_CLASSES 3

@@ -61,8 +61,8 @@ InferenceResult InferenceATmega::predict() {
         return result;
     }
     
-    // Bangun vektor fitur: 8 mean + 8 max = 16 fitur
-    // Urutan HARUS sama dengan: [mean_mq135, ..., mean_tgs2620, max_mq135, ..., max_tgs2620]
+    // Bangun vektor fitur: 10 mean + 10 max = 20 fitur.
+    // Urutan sama dengan SensorArray::adc_ dan training script.
     float features[NUM_SENSORS * 2];
     for (uint8_t i = 0; i < NUM_SENSORS; i++) {
         features[i]               = computeMean(i);

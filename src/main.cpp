@@ -14,12 +14,12 @@
 // Arsitektur modular:
 //   sensor.h/cpp    — ADS1115, MQ, TGS sensors + kalibrasi EEPROM
 //   actuator.h/cpp  — valve + pump PWM control
-//   inference.h/cpp — feature accumulation + Random Forest classifier
+//   inference_atmega.h/cpp — feature accumulation + compact Random Forest
 //   main.cpp        — state machine, serial commands, coordinator
 // ═════════════════════════════════════════════════════════════════════════════
 #include "TaskScheduler.h"
 #include "actuator.h"
-#include "inference.h"
+#include "inference_atmega.h"
 #include "sensor.h"
 #include <Arduino.h>
 #include <Wire.h>
@@ -50,7 +50,7 @@ enum class AcqState { IDLE, COLLECTING, PURGING, COMPLETE };
 // ═══════════════════════════════════════════════════════════════════════════════
 SensorArray sensors;
 Actuator actuator;
-Inference inference;
+InferenceATmega inference;
 Scheduler scheduler;
 
 // ─── State Akuisisi
@@ -137,7 +137,7 @@ void setup() {
   sensorsReady = sensors.begin();
   if (!sensorsReady) {
     Serial.println(F("{\"warn\":\"Sensor init gagal. Periksa wiring "
-                     "(SDA=pin35, SCL=pin34).\"}"));
+             "(SDA=pin20, SCL=pin21).\"}"));
     Serial.println(F("{\"warn\":\"Kirim #scan; untuk scan ulang I2C bus.\"}"));
   }
 

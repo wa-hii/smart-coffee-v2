@@ -1,26 +1,26 @@
 ================================================================================
           E-NOSE KOPI — SUMMARY REPORT VALIDASI RAW DATA
-          Waktu Analisis : 2026-08-13 12:42:06
+          Waktu Analisis : 2026-08-24 14:07:39
 ================================================================================
 
 [STATISTIK UTAMA]
-Total CSV Processed    : 3 file
-Total Batch            : 1 (B01)
-Total Sample ID        : 1 (M-TIM)
-Total Run Processed    : 30 run
-Total Raw Data Points  : 7,215 baris
+Total CSV Processed    : 21 file
+Total Batch            : 4 (B01, B02, B03, B04)
+Total Sample ID        : 8 (D-GAY, D-MAN, D-RAT, L-GAY, L-MAN, L-MER, M-TEM, M-TIM)
+Total Run Processed    : 210 run
+Total Raw Data Points  : 50,509 baris
 
 [STATUS SUMMARY RUN]
-Jumlah Run Valid (PASS) : 26 (86.7%)
-Jumlah Run Warning     : 4 (13.3%)
+Jumlah Run Valid (PASS) : 0 (0.0%)
+Jumlah Run Warning     : 210 (100.0%)
 Jumlah Run Error       : 0 (0.0%)
 
 [HASIL CHECK POIN 1-15]
-1. Jumlah file CSV        : 3 file
-2. Jumlah batch           : 1 batch (B01)
-3. Jumlah sample          : 1 sample (M-TIM)
+1. Jumlah file CSV        : 21 file
+2. Jumlah batch           : 4 batch (B01, B02, B03, B04)
+3. Jumlah sample          : 8 sample (D-GAY, D-MAN, D-RAT, L-GAY, L-MAN, L-MER, M-TEM, M-TIM)
 4. Jumlah run per sample  : Diverifikasi per file di validation_report.csv
-5. Data points per run    : Collecting (target 180s), Purging (target 60s/30s)
+5. Data points per run    : Collecting (target 180), Purging (target 30)
 6. Konsistensi data point : DICEK PER RUN (LIHAT TABEL)
 7. Missing Value (NaN)    : 0 NaN pada sensor/metadata
 8. Sequence Timestamp     : Monotonic & sequential
@@ -32,9 +32,25 @@ Jumlah Run Error       : 0 (0.0%)
 14. Sample Metadata Check : sample_id, origin, batch_id verified
 15. Roast Level Check     : light / medium / dark verified
 
+[REKAP RUN PER SAMPLE]
+D-GAY: 10 run
+D-MAN: 10 run
+D-RAT: 10 run
+L-GAY: 10 run
+L-MAN: 10 run
+L-MER: 10 run
+L-RAT: 0 run
+M-MAN: 0 run
+M-RAT: 0 run
+M-TEM: 10 run
+M-TIM: 10 run
+
+[CAKUPAN SAMPLE]
+Sample yang belum ditemukan: L-RAT, M-MAN, M-RAT
+
 ================================================================================
 Output Files Generated:
-  • Report Detail : D:\ENOSE\smart-coffee-v2-hardware\smart-coffee-v2-hardware\data_analysis\validation_report.csv
-  • Summary Text  : D:\ENOSE\smart-coffee-v2-hardware\smart-coffee-v2-hardware\data_analysis\validation_summary.txt
-  • Execution Log : D:\ENOSE\smart-coffee-v2-hardware\smart-coffee-v2-hardware\data_analysis\logs\validation_20260813_124205.log
+  • Report Detail : F:\MBKM ADB ENOSE\smart-coffee-v2\data_analysis\validation_report.csv
+  • Summary Text  : F:\MBKM ADB ENOSE\smart-coffee-v2\data_analysis\validation_summary.txt
+  • Execution Log : F:\MBKM ADB ENOSE\smart-coffee-v2\data_analysis\logs\validation_20260824_140737.log
 ================================================================================

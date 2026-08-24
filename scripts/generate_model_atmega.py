@@ -99,8 +99,15 @@ def export_model_atmega(model_path, output_path, max_trees=8, max_depth=4):
     # Load model
     print(f"📂 Loading model from: {model_path}")
     try:
-        with open(model_path, 'rb') as f:
-            model = pickle.load(f)
+        try:
+            import joblib
+            model = joblib.load(model_path)
+        except ImportError:
+            with open(model_path, 'rb') as f:
+                model = pickle.load(f)
+        except Exception:
+            with open(model_path, 'rb') as f:
+                model = pickle.load(f)
     except Exception as e:
         print(f"❌ Failed to load model: {e}")
         return False
@@ -154,7 +161,7 @@ def export_model_atmega(model_path, output_path, max_trees=8, max_depth=4):
     
     # Generate tree functions
     num_trees = min(model.n_estimators, max_trees)
-    converter = TreeToC(None)
+    converter = TreeToC(None, feature_names=feature_names)
     
     header += "// Decision tree functions\n"
     for i in range(num_trees):

@@ -7,19 +7,19 @@ Training Random Forest untuk Klasifikasi Tingkat Roasting Kopi
 Pipeline:
   1. Load semua CSV dari folder data/
   2. Ekstraksi fitur statistik per siklus collecting
-     (mean + max per sensor = 16 fitur)
+      (mean + max per sensor = 20 fitur)
   3. Split train/test → Train RandomForestClassifier
   4. Evaluasi (akurasi, confusion matrix, feature importance)
-  5. Export model ke C++ header (include/model_rf.h) via micromlgen
-     → siap di-include di ESP32 firmware untuk inferensi on-device
+  5. Export model ke C++ header (include/model_rf_atmega.h)
+      → siap dipakai firmware ATmega2560 untuk inferensi on-device
 
 Cara pakai:
-  pip install scikit-learn pandas matplotlib seaborn micromlgen
+    pip install scikit-learn pandas matplotlib seaborn micromlgen joblib
   python 4_train_rf.py
 
 Setelah berhasil:
   1. Buka src/main.cpp
-  2. Ubah: #define USE_ON_DEVICE_INFERENCE 1
+    2. Ubah `USE_ON_DEVICE_INFERENCE=1` di platformio.ini
   3. Flash ulang ke ESP32
 ═══════════════════════════════════════════════════════════════════════════════
 """
@@ -47,34 +47,28 @@ except ImportError:
     HAS_PLOT = False
     print("matplotlib belum terinstal")
 
-try:
-    from micromlgen import port
-    HAS_MICROMLGEN = True
-except ImportError:
-    HAS_MICROMLGEN = False
-    print("micromlgen belum terinstal")
-    print("Jalankan: pip install micromlgen")
-
 # ─── Path konfigurasi ────────────────────────────────────────────────────────
 SCRIPTS_DIR   = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR      = os.path.join(SCRIPTS_DIR, '..', 'data')
 OUTPUT_DIR    = os.path.join(SCRIPTS_DIR, '..', 'data')
 INCLUDE_DIR   = os.path.join(SCRIPTS_DIR, '..', 'include')
 OUTPUT_CSV    = os.path.join(OUTPUT_DIR,  'dataset_fitur.csv')
-OUTPUT_HEADER = os.path.join(INCLUDE_DIR, 'model_rf.h')
+OUTPUT_HEADER = os.path.join(INCLUDE_DIR, 'model_rf_atmega.h')
+MODEL_PATH    = os.path.join(OUTPUT_DIR, 'model_rf.joblib')
 OUTPUT_PLOT   = os.path.join(OUTPUT_DIR,  'confusion_matrix.png')
 
 VALID_LABELS  = ['light', 'medium', 'dark']
 
 # ─── Kolom ADC yang digunakan sebagai dasar fitur ────────────────────────────
-# Urutan HARUS sama dengan feat_sum_/feat_max_ di main.cpp doInference()
-ADC_COLS = ['adc_mq135', 'adc_mq136', 'adc_mq137', 'adc_mq138',
-            'adc_mq2',   'adc_mq3',   'adc_tgs822', 'adc_tgs2620']
+# Urutan HARUS sama dengan SensorArray::adc_ dan inference_atmega.cpp.
+ADC_COLS = ['adc_tgs822', 'adc_mq135', 'adc_mq9', 'adc_tgs2611',
+            'adc_tgs2620', 'adc_tgs2600', 'adc_tgs2602', 'adc_mq8',
+            'adc_tgs813', 'adc_tgs816']
 
 # ─── Hyperparameter Random Forest ────────────────────────────────────────────
 # Diset kecil agar model ringan di RAM ESP32 (~60 KB)
-RF_N_ESTIMATORS = 15
-RF_MAX_DEPTH    = 6
+RF_N_ESTIMATORS = 8
+RF_MAX_DEPTH    = 4
 RF_RANDOM_STATE = 42
 
 
@@ -226,6 +220,13 @@ def train_model(df_feat):
     )
     clf.fit(X_train, y_train)
 
+    try:
+        import joblib
+        joblib.dump(clf, MODEL_PATH)
+        print(f"\n💾 Model Python disimpan: {MODEL_PATH}")
+    except ImportError:
+        print("⚠️  joblib belum terinstal; model ATmega tidak dapat dibuat otomatis.")
+
     # ── Evaluasi ─────────────────────────────────────────────────────────────
     y_pred = clf.predict(X_test)
     acc    = accuracy_score(y_test, y_pred)
@@ -262,49 +263,15 @@ def train_model(df_feat):
 #  4. EXPORT KE C++ HEADER (TinyML)
 # ═════════════════════════════════════════════════════════════════════════════
 def export_to_header(clf, feature_cols):
-    """Export model ke C++ header untuk inferensi on-device di ESP32."""
-    if not HAS_MICROMLGEN:
-        print("\n❌ micromlgen tidak terinstall. Jalankan: pip install micromlgen")
-        return
-
+    """Export model ke C++ header untuk inferensi on-device di ATmega."""
     os.makedirs(INCLUDE_DIR, exist_ok=True)
-
-    try:
-        c_code = port(clf, classmap={
-            'light':  0,
-            'medium': 1,
-            'dark':   2,
-        })
-    except TypeError:
-        # micromlgen versi lama tidak mendukung classmap
-        c_code = port(clf)
-
-    # Tambahkan header komentar agar mudah diidentifikasi
-    header_comment = f"""\
-/*
- * model_rf.h — Random Forest untuk E-NOSE Kopi
- * Di-generate otomatis oleh 4_train_rf.py via micromlgen
- *
- * Label   : light(0) / medium(1) / dark(2)
- * Fitur   : {len(feature_cols)} ({', '.join(feature_cols[:4])}...)
- * Trees   : {clf.n_estimators}
- * MaxDepth: {clf.max_depth}
- *
- * Cara pakai di main.cpp:
- *   #define USE_ON_DEVICE_INFERENCE 1
- *   #include "model_rf.h"
- *   Eloquent::ML::Port::RandomForest classifier;
- *   float features[{len(feature_cols)}] = {{ mean_mq135, ..., max_tgs2620 }};
- *   const char* label = classifier.predictLabel(features);
- */
-"""
-    full_code = header_comment + c_code
-
-    with open(OUTPUT_HEADER, 'w', encoding='utf-8') as f:
-        f.write(full_code)
-
-    print(f"\n🎉 Model berhasil diekspor ke: {OUTPUT_HEADER}")
-    print(f"   ({os.path.getsize(OUTPUT_HEADER)//1024} KB)")
+    from generate_model_atmega import export_model_atmega
+    if not os.path.exists(MODEL_PATH):
+        print(f"\n❌ File model tidak ditemukan: {MODEL_PATH}")
+        return
+    export_model_atmega(MODEL_PATH, OUTPUT_HEADER,
+                        max_trees=RF_N_ESTIMATORS,
+                        max_depth=RF_MAX_DEPTH)
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -338,13 +305,10 @@ def main():
     print(f"""
 ══════════════════════════════════════════════════════
   ✅ SELESAI! Langkah selanjutnya:
-  1. Pastikan file include/model_rf.h sudah ada
-  2. Buka src/main.cpp
-  3. Ubah baris:  #define USE_ON_DEVICE_INFERENCE 0
-             ke:  #define USE_ON_DEVICE_INFERENCE 1
-  4. Flash ulang ke ESP32: pio run --target upload
-  5. Kirim #start; dari Serial Monitor → setelah 10 siklus,
-     ESP32 akan mencetak hasil klasifikasi roasting secara
+    1. Pastikan file include/model_rf_atmega.h sudah ada
+    2. Pastikan USE_ON_DEVICE_INFERENCE=1 di platformio.ini
+      4. Kirim #start; dari Serial Monitor → setelah 10 siklus,
+          ATmega2560 akan mencetak hasil klasifikasi roasting secara
      otomatis tanpa koneksi internet!
 ══════════════════════════════════════════════════════
 """)

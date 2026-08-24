@@ -107,7 +107,10 @@ Cari dan install:
 # Pastikan sudah train model di Python dulu
 python scripts/4_train_rf.py
 
-# Generate model yang di-optimize untuk ATmega
+# Train sekaligus generate model yang dioptimalkan untuk ATmega
+python scripts/4_train_rf.py
+
+# Alternatif: generate ulang dari model joblib yang sudah ada
 python scripts/generate_model_atmega.py \
   --model data/model_rf.joblib \
   --output include/model_rf_atmega.h \
@@ -118,25 +121,11 @@ python scripts/generate_model_atmega.py \
 Menghasilkan: `include/model_rf_atmega.h` (~ 25-30 KB)
 
 #### 4. Setup source code
-Jangan gunakan `src/main.cpp` dari repo ESP32. Buat firmware ATmega terpisah:
+Firmware utama repo sudah dikonfigurasi untuk ATmega2560:
 
 ```cpp
-// atmega_firmware.ino
-#define USE_ON_DEVICE_INFERENCE 1
-#include "inference_atmega.h"
-#include "model_rf_atmega.h"
-
-InferenceATmega inference;
-
-void setup() {
-    Serial.begin(115200);
-    // Inisialisasi sensors, actuators, dll
-}
-
-void loop() {
-    // State machine acquisition + inference
-    // Sama seperti ESP32, tapi optimized untuk ATmega
-}
+Edit `platformio.ini` dan ubah `USE_ON_DEVICE_INFERENCE=0` menjadi `1`,
+lalu build dan upload dengan PlatformIO.
 ```
 
 #### 5. Upload ke ATmega

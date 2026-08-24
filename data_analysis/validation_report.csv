@@ -1,31 +1,211 @@
 filename,sample_id,batch_id,roast_level,origin,run_id,purge_datapoints,collect_datapoints,total_datapoints,status,notes
-dark_20260810_163245.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,1,61,180,241,PASS,PASS (Semua kriteria terpenuhi)
-dark_20260810_163245.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,2,61,180,241,PASS,PASS (Semua kriteria terpenuhi)
-dark_20260810_163245.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,3,61,181,242,WARNING,Collecting (181) beda tipis dari target 180
-dark_20260810_163245.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,4,61,180,241,PASS,PASS (Semua kriteria terpenuhi)
-dark_20260810_163245.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,5,61,180,241,PASS,PASS (Semua kriteria terpenuhi)
-dark_20260810_163245.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,6,61,180,241,PASS,PASS (Semua kriteria terpenuhi)
-dark_20260810_163245.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,7,61,180,241,PASS,PASS (Semua kriteria terpenuhi)
-dark_20260810_163245.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,8,61,180,241,PASS,PASS (Semua kriteria terpenuhi)
-dark_20260810_163245.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,9,61,181,242,WARNING,Collecting (181) beda tipis dari target 180
-dark_20260810_163245.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,10,61,181,242,WARNING,Collecting (181) beda tipis dari target 180
-M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,1,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
-M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,2,61,180,241,PASS,PASS (Semua kriteria terpenuhi)
-M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,3,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
-M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,4,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
-M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,5,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
-M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,6,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
-M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,7,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
-M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,8,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
-M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,9,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
-M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,10,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
-medium_20260811_172251.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,1,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
-medium_20260811_172251.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,2,60,181,241,WARNING,Collecting (181) beda tipis dari target 180
-medium_20260811_172251.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,3,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
-medium_20260811_172251.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,4,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
-medium_20260811_172251.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,5,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
-medium_20260811_172251.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,6,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
-medium_20260811_172251.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,7,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
-medium_20260811_172251.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,8,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
-medium_20260811_172251.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,9,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
-medium_20260811_172251.csv,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,10,60,180,240,PASS,PASS (Semua kriteria terpenuhi)
+D-GAY_B04.csv,D-GAY,B04,dark,Arabika Gayo Aceh,1,61,180,241,WARNING,Purging (61) tidak baku (target 30)
+D-GAY_B04.csv,D-GAY,B04,dark,Arabika Gayo Aceh,2,61,180,241,WARNING,Purging (61) tidak baku (target 30)
+D-GAY_B04.csv,D-GAY,B04,dark,Arabika Gayo Aceh,3,61,180,241,WARNING,Purging (61) tidak baku (target 30)
+D-GAY_B04.csv,D-GAY,B04,dark,Arabika Gayo Aceh,4,61,180,241,WARNING,Purging (61) tidak baku (target 30)
+D-GAY_B04.csv,D-GAY,B04,dark,Arabika Gayo Aceh,5,61,180,241,WARNING,Purging (61) tidak baku (target 30)
+D-GAY_B04.csv,D-GAY,B04,dark,Arabika Gayo Aceh,6,61,181,242,WARNING,Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+D-GAY_B04.csv,D-GAY,B04,dark,Arabika Gayo Aceh,7,61,181,242,WARNING,Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+D-GAY_B04.csv,D-GAY,B04,dark,Arabika Gayo Aceh,8,61,180,241,WARNING,Purging (61) tidak baku (target 30)
+D-GAY_B04.csv,D-GAY,B04,dark,Arabika Gayo Aceh,9,61,180,241,WARNING,Purging (61) tidak baku (target 30)
+D-GAY_B04.csv,D-GAY,B04,dark,Arabika Gayo Aceh,10,61,180,241,WARNING,Purging (61) tidak baku (target 30)
+D-MAN_B01.csv,D-MAN,B01,dark,Arabika Manglayang Jawa Barat,1,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+D-MAN_B01.csv,D-MAN,B01,dark,Arabika Manglayang Jawa Barat,2,61,180,241,WARNING,Purging (61) tidak baku (target 30)
+D-MAN_B01.csv,D-MAN,B01,dark,Arabika Manglayang Jawa Barat,3,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+D-MAN_B01.csv,D-MAN,B01,dark,Arabika Manglayang Jawa Barat,4,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+D-MAN_B01.csv,D-MAN,B01,dark,Arabika Manglayang Jawa Barat,5,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+D-MAN_B01.csv,D-MAN,B01,dark,Arabika Manglayang Jawa Barat,6,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+D-MAN_B01.csv,D-MAN,B01,dark,Arabika Manglayang Jawa Barat,7,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+D-MAN_B01.csv,D-MAN,B01,dark,Arabika Manglayang Jawa Barat,8,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+D-MAN_B01.csv,D-MAN,B01,dark,Arabika Manglayang Jawa Barat,9,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+D-MAN_B01.csv,D-MAN,B01,dark,Arabika Manglayang Jawa Barat,10,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+D-MAN_B02.csv,D-MAN,B02,dark,Arabika Manglayang Jawa Barat,1,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+D-MAN_B02.csv,D-MAN,B02,dark,Arabika Manglayang Jawa Barat,2,61,180,241,WARNING,Purging (61) tidak baku (target 30)
+D-MAN_B02.csv,D-MAN,B02,dark,Arabika Manglayang Jawa Barat,3,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+D-MAN_B02.csv,D-MAN,B02,dark,Arabika Manglayang Jawa Barat,4,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+D-MAN_B02.csv,D-MAN,B02,dark,Arabika Manglayang Jawa Barat,5,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+D-MAN_B02.csv,D-MAN,B02,dark,Arabika Manglayang Jawa Barat,6,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+D-MAN_B02.csv,D-MAN,B02,dark,Arabika Manglayang Jawa Barat,7,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+D-MAN_B02.csv,D-MAN,B02,dark,Arabika Manglayang Jawa Barat,8,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+D-MAN_B02.csv,D-MAN,B02,dark,Arabika Manglayang Jawa Barat,9,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+D-MAN_B02.csv,D-MAN,B02,dark,Arabika Manglayang Jawa Barat,10,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+D-RAT_B02.csv,D-RAT,B02,dark,Arabika Ratawali Aceh,1,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+D-RAT_B02.csv,D-RAT,B02,dark,Arabika Ratawali Aceh,2,61,180,241,WARNING,Purging (61) tidak baku (target 30)
+D-RAT_B02.csv,D-RAT,B02,dark,Arabika Ratawali Aceh,3,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+D-RAT_B02.csv,D-RAT,B02,dark,Arabika Ratawali Aceh,4,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+D-RAT_B02.csv,D-RAT,B02,dark,Arabika Ratawali Aceh,5,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+D-RAT_B02.csv,D-RAT,B02,dark,Arabika Ratawali Aceh,6,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+D-RAT_B02.csv,D-RAT,B02,dark,Arabika Ratawali Aceh,7,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+D-RAT_B02.csv,D-RAT,B02,dark,Arabika Ratawali Aceh,8,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+D-RAT_B02.csv,D-RAT,B02,dark,Arabika Ratawali Aceh,9,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+D-RAT_B02.csv,D-RAT,B02,dark,Arabika Ratawali Aceh,10,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+dark_20260810_163245.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,1,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+dark_20260810_163245.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,2,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+dark_20260810_163245.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,3,61,181,242,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)"
+dark_20260810_163245.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,4,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+dark_20260810_163245.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,5,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+dark_20260810_163245.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,6,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+dark_20260810_163245.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,7,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+dark_20260810_163245.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,8,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+dark_20260810_163245.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,9,61,181,242,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)"
+dark_20260810_163245.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,10,61,181,242,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)"
+dark_20260813_132219.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,1,60,180,240,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (60) tidak baku (target 30)"
+dark_20260813_132219.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,2,61,181,242,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)"
+dark_20260813_132219.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,3,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+dark_20260813_132219.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,4,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+dark_20260813_132219.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,5,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+dark_20260813_132219.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,6,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+dark_20260813_132219.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,7,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+dark_20260813_132219.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,8,61,181,242,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)"
+dark_20260813_132219.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,9,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+dark_20260813_132219.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,10,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+dark_20260813_165451.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,1,60,180,240,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (60) tidak baku (target 30)"
+dark_20260813_165451.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,2,61,181,242,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)"
+dark_20260813_165451.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,3,61,181,242,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)"
+dark_20260813_165451.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,4,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+dark_20260813_165451.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,5,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+dark_20260813_165451.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,6,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+dark_20260813_165451.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,7,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+dark_20260813_165451.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,8,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+dark_20260813_165451.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,9,61,181,242,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)"
+dark_20260813_165451.csv,UNKNOWN,UNKNOWN,dark,UNKNOWN,10,61,181,242,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)"
+L-GAY_B03.csv,L-GAY,B03,light,Arabika Gayo Aceh,1,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-GAY_B03.csv,L-GAY,B03,light,Arabika Gayo Aceh,2,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-GAY_B03.csv,L-GAY,B03,light,Arabika Gayo Aceh,3,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-GAY_B03.csv,L-GAY,B03,light,Arabika Gayo Aceh,4,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-GAY_B03.csv,L-GAY,B03,light,Arabika Gayo Aceh,5,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-GAY_B03.csv,L-GAY,B03,light,Arabika Gayo Aceh,6,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-GAY_B03.csv,L-GAY,B03,light,Arabika Gayo Aceh,7,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-GAY_B03.csv,L-GAY,B03,light,Arabika Gayo Aceh,8,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-GAY_B03.csv,L-GAY,B03,light,Arabika Gayo Aceh,9,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-GAY_B03.csv,L-GAY,B03,light,Arabika Gayo Aceh,10,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MAN_B01.csv,L-MAN,B01,light,Arabika Manglayang Jawa Barat,1,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MAN_B01.csv,L-MAN,B01,light,Arabika Manglayang Jawa Barat,2,61,180,241,WARNING,Purging (61) tidak baku (target 30)
+L-MAN_B01.csv,L-MAN,B01,light,Arabika Manglayang Jawa Barat,3,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MAN_B01.csv,L-MAN,B01,light,Arabika Manglayang Jawa Barat,4,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MAN_B01.csv,L-MAN,B01,light,Arabika Manglayang Jawa Barat,5,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MAN_B01.csv,L-MAN,B01,light,Arabika Manglayang Jawa Barat,6,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MAN_B01.csv,L-MAN,B01,light,Arabika Manglayang Jawa Barat,7,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MAN_B01.csv,L-MAN,B01,light,Arabika Manglayang Jawa Barat,8,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MAN_B01.csv,L-MAN,B01,light,Arabika Manglayang Jawa Barat,9,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MAN_B01.csv,L-MAN,B01,light,Arabika Manglayang Jawa Barat,10,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MAN_B03.csv,L-MAN,B03,light,Arabika Manglayang Jawa Barat,1,60,181,241,WARNING,Collecting (181) beda tipis dari target 180 | Purging (60) tidak baku (target 30)
+L-MAN_B03.csv,L-MAN,B03,light,Arabika Manglayang Jawa Barat,2,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MAN_B03.csv,L-MAN,B03,light,Arabika Manglayang Jawa Barat,3,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MAN_B03.csv,L-MAN,B03,light,Arabika Manglayang Jawa Barat,4,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MAN_B03.csv,L-MAN,B03,light,Arabika Manglayang Jawa Barat,5,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MAN_B03.csv,L-MAN,B03,light,Arabika Manglayang Jawa Barat,6,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MAN_B03.csv,L-MAN,B03,light,Arabika Manglayang Jawa Barat,7,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MAN_B03.csv,L-MAN,B03,light,Arabika Manglayang Jawa Barat,8,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MAN_B03.csv,L-MAN,B03,light,Arabika Manglayang Jawa Barat,9,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MAN_B03.csv,L-MAN,B03,light,Arabika Manglayang Jawa Barat,10,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MER_B01.csv,L-MER,B01,light,Arabika Merapi,1,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MER_B01.csv,L-MER,B01,light,Arabika Merapi,2,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MER_B01.csv,L-MER,B01,light,Arabika Merapi,3,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MER_B01.csv,L-MER,B01,light,Arabika Merapi,4,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MER_B01.csv,L-MER,B01,light,Arabika Merapi,5,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MER_B01.csv,L-MER,B01,light,Arabika Merapi,6,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MER_B01.csv,L-MER,B01,light,Arabika Merapi,7,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MER_B01.csv,L-MER,B01,light,Arabika Merapi,8,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MER_B01.csv,L-MER,B01,light,Arabika Merapi,9,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MER_B01.csv,L-MER,B01,light,Arabika Merapi,10,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MER_B02.csv,L-MER,B02,light,Arabika Merapi,1,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MER_B02.csv,L-MER,B02,light,Arabika Merapi,2,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MER_B02.csv,L-MER,B02,light,Arabika Merapi,3,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MER_B02.csv,L-MER,B02,light,Arabika Merapi,4,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MER_B02.csv,L-MER,B02,light,Arabika Merapi,5,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MER_B02.csv,L-MER,B02,light,Arabika Merapi,6,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MER_B02.csv,L-MER,B02,light,Arabika Merapi,7,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MER_B02.csv,L-MER,B02,light,Arabika Merapi,8,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MER_B02.csv,L-MER,B02,light,Arabika Merapi,9,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+L-MER_B02.csv,L-MER,B02,light,Arabika Merapi,10,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+light_20260813_115343.csv,UNKNOWN,UNKNOWN,light,UNKNOWN,1,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+light_20260813_115343.csv,UNKNOWN,UNKNOWN,light,UNKNOWN,2,61,181,242,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)"
+light_20260813_115343.csv,UNKNOWN,UNKNOWN,light,UNKNOWN,3,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+light_20260813_115343.csv,UNKNOWN,UNKNOWN,light,UNKNOWN,4,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+light_20260813_115343.csv,UNKNOWN,UNKNOWN,light,UNKNOWN,5,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+light_20260813_115343.csv,UNKNOWN,UNKNOWN,light,UNKNOWN,6,61,181,242,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)"
+light_20260813_115343.csv,UNKNOWN,UNKNOWN,light,UNKNOWN,7,61,181,242,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)"
+light_20260813_115343.csv,UNKNOWN,UNKNOWN,light,UNKNOWN,8,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+light_20260813_115343.csv,UNKNOWN,UNKNOWN,light,UNKNOWN,9,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+light_20260813_115343.csv,UNKNOWN,UNKNOWN,light,UNKNOWN,10,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+M-TEM_B01.csv,M-TEM,B01,medium,Arabika Temanggung,1,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TEM_B01.csv,M-TEM,B01,medium,Arabika Temanggung,2,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TEM_B01.csv,M-TEM,B01,medium,Arabika Temanggung,3,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TEM_B01.csv,M-TEM,B01,medium,Arabika Temanggung,4,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TEM_B01.csv,M-TEM,B01,medium,Arabika Temanggung,5,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TEM_B01.csv,M-TEM,B01,medium,Arabika Temanggung,6,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TEM_B01.csv,M-TEM,B01,medium,Arabika Temanggung,7,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TEM_B01.csv,M-TEM,B01,medium,Arabika Temanggung,8,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TEM_B01.csv,M-TEM,B01,medium,Arabika Temanggung,9,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TEM_B01.csv,M-TEM,B01,medium,Arabika Temanggung,10,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TEM_B04.csv,M-TEM,B04,medium,Arabika Temanggung,1,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TEM_B04.csv,M-TEM,B04,medium,Arabika Temanggung,2,61,181,242,WARNING,Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+M-TEM_B04.csv,M-TEM,B04,medium,Arabika Temanggung,3,61,181,242,WARNING,Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+M-TEM_B04.csv,M-TEM,B04,medium,Arabika Temanggung,4,61,180,241,WARNING,Purging (61) tidak baku (target 30)
+M-TEM_B04.csv,M-TEM,B04,medium,Arabika Temanggung,5,61,180,241,WARNING,Purging (61) tidak baku (target 30)
+M-TEM_B04.csv,M-TEM,B04,medium,Arabika Temanggung,6,61,180,241,WARNING,Purging (61) tidak baku (target 30)
+M-TEM_B04.csv,M-TEM,B04,medium,Arabika Temanggung,7,61,180,241,WARNING,Purging (61) tidak baku (target 30)
+M-TEM_B04.csv,M-TEM,B04,medium,Arabika Temanggung,8,61,180,241,WARNING,Purging (61) tidak baku (target 30)
+M-TEM_B04.csv,M-TEM,B04,medium,Arabika Temanggung,9,61,181,242,WARNING,Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+M-TEM_B04.csv,M-TEM,B04,medium,Arabika Temanggung,10,61,181,242,WARNING,Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)
+M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,1,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,2,61,180,241,WARNING,Purging (61) tidak baku (target 30)
+M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,3,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,4,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,5,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,6,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,7,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,8,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,9,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TIM_B01.csv,M-TIM,B01,medium,Arabika Timor Leste,10,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TIM_B02.csv,M-TIM,B02,medium,Arabika Timor Leste,1,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TIM_B02.csv,M-TIM,B02,medium,Arabika Timor Leste,2,61,180,241,WARNING,Purging (61) tidak baku (target 30)
+M-TIM_B02.csv,M-TIM,B02,medium,Arabika Timor Leste,3,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TIM_B02.csv,M-TIM,B02,medium,Arabika Timor Leste,4,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TIM_B02.csv,M-TIM,B02,medium,Arabika Timor Leste,5,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TIM_B02.csv,M-TIM,B02,medium,Arabika Timor Leste,6,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TIM_B02.csv,M-TIM,B02,medium,Arabika Timor Leste,7,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TIM_B02.csv,M-TIM,B02,medium,Arabika Timor Leste,8,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TIM_B02.csv,M-TIM,B02,medium,Arabika Timor Leste,9,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TIM_B02.csv,M-TIM,B02,medium,Arabika Timor Leste,10,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TIM_B03.csv,M-TIM,B03,medium,Arabika Timor Leste,1,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TIM_B03.csv,M-TIM,B03,medium,Arabika Timor Leste,2,61,180,241,WARNING,Purging (61) tidak baku (target 30)
+M-TIM_B03.csv,M-TIM,B03,medium,Arabika Timor Leste,3,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TIM_B03.csv,M-TIM,B03,medium,Arabika Timor Leste,4,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TIM_B03.csv,M-TIM,B03,medium,Arabika Timor Leste,5,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TIM_B03.csv,M-TIM,B03,medium,Arabika Timor Leste,6,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TIM_B03.csv,M-TIM,B03,medium,Arabika Timor Leste,7,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TIM_B03.csv,M-TIM,B03,medium,Arabika Timor Leste,8,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TIM_B03.csv,M-TIM,B03,medium,Arabika Timor Leste,9,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+M-TIM_B03.csv,M-TIM,B03,medium,Arabika Timor Leste,10,60,180,240,WARNING,Purging (60) tidak baku (target 30)
+medium_20260811_170159.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,1,60,180,240,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (60) tidak baku (target 30)"
+medium_20260811_170159.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,2,61,181,242,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)"
+medium_20260811_170159.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,3,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+medium_20260811_170159.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,4,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+medium_20260811_170159.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,5,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+medium_20260811_170159.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,6,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+medium_20260811_170159.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,7,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+medium_20260811_170159.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,8,61,181,242,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)"
+medium_20260811_170159.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,9,61,181,242,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)"
+medium_20260811_170159.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,10,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+medium_20260811_172251.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,1,60,180,240,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (60) tidak baku (target 30)"
+medium_20260811_172251.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,2,60,181,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (60) tidak baku (target 30)"
+medium_20260811_172251.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,3,60,180,240,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (60) tidak baku (target 30)"
+medium_20260811_172251.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,4,60,180,240,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (60) tidak baku (target 30)"
+medium_20260811_172251.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,5,60,180,240,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (60) tidak baku (target 30)"
+medium_20260811_172251.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,6,60,180,240,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (60) tidak baku (target 30)"
+medium_20260811_172251.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,7,60,180,240,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (60) tidak baku (target 30)"
+medium_20260811_172251.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,8,60,180,240,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (60) tidak baku (target 30)"
+medium_20260811_172251.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,9,60,180,240,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (60) tidak baku (target 30)"
+medium_20260811_172251.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,10,60,180,240,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (60) tidak baku (target 30)"
+medium_20260813_160059.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,1,60,180,240,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (60) tidak baku (target 30)"
+medium_20260813_160059.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,2,61,181,242,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)"
+medium_20260813_160059.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,3,61,181,242,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)"
+medium_20260813_160059.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,4,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+medium_20260813_160059.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,5,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+medium_20260813_160059.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,6,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+medium_20260813_160059.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,7,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+medium_20260813_160059.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,8,61,180,241,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Purging (61) tidak baku (target 30)"
+medium_20260813_160059.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,9,61,181,242,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)"
+medium_20260813_160059.csv,UNKNOWN,UNKNOWN,medium,UNKNOWN,10,61,181,242,WARNING,"Metadata tidak tersedia: sample_id, roast_level, origin, batch_id, run_id | Collecting (181) beda tipis dari target 180 | Purging (61) tidak baku (target 30)"
