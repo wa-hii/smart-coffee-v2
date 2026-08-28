@@ -61,12 +61,32 @@ InferenceResult InferenceATmega::predict() {
         return result;
     }
     
-    // Bangun vektor fitur: 10 mean + 10 max = 20 fitur.
-    // Urutan sama dengan SensorArray::adc_ dan training script.
-    float features[NUM_SENSORS * 2];
+    // Bangun vektor fitur: 48 fitur.
+    // 10 mean + 10 max + 10 sum (AUC) + 9 ratio to MQ135 + 9 ratio to TGS822
+    float features[48];
     for (uint8_t i = 0; i < NUM_SENSORS; i++) {
-        features[i]               = computeMean(i);
-        features[i + NUM_SENSORS] = computeMax(i);
+        features[i]                   = computeMean(i);
+        features[i + NUM_SENSORS]    = computeMax(i);
+        features[i + NUM_SENSORS * 2] = (float)adc_sum_[i]; // sum (AUC)
+    }
+
+    // Ratios to MQ135 (index 1)
+    float mq135_max = computeMax(1);
+    if (mq135_max <= 0.0f) mq135_max = 1.0f;
+    uint8_t feat_idx = 30;
+    for (uint8_t i = 0; i < NUM_SENSORS; i++) {
+        if (i != 1) {
+            features[feat_idx++] = computeMax(i) / mq135_max;
+        }
+    }
+
+    // Ratios to TGS822 (index 0)
+    float tgs822_max = computeMax(0);
+    if (tgs822_max <= 0.0f) tgs822_max = 1.0f;
+    for (uint8_t i = 0; i < NUM_SENSORS; i++) {
+        if (i != 0) {
+            features[feat_idx++] = computeMax(i) / tgs822_max;
+        }
     }
     
     // Jalankan inference (implementasi tergantung format model_rf_atmega.h)

@@ -26,11 +26,32 @@ int Inference::predict() {
 #if USE_ON_DEVICE_INFERENCE
     if (count_ == 0) return -1;
 
-    // Bangun vektor fitur: 8 mean + 8 max = 16 fitur
-    float features[NUM_SENSORS * 2];
+    // Bangun vektor fitur: 48 fitur
+    // 10 mean + 10 max + 10 sum (AUC) + 9 ratio to MQ135 + 9 ratio to TGS822
+    float features[48];
     for (uint8_t i = 0; i < NUM_SENSORS; i++) {
-        features[i]               = (float)(sum_[i] / count_);   // mean
-        features[i + NUM_SENSORS] = (float)max_[i];               // max
+        features[i]                   = (float)(sum_[i] / count_);   // mean
+        features[i + NUM_SENSORS]    = (float)max_[i];               // max
+        features[i + NUM_SENSORS * 2] = (float)sum_[i];               // sum (AUC)
+    }
+
+    // Ratios to MQ135 (index 1)
+    float mq135_max = (float)max_[1];
+    if (mq135_max <= 0.0f) mq135_max = 1.0f;
+    uint8_t feat_idx = 30;
+    for (uint8_t i = 0; i < NUM_SENSORS; i++) {
+        if (i != 1) {
+            features[feat_idx++] = (float)max_[i] / mq135_max;
+        }
+    }
+
+    // Ratios to TGS822 (index 0)
+    float tgs822_max = (float)max_[0];
+    if (tgs822_max <= 0.0f) tgs822_max = 1.0f;
+    for (uint8_t i = 0; i < NUM_SENSORS; i++) {
+        if (i != 0) {
+            features[feat_idx++] = (float)max_[i] / tgs822_max;
+        }
     }
 
     Eloquent::ML::Port::RandomForest classifier;

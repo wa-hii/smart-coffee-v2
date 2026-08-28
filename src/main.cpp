@@ -28,7 +28,7 @@
 // ─────────────────────────────────────────────────────
 #define ACQ_COLLECTION_SECONDS 180 // durasi menghirup aroma kopi (detik)
 #define ACQ_PURGE_SECONDS 60       // durasi purging ke udara bebas (detik)
-#define ACQ_REPETITIONS 10         // jumlah pengulangan siklus
+#define ACQ_REPETITIONS 3         // jumlah pengulangan siklus
 
 // ─── Feature Flags
 // ────────────────────────────────────────────────────────────
@@ -159,6 +159,9 @@ void setup() {
   taskSerial.enable();
 
   printWelcome();
+  
+  // Mulai akuisisi data secara otomatis saat alat dinyalakan/direset
+  startAcquisition();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

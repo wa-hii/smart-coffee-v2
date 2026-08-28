@@ -159,6 +159,20 @@ def extract_features(df_all):
             vals = group[col].values
             row[f'mean_{col}'] = float(np.mean(vals))
             row[f'max_{col}']  = float(np.max(vals))
+            row[f'sum_{col}']  = float(np.sum(vals))
+            
+        # Ratios to MQ135
+        mq135_max = row['max_adc_mq135'] if row['max_adc_mq135'] > 0 else 1.0
+        for col in ADC_COLS:
+            if col != 'adc_mq135':
+                row[f'ratio_to_mq135_{col}'] = row[f'max_{col}'] / mq135_max
+                
+        # Ratios to TGS822
+        tgs822_max = row['max_adc_tgs822'] if row['max_adc_tgs822'] > 0 else 1.0
+        for col in ADC_COLS:
+            if col != 'adc_tgs822':
+                row[f'ratio_to_tgs822_{col}'] = row[f'max_{col}'] / tgs822_max
+
         rows.append(row)
 
     df_feat = pd.DataFrame(rows)
@@ -175,16 +189,19 @@ def train_model(df_feat):
     Train RandomForestClassifier dan evaluasi hasilnya.
     Mengembalikan (clf, feature_cols, label_encoder).
     """
-    # Buat daftar kolom fitur (mean + max, urutan konsisten dengan main.cpp)
+    # Buat daftar kolom fitur (mean + max + sum + ratios, urutan konsisten dengan main.cpp)
     feature_cols = (
         [f'mean_{c}' for c in ADC_COLS] +
-        [f'max_{c}'  for c in ADC_COLS]
+        [f'max_{c}'  for c in ADC_COLS] +
+        [f'sum_{c}'  for c in ADC_COLS] +
+        [f'ratio_to_mq135_{c}' for c in ADC_COLS if c != 'adc_mq135'] +
+        [f'ratio_to_tgs822_{c}' for c in ADC_COLS if c != 'adc_tgs822']
     )
     # Filter kolom yang benar-benar ada
     feature_cols = [c for c in feature_cols if c in df_feat.columns]
 
-    X = df_feat[feature_cols].values
-    y = df_feat['label'].values
+    X = df_feat[feature_cols].fillna(0).to_numpy(dtype=np.float32)
+    y = df_feat['label'].astype(str).to_numpy()
 
     print(f"\n⚙️  Jumlah fitur: {len(feature_cols)}")
     print(f"   Fitur: {feature_cols}")
