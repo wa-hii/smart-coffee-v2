@@ -48,9 +48,9 @@ except Exception:
 # ─── Konfigurasi Akuisisi Default ──────────────────────────────────────────────
 BAUD_RATE        = 115200
 OUTPUT_DIR       = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'data'))
-ACQ_PURGE_S      = 60    # Durasi purging per run (detik)
-ACQ_COLLECT_S    = 180   # Durasi collecting per run (detik)
-ACQ_REPETITIONS  = 10    # Jumlah run per sampel kopi
+ACQ_PURGE_S      = 120    # Durasi purging per run (detik)
+ACQ_COLLECT_S    = 120   # Durasi collecting per run (detik)
+ACQ_REPETITIONS  = 5    # Jumlah run per sampel kopi
 
 # ─── Database Sampel Eksperimen (Predefined Metadata) ───────────────────────────
 KNOWN_SAMPLES = {
@@ -419,7 +419,7 @@ def main():
 ║  Origin       : {origin:<52} ║
 ║  Batch ID     : {batch_id:<52} ║
 ║  Port Serial  : {port:<52} ║
-║  Skema Run    : 10 Run × ({ACQ_PURGE_S}s Purging + {ACQ_COLLECT_S}s Collecting){'':<14} ║
+║  Skema Run    : 5 Run × ({ACQ_PURGE_S}s Purging + {ACQ_COLLECT_S}s Collecting){'':<14} ║
 ║  Output File  : {os.path.basename(out_csv):<52} ║
 ╚══════════════════════════════════════════════════════════════════════╝
 """)
