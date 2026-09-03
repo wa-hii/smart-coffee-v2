@@ -501,8 +501,8 @@ def main():
    Roast Level   : {roast_level}
    Origin        : {origin}
    Batch ID      : {batch_id}
-   Purging Rows  : {purging_n} sampel ({ACQ_PURGE_S}s × 10 run)
-   Collect Rows  : {collecting_n} sampel ({ACQ_COLLECT_S}s × 10 run)
+   Purging Rows  : {purging_n} sampel ({ACQ_PURGE_S}s × 5 run)
+   Collect Rows  : {collecting_n} sampel ({ACQ_COLLECT_S}s × 5 run)
    Total Baris   : {len(df)} baris raw data
    Total Kolom   : {len(df.columns)} kolom
 """)
