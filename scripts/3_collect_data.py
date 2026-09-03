@@ -59,18 +59,24 @@ KNOWN_SAMPLES = {
     'L-RAT': {'roast_level': 'light',  'origin': 'Arabika Ratawali Aceh'},
     'L-GAY': {'roast_level': 'light',  'origin': 'Arabika Gayo Aceh'},
     'L-MER': {'roast_level': 'light',  'origin': 'Arabika Merapi'},
+    'L-TEM': {'roast_level': 'light',  'origin': 'Arabika Temanggung'},
+    'L-CAT': {'roast_level': 'light',  'origin': 'Arabika Catuji Mekarwangi'},
 
     # MEDIUM ROAST
     'M-MAN': {'roast_level': 'medium', 'origin': 'Arabika Manglayang Jawa Barat'},
     'M-RAT': {'roast_level': 'medium', 'origin': 'Arabika Ratawali Aceh'},
     'M-TEM': {'roast_level': 'medium', 'origin': 'Arabika Temanggung'},
     'M-TIM': {'roast_level': 'medium', 'origin': 'Arabika Timor Leste'},
+    'M-MUK': {'roast_level': 'medium', 'origin': 'Arabika Temanggung Mukidi'},
+    'M-CAT': {'roast_level': 'medium', 'origin': 'Arabika Catuji Mekarwangi'},
 
     # DARK ROAST
     'D-MAN': {'roast_level': 'dark',   'origin': 'Arabika Manglayang Jawa Barat'},
     'D-RAT': {'roast_level': 'dark',   'origin': 'Arabika Ratawali Aceh'},
     'D-GAY': {'roast_level': 'dark',   'origin': 'Arabika Gayo Aceh'},
     'D-BAR': {'roast_level': 'dark',   'origin': 'Arabika Jawa Barat'},
+    'D-TEM': {'roast_level': 'dark',   'origin': 'Arabika Temanggung Mukidi'},
+    'D-CAT': {'roast_level': 'dark',   'origin': 'Arabika Catuji Mekarwangi'},
 }
 
 VALID_ROAST_LEVELS = ['light', 'medium', 'dark']
