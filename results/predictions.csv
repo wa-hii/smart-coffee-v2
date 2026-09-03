@@ -1,0 +1,41 @@
+sample_id,origin,batch_id,run_id,actual_roast,predicted_roast,correct,baseline_predicted
+D-BAR,Arabika Jawa Barat,B05,1,dark,dark,True,light
+D-BAR,Arabika Jawa Barat,B05,2,dark,dark,True,dark
+D-BAR,Arabika Jawa Barat,B05,3,dark,medium,False,medium
+D-BAR,Arabika Jawa Barat,B05,4,dark,medium,False,medium
+D-BAR,Arabika Jawa Barat,B05,5,dark,medium,False,medium
+D-BAR,Arabika Jawa Barat,B05,6,dark,medium,False,medium
+D-BAR,Arabika Jawa Barat,B05,7,dark,dark,True,dark
+D-BAR,Arabika Jawa Barat,B05,8,dark,medium,False,medium
+D-BAR,Arabika Jawa Barat,B05,9,dark,medium,False,medium
+D-BAR,Arabika Jawa Barat,B05,10,dark,medium,False,medium
+L-GAY,Arabika Gayo Aceh,B03,1,light,light,True,light
+L-GAY,Arabika Gayo Aceh,B03,2,light,light,True,light
+L-GAY,Arabika Gayo Aceh,B03,3,light,medium,False,medium
+L-GAY,Arabika Gayo Aceh,B03,4,light,medium,False,medium
+L-GAY,Arabika Gayo Aceh,B03,5,light,light,True,light
+L-GAY,Arabika Gayo Aceh,B03,6,light,light,True,light
+L-GAY,Arabika Gayo Aceh,B03,7,light,light,True,light
+L-GAY,Arabika Gayo Aceh,B03,8,light,medium,False,light
+L-GAY,Arabika Gayo Aceh,B03,9,light,light,True,light
+L-GAY,Arabika Gayo Aceh,B03,10,light,light,True,light
+L-MAN,Arabika Manglayang Jawa Barat,B03,1,light,light,True,light
+L-MAN,Arabika Manglayang Jawa Barat,B03,2,light,light,True,light
+L-MAN,Arabika Manglayang Jawa Barat,B03,3,light,medium,False,medium
+L-MAN,Arabika Manglayang Jawa Barat,B03,4,light,medium,False,medium
+L-MAN,Arabika Manglayang Jawa Barat,B03,5,light,light,True,light
+L-MAN,Arabika Manglayang Jawa Barat,B03,6,light,medium,False,light
+L-MAN,Arabika Manglayang Jawa Barat,B03,7,light,medium,False,medium
+L-MAN,Arabika Manglayang Jawa Barat,B03,8,light,light,True,light
+L-MAN,Arabika Manglayang Jawa Barat,B03,9,light,light,True,light
+L-MAN,Arabika Manglayang Jawa Barat,B03,10,light,medium,False,light
+M-TIM,Arabika Timor Leste,B03,1,medium,light,False,light
+M-TIM,Arabika Timor Leste,B03,2,medium,light,False,light
+M-TIM,Arabika Timor Leste,B03,3,medium,medium,True,medium
+M-TIM,Arabika Timor Leste,B03,4,medium,light,False,light
+M-TIM,Arabika Timor Leste,B03,5,medium,medium,True,medium
+M-TIM,Arabika Timor Leste,B03,6,medium,medium,True,medium
+M-TIM,Arabika Timor Leste,B03,7,medium,medium,True,medium
+M-TIM,Arabika Timor Leste,B03,8,medium,medium,True,medium
+M-TIM,Arabika Timor Leste,B03,9,medium,medium,True,medium
+M-TIM,Arabika Timor Leste,B03,10,medium,medium,True,light

@@ -28,7 +28,7 @@
 // ─────────────────────────────────────────────────────
 #define ACQ_COLLECTION_SECONDS 180 // durasi menghirup aroma kopi (detik)
 #define ACQ_PURGE_SECONDS 60       // durasi purging ke udara bebas (detik)
-#define ACQ_REPETITIONS 3         // jumlah pengulangan siklus
+#define ACQ_REPETITIONS 3          // jumlah pengulangan siklus
 
 // ─── Feature Flags
 // ────────────────────────────────────────────────────────────
@@ -192,22 +192,27 @@ void printWelcome() {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 void startAcquisition() {
-    acqCycle        = 1;
-    acqSampleIdx    = 0;
-    acqTotalSamples = 0;
-    inference.reset();
+  acqCycle = 1;
+  acqSampleIdx = 0;
+  acqTotalSamples = 0;
+  inference.reset();
 
-    acqState        = AcqState::PURGING;
-    acqPhaseStartMs = millis();
-    setActuators();
+  acqState = AcqState::PURGING;
+  acqPhaseStartMs = millis();
+  setActuators();
 
-    // Event: ACQ_START
-    Serial.print(F("{\"event\":\"ACQ_START\",\"phase\":\"purging\",\"cycle\":1"));
-    Serial.print(F(",\"cycles_total\":"));           Serial.print(ACQ_REPETITIONS);
-    Serial.print(F(",\"collect_s\":"));              Serial.print(ACQ_COLLECTION_SECONDS);
-    Serial.print(F(",\"purge_s\":"));                Serial.print(ACQ_PURGE_SECONDS);
-    Serial.print(F(",\"total_samples_expected\":")); Serial.print((long)(ACQ_COLLECTION_SECONDS + ACQ_PURGE_SECONDS) * ACQ_REPETITIONS);
-    Serial.println(F("}"));
+  // Event: ACQ_START
+  Serial.print(F("{\"event\":\"ACQ_START\",\"phase\":\"purging\",\"cycle\":1"));
+  Serial.print(F(",\"cycles_total\":"));
+  Serial.print(ACQ_REPETITIONS);
+  Serial.print(F(",\"collect_s\":"));
+  Serial.print(ACQ_COLLECTION_SECONDS);
+  Serial.print(F(",\"purge_s\":"));
+  Serial.print(ACQ_PURGE_SECONDS);
+  Serial.print(F(",\"total_samples_expected\":"));
+  Serial.print((long)(ACQ_COLLECTION_SECONDS + ACQ_PURGE_SECONDS) *
+               ACQ_REPETITIONS);
+  Serial.println(F("}"));
 }
 
 void stopAcquisition() {
@@ -219,51 +224,51 @@ void stopAcquisition() {
 }
 
 void processAcquisitionState() {
-    if (acqState == AcqState::IDLE || acqState == AcqState::COMPLETE) return;
+  if (acqState == AcqState::IDLE || acqState == AcqState::COMPLETE)
+    return;
 
-    unsigned long elapsedMs = millis() - acqPhaseStartMs;
+  unsigned long elapsedMs = millis() - acqPhaseStartMs;
 
-    if (acqState == AcqState::PURGING) {
-        if (elapsedMs >= (unsigned long)ACQ_PURGE_SECONDS * 1000UL) {
-            // Transisi Purging -> Collecting pada siklus yang sama (acqCycle)
-            acqState        = AcqState::COLLECTING;
-            acqPhaseStartMs = millis();
-            acqSampleIdx    = 0;
-            setActuators();
+  if (acqState == AcqState::PURGING) {
+    if (elapsedMs >= (unsigned long)ACQ_PURGE_SECONDS * 1000UL) {
+      // Transisi Purging -> Collecting pada siklus yang sama (acqCycle)
+      acqState = AcqState::COLLECTING;
+      acqPhaseStartMs = millis();
+      acqSampleIdx = 0;
+      setActuators();
 
-            Serial.print(F("{\"event\":\"PHASE_CHANGE\",\"cycle\":"));
-            Serial.print(acqCycle);
-            Serial.print(F(",\"phase\":\"collecting\"}"));
-            Serial.println();
-        }
+      Serial.print(F("{\"event\":\"PHASE_CHANGE\",\"cycle\":"));
+      Serial.print(acqCycle);
+      Serial.print(F(",\"phase\":\"collecting\"}"));
+      Serial.println();
     }
-    else if (acqState == AcqState::COLLECTING) {
-        // Akumulasi fitur untuk inferensi
-        inference.accumulate(sensors.getAdcArray());
+  } else if (acqState == AcqState::COLLECTING) {
+    // Akumulasi fitur untuk inferensi
+    inference.accumulate(sensors.getAdcArray());
 
-        if (elapsedMs >= (unsigned long)ACQ_COLLECTION_SECONDS * 1000UL) {
-            if (acqCycle < ACQ_REPETITIONS) {
-                // Lanjut ke siklus berikutnya: increment cycle -> PURGING
-                acqCycle++;
-                acqState        = AcqState::PURGING;
-                acqPhaseStartMs = millis();
-                acqSampleIdx    = 0;
-                setActuators();
+    if (elapsedMs >= (unsigned long)ACQ_COLLECTION_SECONDS * 1000UL) {
+      if (acqCycle < ACQ_REPETITIONS) {
+        // Lanjut ke siklus berikutnya: increment cycle -> PURGING
+        acqCycle++;
+        acqState = AcqState::PURGING;
+        acqPhaseStartMs = millis();
+        acqSampleIdx = 0;
+        setActuators();
 
-                Serial.print(F("{\"event\":\"PHASE_CHANGE\",\"cycle\":"));
-                Serial.print(acqCycle);
-                Serial.print(F(",\"phase\":\"purging\"}"));
-                Serial.println();
-            } else {
-                // Semua 10 siklus (Purging + Collecting) selesai -> COMPLETE
-                acqState = AcqState::COMPLETE;
-                setActuators();
-                printAcquisitionSummary();
-                doInference();
-                acqState = AcqState::IDLE;
-            }
-        }
+        Serial.print(F("{\"event\":\"PHASE_CHANGE\",\"cycle\":"));
+        Serial.print(acqCycle);
+        Serial.print(F(",\"phase\":\"purging\"}"));
+        Serial.println();
+      } else {
+        // Semua 10 siklus (Purging + Collecting) selesai -> COMPLETE
+        acqState = AcqState::COMPLETE;
+        setActuators();
+        printAcquisitionSummary();
+        doInference();
+        acqState = AcqState::IDLE;
+      }
     }
+  }
 }
 
 void setActuators() {
