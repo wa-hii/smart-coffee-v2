@@ -26,8 +26,8 @@
 
 // ─── Konfigurasi Akuisisi
 // ─────────────────────────────────────────────────────
-#define ACQ_COLLECTION_SECONDS 180 // durasi menghirup aroma kopi (detik)
-#define ACQ_PURGE_SECONDS 60       // durasi purging ke udara bebas (detik)
+#define ACQ_COLLECTION_SECONDS 120 // durasi menghirup aroma kopi (120 detik)
+#define ACQ_PURGE_SECONDS 120      // durasi purging ke udara bebas (120 detik)
 #define ACQ_REPETITIONS 3          // jumlah pengulangan siklus
 
 // ─── Feature Flags

@@ -97,7 +97,7 @@ def export_model_atmega(model_path, output_path, max_trees=8, max_depth=4):
     """
     
     # Load model
-    print(f"📂 Loading model from: {model_path}")
+    print(f"[DIR] Loading model from: {model_path}")
     try:
         try:
             import joblib
@@ -109,14 +109,14 @@ def export_model_atmega(model_path, output_path, max_trees=8, max_depth=4):
             with open(model_path, 'rb') as f:
                 model = pickle.load(f)
     except Exception as e:
-        print(f"❌ Failed to load model: {e}")
+        print(f"[ERR] Failed to load model: {e}")
         return False
     
     if not isinstance(model, RandomForestClassifier):
-        print(f"❌ Expected RandomForestClassifier, got {type(model)}")
+        print(f"[ERR] Expected RandomForestClassifier, got {type(model)}")
         return False
     
-    print(f"✓ Model loaded: {model.n_estimators} trees, max_depth={model.max_depth}")
+    print(f"[OK] Model loaded: {model.n_estimators} trees, max_depth={model.max_depth}")
     print(f"  Features: {model.n_features_in_}, Classes: {model.n_classes_}")
     
     # Siapkan feature names
@@ -204,14 +204,14 @@ int doInference(float *features) {
     # Save file
     os.makedirs(os.path.dirname(output_path) or '.', exist_ok=True)
     try:
-        with open(output_path, 'w') as f:
+        with open(output_path, 'w', encoding='utf-8') as f:
             f.write(header)
-        print(f"\n✅ Model exported successfully!")
-        print(f"   Output: {output_path}")
-        print(f"   File size: {os.path.getsize(output_path) / 1024:.1f} KB")
+        print(f"\n[OK] Model exported successfully!")
+        print(f"     Output: {output_path}")
+        print(f"     File size: {os.path.getsize(output_path) / 1024:.1f} KB")
         return True
     except Exception as e:
-        print(f"❌ Failed to write output: {e}")
+        print(f"[FAIL] Failed to write output: {e}")
         return False
 
 
@@ -245,7 +245,7 @@ def main():
     
     if success:
         print("""
-✅ Langkah berikutnya:
+[OK] Langkah berikutnya:
   1. Pastikan USE_ON_DEVICE_INFERENCE=1 di kode ATmega
   2. Include model_rf_atmega.h di source code
   3. Compile dan upload ke ATmega2560
