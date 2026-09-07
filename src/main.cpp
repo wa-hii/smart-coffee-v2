@@ -28,7 +28,7 @@
 // ─────────────────────────────────────────────────────
 #define ACQ_COLLECTION_SECONDS 120 // durasi menghirup aroma kopi (detik)
 #define ACQ_PURGE_SECONDS 120      // durasi purging ke udara bebas (detik)
-#define ACQ_REPETITIONS 5          // jumlah pengulangan siklus
+#define ACQ_REPETITIONS 50         // jumlah pengulangan siklus
 
 // ─── Feature Flags
 // ────────────────────────────────────────────────────────────
