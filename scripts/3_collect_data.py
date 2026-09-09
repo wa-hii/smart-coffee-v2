@@ -49,7 +49,7 @@ except Exception:
 BAUD_RATE        = 115200
 OUTPUT_DIR       = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'data'))
 ACQ_PURGE_S      = 120    # Durasi purging per run (detik)
-ACQ_COLLECT_S    = 120   # Durasi collecting per run (detik)
+ACQ_COLLECT_S    = 60   # Durasi collecting per run (detik)
 ACQ_REPETITIONS  = 50   # Jumlah run per sampel kopi
 
 # ─── Database Sampel Eksperimen (Predefined Metadata) ───────────────────────────
@@ -248,7 +248,7 @@ class RawDataCollector:
                 if event == 'ACQ_COMPLETE':
                     total = data.get('total_samples', len(self.rows))
                     self.status_msg = f"✅ Akuisisi Selesai ({total} Sampel Raw Data)"
-                    print(f"\n✅ 10 Run selesai! Total sampel raw data: {total}")
+                    print(f"\n✅ 50 Run selesai! Total sampel raw data: {total}")
                     self.acquisition_done = True
                     continue
 
@@ -369,7 +369,7 @@ def run_live_gui(collector):
                 ax.set_xlim(max(0, ts[0]), ts[-1] + 2)
 
         if collector.acquisition_done:
-            status_text.set_text(f"[OK] 10 Run Selesai! CSV: {os.path.basename(collector.out_csv)}")
+            status_text.set_text(f"[OK] 50 Run Selesai! CSV: {os.path.basename(collector.out_csv)}")
             status_text.set_color('#A371F7')
 
         return list(lines.values())
@@ -422,7 +422,7 @@ def main():
 
     print(f"""
 ╔══════════════════════════════════════════════════════════════════════╗
-║           E-NOSE Kopi — Pengumpulan Raw Data (10 Run)                ║
+║           E-NOSE Kopi — Pengumpulan Raw Data (15 Run)                ║
 ╠══════════════════════════════════════════════════════════════════════╣
 ║  Sample ID    : {sample_id:<52} ║
 ║  Roast Level  : {roast_level.upper():<52} ║

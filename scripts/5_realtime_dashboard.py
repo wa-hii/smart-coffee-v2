@@ -44,22 +44,19 @@ ANIM_INTERVAL_MS = 200    # refresh grafik setiap 200ms
 
 # Sensor dan warna (dikelompokkan berdasarkan jenis)
 SENSORS = {
-    # TGS Series (hijau-biru)
-    'adc_tgs822':  {'label': 'TGS822',  'color': '#00E676', 'group': 'TGS'},
-    'adc_tgs2611': {'label': 'TGS2611', 'color': '#00BFA5', 'group': 'TGS'},
-    'adc_tgs2620': {'label': 'TGS2620', 'color': '#18FFFF', 'group': 'TGS'},
-    'adc_tgs2600': {'label': 'TGS2600', 'color': '#64FFDA', 'group': 'TGS'},
-    'adc_tgs2602': {'label': 'TGS2602', 'color': '#A7FFEB', 'group': 'TGS'},
-    'adc_tgs813':  {'label': 'TGS813',  'color': '#B2FF59', 'group': 'TGS'},
-    'adc_tgs816':  {'label': 'TGS816',  'color': '#76FF03', 'group': 'TGS'},
-    # MQ Series (oranye-merah)
-    'adc_mq135':   {'label': 'MQ135',   'color': '#FF6D00', 'group': 'MQ'},
-    'adc_mq9':     {'label': 'MQ9',     'color': '#FF3D00', 'group': 'MQ'},
-    'adc_mq8':     {'label': 'MQ8',     'color': '#FFAB00', 'group': 'MQ'},
+    'adc_tgs822':  {'label': 'TGS822',  'color': '#E63946', 'group': 'TGS'},
+    'adc_tgs2611': {'label': 'TGS2611', 'color': '#FFB703', 'group': 'TGS'},
+    'adc_tgs2620': {'label': 'TGS2620', 'color': '#2EC4B6', 'group': 'TGS'},
+    'adc_tgs2600': {'label': 'TGS2600', 'color': '#1D4ED8', 'group': 'TGS'},
+    'adc_tgs2602': {'label': 'TGS2602', 'color': '#8B5CF6', 'group': 'TGS'},
+    'adc_tgs813':  {'label': 'TGS813',  'color': '#EC4899', 'group': 'TGS'},
+    'adc_tgs816':  {'label': 'TGS816',  'color': '#10B981', 'group': 'TGS'},
+    'adc_mq135':   {'label': 'MQ135',   'color': '#FF9F1C', 'group': 'MQ'},
+    'adc_mq3':     {'label': 'MQ3',     'color': '#8B4513', 'group': 'MQ'},
+    'adc_mq8':     {'label': 'MQ8',     'color': '#06B6D4', 'group': 'MQ'},
 }
 
 SENSOR_KEYS = list(SENSORS.keys())
-
 
 # ─── Port Selection (reuse dari 3_collect_data.py) ────────────────────────────
 def prompt_port():
