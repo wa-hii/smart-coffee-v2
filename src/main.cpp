@@ -175,10 +175,13 @@ void printWelcome() {
   Serial.println(F("  Smart Coffee E-NOSE v2 - ATmega 2560"));
   Serial.println(F("=============================================="));
   Serial.println(F("  Perintah:"));
-  Serial.println(F("    #start;  Mulai akuisisi data sensor"));
-  Serial.println(F("    #stop;   Hentikan akuisisi"));
-  Serial.println(F("    #scan;   Scan I2C bus"));
-  Serial.println(F("    #help;   Tampilkan bantuan"));
+  Serial.println(F("    #start;       Mulai akuisisi data sensor"));
+  Serial.println(F("    #stop;        Hentikan akuisisi"));
+  Serial.println(F("    #scan;        Scan I2C bus"));
+  Serial.println(F("    #valve_on;    Valve solenoid ON  (test collecting)"));
+  Serial.println(F("    #valve_off;   Valve solenoid OFF (test purging)"));
+  Serial.println(F("    #valve_test;  Toggle valve 3x untuk verifikasi wiring"));
+  Serial.println(F("    #help;        Tampilkan bantuan"));
   Serial.println(F("=============================================="));
   Serial.println(
       F("{\"info\":\"Sistem siap. Kirim #start; untuk mulai akuisisi.\"}"));
@@ -343,6 +346,48 @@ void processCommand(const char *cmd) {
     printWelcome();
   } else if (strcmp(cmd, "#scan") == 0) {
     scanI2C();
+
+  // ── Valve debug commands ────────────────────────────────────────────────
+  } else if (strcmp(cmd, "#valve_on") == 0) {
+    if (acqState != AcqState::IDLE) {
+      Serial.println(F("{\"warn\":\"Tidak bisa tes valve saat akuisisi berjalan.\"}"));
+      return;
+    }
+    // Aktifkan solenoid → Port 1/33 terbuka (posisi COLLECTING)
+    actuator.setCollecting();
+    Serial.println(F("{\"valve\":\"ON\",\"port\":\"1/33\",\"mode\":\"collecting\"}"));
+
+  } else if (strcmp(cmd, "#valve_off") == 0) {
+    if (acqState != AcqState::IDLE) {
+      Serial.println(F("{\"warn\":\"Tidak bisa tes valve saat akuisisi berjalan.\"}"));
+      return;
+    }
+    // Matikan solenoid → Port 3/11 terbuka (posisi PURGING / spring return)
+    actuator.setPurging();
+    Serial.println(F("{\"valve\":\"OFF\",\"port\":\"3/11\",\"mode\":\"purging\"}"));
+
+  } else if (strcmp(cmd, "#valve_test") == 0) {
+    if (acqState != AcqState::IDLE) {
+      Serial.println(F("{\"warn\":\"Tidak bisa tes valve saat akuisisi berjalan.\"}"));
+      return;
+    }
+    // Toggle valve 3x dengan jeda 1 detik — verifikasi respons fisik solenoid
+    Serial.println(F("{\"valve_test\":\"start\",\"cycles\":3}"));
+    for (uint8_t i = 0; i < 3; i++) {
+      actuator.setCollecting();
+      Serial.print(F("{\"valve_test\":\"ON\",\"cycle\":"));
+      Serial.print(i + 1);
+      Serial.println(F("}"));
+      delay(1000);
+      actuator.setPurging();
+      Serial.print(F("{\"valve_test\":\"OFF\",\"cycle\":"));
+      Serial.print(i + 1);
+      Serial.println(F("}"));
+      delay(1000);
+    }
+    actuator.stop();
+    Serial.println(F("{\"valve_test\":\"done\"}"));
+
   } else {
     Serial.print(F("{\"warn\":\"Perintah tidak dikenal\",\"cmd\":\""));
     Serial.print(cmd);

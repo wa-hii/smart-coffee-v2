@@ -14,7 +14,7 @@ Flow per Sampel (10 Run):
 
 Metadata per Baris:
   timestamp, sample_id, roast_level, origin, batch_id, run_id, phase, sample_idx,
-  10 Raw ADC Readings (adc_tgs822, adc_mq135, adc_mq9, adc_tgs2611, adc_tgs2620,
+  10 Raw ADC Readings (adc_tgs822, adc_mq135, adc_mq3, adc_tgs2611, adc_tgs2620,
   adc_tgs2600, adc_tgs2602, adc_mq8, adc_tgs813, adc_tgs816), temperature, humidity
 
 Cara Pakai:
@@ -88,27 +88,27 @@ VALID_ROAST_LEVELS = ['light', 'medium', 'dark']
 
 # Kolom Raw ADC 10 Sensor Gas E-NOSE v2
 ADC_COLS = [
-    'adc_tgs822', 'adc_mq135', 'adc_mq9', 'adc_tgs2611', 'adc_tgs2620',
+    'adc_tgs822', 'adc_mq135', 'adc_mq3', 'adc_tgs2611', 'adc_tgs2620',
     'adc_tgs2600', 'adc_tgs2602', 'adc_mq8', 'adc_tgs813', 'adc_tgs816'
 ]
 
 SENSOR_CONFIG = {
-    'adc_tgs822':  {'label': 'TGS822',  'color': '#00E676', 'group': 'TGS'},
-    'adc_tgs2611': {'label': 'TGS2611', 'color': '#00BFA5', 'group': 'TGS'},
-    'adc_tgs2620': {'label': 'TGS2620', 'color': '#18FFFF', 'group': 'TGS'},
     'adc_tgs2600': {'label': 'TGS2600', 'color': '#64FFDA', 'group': 'TGS'},
     'adc_tgs2602': {'label': 'TGS2602', 'color': '#A7FFEB', 'group': 'TGS'},
-    'adc_tgs813':  {'label': 'TGS813',  'color': '#B2FF59', 'group': 'TGS'},
     'adc_tgs816':  {'label': 'TGS816',  'color': '#76FF03', 'group': 'TGS'},
-    'adc_mq135':   {'label': 'MQ135',   'color': '#FF6D00', 'group': 'MQ'},
-    'adc_mq9':     {'label': 'MQ9',     'color': '#FF3D00', 'group': 'MQ'},
+    'adc_tgs813':  {'label': 'TGS813',  'color': '#B2FF59', 'group': 'TGS'},
     'adc_mq8':     {'label': 'MQ8',     'color': '#FFAB00', 'group': 'MQ'},
+    'adc_tgs2611': {'label': 'TGS2611', 'color': '#00BFA5', 'group': 'TGS'},
+    'adc_tgs2620': {'label': 'TGS2620', 'color': '#18FFFF', 'group': 'TGS'},
+    'adc_tgs822':  {'label': 'TGS822',  'color': '#00E676', 'group': 'TGS'},
+    'adc_mq135':   {'label': 'MQ135',   'color': '#FF6D00', 'group': 'MQ'},
+    'adc_mq3':     {'label': 'MQ3',     'color': '#FF3D00', 'group': 'MQ'},
 }
 
 # ─── CLI Argument Parser ──────────────────────────────────────────────────────
 def parse_args():
     p = argparse.ArgumentParser(description='E-NOSE Kopi — Pengumpulan Raw Data')
-    p.add_argument('--port',        type=str, default=None, help='Port Serial (misal COM5)')
+    p.add_argument('--port',        type=str, default=None, help='Port Serial (misal COM3)')
     p.add_argument('--sample',      type=str, default=None, help='Sample ID (misal L-MAN, M-TEM, D-RAT)')
     p.add_argument('--roast-level', type=str, default=None, help='Roast Level (light, medium, dark)')
     p.add_argument('--origin',      type=str, default=None, help='Asal Kopi (Origin)')
@@ -143,8 +143,7 @@ def prompt_port():
         except ValueError:
             return idx
     else:
-        return input("Masukkan nama port Serial (misal COM5): ").strip()
-
+        return input("Masukkan nama port Serial (misal COM3")
 
 def prompt_metadata():
     """Meminta input Sample ID, Roast Level, Origin, dan Batch ID secara interaktif."""
@@ -430,7 +429,7 @@ def main():
 ║  Origin       : {origin:<52} ║
 ║  Batch ID     : {batch_id:<52} ║
 ║  Port Serial  : {port:<52} ║
-║  Skema Run    : 5 Run × ({ACQ_PURGE_S}s Purging + {ACQ_COLLECT_S}s Collecting){'':<14} ║
+║  Skema Run    : 50 Run × ({ACQ_PURGE_S}s Purging + {ACQ_COLLECT_S}s Collecting){'':<14} ║
 ║  Output File  : {os.path.basename(out_csv):<52} ║
 ╚══════════════════════════════════════════════════════════════════════╝
 """)
@@ -501,10 +500,11 @@ def main():
    Roast Level   : {roast_level}
    Origin        : {origin}
    Batch ID      : {batch_id}
-   Purging Rows  : {purging_n} sampel ({ACQ_PURGE_S}s × 5 run)
-   Collect Rows  : {collecting_n} sampel ({ACQ_COLLECT_S}s × 5 run)
+   Purging Rows  : {purging_n} sampel ({ACQ_PURGE_S}s × 50 run)
+   Collect Rows  : {collecting_n} sampel ({ACQ_COLLECT_S}s × 50 run)
    Total Baris   : {len(df)} baris raw data
-   Total Kolom   : {len(df.columns)} kolom
+   Total Kolom   : {len(df.columns)} kolom#valve_on
+   
 """)
     else:
         print("\n⚠️ Tidak ada data yang diterima. File CSV tidak dibuat.")
