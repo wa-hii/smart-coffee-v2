@@ -50,7 +50,7 @@ BAUD_RATE        = 115200
 OUTPUT_DIR       = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'data'))
 ACQ_PURGE_S      = 120    # Durasi purging per run (detik)
 ACQ_COLLECT_S    = 120   # Durasi collecting per run (detik)
-ACQ_REPETITIONS  = 5    # Jumlah run per sampel kopi
+ACQ_REPETITIONS  = 50   # Jumlah run per sampel kopi
 
 # ─── Database Sampel Eksperimen (Predefined Metadata) ───────────────────────────
 KNOWN_SAMPLES = {

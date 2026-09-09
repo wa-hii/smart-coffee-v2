@@ -180,7 +180,8 @@ void printWelcome() {
   Serial.println(F("    #scan;        Scan I2C bus"));
   Serial.println(F("    #valve_on;    Valve solenoid ON  (test collecting)"));
   Serial.println(F("    #valve_off;   Valve solenoid OFF (test purging)"));
-  Serial.println(F("    #valve_test;  Toggle valve 3x untuk verifikasi wiring"));
+  Serial.println(
+      F("    #valve_test;  Toggle valve 3x untuk verifikasi wiring"));
   Serial.println(F("    #help;        Tampilkan bantuan"));
   Serial.println(F("=============================================="));
   Serial.println(
@@ -347,28 +348,33 @@ void processCommand(const char *cmd) {
   } else if (strcmp(cmd, "#scan") == 0) {
     scanI2C();
 
-  // ── Valve debug commands ────────────────────────────────────────────────
+    // ── Valve debug commands ────────────────────────────────────────────────
   } else if (strcmp(cmd, "#valve_on") == 0) {
     if (acqState != AcqState::IDLE) {
-      Serial.println(F("{\"warn\":\"Tidak bisa tes valve saat akuisisi berjalan.\"}"));
+      Serial.println(
+          F("{\"warn\":\"Tidak bisa tes valve saat akuisisi berjalan.\"}"));
       return;
     }
     // Aktifkan solenoid → Port 1/33 terbuka (posisi COLLECTING)
     actuator.setCollecting();
-    Serial.println(F("{\"valve\":\"ON\",\"port\":\"1/33\",\"mode\":\"collecting\"}"));
+    Serial.println(
+        F("{\"valve\":\"ON\",\"port\":\"1/33\",\"mode\":\"collecting\"}"));
 
   } else if (strcmp(cmd, "#valve_off") == 0) {
     if (acqState != AcqState::IDLE) {
-      Serial.println(F("{\"warn\":\"Tidak bisa tes valve saat akuisisi berjalan.\"}"));
+      Serial.println(
+          F("{\"warn\":\"Tidak bisa tes valve saat akuisisi berjalan.\"}"));
       return;
     }
     // Matikan solenoid → Port 3/11 terbuka (posisi PURGING / spring return)
     actuator.setPurging();
-    Serial.println(F("{\"valve\":\"OFF\",\"port\":\"3/11\",\"mode\":\"purging\"}"));
+    Serial.println(
+        F("{\"valve\":\"OFF\",\"port\":\"3/11\",\"mode\":\"purging\"}"));
 
   } else if (strcmp(cmd, "#valve_test") == 0) {
     if (acqState != AcqState::IDLE) {
-      Serial.println(F("{\"warn\":\"Tidak bisa tes valve saat akuisisi berjalan.\"}"));
+      Serial.println(
+          F("{\"warn\":\"Tidak bisa tes valve saat akuisisi berjalan.\"}"));
       return;
     }
     // Toggle valve 3x dengan jeda 1 detik — verifikasi respons fisik solenoid
@@ -387,6 +393,95 @@ void processCommand(const char *cmd) {
     }
     actuator.stop();
     Serial.println(F("{\"valve_test\":\"done\"}"));
+
+  } else if (strcmp(cmd, "#pin_scan") == 0) {
+    if (acqState != AcqState::IDLE) {
+      Serial.println(
+          F("{\"warn\":\"Tidak bisa scan pin saat akuisisi berjalan.\"}"));
+      return;
+    }
+    // ── Pin Scanner: cari pin mana yang terhubung ke L293DD ──────────────
+    // Kandidat berdasarkan berbagai interpretasi "ATmega pin 19/20":
+    //   IC TQFP Pin 19 = PB0 = Arduino 53
+    //   IC TQFP Pin 20 = PB1 = Arduino 52
+    //   Arduino D19 = RX1 (PJ0)
+    //   Arduino D20 = SDA (PD1)
+    //   IC TQFP Pin 6 = PE4 = Arduino 2
+    //   IC TQFP Pin 7 = PE5 = Arduino 3
+    //   Lainnya: 10,11,12,13,14
+    static const uint8_t scanPins[] = {2,  3,  52, 53, 19, 20,
+                                       10, 11, 12, 13, 14};
+    static const uint8_t numScan = sizeof(scanPins) / sizeof(scanPins[0]);
+
+    Serial.println(F("{\"pin_scan\":\"start\"}"));
+    Serial.println(
+        F("Dengarkan KLIK pada valve. Catat nomor pin yang membuatnya klik."));
+    Serial.println(F("Setiap pin akan di-toggle HIGH 2 detik lalu LOW."));
+    Serial.println(F("========================================="));
+
+    for (uint8_t i = 0; i < numScan; i++) {
+      uint8_t p = scanPins[i];
+      pinMode(p, OUTPUT);
+      digitalWrite(p, LOW);
+    }
+    delay(500);
+
+    // Fase 1: Test single pin HIGH (cari pin enable atau direct drive)
+    for (uint8_t i = 0; i < numScan; i++) {
+      uint8_t p = scanPins[i];
+      Serial.print(F(">> Pin "));
+      Serial.print(p);
+      Serial.println(F(" = HIGH (2 detik)..."));
+
+      digitalWrite(p, HIGH);
+      delay(2000);
+      digitalWrite(p, LOW);
+      delay(500);
+    }
+
+    Serial.println(F("========================================="));
+    Serial.println(F("Fase 2: Test PASANGAN pin (differential H-bridge)"));
+    Serial.println(F("========================================="));
+
+    // Fase 2: Test pasangan pin (H-Bridge differential)
+    // Pasangan kandidat utama
+    static const uint8_t pairs[][2] = {
+        {53, 52}, // PB0+PB1 (IC pin 19+20)
+        {52, 53}, // reverse
+        {2, 3},   // PE4+PE5 (IC pin 6+7)
+        {3, 2},   // reverse
+        {19, 20}, // Arduino D19+D20
+        {20, 19}, // reverse
+    };
+    static const uint8_t numPairs = sizeof(pairs) / sizeof(pairs[0]);
+
+    for (uint8_t i = 0; i < numPairs; i++) {
+      uint8_t pA = pairs[i][0];
+      uint8_t pB = pairs[i][1];
+
+      Serial.print(F(">> Pin "));
+      Serial.print(pA);
+      Serial.print(F("=HIGH + Pin "));
+      Serial.print(pB);
+      Serial.println(F("=LOW (2 detik)..."));
+
+      digitalWrite(pA, HIGH);
+      digitalWrite(pB, LOW);
+      delay(2000);
+      digitalWrite(pA, LOW);
+      digitalWrite(pB, LOW);
+      delay(500);
+    }
+
+    // Kembalikan semua pin LOW
+    for (uint8_t i = 0; i < numScan; i++) {
+      digitalWrite(scanPins[i], LOW);
+    }
+
+    Serial.println(F("========================================="));
+    Serial.println(F("{\"pin_scan\":\"done\"}"));
+    Serial.println(
+        F("Laporkan nomor pin atau pasangan yang membuat valve KLIK."));
 
   } else {
     Serial.print(F("{\"warn\":\"Perintah tidak dikenal\",\"cmd\":\""));
