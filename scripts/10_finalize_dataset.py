@@ -32,7 +32,7 @@ OUT_FINAL   = os.path.join(PROCESSED_DIR, 'ml_dataset_final.csv')
 OUT_SUMMARY = os.path.join(PROCESSED_DIR, 'ml_dataset_summary.md')
 
 # ── Sensor / stat config ──────────────────────────────────────────────────────
-SENSORS = ['TGS822','MQ135','MQ9','TGS2611','TGS2620',
+SENSORS = ['TGS822','MQ135','MQ3','TGS2611','TGS2620',
            'TGS2600','TGS2602','MQ8','TGS813','TGS816']
 ALL_STATS = ['mean','median','min','max','range','std','var',
              'initial','final','delta','slope','auc']
@@ -47,7 +47,7 @@ REDUNDANT_STATS  = {'median', 'auc', 'var', 'initial', 'final'}
 KEPT_STATS       = {'mean', 'max', 'min', 'range', 'std', 'delta', 'slope'}
 
 # Sensors with low discrimination (most features not significant)
-LOW_INFO_SENSORS = {'MQ135', 'MQ9', 'TGS2600'}
+LOW_INFO_SENSORS = {'MQ135', 'MQ3', 'TGS2600'}
 
 # Sensors with batch drift detected
 DRIFT_SENSORS    = {'TGS822', 'TGS2611'}

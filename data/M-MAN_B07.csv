@@ -1,4 +1,4 @@
-timestamp,sample_id,roast_level,origin,batch_id,run_id,phase,sample_idx,adc_tgs822,adc_mq135,adc_mq9,adc_tgs2611,adc_tgs2620,adc_tgs2600,adc_tgs2602,adc_mq8,adc_tgs813,adc_tgs816,temperature,humidity
+timestamp,sample_id,roast_level,origin,batch_id,run_id,phase,sample_idx,adc_tgs822,adc_mq135,adc_mq3,adc_tgs2611,adc_tgs2620,adc_tgs2600,adc_tgs2602,adc_mq8,adc_tgs813,adc_tgs816,temperature,humidity
 2222,M-MAN,medium,Manglayang,B07,1,collecting,1,18568,3001,2978,7969,17026,2983,8184,19587,19704,16517,,
 3221,M-MAN,medium,Manglayang,B07,1,collecting,2,18547,3003,2979,7982,17004,2980,8172,19568,19688,16478,,
 4221,M-MAN,medium,Manglayang,B07,1,collecting,3,18525,3000,2978,7994,16983,2984,8160,19550,19672,16437,,

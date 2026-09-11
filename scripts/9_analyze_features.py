@@ -43,7 +43,7 @@ PLOT_CORR    = os.path.join(PLOTS_DIR, 'correlations')
 PLOT_BATCH   = os.path.join(PLOTS_DIR, 'batch_comparison')
 
 # ── Sensor & Feature Config ────────────────────────────────────────────────────
-SENSORS = ['TGS822','MQ135','MQ9','TGS2611','TGS2620',
+SENSORS = ['TGS822','MQ135','MQ3','TGS2611','TGS2620',
            'TGS2600','TGS2602','MQ8','TGS813','TGS816']
 
 STATS = ['mean','median','min','max','range','std','var',

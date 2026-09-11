@@ -1,4 +1,4 @@
-timestamp,sample_id,roast_level,origin,batch_id,run_id,phase,sample_idx,adc_tgs822,adc_mq135,adc_mq9,adc_tgs2611,adc_tgs2620,adc_tgs2600,adc_tgs2602,adc_mq8,adc_tgs813,adc_tgs816,temperature,humidity
+timestamp,sample_id,roast_level,origin,batch_id,run_id,phase,sample_idx,adc_tgs822,adc_mq135,adc_mq3,adc_tgs2611,adc_tgs2620,adc_tgs2600,adc_tgs2602,adc_mq8,adc_tgs813,adc_tgs816,temperature,humidity
 2183,L-GAY,light,Arabika Gayo Aceh,B03,1,purging,1,9010,2972,2963,7882,11092,2946,8046,15417,16497,13468,,
 3183,L-GAY,light,Arabika Gayo Aceh,B03,1,purging,2,8987,2972,2965,7888,11061,2946,8046,15402,16479,13446,,
 4184,L-GAY,light,Arabika Gayo Aceh,B03,1,purging,3,8963,2972,2967,7894,11031,2951,8045,15386,16461,13425,,

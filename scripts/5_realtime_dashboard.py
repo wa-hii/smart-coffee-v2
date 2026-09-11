@@ -54,7 +54,7 @@ SENSORS = {
     'adc_tgs816':  {'label': 'TGS816',  'color': '#76FF03', 'group': 'TGS'},
     # MQ Series (oranye-merah)
     'adc_mq135':   {'label': 'MQ135',   'color': '#FF6D00', 'group': 'MQ'},
-    'adc_mq9':     {'label': 'MQ9',     'color': '#FF3D00', 'group': 'MQ'},
+    'adc_mq3':     {'label': 'MQ3',     'color': '#FF3D00', 'group': 'MQ'},
     'adc_mq8':     {'label': 'MQ8',     'color': '#FFAB00', 'group': 'MQ'},
 }
 

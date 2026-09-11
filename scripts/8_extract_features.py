@@ -29,13 +29,13 @@ DATA_DIR      = os.path.join(BASE_DIR, 'data')
 PROCESSED_DIR = os.path.join(BASE_DIR, 'processed')
 
 ADC_COLS = [
-    'adc_tgs822', 'adc_mq135',  'adc_mq9',    'adc_tgs2611',
+    'adc_tgs822', 'adc_mq135',  'adc_mq3',    'adc_tgs2611',
     'adc_tgs2620','adc_tgs2600','adc_tgs2602', 'adc_mq8',
     'adc_tgs813', 'adc_tgs816',
 ]
 
 SENSOR_LABEL = {
-    'adc_tgs822':'TGS822','adc_mq135':'MQ135','adc_mq9':'MQ9',
+    'adc_tgs822':'TGS822','adc_mq135':'MQ135','adc_mq3':'MQ3',
     'adc_tgs2611':'TGS2611','adc_tgs2620':'TGS2620','adc_tgs2600':'TGS2600',
     'adc_tgs2602':'TGS2602','adc_mq8':'MQ8','adc_tgs813':'TGS813','adc_tgs816':'TGS816',
 }

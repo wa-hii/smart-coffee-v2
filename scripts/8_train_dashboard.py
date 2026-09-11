@@ -22,7 +22,7 @@ OUTPUT_HEADER = os.path.join(SCRIPTS_DIR, '..', 'include', 'model_rf_atmega.h')
 MODEL_PATH = os.path.join(DATA_DIR, 'model_rf.joblib')
 
 ADC_COLS = [
-    'adc_tgs822', 'adc_mq135', 'adc_mq9', 'adc_tgs2611',
+    'adc_tgs822', 'adc_mq135', 'adc_mq3', 'adc_tgs2611',
     'adc_tgs2620', 'adc_tgs2600', 'adc_tgs2602', 'adc_mq8',
     'adc_tgs813', 'adc_tgs816'
 ]
@@ -87,17 +87,41 @@ st.markdown("""
 @st.cache_data
 def load_raw_data():
     csv_files = glob.glob(os.path.join(DATA_DIR, '*.csv'))
-    csv_files = [f for f in csv_files if 'dataset_fitur' not in os.path.basename(f) and 'anomalies' not in f]
+    skip = ['dataset_fitur', 'dataset_interactive', 'anomal']
+    csv_files = [f for f in csv_files if not any(p in os.path.basename(f).lower() for p in skip)]
     
     if not csv_files:
         return None
         
+    import re
     dfs = []
     for f in csv_files:
         try:
             df = pd.read_csv(f)
+            fname = os.path.basename(f)
             if 'source_file' not in df.columns:
-                df['source_file'] = os.path.basename(f)
+                df['source_file'] = fname
+                
+            # Standarisasi Label Roasting
+            if 'label' not in df.columns and 'roast_level' in df.columns:
+                df['label'] = df['roast_level']
+            if 'label' in df.columns:
+                df['label'] = df['label'].astype(str).str.lower().str.strip()
+                
+            # Standarisasi Siklus / Run ID
+            if 'cycle' not in df.columns:
+                if 'run_id' in df.columns:
+                    df['cycle'] = df['run_id']
+                else:
+                    df['cycle'] = 1
+                    
+            # Standarisasi Batch ID
+            if 'batch_id' not in df.columns or df['batch_id'].dropna().empty:
+                m = re.search(r'_(B\d+)', fname, re.IGNORECASE)
+                df['batch_id'] = m.group(1).upper() if m else 'Legacy / Lainnya'
+            else:
+                df['batch_id'] = df['batch_id'].astype(str).str.strip().str.upper()
+                
             dfs.append(df)
         except Exception as e:
             pass
@@ -112,13 +136,17 @@ def extract_features(df_all, selected_features):
     if df_col.empty:
         return None
         
+    df_col = df_col[df_col['label'].isin(['light', 'medium', 'dark'])].copy()
+    if df_col.empty:
+        return None
+        
     for col in ADC_COLS:
         df_col[col] = pd.to_numeric(df_col[col], errors='coerce').fillna(0)
         
     if 'cycle' not in df_col.columns:
         df_col['cycle'] = 1
         
-    group_keys = ['source_file', 'label', 'cycle']
+    group_keys = ['source_file', 'batch_id', 'label', 'cycle']
     available_keys = [k for k in group_keys if k in df_col.columns]
     
     rows = []
@@ -127,6 +155,7 @@ def extract_features(df_all, selected_features):
         
         row = {
             'source_file': key_dict.get('source_file', '?'),
+            'batch_id': key_dict.get('batch_id', '?'),
             'label': key_dict.get('label', '?'),
             'cycle': key_dict.get('cycle', 1)
         }
@@ -171,8 +200,8 @@ def main():
                     font-size: 40px; font-weight: 800; margin-bottom: 5px;'>
             ☕ E-Nose Coffee Roast Trainer Dashboard
         </h1>
-        <p style='color: #94A3B8; font-size: 16px; margin-bottom: 25px;'>
-            Eksplorasi data sensor E-Nose secara visual, latih model Random Forest (TinyML), dan ekspor kode header C++ secara instan.
+        <p style='color: #94A3B8; font-size: 16px; margin-bottom: 15px;'>
+            Eksplorasi data sensor E-Nose secara visual, pilih database batch pembanding, latih model Random Forest (TinyML), dan ekspor C++ header.
         </p>
     """, unsafe_allow_html=True)
     
@@ -181,12 +210,63 @@ def main():
         st.error("❌ Tidak ada file CSV raw ditemukan di folder data/.")
         st.stop()
         
+    # ── Sidebar: Pemilihan Database Batch Pembanding ──
+    st.sidebar.markdown("### 📁 Database Pembanding (Multi-Batch)")
+    
+    # Ambil list batch unik
+    all_batches_raw = df_raw['batch_id'].dropna().unique().tolist()
+    all_batches = sorted(all_batches_raw, key=lambda x: (x.startswith('Legacy'), x))
+    
+    # Mode pemilihan batch (Dapat memilih lebih dari 1 batch)
+    batch_mode = st.sidebar.radio(
+        "Mode Pemilihan Batch:",
+        options=[
+            "🎯 Multi-Batch (Pilih Lebih Dari 1 Batch)",
+            "⭐ Hanya Batch 10 (Rekomendasi - 21 File)",
+            "🌐 Semua Batch (Gabungan Seluruh Database)"
+        ],
+        index=0,
+        help="Pilih satu atau beberapa batch datasheet untuk digabungkan sebagai database pembanding klasifikasi."
+    )
+    
+    if batch_mode.startswith("⭐ Hanya Batch 10"):
+        active_batches = ["B10"] if "B10" in all_batches else [all_batches[0]]
+    elif batch_mode.startswith("🌐 Semua Batch"):
+        active_batches = all_batches
+    else:
+        active_batches = st.sidebar.multiselect(
+            "Pilih Batch-Batch Aktif:",
+            options=all_batches,
+            default=["B10"] if "B10" in all_batches else [all_batches[0]],
+            help="Pilih satu atau lebih batch sekaligus untuk digabungkan."
+        )
+        
+    if not active_batches:
+        st.sidebar.warning("⚠️ Harap pilih minimal 1 batch pembanding!")
+        st.stop()
+        
+    # Filter dataset mentah sesuai batch yang dipilih
+    df_filtered_raw = df_raw[df_raw['batch_id'].isin(active_batches)].copy()
+    n_active_files = df_filtered_raw['source_file'].nunique()
+    
+    # Status card di sidebar
+    batches_display = ", ".join(active_batches) if len(active_batches) <= 4 else f"{len(active_batches)} Batch Terpilih"
+    st.sidebar.markdown(f"""
+    <div style="background-color: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 12px 16px; margin-bottom: 20px;">
+        <div style="font-size: 11px; color: #94A3B8; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;">Batch Pembanding Aktif</div>
+        <div style="font-size: 16px; font-weight: bold; color: #38BDF8; margin-top: 3px;">{batches_display}</div>
+        <div style="font-size: 12px; color: #E2E8F0; margin-top: 4px;">
+            📄 <b>{n_active_files}</b> file datasheet CSV
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
     # Sidebar config
     st.sidebar.header("⚙️ Konfigurasi Model")
     
     # Hyperparameters
-    n_estimators = st.sidebar.slider("Jumlah Pohon (n_estimators)", min_value=1, max_value=25, value=8)
-    max_depth = st.sidebar.slider("Kedalaman Maks (max_depth)", min_value=1, max_value=10, value=4)
+    n_estimators = st.sidebar.slider("Jumlah Pohon (n_estimators)", min_value=1, max_value=25, value=12)
+    max_depth = st.sidebar.slider("Kedalaman Maks (max_depth)", min_value=1, max_value=10, value=5)
     test_size = st.sidebar.slider("Rasio Data Test (%)", min_value=10, max_value=40, value=20) / 100.0
     
     # Feature Selectors
@@ -198,11 +278,26 @@ def main():
         default=["AUC (Sum)", "Ratios to MQ135", "Ratios to TGS822"]
     )
     
-    # Trigger Feature Extraction
-    df_feat = extract_features(df_raw, selected_features)
+    # Trigger Feature Extraction hanya dari batch yang dipilih
+    df_feat = extract_features(df_filtered_raw, selected_features)
     if df_feat is None or df_feat.empty:
-        st.error("Gagal melakukan ekstraksi fitur.")
+        st.error(f"Gagal melakukan ekstraksi fitur untuk batch: {', '.join(active_batches)}.")
         st.stop()
+        
+    n_active_samples = len(df_feat)
+    
+    # Tampilkan banner status database pembanding di atas layar utama
+    st.markdown(f"""
+    <div style="background: linear-gradient(90deg, #1E293B, #0F172A); border-left: 6px solid #38BDF8; border-radius: 12px; padding: 14px 20px; margin-bottom: 22px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <div>
+            <span style="background: #2563EB; color: #FFFFFF; font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 4px; margin-right: 8px;">DATABASE PEMBANDING</span>
+            <span style="color: #F8FAFC; font-weight: 600; font-size: 15px;">Batch Aktif: <span style="color: #38BDF8; font-weight: bold;">{batches_display}</span></span>
+        </div>
+        <div style="color: #94A3B8; font-size: 13px;">
+            📄 <b>{n_active_files} File CSV</b> &nbsp;|&nbsp; 🔄 <b>{n_active_samples} Siklus Sampel</b> &nbsp;|&nbsp; 🟢 <span style="color: #10B981; font-weight: 600;">Siap Sebagai Acuan Klasifikasi</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Build list of feature columns
     base_cols = [f'mean_{c}' for c in ADC_COLS] + [f'max_{c}' for c in ADC_COLS]
@@ -225,7 +320,7 @@ def main():
         st.session_state.trained = False
         
     # Sidebar Training Button
-    if st.sidebar.button("🚀 Latih & Evaluasi Model", use_container_width=True):
+    if st.sidebar.button("Latih & Evaluasi Model", use_container_width=True):
         with st.spinner("Melatih model Random Forest..."):
             X = df_feat[feature_cols].fillna(0).to_numpy(dtype=np.float32)
             y = df_feat['label'].astype(str).to_numpy()
@@ -272,22 +367,25 @@ def main():
             rep = classification_report(y_test, y_pred, output_dict=True, zero_division=0)
             st.session_state.rep_df = pd.DataFrame(rep).transpose()
             
-            # Save model joblib
+            # Save dataset_fitur.csv dan model joblib
+            OUTPUT_CSV = os.path.join(DATA_DIR, 'dataset_fitur.csv')
+            df_feat.to_csv(OUTPUT_CSV, index=False)
             joblib.dump(clf, MODEL_PATH)
             
+            st.session_state.active_batches_trained = batches_display
             st.session_state.trained = True
-            st.success("✓ Model Random Forest berhasil dilatih!")
+            st.success(f"✓ Model Random Forest berhasil dilatih pada database: {batches_display}!")
             
     # Create Tabs
-    tab1, tab2 = st.tabs(["📊 Dataset Explorer (Tampilan Awal)", "🚀 Model Training & Evaluation"])
+    tab1, tab2 = st.tabs(["Dataset Explorer (Tampilan Awal)", "Model Training & Evaluation"])
     
     # ── Tab 1: Dataset Explorer ──
     with tab1:
-        st.markdown("### 🔍 Eksplorasi Data E-Nose Kopi")
+        st.markdown(f"### 🔍 Eksplorasi Data E-Nose Kopi — Batch: <span style='color:#38BDF8;'>{batches_display}</span>", unsafe_allow_html=True)
         explore_col1, explore_col2 = st.columns([1, 1.8])
         
         with explore_col1:
-            st.markdown("**Distribusi Kelas (Jumlah Sampel Siklus):**")
+            st.markdown(f"**Distribusi Kelas ({len(df_feat)} Sampel Siklus):**")
             # Coffee themed colors
             COLORS = {"light": "#E6A23C", "medium": "#3B82F6", "dark": "#593A2E"}
             counts = df_feat['label'].value_counts()
@@ -309,16 +407,32 @@ def main():
                         ha='center', va='bottom', color='white', fontweight='bold')
             st.pyplot(fig)
             
+            # Ringkasan per label
+            label_summary = " &bull; ".join([f"<b>{k.upper()}:</b> {v}" for k, v in counts.items()])
+            st.markdown(f"""
+            <div style="background-color: #1E293B; border: 1px solid #334155; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #CBD5E1;">
+                {label_summary}
+            </div>
+            """, unsafe_allow_html=True)
+            
         with explore_col2:
             st.markdown("**Grafik Kurva Respons Sensor Gas (Real-Time curves):**")
-            csv_files = glob.glob(os.path.join(DATA_DIR, '*.csv'))
-            csv_files = [f for f in csv_files if 'dataset_fitur' not in os.path.basename(f) and 'anomalies' not in f]
+            all_csvs = glob.glob(os.path.join(DATA_DIR, '*.csv'))
+            skip = ['dataset_fitur', 'dataset_interactive', 'anomal']
+            all_csvs = [f for f in all_csvs if not any(p in os.path.basename(f).lower() for p in skip)]
             
-            if csv_files:
-                sample_file = st.selectbox("Pilih File CSV Kopi untuk Melihat Respons Sensor:", 
-                                            [os.path.basename(f) for f in csv_files])
-                selected_path = os.path.join(DATA_DIR, sample_file)
-                df_sample = pd.read_csv(selected_path)
+            # Hanya ambil file dari datasheet / batch pembanding yang aktif
+            active_filenames = set(df_filtered_raw['source_file'].dropna().unique())
+            active_csvs = [f for f in all_csvs if os.path.basename(f) in active_filenames]
+            active_csvs = sorted(active_csvs, key=lambda x: os.path.basename(x))
+            
+            if active_csvs:
+                selected_file_path = st.selectbox(
+                    "Pilih File CSV Kopi (Datasheet Aktif):", 
+                    options=active_csvs,
+                    format_func=lambda fpath: os.path.basename(fpath)
+                )
+                df_sample = pd.read_csv(selected_file_path)
                 
                 # Plot the 10 sensors
                 fig, ax = plt.subplots(figsize=(10, 5.5))
@@ -327,7 +441,7 @@ def main():
                 
                 # Vibrant custom colors for sensors
                 sensor_colors = {
-                    'adc_tgs822': '#00E676', 'adc_mq135': '#FF6D00', 'adc_mq9': '#FF3D00', 
+                    'adc_tgs822': '#00E676', 'adc_mq135': '#FF6D00', 'adc_mq3': '#FF3D00', 
                     'adc_tgs2611': '#00BFA5', 'adc_tgs2620': '#18FFFF', 'adc_tgs2600': '#64FFDA', 
                     'adc_tgs2602': '#A7FFEB', 'adc_mq8': '#FFAB00', 'adc_tgs813': '#B2FF59', 
                     'adc_tgs816': '#76FF03'
@@ -346,10 +460,15 @@ def main():
                           bbox_to_anchor=(1.02, 1), loc='upper left')
                 plt.tight_layout()
                 st.pyplot(fig)
+            else:
+                st.warning("Tidak ada file datasheet CSV yang cocok dengan batch aktif saat ini.")
                 
     # ── Tab 2: Training & Evaluation ──
     with tab2:
-        st.markdown(f"**Jumlah Fitur Aktif:** `{len(feature_cols)}` fitur.")
+        st.markdown(f"**Database Pembanding:** `{batches_display}` &nbsp;|&nbsp; **Jumlah Fitur Aktif:** `{len(feature_cols)}` fitur.")
+        if st.session_state.trained:
+            trained_batch = getattr(st.session_state, 'active_batches_trained', batches_display)
+            st.info(f"ℹ️ Model Random Forest aktif saat ini dilatih dengan database pembanding: **{trained_batch}** ({len(df_feat)} siklus sampel).")
         
         if st.session_state.trained:
             # Layout splits
@@ -425,7 +544,7 @@ def main():
             exp_col1, exp_col2 = st.columns([1, 2])
             with exp_col1:
                 st.markdown("**Ekspor ke C++ Header:**")
-                if st.button("💾 Generate & Save model_rf_atmega.h", use_container_width=True):
+                if st.button("Generate & Save model_rf_atmega.h", use_container_width=True):
                     success = export_model_atmega(MODEL_PATH, OUTPUT_HEADER, max_trees=n_estimators, max_depth=max_depth)
                     if success:
                         st.success(f"✓ File C++ header berhasil dibuat di {OUTPUT_HEADER}!")
@@ -441,7 +560,7 @@ def main():
                 else:
                     st.info("Klik tombol di sebelah kiri untuk menghasilkan file header C++.")
         else:
-            st.warning("👈 Silakan atur hyperparameter di sidebar dan klik **🚀 Latih & Evaluasi Model** untuk memulai melatih model dan melihat evaluasinya.")
+            st.warning("👈 Silakan atur hyperparameter di sidebar dan klik **Latih & Evaluasi Model** untuk memulai melatih model dan melihat evaluasinya.")
 
 if __name__ == '__main__':
     main()

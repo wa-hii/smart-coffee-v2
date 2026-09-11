@@ -16,7 +16,7 @@ Raw CSV tidak diubah.
 |---|---:|---:|---:|---:|---:|
 | adc_tgs822 | 13743.41 | 2396.02 | 17.43 | 65533.00 | -0.0501 |
 | adc_mq135 | 2864.92 | 54.38 | 1.90 | 221.00 | -0.0012 |
-| adc_mq9 | 2851.64 | 54.63 | 1.92 | 210.00 | -0.0011 |
+| adc_mq3 | 2851.64 | 54.63 | 1.92 | 210.00 | -0.0011 |
 | adc_tgs2611 | 8908.42 | 1572.12 | 17.65 | 18947.00 | -0.0189 |
 | adc_tgs2620 | 10294.43 | 1630.61 | 15.84 | 65530.00 | -0.0264 |
 | adc_tgs2600 | 2848.57 | 59.09 | 2.07 | 216.00 | -0.0012 |
@@ -36,7 +36,7 @@ Raw CSV tidak diubah.
 
 - adc_tgs822: mean tertinggi pada **dark** dan terendah pada **light**. Ini hanya indikasi perbedaan visual/deskriptif.
 - adc_mq135: mean tertinggi pada **dark** dan terendah pada **light**. Ini hanya indikasi perbedaan visual/deskriptif.
-- adc_mq9: mean tertinggi pada **dark** dan terendah pada **light**. Ini hanya indikasi perbedaan visual/deskriptif.
+- adc_mq3: mean tertinggi pada **dark** dan terendah pada **light**. Ini hanya indikasi perbedaan visual/deskriptif.
 - adc_tgs2611: mean tertinggi pada **medium** dan terendah pada **light**. Ini hanya indikasi perbedaan visual/deskriptif.
 - adc_tgs2620: mean tertinggi pada **dark** dan terendah pada **light**. Ini hanya indikasi perbedaan visual/deskriptif.
 - adc_tgs2600: mean tertinggi pada **dark** dan terendah pada **light**. Ini hanya indikasi perbedaan visual/deskriptif.

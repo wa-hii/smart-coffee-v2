@@ -1,4 +1,4 @@
-timestamp,sample_id,roast_level,origin,batch_id,run_id,phase,sample_idx,adc_tgs822,adc_mq135,adc_mq9,adc_tgs2611,adc_tgs2620,adc_tgs2600,adc_tgs2602,adc_mq8,adc_tgs813,adc_tgs816,temperature,humidity
+timestamp,sample_id,roast_level,origin,batch_id,run_id,phase,sample_idx,adc_tgs822,adc_mq135,adc_mq3,adc_tgs2611,adc_tgs2620,adc_tgs2600,adc_tgs2602,adc_mq8,adc_tgs813,adc_tgs816,temperature,humidity
 2170,L-MAN,light,Arabika Manglayang Jawa Barat,B03,1,purging,1,7467,2834,2828,8225,6938,2820,8228,12545,9432,11026,,
 3169,L-MAN,light,Arabika Manglayang Jawa Barat,B03,1,purging,2,7466,2836,2828,8224,6938,2817,8229,12543,9429,11026,,
 4169,L-MAN,light,Arabika Manglayang Jawa Barat,B03,1,purging,3,7465,2836,2828,8223,6939,2820,8230,12540,9427,11026,,

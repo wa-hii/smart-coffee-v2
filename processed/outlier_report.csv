@@ -1,5 +1,5 @@
 row_index,sample_id,batch_id,run_id,roast_level,n_outlier_feats,max_z,outlier_features,is_outlier
-0,D-BAR,B05,1,dark,19,8.065106528674022,"MQ135_range, MQ135_std, MQ135_var, MQ9_range, MQ9_std",True
+0,D-BAR,B05,1,dark,19,8.065106528674022,"MQ135_range, MQ135_std, MQ135_var, MQ3_range, MQ3_std",True
 1,D-BAR,B05,2,dark,6,6.52410399023465,"TGS2602_std, TGS2602_var, MQ8_var, TGS816_range, TGS816_std",True
 10,D-MAN,B01,1,dark,2,4.685064797756311,"MQ8_range, MQ8_var",True
 20,D-MAN,B02,1,dark,18,12.352917754209324,"MQ135_range, MQ135_std, MQ135_var, MQ135_delta, MQ135_slope",True
@@ -12,7 +12,7 @@ row_index,sample_id,batch_id,run_id,roast_level,n_outlier_feats,max_z,outlier_fe
 40,D-RAT,B04,1,dark,12,5.760360495816135,"TGS822_var, TGS2620_range, TGS2620_var, TGS2600_range, TGS2600_std",True
 50,L-GAY,B03,1,light,28,5.050677034746839,"MQ135_mean, MQ135_median, MQ135_min, MQ135_max, MQ135_final",True
 51,L-GAY,B03,2,light,5,5.392139872647606,"TGS2600_range, TGS2600_std, TGS2600_var, TGS2600_delta, TGS2600_slope",True
-52,L-GAY,B03,3,light,1,3.5378828956067228,MQ9_var,True
+52,L-GAY,B03,3,light,1,3.5378828956067228,MQ3_var,True
 60,L-GAY,B04,1,light,2,3.6043601454866043,"MQ8_range, MQ8_var",True
 80,L-MAN,B03,1,light,5,5.041009018752974,"TGS2620_range, MQ8_range, TGS813_range, TGS813_delta, TGS816_range",True
 81,L-MAN,B03,2,light,1,4.242619999605658,TGS813_delta,True

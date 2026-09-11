@@ -2,7 +2,7 @@
 // sensor.cpp — Implementasi Modul Sensor Gas E-NOSE v2
 //
 // 10 sensor di 4 ADS1115:
-//   ADS1 (0x48): TGS822(A1), MQ135(A2), MQ9(A3)
+//   ADS1 (0x48): TGS822(A1), MQ135(A2), MQ3(A3)
 //   ADS2 (0x49): TGS2611(A0), TGS2620(A1)
 //   ADS3 (0x4A): TGS2600(A0), TGS2602(A1)
 //   ADS4 (0x4B): MQ8(A3), TGS813(A1), TGS816(A2)
@@ -15,7 +15,7 @@
 static const float SENSOR_RL[] = {
     20.0,   // TGS822
     20.0,   // MQ135
-    20.0,   // MQ9
+    20.0,   // MQ3
     20.0,   // TGS2611
     20.0,   // TGS2620
     20.0,   // TGS2600
@@ -28,7 +28,7 @@ static const float SENSOR_RL[] = {
 static const float RATIO_AIR[] = {
     17.0,   // TGS822
     3.6,    // MQ135
-    9.6,    // MQ9
+    60.0,   // MQ3
     19.0,   // TGS2611
     21.0,   // TGS2620
     10.0,   // TGS2600
@@ -47,7 +47,7 @@ SensorArray::SensorArray()
     , ads3_(I2C_ADDR_ADS3)
     , ads4_(I2C_ADDR_ADS4)
     , mq135_("ATmega2560", ADS_VOLTAGE, ADS_ADC, 0, "MQ-135")
-    , mq9_  ("ATmega2560", ADS_VOLTAGE, ADS_ADC, 0, "MQ-9")
+    , mq3_  ("ATmega2560", ADS_VOLTAGE, ADS_ADC, 0, "MQ-3")
     , mq8_  ("ATmega2560", ADS_VOLTAGE, ADS_ADC, 0, "MQ-8")
 {
     memset(adc_, 0, sizeof(adc_));
@@ -84,7 +84,7 @@ bool SensorArray::begin() {
 
     // ── Konfigurasi MQ sensors ───────────────────────────────────────────────
     mq135_.setRegressionMethod(1); mq135_.setRL(SENSOR_RL[SENSOR_MQ135]);
-    mq9_.setRegressionMethod(1);   mq9_.setRL(SENSOR_RL[SENSOR_MQ9]);
+    mq3_.setRegressionMethod(1);   mq3_.setRL(SENSOR_RL[SENSOR_MQ3]);
     mq8_.setRegressionMethod(1);   mq8_.setRL(SENSOR_RL[SENSOR_MQ8]);
 
     // ── Konfigurasi TGS sensors ──────────────────────────────────────────────
@@ -128,15 +128,15 @@ void SensorArray::calibrate() {
         mq135_.setR0(calc_r0 / SENSOR_RL[SENSOR_MQ135]);
         saveR0ToEeprom(SENSOR_MQ135, calc_r0);
 
-        // MQ9
+        // MQ3
         calc_r0 = 0;
         for (int i = 0; i < 10; i++) {
-            adc_[SENSOR_MQ9] = ads1_.readADC(ADS1_CHAN_MQ9);
-            mq9_.setADC(adc_[SENSOR_MQ9]);
-            calc_r0 += mq9_.calibrate(RATIO_AIR[SENSOR_MQ9]);
+            adc_[SENSOR_MQ3] = ads1_.readADC(ADS1_CHAN_MQ3);
+            mq3_.setADC(adc_[SENSOR_MQ3]);
+            calc_r0 += mq3_.calibrate(RATIO_AIR[SENSOR_MQ3]);
         }
-        mq9_.setR0(calc_r0 / SENSOR_RL[SENSOR_MQ9]);
-        saveR0ToEeprom(SENSOR_MQ9, calc_r0);
+        mq3_.setR0(calc_r0 / SENSOR_RL[SENSOR_MQ3]);
+        saveR0ToEeprom(SENSOR_MQ3, calc_r0);
     }
 
     // ── ADS2 ──────────────────────────────────────────────────────────────────
@@ -239,8 +239,8 @@ bool SensorArray::loadCalibration() {
     r0 = loadR0FromEeprom(SENSOR_MQ135); if (r0 <= 0) return false;
     mq135_.setR0(r0 / SENSOR_RL[SENSOR_MQ135]);
 
-    r0 = loadR0FromEeprom(SENSOR_MQ9);   if (r0 <= 0) return false;
-    mq9_.setR0(r0 / SENSOR_RL[SENSOR_MQ9]);
+    r0 = loadR0FromEeprom(SENSOR_MQ3);   if (r0 <= 0) return false;
+    mq3_.setR0(r0 / SENSOR_RL[SENSOR_MQ3]);
 
     r0 = loadR0FromEeprom(SENSOR_MQ8);   if (r0 <= 0) return false;
     mq8_.setR0(r0 / SENSOR_RL[SENSOR_MQ8]);
@@ -278,9 +278,9 @@ void SensorArray::readAll() {
     if (hasAds1_) {
         adc_[SENSOR_TGS822]  = ads1_.readADC(ADS1_CHAN_TGS822);
         adc_[SENSOR_MQ135]   = ads1_.readADC(ADS1_CHAN_MQ135);
-        adc_[SENSOR_MQ9]     = ads1_.readADC(ADS1_CHAN_MQ9);
+        adc_[SENSOR_MQ3]     = ads1_.readADC(ADS1_CHAN_MQ3);
     } else {
-        adc_[SENSOR_TGS822] = 0; adc_[SENSOR_MQ135] = 0; adc_[SENSOR_MQ9] = 0;
+        adc_[SENSOR_TGS822] = 0; adc_[SENSOR_MQ135] = 0; adc_[SENSOR_MQ3] = 0;
     }
 
     // ADS2 (0x49)
@@ -322,7 +322,7 @@ void SensorArray::printJsonData(const char* phase, uint32_t cycle, uint32_t samp
     // 10 ADC values
     Serial.print(F(",\"adc_tgs822\":"));  Serial.print(adc_[SENSOR_TGS822]);
     Serial.print(F(",\"adc_mq135\":"));   Serial.print(adc_[SENSOR_MQ135]);
-    Serial.print(F(",\"adc_mq9\":"));     Serial.print(adc_[SENSOR_MQ9]);
+    Serial.print(F(",\"adc_mq3\":"));     Serial.print(adc_[SENSOR_MQ3]);
     Serial.print(F(",\"adc_tgs2611\":")); Serial.print(adc_[SENSOR_TGS2611]);
     Serial.print(F(",\"adc_tgs2620\":")); Serial.print(adc_[SENSOR_TGS2620]);
     Serial.print(F(",\"adc_tgs2600\":")); Serial.print(adc_[SENSOR_TGS2600]);

@@ -31,7 +31,7 @@
 |--------|----------|--------|
 | TGS822 *(drift terdeteksi)* | max, mean, min, range, slope, std | 6 |
 | MQ135 | slope, std | 2 |
-| MQ9 | slope, std | 2 |
+| MQ3 | slope, std | 2 |
 | TGS2611 *(drift terdeteksi)* | delta, max, range, slope, std | 5 |
 | TGS2620 | max, mean, min, range, slope, std | 6 |
 | TGS2600 | - | 0 |
@@ -58,11 +58,11 @@ Fitur-fitur berikut sangat berkorelasi dengan fitur lain dan direduksi untuk men
 | `MQ135_initial` | r~0.999 dengan min | `MQ135_min` |
 | `MQ135_median` | r~1.0 dengan mean | `MQ135_mean` |
 | `MQ135_var` | r=1.0 dengan std (var = std^2) | `MQ135_std` |
-| `MQ9_auc` | r~1.0 dengan mean | `MQ9_mean` |
-| `MQ9_final` | r~0.999 dengan mean/median | `MQ9_mean` |
-| `MQ9_initial` | r~0.999 dengan min | `MQ9_min` |
-| `MQ9_median` | r~1.0 dengan mean | `MQ9_mean` |
-| `MQ9_var` | r=1.0 dengan std (var = std^2) | `MQ9_std` |
+| `MQ3_auc` | r~1.0 dengan mean | `MQ3_mean` |
+| `MQ3_final` | r~0.999 dengan mean/median | `MQ3_mean` |
+| `MQ3_initial` | r~0.999 dengan min | `MQ3_min` |
+| `MQ3_median` | r~1.0 dengan mean | `MQ3_mean` |
+| `MQ3_var` | r=1.0 dengan std (var = std^2) | `MQ3_std` |
 | `TGS2611_auc` | r~1.0 dengan mean | `TGS2611_mean` |
 | `TGS2611_final` | r~0.999 dengan mean/median | `TGS2611_mean` |
 | `TGS2611_initial` | r~0.999 dengan min | `TGS2611_min` |
@@ -105,7 +105,7 @@ Fitur-fitur berikut sangat berkorelasi dengan fitur lain dan direduksi untuk men
 |--------|---------------------------|
 | TGS822 | delta |
 | MQ135 | delta, max, mean, min |
-| MQ9 | max, mean, min |
+| MQ3 | max, mean, min |
 | TGS2611 | mean, min |
 | TGS2620 | delta |
 | TGS2600 | max, mean, min, range, slope, std |
@@ -129,7 +129,7 @@ Fitur-fitur berikut sangat berkorelasi dengan fitur lain dan direduksi untuk men
 
 | Sample | Batch | Run | Roast | n_outlier_feats | max_z | Outlier Features (5 teratas) |
 |--------|-------|-----|-------|-----------------|-------|------------------------------|
-| D-BAR | B05 | 1 | dark | 19 | 8.07 | `MQ135_range, MQ135_std, MQ135_var, MQ9_range, MQ9_std` |
+| D-BAR | B05 | 1 | dark | 19 | 8.07 | `MQ135_range, MQ135_std, MQ135_var, MQ3_range, MQ3_std` |
 | D-BAR | B05 | 2 | dark | 6 | 6.52 | `TGS2602_std, TGS2602_var, MQ8_var, TGS816_range, TGS816_std` |
 | D-MAN | B01 | 1 | dark | 2 | 4.69 | `MQ8_range, MQ8_var` |
 | D-MAN | B02 | 1 | dark | 18 | 12.35 | `MQ135_range, MQ135_std, MQ135_var, MQ135_delta, MQ135_slope` |
@@ -142,7 +142,7 @@ Fitur-fitur berikut sangat berkorelasi dengan fitur lain dan direduksi untuk men
 | D-RAT | B04 | 1 | dark | 12 | 5.76 | `TGS822_var, TGS2620_range, TGS2620_var, TGS2600_range, TGS2600_std` |
 | L-GAY | B03 | 1 | light | 28 | 5.05 | `MQ135_mean, MQ135_median, MQ135_min, MQ135_max, MQ135_final` |
 | L-GAY | B03 | 2 | light | 5 | 5.39 | `TGS2600_range, TGS2600_std, TGS2600_var, TGS2600_delta, TGS2600_slope` |
-| L-GAY | B03 | 3 | light | 1 | 3.54 | `MQ9_var` |
+| L-GAY | B03 | 3 | light | 1 | 3.54 | `MQ3_var` |
 | L-GAY | B04 | 1 | light | 2 | 3.60 | `MQ8_range, MQ8_var` |
 | L-MAN | B03 | 1 | light | 5 | 5.04 | `TGS2620_range, MQ8_range, TGS813_range, TGS813_delta, TGS816_range` |
 | L-MAN | B03 | 2 | light | 1 | 4.24 | `TGS813_delta` |

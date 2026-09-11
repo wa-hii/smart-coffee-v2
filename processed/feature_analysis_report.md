@@ -38,7 +38,7 @@ Total: 307 pasangan
 | TGS816_auc | TGS816_mean | 1.0000 |
 | MQ8_auc | MQ8_mean | 0.9999 |
 | TGS2602_auc | TGS2602_mean | 0.9999 |
-| MQ9_median | MQ9_mean | 0.9999 |
+| MQ3_median | MQ3_mean | 0.9999 |
 | MQ135_median | MQ135_mean | 0.9999 |
 | TGS2600_median | TGS2600_mean | 0.9998 |
 | MQ8_initial | MQ8_min | 0.9996 |
@@ -48,7 +48,7 @@ Total: 307 pasangan
 | TGS2611_initial | TGS2611_min | 0.9989 |
 | TGS2611_final | TGS2611_max | 0.9988 |
 | TGS816_initial | TGS816_min | 0.9988 |
-| MQ9_initial | MQ9_max | 0.9988 |
+| MQ3_initial | MQ3_max | 0.9988 |
 
 File disimpan di: `plots/features/correlations/corr_<stat>.png`
 ## 4. Analisis Batch Effect
@@ -59,7 +59,7 @@ Analisis ini mendeteksi apakah terdapat perbedaan baseline atau drift antar batc
 |--------|-----|-----|-----|-----|-----|-------|
 | TGS822 | 13554 | 14849 | 12348 | 14277 | 16005 | DRIFT +18.1% |
 | MQ135 | 2820 | 2827 | 2846 | 2825 | 2868 | Stabil (+1.7%) |
-| MQ9 | 2807 | 2812 | 2835 | 2810 | 2851 | Stabil (+1.6%) |
+| MQ3 | 2807 | 2812 | 2835 | 2810 | 2851 | Stabil (+1.6%) |
 | TGS2611 | 8861 | 8606 | 8202 | 8521 | 10474 | DRIFT +18.2% |
 | TGS2620 | 10360 | 11024 | 8346 | 10223 | 11362 | Stabil (+9.7%) |
 | TGS2600 | 2799 | 2807 | 2824 | 2804 | 2844 | Stabil (+1.6%) |
@@ -122,9 +122,9 @@ Tabel ini menampilkan perbedaan rata-rata fitur `mean` per sensor antara roast l
 | MQ135 | mean | 2827.8 | 2825.1 | 2838.2 | -10.4 (0.4%) |
 | MQ135 | delta | 1.1 | 1.9 | -1.1 | +2.2 (200.5%) |
 | MQ135 | slope | -0.0 | -0.0 | -0.0 | +0.0 (82.0%) |
-| MQ9 | mean | 2814.2 | 2812.2 | 2823.0 | -8.8 (0.3%) |
-| MQ9 | delta | -3.7 | -2.8 | -5.4 | +1.7 (46.0%) |
-| MQ9 | slope | -0.0 | -0.0 | -0.0 | +0.0 (52.3%) |
+| MQ3 | mean | 2814.2 | 2812.2 | 2823.0 | -8.8 (0.3%) |
+| MQ3 | delta | -3.7 | -2.8 | -5.4 | +1.7 (46.0%) |
+| MQ3 | slope | -0.0 | -0.0 | -0.0 | +0.0 (52.3%) |
 | TGS2611 | mean | 8375.5 | 8856.2 | 8929.6 | -554.1 (6.6%) |
 | TGS2611 | delta | -6.8 | 22.5 | 75.8 | -82.6 (1212.4%) |
 | TGS2611 | slope | -0.1 | 0.1 | 0.3 | -0.4 (476.1%) |
@@ -161,10 +161,10 @@ Jumlah: 46
 - `MQ135_var`
 - `MQ135_delta`
 - `MQ135_slope`
-- `MQ9_std`
-- `MQ9_var`
-- `MQ9_delta`
-- `MQ9_slope`
+- `MQ3_std`
+- `MQ3_var`
+- `MQ3_delta`
+- `MQ3_slope`
 - `TGS2611_range`
 - `TGS2611_std`
 - `TGS2611_var`
@@ -179,7 +179,7 @@ Total: **82** fitur signifikan
 |--------|------------------|
 | TGS822 | mean, median, min, max, range, std, var, initial, final, slope, auc |
 | MQ135 | range, std, var, slope |
-| MQ9 | range, std, var, delta, slope |
+| MQ3 | range, std, var, delta, slope |
 | TGS2611 | max, range, std, var, final, delta, slope |
 | TGS2620 | mean, median, min, max, range, std, var, initial, final, slope, auc |
 | TGS2600 | delta |

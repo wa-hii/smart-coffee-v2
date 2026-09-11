@@ -32,7 +32,7 @@ import pandas as pd
 
 DATA_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'data'))
 EXPECTED_ADC_COLS = [
-    'adc_tgs822', 'adc_mq135', 'adc_mq9', 'adc_tgs2611', 'adc_tgs2620',
+    'adc_tgs822', 'adc_mq135', 'adc_mq3', 'adc_tgs2611', 'adc_tgs2620',
     'adc_tgs2600', 'adc_tgs2602', 'adc_mq8', 'adc_tgs813', 'adc_tgs816'
 ]
 EXPECTED_HEADER = [
@@ -77,7 +77,7 @@ def run_tests():
                 "Dimasukkan via CLI --batch (default B01)")
 
     # ── Pengujian pada file CSV aktual di folder data/ ────────────────────────
-    csv_files = [f for f in os.listdir(DATA_DIR) if f.endswith('.csv') and f != 'dataset_fitur.csv']
+    csv_files = [f for f in os.listdir(DATA_DIR) if f.endswith('.csv') and not f.startswith('dataset_') and not f.startswith('feature_') and not f.startswith('model_')]
 
     if not csv_files:
         print("\n[INFO] Tidak ada file CSV akuisisi ditemukan di data/. Menggunakan simulasi verifikasi.")

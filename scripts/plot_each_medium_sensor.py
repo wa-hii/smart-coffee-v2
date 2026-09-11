@@ -28,7 +28,7 @@ x_col = "sample_idx" if "sample_idx" in df.columns else "timestamp"
 sensor_cols = [
     "adc_tgs822",
     "adc_mq135",
-    "adc_mq9",
+    "adc_mq3",
     "adc_tgs2611",
     "adc_tgs2620",
     "adc_tgs2600",

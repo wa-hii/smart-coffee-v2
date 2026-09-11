@@ -1,4 +1,4 @@
-timestamp,sample_id,roast_level,origin,batch_id,run_id,phase,sample_idx,adc_tgs822,adc_mq135,adc_mq9,adc_tgs2611,adc_tgs2620,adc_tgs2600,adc_tgs2602,adc_mq8,adc_tgs813,adc_tgs816,temperature,humidity
+timestamp,sample_id,roast_level,origin,batch_id,run_id,phase,sample_idx,adc_tgs822,adc_mq135,adc_mq3,adc_tgs2611,adc_tgs2620,adc_tgs2600,adc_tgs2602,adc_mq8,adc_tgs813,adc_tgs816,temperature,humidity
 2173,D-BAR,dark,Arabika Jawa Barat,B10,1,purging,1,10942,2805,2792,7791,9545,2782,9174,15647,15132,14853,,
 3172,D-BAR,dark,Arabika Jawa Barat,B10,1,purging,2,10920,2802,2793,7792,9527,2780,9170,15624,15084,14825,,
 4173,D-BAR,dark,Arabika Jawa Barat,B10,1,purging,3,10900,2801,2794,7795,9509,2779,9166,15603,15039,14799,,

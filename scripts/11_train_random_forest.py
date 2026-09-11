@@ -168,7 +168,7 @@ def plot_feature_importance(model, feat_cols, out_path, top_n=30):
 
     # Color by sensor
     SENSOR_COLORS = {
-        'TGS822':'#2196F3','MQ135':'#FF9800','MQ9':'#FF5722','TGS2611':'#9C27B0',
+        'TGS822':'#2196F3','MQ135':'#FF9800','MQ3':'#FF5722','TGS2611':'#9C27B0',
         'TGS2620':'#00BCD4','TGS2600':'#8BC34A','TGS2602':'#F44336',
         'MQ8':'#FF6F00','TGS813':'#3F51B5','TGS816':'#009688',
     }

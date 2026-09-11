@@ -1,4 +1,4 @@
-timestamp,sample_id,roast_level,origin,batch_id,run_id,phase,sample_idx,adc_tgs822,adc_mq135,adc_mq9,adc_tgs2611,adc_tgs2620,adc_tgs2600,adc_tgs2602,adc_mq8,adc_tgs813,adc_tgs816,temperature,humidity
+timestamp,sample_id,roast_level,origin,batch_id,run_id,phase,sample_idx,adc_tgs822,adc_mq135,adc_mq3,adc_tgs2611,adc_tgs2620,adc_tgs2600,adc_tgs2602,adc_mq8,adc_tgs813,adc_tgs816,temperature,humidity
 2181,M-TIM,medium,Arabika Timor Leste,B02,1,purging,1,13776,2834,2822,7702,9858,2817,9010,16833,15108,14632,,
 3180,M-TIM,medium,Arabika Timor Leste,B02,1,purging,2,13773,2837,2821,7701,9858,2817,9009,16833,15106,14634,,
 4180,M-TIM,medium,Arabika Timor Leste,B02,1,purging,3,13771,2834,2823,7700,9859,2816,9012,16833,15105,14634,,

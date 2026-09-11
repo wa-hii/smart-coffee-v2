@@ -62,7 +62,7 @@ VALID_LABELS  = ['light', 'medium', 'dark']
 
 # 10 Sensor Gas Array
 ADC_COLS = [
-    'adc_tgs822', 'adc_mq135', 'adc_mq9', 'adc_tgs2611',
+    'adc_tgs822', 'adc_mq135', 'adc_mq3', 'adc_tgs2611',
     'adc_tgs2620', 'adc_tgs2600', 'adc_tgs2602', 'adc_mq8',
     'adc_tgs813', 'adc_tgs816'
 ]

@@ -1,4 +1,4 @@
-label,phase,cycle,sample_idx,timestamp,adc_tgs822,adc_mq135,adc_mq9,adc_tgs2611,adc_tgs2620,adc_tgs2600,adc_tgs2602,adc_mq8,adc_tgs813,adc_tgs816,source_file
+label,phase,cycle,sample_idx,timestamp,adc_tgs822,adc_mq135,adc_mq3,adc_tgs2611,adc_tgs2620,adc_tgs2600,adc_tgs2602,adc_mq8,adc_tgs813,adc_tgs816,source_file
 dark,collecting,1,1,2229,14706,2983,2969,10102,12999,2992,9214,14269,15669,11707,D:\ENOSE\smart-coffee-v2-hardware\smart-coffee-v2-hardware\scripts\..\data\dark_20260810_163245.csv
 dark,collecting,1,2,3229,14736,2985,2970,10102,12983,2992,9152,14267,15624,11733,D:\ENOSE\smart-coffee-v2-hardware\smart-coffee-v2-hardware\scripts\..\data\dark_20260810_163245.csv
 dark,collecting,1,3,4230,14675,2985,2967,10100,12962,2992,9088,14226,15553,11732,D:\ENOSE\smart-coffee-v2-hardware\smart-coffee-v2-hardware\scripts\..\data\dark_20260810_163245.csv

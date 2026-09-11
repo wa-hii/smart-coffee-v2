@@ -1,7 +1,7 @@
 // ═════════════════════════════════════════════════════════════════════════════
 // sensor.h — Modul Sensor Gas E-NOSE v2
 // 10 sensor di 4 ADS1115:
-//   ADS1 (0x48): TGS822(A1), MQ135(A2), MQ9(A3)
+//   ADS1 (0x48): TGS822(A1), MQ135(A2), MQ3(A3)
 //   ADS2 (0x49): TGS2611(A0), TGS2620(A1)
 //   ADS3 (0x4A): TGS2600(A0), TGS2602(A1)
 //   ADS4 (0x4B): MQ8(A3), TGS813(A1), TGS816(A2)
@@ -33,7 +33,7 @@
 // ADS1 (0x48)
 #define ADS1_CHAN_TGS822   1
 #define ADS1_CHAN_MQ135    2
-#define ADS1_CHAN_MQ9      3
+#define ADS1_CHAN_MQ3      3
 // ADS2 (0x49)
 #define ADS2_CHAN_TGS2611  0
 #define ADS2_CHAN_TGS2620  1
@@ -54,7 +54,7 @@
 #define NUM_SENSORS      10
 #define SENSOR_TGS822     0
 #define SENSOR_MQ135      1
-#define SENSOR_MQ9        2
+#define SENSOR_MQ3        2
 #define SENSOR_TGS2611    3
 #define SENSOR_TGS2620    4
 #define SENSOR_TGS2600    5
@@ -93,7 +93,7 @@ private:
     bool hasAds4_ = false;
 
     // 3× MQ sensor
-    MQUnifiedsensor mq135_, mq9_, mq8_;
+    MQUnifiedsensor mq135_, mq3_, mq8_;
 
     // 7× TGS sensor (generic library)
     TGSSensor tgs822_, tgs2620_, tgs2611_, tgs2600_, tgs2602_, tgs813_, tgs816_;
