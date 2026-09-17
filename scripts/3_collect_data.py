@@ -50,7 +50,7 @@ BAUD_RATE        = 115200
 OUTPUT_DIR       = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'data'))
 ACQ_PURGE_S      = 120    # Durasi purging per run (detik)
 ACQ_COLLECT_S    = 60   # Durasi collecting per run (detik)
-ACQ_REPETITIONS  = 50   # Jumlah run per sampel kopi
+ACQ_REPETITIONS  = 40   # Jumlah run per sampel kopi
 
 # ─── Database Sampel Eksperimen (Predefined Metadata) ───────────────────────────
 KNOWN_SAMPLES = {
@@ -248,7 +248,7 @@ class RawDataCollector:
                 if event == 'ACQ_COMPLETE':
                     total = data.get('total_samples', len(self.rows))
                     self.status_msg = f"✅ Akuisisi Selesai ({total} Sampel Raw Data)"
-                    print(f"\n✅ 50 Run selesai! Total sampel raw data: {total}")
+                    print(f"\n✅ 40 Run selesai! Total sampel raw data: {total}")
                     self.acquisition_done = True
                     continue
 
@@ -369,7 +369,7 @@ def run_live_gui(collector):
                 ax.set_xlim(max(0, ts[0]), ts[-1] + 2)
 
         if collector.acquisition_done:
-            status_text.set_text(f"[OK] 50 Run Selesai! CSV: {os.path.basename(collector.out_csv)}")
+            status_text.set_text(f"[OK] 40 Run Selesai! CSV: {os.path.basename(collector.out_csv)}")
             status_text.set_color('#A371F7')
 
         return list(lines.values())
@@ -429,7 +429,7 @@ def main():
 ║  Origin       : {origin:<52} ║
 ║  Batch ID     : {batch_id:<52} ║
 ║  Port Serial  : {port:<52} ║
-║  Skema Run    : 50 Run × ({ACQ_PURGE_S}s Purging + {ACQ_COLLECT_S}s Collecting){'':<14} ║
+║  Skema Run    : 40 Run × ({ACQ_PURGE_S}s Purging + {ACQ_COLLECT_S}s Collecting){'':<14} ║
 ║  Output File  : {os.path.basename(out_csv):<52} ║
 ╚══════════════════════════════════════════════════════════════════════╝
 """)
@@ -500,8 +500,8 @@ def main():
    Roast Level   : {roast_level}
    Origin        : {origin}
    Batch ID      : {batch_id}
-   Purging Rows  : {purging_n} sampel ({ACQ_PURGE_S}s × 50 run)
-   Collect Rows  : {collecting_n} sampel ({ACQ_COLLECT_S}s × 50 run)
+   Purging Rows  : {purging_n} sampel ({ACQ_PURGE_S}s × 40 run)
+   Collect Rows  : {collecting_n} sampel ({ACQ_COLLECT_S}s × 40 run)
    Total Baris   : {len(df)} baris raw data
    Total Kolom   : {len(df.columns)} kolom#valve_on
    
