@@ -407,29 +407,16 @@ def main():
     else:
         sample_id, roast_level, origin, batch_id = prompt_metadata()
 
-    roast_level = roast_level.strip().lower()
-
-    if roast_level not in VALID_ROAST_LEVELS:
-        print(
-            f"❌ Roast level '{roast_level}' tidak valid. "
-            f"Pilihan yang diperbolehkan: {', '.join(VALID_ROAST_LEVELS)}"
-        )
-        sys.exit(1)
-
-    sample_output_dir = os.path.join(OUTPUT_DIR, roast_level)
-    os.makedirs(sample_output_dir, exist_ok=True)
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     # Format Nama File: <sample_id>_<batch_id>.csv (contoh: L-MAN_B01.csv)
     base_filename = f"{sample_id}_{batch_id}.csv"
-    out_csv = os.path.join(sample_output_dir, base_filename)
+    out_csv = os.path.join(OUTPUT_DIR, base_filename)
 
     # Perlindungan File Tertimpa (Accidental Overwrite Protection)
     if os.path.exists(out_csv):
         timestamp_suffix = datetime.now().strftime('%Y%m%d_%H%M%S')
-        out_csv = os.path.join(
-            sample_output_dir,
-            f"{sample_id}_{batch_id}_{timestamp_suffix}.csv"
-        )
+        out_csv = os.path.join(OUTPUT_DIR, f"{sample_id}_{batch_id}_{timestamp_suffix}.csv")
         print(f"⚠️  File {base_filename} sudah ada. Nama file disesuaikan menjadi: {os.path.basename(out_csv)}")
 
     print(f"""
