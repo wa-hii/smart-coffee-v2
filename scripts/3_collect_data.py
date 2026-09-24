@@ -93,13 +93,13 @@ ADC_COLS = [
 ]
 
 SENSOR_CONFIG = {
-    'adc_tgs2600': {'label': 'TGS2600', 'color': '#64FFDA', 'group': 'TGS'},
-    'adc_tgs2602': {'label': 'TGS2602', 'color': '#A7FFEB', 'group': 'TGS'},
+    'adc_tgs2600': {'label': 'TGS2600', 'color': "#FF7664", 'group': 'TGS'},
+    'adc_tgs2602': {'label': 'TGS2602', 'color': "#FEFFA7", 'group': 'TGS'},
     'adc_tgs816':  {'label': 'TGS816',  'color': '#76FF03', 'group': 'TGS'},
-    'adc_tgs813':  {'label': 'TGS813',  'color': '#B2FF59', 'group': 'TGS'},
-    'adc_mq8':     {'label': 'MQ8',     'color': '#FFAB00', 'group': 'MQ'},
-    'adc_tgs2611': {'label': 'TGS2611', 'color': '#00BFA5', 'group': 'TGS'},
-    'adc_tgs2620': {'label': 'TGS2620', 'color': '#18FFFF', 'group': 'TGS'},
+    'adc_tgs813':  {'label': 'TGS813',  'color': "#59FFF1", 'group': 'TGS'},
+    'adc_mq8':     {'label': 'MQ8',     'color': "#006EFF", 'group': 'MQ'},
+    'adc_tgs2611': {'label': 'TGS2611', 'color': "#7300BF", 'group': 'TGS'},
+    'adc_tgs2620': {'label': 'TGS2620', 'color': "#FF18BA", 'group': 'TGS'},
     'adc_tgs822':  {'label': 'TGS822',  'color': '#00E676', 'group': 'TGS'},
     'adc_mq135':   {'label': 'MQ135',   'color': '#FF6D00', 'group': 'MQ'},
     'adc_mq3':     {'label': 'MQ3',     'color': '#FF3D00', 'group': 'MQ'},
@@ -160,8 +160,7 @@ def prompt_metadata():
         default_origin = KNOWN_SAMPLES[sid]['origin']
         print(f"  ✓ Terdeteksi preset: Roast={default_roast}, Origin={default_origin}")
 
-        roast_in = input(f"Masukkan Roast Level [{default_roast}]: ").strip().lower()
-        roast_level = roast_in if roast_in else default_roast
+        roast_level = KNOWN_SAMPLES[sid]['roast_level']
 
         origin_in = input(f"Masukkan Origin [{default_origin}]: ").strip()
         origin = origin_in if origin_in else default_origin
@@ -399,7 +398,7 @@ def main():
     if args.sample:
         sample_id = args.sample.upper()
         if sample_id in KNOWN_SAMPLES:
-            roast_level = args.roast_level or KNOWN_SAMPLES[sample_id]['roast_level']
+            roast_level = KNOWN_SAMPLES[sample_id]['roast_level']
             origin      = args.origin      or KNOWN_SAMPLES[sample_id]['origin']
         else:
             roast_level = args.roast_level or 'custom'
@@ -408,16 +407,29 @@ def main():
     else:
         sample_id, roast_level, origin, batch_id = prompt_metadata()
 
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    roast_level = roast_level.strip().lower()
+
+    if roast_level not in VALID_ROAST_LEVELS:
+        print(
+            f"❌ Roast level '{roast_level}' tidak valid. "
+            f"Pilihan yang diperbolehkan: {', '.join(VALID_ROAST_LEVELS)}"
+        )
+        sys.exit(1)
+
+    sample_output_dir = os.path.join(OUTPUT_DIR, roast_level)
+    os.makedirs(sample_output_dir, exist_ok=True)
 
     # Format Nama File: <sample_id>_<batch_id>.csv (contoh: L-MAN_B01.csv)
     base_filename = f"{sample_id}_{batch_id}.csv"
-    out_csv = os.path.join(OUTPUT_DIR, base_filename)
+    out_csv = os.path.join(sample_output_dir, base_filename)
 
     # Perlindungan File Tertimpa (Accidental Overwrite Protection)
     if os.path.exists(out_csv):
         timestamp_suffix = datetime.now().strftime('%Y%m%d_%H%M%S')
-        out_csv = os.path.join(OUTPUT_DIR, f"{sample_id}_{batch_id}_{timestamp_suffix}.csv")
+        out_csv = os.path.join(
+            sample_output_dir,
+            f"{sample_id}_{batch_id}_{timestamp_suffix}.csv"
+        )
         print(f"⚠️  File {base_filename} sudah ada. Nama file disesuaikan menjadi: {os.path.basename(out_csv)}")
 
     print(f"""
