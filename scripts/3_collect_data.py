@@ -8,9 +8,9 @@ Eksperimen 11 Sampel Kopi:
   MEDIUM : M-MAN (Manglayang Jabar), M-RAT (Ratawali Aceh), M-TEM (Temanggung), M-TIM (Timor Leste)
   DARK   : D-MAN (Manglayang Jabar), D-RAT (Ratawali Aceh), D-GAY (Gayo Aceh)
 
-Flow per Sampel (50 Run):
-  Satu Run  : PURGING (120 s) ──► COLLECTING (120 s) ──► Simpan Raw Data
-  Satu File : 50 Run per Sampel ──► Output CSV: <sample_id>_<batch_id>.csv
+Flow per Sampel (10 Run):
+  Satu Run  : PURGING (30 s) ──► COLLECTING (180 s) ──► Simpan Raw Data
+  Satu File : 10 Run per Sampel ──► Output CSV: <sample_id>_<batch_id>.csv
 
 Metadata per Baris:
   timestamp, sample_id, roast_level, origin, batch_id, run_id, phase, sample_idx,
@@ -25,7 +25,6 @@ Cara Pakai:
 """
 
 import argparse
-import csv
 import json
 import os
 import sys
@@ -48,10 +47,10 @@ except Exception:
 
 # ─── Konfigurasi Akuisisi Default ──────────────────────────────────────────────
 BAUD_RATE        = 115200
-OUTPUT_DIR       = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data'))
-ACQ_PURGE_S      = 120   # Durasi purging per run (detik, 2 menit)
-ACQ_COLLECT_S    = 120   # Durasi collecting per run (detik, 2 menit)
-ACQ_REPETITIONS  = 50    # Jumlah run per sampel kopi (50x)
+OUTPUT_DIR       = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'data'))
+ACQ_PURGE_S      = 120    # Durasi purging per run (detik)
+ACQ_COLLECT_S    = 60   # Durasi collecting per run (detik)
+ACQ_REPETITIONS  = 40   # Jumlah run per sampel kopi
 
 # ─── Database Sampel Eksperimen (Predefined Metadata) ───────────────────────────
 KNOWN_SAMPLES = {
@@ -94,22 +93,22 @@ ADC_COLS = [
 ]
 
 SENSOR_CONFIG = {
-    'adc_tgs822':  {'label': 'TGS822',  'color': '#00E676', 'group': 'TGS'},
-    'adc_tgs2611': {'label': 'TGS2611', 'color': '#00BFA5', 'group': 'TGS'},
-    'adc_tgs2620': {'label': 'TGS2620', 'color': '#18FFFF', 'group': 'TGS'},
     'adc_tgs2600': {'label': 'TGS2600', 'color': '#64FFDA', 'group': 'TGS'},
     'adc_tgs2602': {'label': 'TGS2602', 'color': '#A7FFEB', 'group': 'TGS'},
-    'adc_tgs813':  {'label': 'TGS813',  'color': '#B2FF59', 'group': 'TGS'},
     'adc_tgs816':  {'label': 'TGS816',  'color': '#76FF03', 'group': 'TGS'},
+    'adc_tgs813':  {'label': 'TGS813',  'color': '#B2FF59', 'group': 'TGS'},
+    'adc_mq8':     {'label': 'MQ8',     'color': '#FFAB00', 'group': 'MQ'},
+    'adc_tgs2611': {'label': 'TGS2611', 'color': '#00BFA5', 'group': 'TGS'},
+    'adc_tgs2620': {'label': 'TGS2620', 'color': '#18FFFF', 'group': 'TGS'},
+    'adc_tgs822':  {'label': 'TGS822',  'color': '#00E676', 'group': 'TGS'},
     'adc_mq135':   {'label': 'MQ135',   'color': '#FF6D00', 'group': 'MQ'},
     'adc_mq3':     {'label': 'MQ3',     'color': '#FF3D00', 'group': 'MQ'},
-    'adc_mq8':     {'label': 'MQ8',     'color': '#FFAB00', 'group': 'MQ'},
 }
 
 # ─── CLI Argument Parser ──────────────────────────────────────────────────────
 def parse_args():
     p = argparse.ArgumentParser(description='E-NOSE Kopi — Pengumpulan Raw Data')
-    p.add_argument('--port',        type=str, default=None, help='Port Serial (misal COM5)')
+    p.add_argument('--port',        type=str, default=None, help='Port Serial (misal COM3)')
     p.add_argument('--sample',      type=str, default=None, help='Sample ID (misal L-MAN, M-TEM, D-RAT)')
     p.add_argument('--roast-level', type=str, default=None, help='Roast Level (light, medium, dark)')
     p.add_argument('--origin',      type=str, default=None, help='Asal Kopi (Origin)')
@@ -117,10 +116,8 @@ def parse_args():
     p.add_argument('--baud',        type=int, default=BAUD_RATE)
     p.add_argument('--purge-s',     type=int, default=ACQ_PURGE_S,   help='Durasi purging per run (s)')
     p.add_argument('--collect-s',   type=int, default=ACQ_COLLECT_S, help='Durasi collecting per run (s)')
-    p.add_argument('--repetitions', type=int, default=ACQ_REPETITIONS, help='Jumlah run (default 50)')
+    p.add_argument('--repetitions', type=int, default=ACQ_REPETITIONS, help='Jumlah run (default 10)')
     p.add_argument('--no-plot',     action='store_true', help='Matikan GUI grafik real-time')
-    p.add_argument('--test',        action='store_true', help='Langsung masuk ke mode uji coba valve/pompa')
-    p.add_argument('--skip-test',   action='store_true', help='Lewati opsi pertanyaan uji coba valve')
     return p.parse_args()
 
 
@@ -146,8 +143,7 @@ def prompt_port():
         except ValueError:
             return idx
     else:
-        return input("Masukkan nama port Serial (misal COM5): ").strip()
-
+        return input("Masukkan nama port Serial (misal COM3")
 
 def prompt_metadata():
     """Meminta input Sample ID, Roast Level, Origin, dan Batch ID secara interaktif."""
@@ -202,23 +198,11 @@ class RawDataCollector:
 
         # Status State
         self.phase = 'idle'
-        self.cycle = 0          # run_id (1 s.d. 50)
+        self.cycle = 0          # run_id (1 s.d. 10)
         self.cycles_total = ACQ_REPETITIONS
         self.collect_s = ACQ_COLLECT_S
         self.purge_s = ACQ_PURGE_S
         self.status_msg = 'Menunggu data serial...'
-
-        # Siapkan streaming CSV langsung ke folder target (real-time persistence)
-        self.csv_columns = [
-            'timestamp', 'sample_id', 'roast_level', 'origin', 'batch_id',
-            'run_id', 'phase', 'sample_idx'
-        ] + ADC_COLS + ['temperature', 'humidity']
-        os.makedirs(os.path.dirname(os.path.abspath(self.out_csv)), exist_ok=True)
-        self.csv_file = open(self.out_csv, 'w', newline='', encoding='utf-8')
-        self.csv_writer = csv.DictWriter(self.csv_file, fieldnames=self.csv_columns, extrasaction='ignore')
-        self.csv_writer.writeheader()
-        self.csv_file.flush()
-        print(f"📁 Target file CSV aktif: {self.out_csv}")
 
     def run(self):
         """Thread penerima data Serial dari ATmega 2560."""
@@ -264,7 +248,7 @@ class RawDataCollector:
                 if event == 'ACQ_COMPLETE':
                     total = data.get('total_samples', len(self.rows))
                     self.status_msg = f"✅ Akuisisi Selesai ({total} Sampel Raw Data)"
-                    print(f"\n✅ {self.cycles_total} Run selesai! Total sampel raw data: {total}")
+                    print(f"\n✅ 40 Run selesai! Total sampel raw data: {total}")
                     self.acquisition_done = True
                     continue
 
@@ -302,12 +286,6 @@ class RawDataCollector:
 
                     with self.lock:
                         self.rows.append(row)
-
-                        # Tulis seketika ke disk (real-time flush) agar data tidak hilang
-                        if self.csv_file and not self.csv_file.closed:
-                            self.csv_writer.writerow(row)
-                            self.csv_file.flush()
-
                         self.phase = phase
                         self.cycle = cycle
 
@@ -323,17 +301,6 @@ class RawDataCollector:
             print(f"\n❌ Error serial loop: {e}")
         finally:
             self.acquisition_done = True
-            self.close()
-
-    def close(self):
-        """Pastikan file CSV diflush dan ditutup dengan aman."""
-        with self.lock:
-            if hasattr(self, 'csv_file') and self.csv_file and not self.csv_file.closed:
-                try:
-                    self.csv_file.flush()
-                    self.csv_file.close()
-                except Exception:
-                    pass
 
 
 # ─── Live Plot GUI Window ────────────────────────────────────────────────────
@@ -402,7 +369,7 @@ def run_live_gui(collector):
                 ax.set_xlim(max(0, ts[0]), ts[-1] + 2)
 
         if collector.acquisition_done:
-            status_text.set_text(f"[OK] 10 Run Selesai! CSV: {os.path.basename(collector.out_csv)}")
+            status_text.set_text(f"[OK] 40 Run Selesai! CSV: {os.path.basename(collector.out_csv)}")
             status_text.set_color('#A371F7')
 
         return list(lines.values())
@@ -414,92 +381,6 @@ def run_live_gui(collector):
 
     fig.canvas.mpl_connect('close_event', on_close)
     plt.show(block=True)
-
-
-# ─── Mode Uji Coba Aktuator (Valve & Pompa) ──────────────────────────────────
-def run_actuator_test(ser):
-    """Menu interaktif untuk mencoba aktuator valve & aliran hisapan pompa."""
-    print("""
-╔══════════════════════════════════════════════════════════════════════╗
-║                🔧 MODE UJI COBA VALVE & ALIRAN POMPA                 ║
-╠══════════════════════════════════════════════════════════════════════╣
-║  [1] Test COLLECTING (Pin 17 ON, Pin 18 OFF) -> Hisap Kopi           ║
-║  [2] Test PURGING    (Pin 17 OFF, Pin 18 ON) -> Hisap Udara Bebas    ║
-║  [3] Balik Logika Polarity Driver (Active-LOW <-> Active-HIGH)       ║
-║  [4] Test Bergantian Otomatis (Purge 5s -> Collect 5s)               ║
-║  [5] Matikan Semua Jalur (Valve OFF)                                 ║
-║  [6] Direct Test Pin 17 HIGH (#p17h)                                 ║
-║  [7] Direct Test Pin 17 LOW  (#p17l)                                 ║
-║  [8] Direct Test Pin 18 HIGH (#p18h)                                 ║
-║  [9] Direct Test Pin 18 LOW  (#p18l)                                 ║
-║  [0] Selesai & Lanjut ke Pengambilan Data                            ║
-╚══════════════════════════════════════════════════════════════════════╝
-""")
-    ser.write(b'#stop;')
-    time.sleep(0.3)
-    ser.reset_input_buffer()
-
-    while True:
-        pilihan = input("👉 Pilih menu uji coba [0-9]: ").strip()
-        cmd = None
-
-        if pilihan == '1':
-            cmd = b'#collect;'
-            print("   🟢 [COLLECTING] Jalur 1 (Pin 17) ON, Jalur 2 (Pin 18) OFF.")
-        elif pilihan == '2':
-            cmd = b'#purge;'
-            print("   🔵 [PURGING] Jalur 1 (Pin 17) OFF, Jalur 2 (Pin 18) ON.")
-        elif pilihan == '3':
-            cmd = b'#invert;'
-            print("   🔄 Membalik logika driver (Active-HIGH <-> Active-LOW)...")
-        elif pilihan == '4':
-            print("   🔄 Memulai simulasi siklus bergantian...")
-            print("      1. Mengaktifkan PURGING (Pin 18 ON) selama 5 detik...")
-            ser.write(b'#purge;')
-            for i in range(5, 0, -1):
-                print(f"         Purging (Pin 18 ON): {i}s tersisa...", end='\r')
-                time.sleep(1)
-            print()
-            print("      2. Mengaktifkan COLLECTING (Pin 17 ON) selama 5 detik...")
-            ser.write(b'#collect;')
-            for i in range(5, 0, -1):
-                print(f"         Collecting (Pin 17 ON): {i}s tersisa...", end='\r')
-                time.sleep(1)
-            print()
-            cmd = b'#stop;'
-            print("      ✓ Simulasi selesai. Valve dinonaktifkan.")
-        elif pilihan == '5':
-            cmd = b'#stop;'
-            print("   ⏹️ Semua jalur dinonaktifkan (OFF).")
-        elif pilihan == '6':
-            cmd = b'#p17h;'
-            print("   ⚡ Pin 17 -> HIGH")
-        elif pilihan == '7':
-            cmd = b'#p17l;'
-            print("   ⚡ Pin 17 -> LOW")
-        elif pilihan == '8':
-            cmd = b'#p18h;'
-            print("   ⚡ Pin 18 -> HIGH")
-        elif pilihan == '9':
-            cmd = b'#p18l;'
-            print("   ⚡ Pin 18 -> LOW")
-        elif pilihan == '0' or pilihan.lower() == 'q':
-            ser.write(b'#stop;')
-            print("   ✅ Uji coba selesai. Mempersiapkan akuisisi data utama...\n")
-            time.sleep(0.5)
-            ser.reset_input_buffer()
-            break
-        else:
-            print("   ⚠️ Pilihan tidak valid. Masukkan angka 0 sampai 9.")
-            continue
-
-        if cmd:
-            ser.write(cmd)
-            time.sleep(0.3)
-            while ser.in_waiting:
-                resp = ser.readline().decode('utf-8', errors='ignore').strip()
-                if resp:
-                    print(f"      [Arduino] {resp}")
 
 
 # ─── Main Execution ───────────────────────────────────────────────────────────
@@ -539,18 +420,16 @@ def main():
         out_csv = os.path.join(OUTPUT_DIR, f"{sample_id}_{batch_id}_{timestamp_suffix}.csv")
         print(f"⚠️  File {base_filename} sudah ada. Nama file disesuaikan menjadi: {os.path.basename(out_csv)}")
 
-    header_title = f"E-NOSE Kopi — Pengumpulan Raw Data ({ACQ_REPETITIONS} Run)"
-    schema_str = f"{ACQ_REPETITIONS} Run × ({ACQ_PURGE_S}s Purging + {ACQ_COLLECT_S}s Collecting)"
     print(f"""
 ╔══════════════════════════════════════════════════════════════════════╗
-║{header_title:^70}║
+║           E-NOSE Kopi — Pengumpulan Raw Data (15 Run)                ║
 ╠══════════════════════════════════════════════════════════════════════╣
 ║  Sample ID    : {sample_id:<52} ║
 ║  Roast Level  : {roast_level.upper():<52} ║
 ║  Origin       : {origin:<52} ║
 ║  Batch ID     : {batch_id:<52} ║
 ║  Port Serial  : {port:<52} ║
-║  Skema Run    : {schema_str:<52} ║
+║  Skema Run    : 40 Run × ({ACQ_PURGE_S}s Purging + {ACQ_COLLECT_S}s Collecting){'':<14} ║
 ║  Output File  : {os.path.basename(out_csv):<52} ║
 ╚══════════════════════════════════════════════════════════════════════╝
 """)
@@ -564,16 +443,6 @@ def main():
         sys.exit(1)
 
     time.sleep(2)  # Wait for ATmega boot
-
-    # ── Opsi Uji Coba Valve & Hisapan Pompa ──────────────────────────────────
-    if args.test:
-        run_actuator_test(ser)
-    elif not args.skip_test:
-        print("\n" + "─" * 70)
-        tanya = input("💡 Ingin uji coba (test) valve & aliran pompa terlebih dahulu? [y/N]: ").strip().lower()
-        if tanya in ('y', 'ya', 'yes'):
-            run_actuator_test(ser)
-        print("─" * 70 + "\n")
 
     collector = RawDataCollector(ser, sample_id, roast_level, origin, batch_id, out_csv)
     t_thread = threading.Thread(target=collector.run, daemon=True)
@@ -600,37 +469,45 @@ def main():
             pass
         time.sleep(0.5)
         ser.close()
-        collector.close()
 
-    # ── Ringkasan & Verifikasi File CSV di Folder Target ──────────────────────────
-    if len(collector.rows) > 0 and os.path.exists(out_csv):
-        df = pd.read_csv(out_csv)
+    # ── Simpan RAW DATA ke CSV ─────────────────────────────────────────────────
+    rows = collector.rows
+    if rows:
+        df = pd.DataFrame(rows)
+
+        # Urutan Kolom Standard Metadata & Raw ADC
+        ordered_cols = [
+            'timestamp', 'sample_id', 'roast_level', 'origin', 'batch_id',
+            'run_id', 'phase', 'sample_idx'
+        ] + ADC_COLS
+
+        # Tambahkan temperature & humidity jika ada di DataFrame
+        if 'temperature' in df.columns: ordered_cols.append('temperature')
+        if 'humidity' in df.columns:    ordered_cols.append('humidity')
+
+        # Pastikan hanya kolom yang ada di df yang disertakan
+        final_cols = [c for c in ordered_cols if c in df.columns]
+        df = df[final_cols]
+
+        df.to_csv(out_csv, index=False)
+
         collecting_n = len(df[df['phase'] == 'collecting'])
         purging_n    = len(df[df['phase'] == 'purging'])
-        file_size_kb = os.path.getsize(out_csv) / 1024
         print(f"""
-📄 RAW DATA BERHASIL TERSIMPAN SECARA LANGSUNG KE FOLDER DATA:
-   Folder Target : {os.path.dirname(out_csv)}
-   Nama File     : {os.path.basename(out_csv)}
-   Path Lengkap  : {out_csv}
-   Ukuran File   : {file_size_kb:.2f} KB
+📄 RAW DATA BERHASIL DISIMPAN KE CSV!
+   File Location : {out_csv}
    Sample ID     : {sample_id}
    Roast Level   : {roast_level}
    Origin        : {origin}
    Batch ID      : {batch_id}
-   Purging Rows  : {purging_n} sampel ({collector.purge_s}s × {collector.cycles_total} run)
-   Collect Rows  : {collecting_n} sampel ({collector.collect_s}s × {collector.cycles_total} run)
-   Total Baris   : {len(df)} baris data
-   Total Kolom   : {len(df.columns)} kolom
+   Purging Rows  : {purging_n} sampel ({ACQ_PURGE_S}s × 40 run)
+   Collect Rows  : {collecting_n} sampel ({ACQ_COLLECT_S}s × 40 run)
+   Total Baris   : {len(df)} baris raw data
+   Total Kolom   : {len(df.columns)} kolom#valve_on
+   
 """)
     else:
-        # Jika belum ada baris data masuk (misal dibatalkan seketika), hapus file header kosong
-        if os.path.exists(out_csv):
-            try:
-                os.remove(out_csv)
-            except Exception:
-                pass
-        print("\n⚠️ Tidak ada data yang diterima dari mikrokontroler. File tidak dibuat.")
+        print("\n⚠️ Tidak ada data yang diterima. File CSV tidak dibuat.")
 
 
 if __name__ == '__main__':

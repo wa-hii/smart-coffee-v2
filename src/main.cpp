@@ -6,29 +6,29 @@
 // Klasifikasi: Light / Medium / Dark Roast
 //
 // Alur akuisisi per sampel:
-//   PURGING (valve HIGH / Pin 10 HIGH: hembus/bilas dengan udara bersih)
-//     → COLLECTING (valve LOW / Pin 10 LOW: hisap aroma sampel kopi)
+//   COLLECTING (pompa+valve ON, ujung selang ke sampel, default 180 s)
+//     → PURGING (pompa ON, valve OFF/ke udara, default 60 s)
 //     → ulangi ACQ_REPETITIONS kali
 //   Setelah semua siklus selesai → inferensi on-device (TinyML)
 //
 // Arsitektur modular:
 //   sensor.h/cpp    — ADS1115, MQ, TGS sensors + kalibrasi EEPROM
 //   actuator.h/cpp  — valve + pump PWM control
-//   inference_atmega.h/cpp — feature accumulation + compact Random Forest
+//   inference.h/cpp — feature accumulation + Random Forest classifier
 //   main.cpp        — state machine, serial commands, coordinator
 // ═════════════════════════════════════════════════════════════════════════════
 #include "TaskScheduler.h"
 #include "actuator.h"
-#include "inference_atmega.h"
+#include "inference.h"
 #include "sensor.h"
 #include <Arduino.h>
 #include <Wire.h>
 
 // ─── Konfigurasi Akuisisi
 // ─────────────────────────────────────────────────────
-#define ACQ_COLLECTION_SECONDS 120 // durasi menghirup aroma kopi (120 detik = 2 menit)
-#define ACQ_PURGE_SECONDS 120      // durasi purging ke udara bebas (120 detik = 2 menit)
-#define ACQ_REPETITIONS 50         // jumlah pengulangan siklus (50x)
+#define ACQ_COLLECTION_SECONDS 60 // durasi menghirup aroma kopi (detik)
+#define ACQ_PURGE_SECONDS 120     // durasi purging ke udara bebas (detik)
+#define ACQ_REPETITIONS 40        // jumlah pengulangan siklus
 
 // ─── Feature Flags
 // ────────────────────────────────────────────────────────────
@@ -50,7 +50,7 @@ enum class AcqState { IDLE, COLLECTING, PURGING, COMPLETE };
 // ═══════════════════════════════════════════════════════════════════════════════
 SensorArray sensors;
 Actuator actuator;
-InferenceATmega inference;
+Inference inference;
 Scheduler scheduler;
 
 // ─── State Akuisisi
@@ -137,7 +137,7 @@ void setup() {
   sensorsReady = sensors.begin();
   if (!sensorsReady) {
     Serial.println(F("{\"warn\":\"Sensor init gagal. Periksa wiring "
-             "(SDA=pin20, SCL=pin21).\"}"));
+                     "(SDA=pin35, SCL=pin34).\"}"));
     Serial.println(F("{\"warn\":\"Kirim #scan; untuk scan ulang I2C bus.\"}"));
   }
 
@@ -159,9 +159,6 @@ void setup() {
   taskSerial.enable();
 
   printWelcome();
-  
-  // Mulai akuisisi data secara otomatis saat alat dinyalakan/direset
-  startAcquisition();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -177,22 +174,15 @@ void printWelcome() {
   Serial.println(F("=============================================="));
   Serial.println(F("  Smart Coffee E-NOSE v2 - ATmega 2560"));
   Serial.println(F("=============================================="));
-  Serial.println(F("  Perintah Valve Festo 3/2 (Pin 10 & 11):"));
-  Serial.println(F("    #start;    Mulai siklus akuisisi otomatis"));
-  Serial.println(F("    #stop;     Hentikan akuisisi / matikan valve"));
-  Serial.println(F("    #on;       Nyalakan valve (Pin 10 HIGH, Pin 11 LOW)"));
-  Serial.println(F("    #off;      Matikan valve (Pin 10 LOW, Pin 11 LOW)"));
-  Serial.println(F("    #toggle;   Pindah status valve (ON <-> OFF)"));
-  Serial.println(F("    #fwd;      Arah Forward (Pin 10 HIGH, Pin 11 LOW)"));
-  Serial.println(F("    #rev;      Arah Reverse (Pin 11 HIGH, Pin 10 LOW)"));
-  Serial.println(F("    #collect;  Fase collecting (Valve LOW / Kopi)"));
-  Serial.println(F("    #purge;    Fase purging (Valve HIGH / Udara)"));
-  Serial.println(F("    #blink;    Tes klik valve (ON-OFF 3x)"));
-  Serial.println(F("    #swap;     Tukar polaritas aktif Forward <-> Reverse"));
-  Serial.println(F("    #p10h; / #p10l;  Direct test Pin 10 (Pin A)"));
-  Serial.println(F("    #p11h; / #p11l;  Direct test Pin 11 (Pin B)"));
-  Serial.println(F("    #scan;     Scan I2C bus"));
-  Serial.println(F("    #help;     Tampilkan bantuan"));
+  Serial.println(F("  Perintah:"));
+  Serial.println(F("    #start;       Mulai akuisisi data sensor"));
+  Serial.println(F("    #stop;        Hentikan akuisisi"));
+  Serial.println(F("    #scan;        Scan I2C bus"));
+  Serial.println(F("    #valve_on;    Valve solenoid ON  (test collecting)"));
+  Serial.println(F("    #valve_off;   Valve solenoid OFF (test purging)"));
+  Serial.println(
+      F("    #valve_test;  Toggle valve 3x untuk verifikasi wiring"));
+  Serial.println(F("    #help;        Tampilkan bantuan"));
   Serial.println(F("=============================================="));
   Serial.println(
       F("{\"info\":\"Sistem siap. Kirim #start; untuk mulai akuisisi.\"}"));
@@ -271,7 +261,7 @@ void processAcquisitionState() {
         Serial.print(F(",\"phase\":\"purging\"}"));
         Serial.println();
       } else {
-        // Semua siklus (Purging + Collecting) selesai -> COMPLETE
+        // Semua 10 siklus (Purging + Collecting) selesai -> COMPLETE
         acqState = AcqState::COMPLETE;
         setActuators();
         printAcquisitionSummary();
@@ -350,79 +340,149 @@ void processCommand(const char *cmd) {
       Serial.println(F("{\"warn\":\"Akuisisi sudah berjalan. Kirim #stop; "
                        "terlebih dahulu.\"}"));
     }
-  } else if (strcmp(cmd, "#stop") == 0 || strcmp(cmd, "#0") == 0 ||
-             strcmp(cmd, "#off") == 0) {
+  } else if (strcmp(cmd, "#stop") == 0 || strcmp(cmd, "#0") == 0) {
     stopAcquisition();
-    actuator.stop();
-    Serial.println(F("{\"event\":\"VALVE_STATE\",\"valve\":\"OFF\"}"));
-  } else if (strcmp(cmd, "#on") == 0 || strcmp(cmd, "#valve_on") == 0) {
-    stopAcquisition();
-    actuator.valveOn();
-    Serial.println(F("{\"event\":\"VALVE_STATE\",\"valve\":\"ON\",\"level\":\"HIGH\",\"pin10\":\"HIGH\",\"pin11\":\"LOW\"}"));
-  } else if (strcmp(cmd, "#toggle") == 0) {
-    stopAcquisition();
-    actuator.toggle();
-    Serial.print(F("{\"event\":\"VALVE_TOGGLE\",\"valve\":"));
-    Serial.print(actuator.isValveOn() ? F("\"ON (HIGH)\"") : F("\"OFF (LOW)\""));
-    Serial.println(F("}"));
-  } else if (strcmp(cmd, "#collect") == 0) {
-    stopAcquisition();
-    actuator.setCollecting();
-    Serial.println(F("{\"event\":\"VALVE_STATE\",\"mode\":\"collecting\",\"valve\":\"LOW\",\"info\":\"Jalur Sampel Kopi\"}"));
-  } else if (strcmp(cmd, "#purge") == 0) {
-    stopAcquisition();
-    actuator.setPurging();
-    Serial.println(F("{\"event\":\"VALVE_STATE\",\"mode\":\"purging\",\"valve\":\"HIGH\",\"info\":\"Jalur Udara Bersih\"}"));
-  } else if (strcmp(cmd, "#fwd") == 0) {
-    stopAcquisition();
-    actuator.setForward();
-    Serial.println(F("{\"event\":\"VALVE_STATE\",\"valve\":\"FORWARD\",\"pin10\":\"HIGH\",\"pin11\":\"LOW\"}"));
-  } else if (strcmp(cmd, "#rev") == 0) {
-    stopAcquisition();
-    actuator.setReverse();
-    Serial.println(F("{\"event\":\"VALVE_STATE\",\"valve\":\"REVERSE\",\"pin11\":\"HIGH\",\"pin10\":\"LOW\"}"));
-  } else if (strcmp(cmd, "#swap") == 0 || strcmp(cmd, "#invert") == 0) {
-    stopAcquisition();
-    Actuator::swapPolarity();
-    Serial.print(F("{\"event\":\"VALVE_POLARITY\",\"reversed\":"));
-    Serial.print(Actuator::isReversed() ? F("true (Pin 11 HIGH)") : F("false (Pin 10 HIGH)"));
-    Serial.println(F("}"));
-  } else if (strcmp(cmd, "#invert_phase") == 0 || strcmp(cmd, "#mode") == 0) {
-    stopAcquisition();
-    Actuator::invertPhase();
-    Serial.print(F("{\"event\":\"VALVE_MODE\",\"normallyHigh\":"));
-    Serial.print(Actuator::isNormallyHigh() ? F("true") : F("false"));
-    Serial.println(F("}"));
-  } else if (strcmp(cmd, "#p10h") == 0 || strcmp(cmd, "#p19h") == 0) {
-    stopAcquisition();
-    Actuator::setDirectPin10(true);
-    Serial.println(F("{\"event\":\"PIN_DIRECT\",\"pin\":\"Pin 10 (Pin A)\",\"level\":\"HIGH\"}"));
-  } else if (strcmp(cmd, "#p10l") == 0 || strcmp(cmd, "#p19l") == 0) {
-    stopAcquisition();
-    Actuator::setDirectPin10(false);
-    Serial.println(F("{\"event\":\"PIN_DIRECT\",\"pin\":\"Pin 10 (Pin A)\",\"level\":\"LOW\"}"));
-  } else if (strcmp(cmd, "#p11h") == 0 || strcmp(cmd, "#p20h") == 0) {
-    stopAcquisition();
-    Actuator::setDirectPin11(true);
-    Serial.println(F("{\"event\":\"PIN_DIRECT\",\"pin\":\"Pin 11 (Pin B)\",\"level\":\"HIGH\"}"));
-  } else if (strcmp(cmd, "#p11l") == 0 || strcmp(cmd, "#p20l") == 0) {
-    stopAcquisition();
-    Actuator::setDirectPin11(false);
-    Serial.println(F("{\"event\":\"PIN_DIRECT\",\"pin\":\"Pin 11 (Pin B)\",\"level\":\"LOW\"}"));
-  } else if (strcmp(cmd, "#blink") == 0) {
-    stopAcquisition();
-    Serial.println(F("{\"info\":\"Diagnostic Blink: Valve Festo ON-OFF bergantian 3 kali...\"}"));
-    for (int i = 0; i < 3; i++) {
-      actuator.valveOn();  delay(1000);
-      actuator.valveOff(); delay(1000);
-    }
-    actuator.stop();
-    Serial.println(F("{\"info\":\"Diagnostic Blink selesai. Valve OFF.\"}"));
   } else if (strcmp(cmd, "#help") == 0 || strcmp(cmd, "#2") == 0 ||
              strcmp(cmd, "#status") == 0) {
     printWelcome();
   } else if (strcmp(cmd, "#scan") == 0) {
     scanI2C();
+
+    // ── Valve debug commands ────────────────────────────────────────────────
+  } else if (strcmp(cmd, "#valve_on") == 0) {
+    if (acqState != AcqState::IDLE) {
+      Serial.println(
+          F("{\"warn\":\"Tidak bisa tes valve saat akuisisi berjalan.\"}"));
+      return;
+    }
+    // Aktifkan solenoid → Port 1/33 terbuka (posisi COLLECTING)
+    actuator.setCollecting();
+    Serial.println(
+        F("{\"valve\":\"ON\",\"port\":\"1/33\",\"mode\":\"collecting\"}"));
+
+  } else if (strcmp(cmd, "#valve_off") == 0) {
+    if (acqState != AcqState::IDLE) {
+      Serial.println(
+          F("{\"warn\":\"Tidak bisa tes valve saat akuisisi berjalan.\"}"));
+      return;
+    }
+    // Matikan solenoid → Port 3/11 terbuka (posisi PURGING / spring return)
+    actuator.setPurging();
+    Serial.println(
+        F("{\"valve\":\"OFF\",\"port\":\"3/11\",\"mode\":\"purging\"}"));
+
+  } else if (strcmp(cmd, "#valve_test") == 0) {
+    if (acqState != AcqState::IDLE) {
+      Serial.println(
+          F("{\"warn\":\"Tidak bisa tes valve saat akuisisi berjalan.\"}"));
+      return;
+    }
+    // Toggle valve 3x dengan jeda 1 detik — verifikasi respons fisik solenoid
+    Serial.println(F("{\"valve_test\":\"start\",\"cycles\":3}"));
+    for (uint8_t i = 0; i < 3; i++) {
+      actuator.setCollecting();
+      Serial.print(F("{\"valve_test\":\"ON\",\"cycle\":"));
+      Serial.print(i + 1);
+      Serial.println(F("}"));
+      delay(1000);
+      actuator.setPurging();
+      Serial.print(F("{\"valve_test\":\"OFF\",\"cycle\":"));
+      Serial.print(i + 1);
+      Serial.println(F("}"));
+      delay(1000);
+    }
+    actuator.stop();
+    Serial.println(F("{\"valve_test\":\"done\"}"));
+
+  } else if (strcmp(cmd, "#pin_scan") == 0) {
+    if (acqState != AcqState::IDLE) {
+      Serial.println(
+          F("{\"warn\":\"Tidak bisa scan pin saat akuisisi berjalan.\"}"));
+      return;
+    }
+    // ── Pin Scanner: cari pin mana yang terhubung ke L293DD ──────────────
+    // Kandidat berdasarkan berbagai interpretasi "ATmega pin 19/20":
+    //   IC TQFP Pin 19 = PB0 = Arduino 53
+    //   IC TQFP Pin 20 = PB1 = Arduino 52
+    //   Arduino D19 = RX1 (PJ0)
+    //   Arduino D20 = SDA (PD1)
+    //   IC TQFP Pin 6 = PE4 = Arduino 2
+    //   IC TQFP Pin 7 = PE5 = Arduino 3
+    //   Lainnya: 10,11,12,13,14
+    static const uint8_t scanPins[] = {2,  3,  52, 53, 19, 20,
+                                       10, 11, 12, 13, 14};
+    static const uint8_t numScan = sizeof(scanPins) / sizeof(scanPins[0]);
+
+    Serial.println(F("{\"pin_scan\":\"start\"}"));
+    Serial.println(
+        F("Dengarkan KLIK pada valve. Catat nomor pin yang membuatnya klik."));
+    Serial.println(F("Setiap pin akan di-toggle HIGH 2 detik lalu LOW."));
+    Serial.println(F("========================================="));
+
+    for (uint8_t i = 0; i < numScan; i++) {
+      uint8_t p = scanPins[i];
+      pinMode(p, OUTPUT);
+      digitalWrite(p, LOW);
+    }
+    delay(500);
+
+    // Fase 1: Test single pin HIGH (cari pin enable atau direct drive)
+    for (uint8_t i = 0; i < numScan; i++) {
+      uint8_t p = scanPins[i];
+      Serial.print(F(">> Pin "));
+      Serial.print(p);
+      Serial.println(F(" = HIGH (2 detik)..."));
+
+      digitalWrite(p, HIGH);
+      delay(2000);
+      digitalWrite(p, LOW);
+      delay(500);
+    }
+
+    Serial.println(F("========================================="));
+    Serial.println(F("Fase 2: Test PASANGAN pin (differential H-bridge)"));
+    Serial.println(F("========================================="));
+
+    // Fase 2: Test pasangan pin (H-Bridge differential)
+    // Pasangan kandidat utama
+    static const uint8_t pairs[][2] = {
+        {53, 52}, // PB0+PB1 (IC pin 19+20)
+        {52, 53}, // reverse
+        {2, 3},   // PE4+PE5 (IC pin 6+7)
+        {3, 2},   // reverse
+        {19, 20}, // Arduino D19+D20
+        {20, 19}, // reverse
+    };
+    static const uint8_t numPairs = sizeof(pairs) / sizeof(pairs[0]);
+
+    for (uint8_t i = 0; i < numPairs; i++) {
+      uint8_t pA = pairs[i][0];
+      uint8_t pB = pairs[i][1];
+
+      Serial.print(F(">> Pin "));
+      Serial.print(pA);
+      Serial.print(F("=HIGH + Pin "));
+      Serial.print(pB);
+      Serial.println(F("=LOW (2 detik)..."));
+
+      digitalWrite(pA, HIGH);
+      digitalWrite(pB, LOW);
+      delay(2000);
+      digitalWrite(pA, LOW);
+      digitalWrite(pB, LOW);
+      delay(500);
+    }
+
+    // Kembalikan semua pin LOW
+    for (uint8_t i = 0; i < numScan; i++) {
+      digitalWrite(scanPins[i], LOW);
+    }
+
+    Serial.println(F("========================================="));
+    Serial.println(F("{\"pin_scan\":\"done\"}"));
+    Serial.println(
+        F("Laporkan nomor pin atau pasangan yang membuat valve KLIK."));
+
   } else {
     Serial.print(F("{\"warn\":\"Perintah tidak dikenal\",\"cmd\":\""));
     Serial.print(cmd);
