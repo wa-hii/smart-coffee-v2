@@ -62,7 +62,8 @@ KNOWN_SAMPLES = {
     'L-TEM': {'roast_level': 'light',  'origin': 'Arabika Temanggung'},
     'L-CAT': {'roast_level': 'light',  'origin': 'Arabika Catuji Mekarwangi'},
     'L-GAW': {'roast_level': 'light',  'origin': 'Arabika Gayo Wine'},
-
+    'L-MING': {'roast_level': 'light', 'origin': 'Arabika Sumatra Utara'},
+    
     # MEDIUM ROAST
     'M-MAN': {'roast_level': 'medium', 'origin': 'Arabika Manglayang Jawa Barat'},
     'M-RAT': {'roast_level': 'medium', 'origin': 'Arabika Ratawali Aceh'},
@@ -71,6 +72,7 @@ KNOWN_SAMPLES = {
     # 'M-MUK': {'roast_level': 'medium', 'origin': 'Arabika Temanggung Mukidi'},
     'M-CAT': {'roast_level': 'medium', 'origin': 'Arabika Catuji Mekarwangi'},
     'M-GAW': {'roast_level': 'medium', 'origin': 'Arabika Gayo Wine'},
+    'M-MING': {'roast_level': 'medium', 'origin': 'Arabika Sumatra Utara'},
 
     # DARK ROAST
     'D-MAN': {'roast_level': 'dark',   'origin': 'Arabika Manglayang Jawa Barat'},
@@ -81,7 +83,7 @@ KNOWN_SAMPLES = {
     'D-CAT': {'roast_level': 'dark',   'origin': 'Arabika Catuji Mekarwangi'},
     'D-GAW': {'roast_level': 'dark',   'origin': 'Arabika Gayo Wine'},
     'D-MUK': {'roast_level': 'dark',   'origin': 'Arabika Temanggung Mukidi Roasting Sendiri'},
-
+    'D-MING': {'roast_level': 'dark', 'origin': 'Arabika Sumatra Utara'},
 }
 
 VALID_ROAST_LEVELS = ['light', 'medium', 'dark']
