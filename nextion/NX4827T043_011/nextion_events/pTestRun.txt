@@ -1,0 +1,4 @@
+// pTestRun Touch Release events
+
+// mCancel
+prints "EVT:AI_CANCEL",0\r\nprinth 0D 0A

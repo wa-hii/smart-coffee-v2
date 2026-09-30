@@ -1,22 +1,11 @@
 from pathlib import Path
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-
-# ============================================================
-# KONFIGURASI
-# ============================================================
-
-# Jika file Python berada di folder scripts/
-# dan folder data sejajar dengan folder scripts/
 DATA_DIR = Path("../data")
-
-# Folder hasil grafik
 OUTPUT_DIR = Path("../hasil_plot_sensor")
 
-# Sensor yang digunakan
 SENSORS = [
     "adc_tgs822",
     "adc_mq135",
@@ -30,13 +19,8 @@ SENSORS = [
     "adc_tgs816",
 ]
 
-# True = mencari CSV sampai ke subfolder dark/light/medium
 RECURSIVE = True
-
-# Tampilkan grafik saat program berjalan
 SHOW_PLOT = False
-
-# Simpan grafik
 SAVE_PLOT = True
 
 

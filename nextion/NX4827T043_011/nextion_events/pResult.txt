@@ -1,0 +1,7 @@
+// pResult Touch Release events
+
+// mSave
+prints "EVT:RESULT_SAVE",0\r\nprinth 0D 0A
+
+// mHome
+prints "EVT:HOME",0\r\nprinth 0D 0A

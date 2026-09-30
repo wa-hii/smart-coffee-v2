@@ -1,0 +1,7 @@
+// pCal Touch Release events
+
+// mStart
+prints "EVT:CAL_START",0\r\nprinth 0D 0A
+
+// mHome
+prints "EVT:HOME",0\r\nprinth 0D 0A

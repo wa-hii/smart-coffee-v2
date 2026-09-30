@@ -1,0 +1,7 @@
+// pSettings Touch Release events
+
+// mReset
+prints "EVT:RESET",0\r\nprinth 0D 0A
+
+// mHome
+prints "EVT:HOME",0\r\nprinth 0D 0A

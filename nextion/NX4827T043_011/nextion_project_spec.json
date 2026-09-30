@@ -1,0 +1,992 @@
+{
+  "target": {
+    "display_model": "NX4827T043_011",
+    "series": "Basic",
+    "resolution": "480x272",
+    "touch": "Resistive",
+    "ui_profile": "Basic-compatible shared profile",
+    "notes": [
+      "Use static background images plus lightweight Text/Progress/Hotspot overlays.",
+      "Avoid Intelligent-only features so the same UART/UI logic also works on the P-series."
+    ]
+  },
+  "nextion_editor": {
+    "canvas": "480x272 landscape",
+    "character_encoding": "ISO-8859-1 or UTF-8; keep MCU strings ASCII for portability",
+    "recommended_baud": 115200,
+    "background_strategy": "one 480x272 BMP per page + dynamic Text/Progress + transparent Hotspot components"
+  },
+  "font_plan": [
+    {
+      "id": 0,
+      "suggested": "Arial Regular 10 px",
+      "use": "small status/dynamic values"
+    },
+    {
+      "id": 1,
+      "suggested": "Arial Bold 14 px",
+      "use": "primary dynamic values"
+    },
+    {
+      "id": 2,
+      "suggested": "Arial Bold 18 px",
+      "use": "AI result emphasis"
+    }
+  ],
+  "pages": [
+    {
+      "id": 0,
+      "name": "pSplash",
+      "background": "00_Splash.bmp"
+    },
+    {
+      "id": 1,
+      "name": "pHome",
+      "background": "01_Home.bmp"
+    },
+    {
+      "id": 2,
+      "name": "pTake",
+      "background": "02_TakeData.bmp"
+    },
+    {
+      "id": 3,
+      "name": "pDataRun",
+      "background": "03_DataRun.bmp"
+    },
+    {
+      "id": 4,
+      "name": "pDataDone",
+      "background": "04_DataDone.bmp"
+    },
+    {
+      "id": 5,
+      "name": "pTest",
+      "background": "05_StartTest.bmp"
+    },
+    {
+      "id": 6,
+      "name": "pTestRun",
+      "background": "06_TestRun.bmp"
+    },
+    {
+      "id": 7,
+      "name": "pResult",
+      "background": "07_TestResult.bmp"
+    },
+    {
+      "id": 8,
+      "name": "pCal",
+      "background": "08_Calibration.bmp"
+    },
+    {
+      "id": 9,
+      "name": "pSettings",
+      "background": "09_Settings.bmp"
+    },
+    {
+      "id": 10,
+      "name": "pHistory",
+      "background": "10_History.bmp"
+    },
+    {
+      "id": 11,
+      "name": "pAlert",
+      "background": "11_Alert.bmp"
+    }
+  ],
+  "components": {
+    "pSplash": [
+      {
+        "page": "pSplash",
+        "name": "jInit",
+        "type": "Progress",
+        "x": 95,
+        "y": 196,
+        "w": 290,
+        "h": 8,
+        "font_id": null
+      },
+      {
+        "page": "pSplash",
+        "name": "tAtmega",
+        "type": "Text",
+        "x": 94,
+        "y": 214,
+        "w": 86,
+        "h": 19,
+        "font_id": 0
+      },
+      {
+        "page": "pSplash",
+        "name": "tPi",
+        "type": "Text",
+        "x": 197,
+        "y": 214,
+        "w": 86,
+        "h": 19,
+        "font_id": 0
+      },
+      {
+        "page": "pSplash",
+        "name": "tHmi",
+        "type": "Text",
+        "x": 300,
+        "y": 214,
+        "w": 86,
+        "h": 19,
+        "font_id": 0
+      }
+    ],
+    "pHome": [
+      {
+        "page": "pHome",
+        "name": "mTest",
+        "type": "Hotspot",
+        "x": 250,
+        "y": 60,
+        "w": 212,
+        "h": 41,
+        "event": "EVT:TEST_START"
+      },
+      {
+        "page": "pHome",
+        "name": "mData",
+        "type": "Hotspot",
+        "x": 250,
+        "y": 107,
+        "w": 212,
+        "h": 41,
+        "event": "EVT:TAKE_OPEN"
+      },
+      {
+        "page": "pHome",
+        "name": "mCal",
+        "type": "Hotspot",
+        "x": 18,
+        "y": 139,
+        "w": 212,
+        "h": 32,
+        "event": "EVT:CAL_START"
+      },
+      {
+        "page": "pHome",
+        "name": "mHist",
+        "type": "Hotspot",
+        "x": 250,
+        "y": 156,
+        "w": 212,
+        "h": 32,
+        "event": "EVT:HISTORY"
+      },
+      {
+        "page": "pHome",
+        "name": "mSet",
+        "type": "Hotspot",
+        "x": 18,
+        "y": 180,
+        "w": 212,
+        "h": 32,
+        "event": "EVT:SETTINGS"
+      },
+      {
+        "page": "pHome",
+        "name": "mExit",
+        "type": "Hotspot",
+        "x": 250,
+        "y": 197,
+        "w": 212,
+        "h": 32,
+        "event": "EVT:EXIT"
+      }
+    ],
+    "pTake": [
+      {
+        "page": "pTake",
+        "name": "tRoast",
+        "type": "Text",
+        "x": 26,
+        "y": 70,
+        "w": 190,
+        "h": 22,
+        "font_id": 1
+      },
+      {
+        "page": "pTake",
+        "name": "tOrigin",
+        "type": "Text",
+        "x": 260,
+        "y": 70,
+        "w": 190,
+        "h": 22,
+        "font_id": 1
+      },
+      {
+        "page": "pTake",
+        "name": "tBatch",
+        "type": "Text",
+        "x": 26,
+        "y": 122,
+        "w": 190,
+        "h": 22,
+        "font_id": 1
+      },
+      {
+        "page": "pTake",
+        "name": "tCycles",
+        "type": "Text",
+        "x": 260,
+        "y": 122,
+        "w": 190,
+        "h": 22,
+        "font_id": 1
+      },
+      {
+        "page": "pTake",
+        "name": "tFile",
+        "type": "Text",
+        "x": 118,
+        "y": 162,
+        "w": 330,
+        "h": 26,
+        "font_id": 0
+      },
+      {
+        "page": "pTake",
+        "name": "mRoast",
+        "type": "Hotspot",
+        "x": 16,
+        "y": 56,
+        "w": 214,
+        "h": 44,
+        "event": "EVT:ROAST_NEXT"
+      },
+      {
+        "page": "pTake",
+        "name": "mOrigin",
+        "type": "Hotspot",
+        "x": 250,
+        "y": 56,
+        "w": 214,
+        "h": 44,
+        "event": "EVT:ORIGIN_NEXT"
+      },
+      {
+        "page": "pTake",
+        "name": "mBatch",
+        "type": "Hotspot",
+        "x": 16,
+        "y": 109,
+        "w": 214,
+        "h": 44,
+        "event": "EVT:BATCH_INC"
+      },
+      {
+        "page": "pTake",
+        "name": "mBack",
+        "type": "Hotspot",
+        "x": 16,
+        "y": 227,
+        "w": 210,
+        "h": 32,
+        "event": "EVT:HOME"
+      },
+      {
+        "page": "pTake",
+        "name": "mStart",
+        "type": "Hotspot",
+        "x": 254,
+        "y": 227,
+        "w": 210,
+        "h": 32,
+        "event": "EVT:DATA_START"
+      }
+    ],
+    "pDataRun": [
+      {
+        "page": "pDataRun",
+        "name": "tSample",
+        "type": "Text",
+        "x": 18,
+        "y": 54,
+        "w": 160,
+        "h": 20,
+        "font_id": 1
+      },
+      {
+        "page": "pDataRun",
+        "name": "tCycle",
+        "type": "Text",
+        "x": 300,
+        "y": 54,
+        "w": 162,
+        "h": 20,
+        "font_id": 1
+      },
+      {
+        "page": "pDataRun",
+        "name": "jCycle",
+        "type": "Progress",
+        "x": 18,
+        "y": 81,
+        "w": 444,
+        "h": 8,
+        "font_id": null
+      },
+      {
+        "page": "pDataRun",
+        "name": "tPhase",
+        "type": "Text",
+        "x": 28,
+        "y": 114,
+        "w": 190,
+        "h": 24,
+        "font_id": 1
+      },
+      {
+        "page": "pDataRun",
+        "name": "tRemain",
+        "type": "Text",
+        "x": 260,
+        "y": 114,
+        "w": 190,
+        "h": 24,
+        "font_id": 1
+      },
+      {
+        "page": "pDataRun",
+        "name": "tTemp",
+        "type": "Text",
+        "x": 28,
+        "y": 169,
+        "w": 118,
+        "h": 22,
+        "font_id": 1
+      },
+      {
+        "page": "pDataRun",
+        "name": "tHum",
+        "type": "Text",
+        "x": 180,
+        "y": 169,
+        "w": 118,
+        "h": 22,
+        "font_id": 1
+      },
+      {
+        "page": "pDataRun",
+        "name": "tSensors",
+        "type": "Text",
+        "x": 332,
+        "y": 169,
+        "w": 118,
+        "h": 22,
+        "font_id": 1
+      },
+      {
+        "page": "pDataRun",
+        "name": "mPause",
+        "type": "Hotspot",
+        "x": 18,
+        "y": 226,
+        "w": 210,
+        "h": 32,
+        "event": "EVT:DATA_PAUSE"
+      },
+      {
+        "page": "pDataRun",
+        "name": "mCancel",
+        "type": "Hotspot",
+        "x": 252,
+        "y": 226,
+        "w": 210,
+        "h": 32,
+        "event": "EVT:DATA_CANCEL"
+      }
+    ],
+    "pDataDone": [
+      {
+        "page": "pDataDone",
+        "name": "tFile",
+        "type": "Text",
+        "x": 50,
+        "y": 123,
+        "w": 380,
+        "h": 19,
+        "font_id": 1
+      },
+      {
+        "page": "pDataDone",
+        "name": "mNew",
+        "type": "Hotspot",
+        "x": 30,
+        "y": 196,
+        "w": 196,
+        "h": 39,
+        "event": "EVT:NEW_BATCH"
+      },
+      {
+        "page": "pDataDone",
+        "name": "mHome",
+        "type": "Hotspot",
+        "x": 254,
+        "y": 196,
+        "w": 196,
+        "h": 39,
+        "event": "EVT:HOME"
+      }
+    ],
+    "pTest": [
+      {
+        "page": "pTest",
+        "name": "tTestId",
+        "type": "Text",
+        "x": 28,
+        "y": 148,
+        "w": 190,
+        "h": 22,
+        "font_id": 1
+      },
+      {
+        "page": "pTest",
+        "name": "tMode",
+        "type": "Text",
+        "x": 260,
+        "y": 148,
+        "w": 190,
+        "h": 22,
+        "font_id": 1
+      },
+      {
+        "page": "pTest",
+        "name": "tAtmega",
+        "type": "Text",
+        "x": 18,
+        "y": 189,
+        "w": 138,
+        "h": 19,
+        "font_id": 0
+      },
+      {
+        "page": "pTest",
+        "name": "tPi",
+        "type": "Text",
+        "x": 171,
+        "y": 189,
+        "w": 138,
+        "h": 19,
+        "font_id": 0
+      },
+      {
+        "page": "pTest",
+        "name": "tSensors",
+        "type": "Text",
+        "x": 324,
+        "y": 189,
+        "w": 138,
+        "h": 19,
+        "font_id": 0
+      },
+      {
+        "page": "pTest",
+        "name": "mBack",
+        "type": "Hotspot",
+        "x": 18,
+        "y": 228,
+        "w": 210,
+        "h": 32,
+        "event": "EVT:HOME"
+      },
+      {
+        "page": "pTest",
+        "name": "mStart",
+        "type": "Hotspot",
+        "x": 252,
+        "y": 228,
+        "w": 210,
+        "h": 32,
+        "event": "EVT:AI_START"
+      }
+    ],
+    "pTestRun": [
+      {
+        "page": "pTestRun",
+        "name": "tTestId",
+        "type": "Text",
+        "x": 18,
+        "y": 54,
+        "w": 160,
+        "h": 19,
+        "font_id": 1
+      },
+      {
+        "page": "pTestRun",
+        "name": "tPi",
+        "type": "Text",
+        "x": 342,
+        "y": 54,
+        "w": 120,
+        "h": 19,
+        "font_id": 0
+      },
+      {
+        "page": "pTestRun",
+        "name": "jAI",
+        "type": "Progress",
+        "x": 18,
+        "y": 84,
+        "w": 444,
+        "h": 8
+      },
+      {
+        "page": "pTestRun",
+        "name": "tStep1",
+        "type": "Text",
+        "x": 330,
+        "y": 103,
+        "w": 118,
+        "h": 24,
+        "font_id": 0
+      },
+      {
+        "page": "pTestRun",
+        "name": "tStep2",
+        "type": "Text",
+        "x": 330,
+        "y": 133,
+        "w": 118,
+        "h": 24,
+        "font_id": 0
+      },
+      {
+        "page": "pTestRun",
+        "name": "tStep3",
+        "type": "Text",
+        "x": 330,
+        "y": 162,
+        "w": 118,
+        "h": 24,
+        "font_id": 0
+      },
+      {
+        "page": "pTestRun",
+        "name": "tStep4",
+        "type": "Text",
+        "x": 330,
+        "y": 192,
+        "w": 118,
+        "h": 24,
+        "font_id": 0
+      },
+      {
+        "page": "pTestRun",
+        "name": "tEta",
+        "type": "Text",
+        "x": 18,
+        "y": 224,
+        "w": 444,
+        "h": 15,
+        "font_id": 0
+      },
+      {
+        "page": "pTestRun",
+        "name": "mCancel",
+        "type": "Hotspot",
+        "x": 134,
+        "y": 242,
+        "w": 212,
+        "h": 26,
+        "event": "EVT:AI_CANCEL"
+      }
+    ],
+    "pResult": [
+      {
+        "page": "pResult",
+        "name": "tRoast",
+        "type": "Text",
+        "x": 30,
+        "y": 80,
+        "w": 188,
+        "h": 24,
+        "font_id": 2
+      },
+      {
+        "page": "pResult",
+        "name": "tRConf",
+        "type": "Text",
+        "x": 30,
+        "y": 104,
+        "w": 188,
+        "h": 14,
+        "font_id": 0
+      },
+      {
+        "page": "pResult",
+        "name": "tOrigin",
+        "type": "Text",
+        "x": 262,
+        "y": 80,
+        "w": 188,
+        "h": 24,
+        "font_id": 2
+      },
+      {
+        "page": "pResult",
+        "name": "tOConf",
+        "type": "Text",
+        "x": 262,
+        "y": 104,
+        "w": 188,
+        "h": 14,
+        "font_id": 0
+      },
+      {
+        "page": "pResult",
+        "name": "jLight",
+        "type": "Progress",
+        "x": 94,
+        "y": 156,
+        "w": 286,
+        "h": 8,
+        "font_id": null
+      },
+      {
+        "page": "pResult",
+        "name": "jMedium",
+        "type": "Progress",
+        "x": 94,
+        "y": 177,
+        "w": 286,
+        "h": 8,
+        "font_id": null
+      },
+      {
+        "page": "pResult",
+        "name": "jDark",
+        "type": "Progress",
+        "x": 94,
+        "y": 197,
+        "w": 286,
+        "h": 8,
+        "font_id": null
+      },
+      {
+        "page": "pResult",
+        "name": "tLight",
+        "type": "Text",
+        "x": 390,
+        "y": 153,
+        "w": 72,
+        "h": 15,
+        "font_id": 0
+      },
+      {
+        "page": "pResult",
+        "name": "tMedium",
+        "type": "Text",
+        "x": 390,
+        "y": 173,
+        "w": 72,
+        "h": 15,
+        "font_id": 0
+      },
+      {
+        "page": "pResult",
+        "name": "tDark",
+        "type": "Text",
+        "x": 390,
+        "y": 194,
+        "w": 72,
+        "h": 15,
+        "font_id": 0
+      },
+      {
+        "page": "pResult",
+        "name": "mSave",
+        "type": "Hotspot",
+        "x": 18,
+        "y": 227,
+        "w": 210,
+        "h": 32,
+        "event": "EVT:RESULT_SAVE"
+      },
+      {
+        "page": "pResult",
+        "name": "mHome",
+        "type": "Hotspot",
+        "x": 252,
+        "y": 227,
+        "w": 210,
+        "h": 32,
+        "event": "EVT:HOME"
+      }
+    ],
+    "pCal": [
+      {
+        "page": "pCal",
+        "name": "tSensors",
+        "type": "Text",
+        "x": 28,
+        "y": 122,
+        "w": 190,
+        "h": 20,
+        "font_id": 1
+      },
+      {
+        "page": "pCal",
+        "name": "tPump",
+        "type": "Text",
+        "x": 260,
+        "y": 122,
+        "w": 190,
+        "h": 20,
+        "font_id": 1
+      },
+      {
+        "page": "pCal",
+        "name": "tChamber",
+        "type": "Text",
+        "x": 28,
+        "y": 173,
+        "w": 190,
+        "h": 20,
+        "font_id": 1
+      },
+      {
+        "page": "pCal",
+        "name": "tBase",
+        "type": "Text",
+        "x": 260,
+        "y": 173,
+        "w": 190,
+        "h": 20,
+        "font_id": 1
+      },
+      {
+        "page": "pCal",
+        "name": "mStart",
+        "type": "Hotspot",
+        "x": 18,
+        "y": 221,
+        "w": 274,
+        "h": 36,
+        "event": "EVT:CAL_START"
+      },
+      {
+        "page": "pCal",
+        "name": "mHome",
+        "type": "Hotspot",
+        "x": 310,
+        "y": 221,
+        "w": 152,
+        "h": 36,
+        "event": "EVT:HOME"
+      }
+    ],
+    "pSettings": [
+      {
+        "page": "pSettings",
+        "name": "tWifi",
+        "type": "Text",
+        "x": 242,
+        "y": 55,
+        "w": 206,
+        "h": 21,
+        "font_id": 0
+      },
+      {
+        "page": "pSettings",
+        "name": "tDuration",
+        "type": "Text",
+        "x": 242,
+        "y": 82,
+        "w": 206,
+        "h": 21,
+        "font_id": 0
+      },
+      {
+        "page": "pSettings",
+        "name": "tBright",
+        "type": "Text",
+        "x": 242,
+        "y": 108,
+        "w": 206,
+        "h": 21,
+        "font_id": 0
+      },
+      {
+        "page": "pSettings",
+        "name": "tLang",
+        "type": "Text",
+        "x": 242,
+        "y": 134,
+        "w": 206,
+        "h": 21,
+        "font_id": 0
+      },
+      {
+        "page": "pSettings",
+        "name": "tDevId",
+        "type": "Text",
+        "x": 242,
+        "y": 161,
+        "w": 206,
+        "h": 21,
+        "font_id": 0
+      },
+      {
+        "page": "pSettings",
+        "name": "tFw",
+        "type": "Text",
+        "x": 242,
+        "y": 187,
+        "w": 206,
+        "h": 21,
+        "font_id": 0
+      },
+      {
+        "page": "pSettings",
+        "name": "mReset",
+        "type": "Hotspot",
+        "x": 18,
+        "y": 230,
+        "w": 210,
+        "h": 31,
+        "event": "EVT:RESET"
+      },
+      {
+        "page": "pSettings",
+        "name": "mHome",
+        "type": "Hotspot",
+        "x": 252,
+        "y": 230,
+        "w": 210,
+        "h": 31,
+        "event": "EVT:HOME"
+      }
+    ],
+    "pHistory": [
+      {
+        "page": "pHistory",
+        "name": "tH0",
+        "type": "Text",
+        "x": 30,
+        "y": 58,
+        "w": 418,
+        "h": 31,
+        "font_id": 0
+      },
+      {
+        "page": "pHistory",
+        "name": "tH1",
+        "type": "Text",
+        "x": 30,
+        "y": 95,
+        "w": 418,
+        "h": 31,
+        "font_id": 0
+      },
+      {
+        "page": "pHistory",
+        "name": "tH2",
+        "type": "Text",
+        "x": 30,
+        "y": 133,
+        "w": 418,
+        "h": 31,
+        "font_id": 0
+      },
+      {
+        "page": "pHistory",
+        "name": "tH3",
+        "type": "Text",
+        "x": 30,
+        "y": 170,
+        "w": 418,
+        "h": 31,
+        "font_id": 0
+      },
+      {
+        "page": "pHistory",
+        "name": "mClear",
+        "type": "Hotspot",
+        "x": 18,
+        "y": 227,
+        "w": 210,
+        "h": 32,
+        "event": "EVT:HISTORY_CLEAR"
+      },
+      {
+        "page": "pHistory",
+        "name": "mHome",
+        "type": "Hotspot",
+        "x": 252,
+        "y": 227,
+        "w": 210,
+        "h": 32,
+        "event": "EVT:HOME"
+      }
+    ],
+    "pAlert": [
+      {
+        "page": "pAlert",
+        "name": "tAlert",
+        "type": "Text",
+        "x": 88,
+        "y": 65,
+        "w": 350,
+        "h": 20,
+        "font_id": 1
+      },
+      {
+        "page": "pAlert",
+        "name": "tMsg",
+        "type": "Text",
+        "x": 88,
+        "y": 88,
+        "w": 350,
+        "h": 19,
+        "font_id": 0
+      },
+      {
+        "page": "pAlert",
+        "name": "tAction",
+        "type": "Text",
+        "x": 30,
+        "y": 153,
+        "w": 420,
+        "h": 44,
+        "font_id": 0
+      },
+      {
+        "page": "pAlert",
+        "name": "mRetry",
+        "type": "Hotspot",
+        "x": 18,
+        "y": 223,
+        "w": 210,
+        "h": 36,
+        "event": "EVT:RETRY"
+      },
+      {
+        "page": "pAlert",
+        "name": "mHome",
+        "type": "Hotspot",
+        "x": 252,
+        "y": 223,
+        "w": 210,
+        "h": 36,
+        "event": "EVT:HOME"
+      }
+    ]
+  },
+  "uart_protocol": {
+    "format": "ASCII line events Nextion -> ATmega; terminate each event with CRLF",
+    "event_examples": [
+      "EVT:AI_START",
+      "EVT:DATA_START",
+      "EVT:HOME"
+    ],
+    "controller_to_nextion": "standard Nextion commands terminated by FF FF FF"
+  }
+}

@@ -1,0 +1,7 @@
+// pDataRun Touch Release events
+
+// mPause
+prints "EVT:DATA_PAUSE",0\r\nprinth 0D 0A
+
+// mCancel
+prints "EVT:DATA_CANCEL",0\r\nprinth 0D 0A

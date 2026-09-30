@@ -1,0 +1,19 @@
+// pHome Touch Release events
+
+// mTest
+prints "EVT:TEST_START",0\r\nprinth 0D 0A
+
+// mData
+prints "EVT:TAKE_OPEN",0\r\nprinth 0D 0A
+
+// mCal
+prints "EVT:CAL_START",0\r\nprinth 0D 0A
+
+// mHist
+prints "EVT:HISTORY",0\r\nprinth 0D 0A
+
+// mSet
+prints "EVT:SETTINGS",0\r\nprinth 0D 0A
+
+// mExit
+prints "EVT:EXIT",0\r\nprinth 0D 0A

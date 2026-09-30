@@ -1,0 +1,7 @@
+// pTest Touch Release events
+
+// mBack
+prints "EVT:HOME",0\r\nprinth 0D 0A
+
+// mStart
+prints "EVT:AI_START",0\r\nprinth 0D 0A

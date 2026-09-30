@@ -1,0 +1,16 @@
+// pTake Touch Release events
+
+// mRoast
+prints "EVT:ROAST_NEXT",0\r\nprinth 0D 0A
+
+// mOrigin
+prints "EVT:ORIGIN_NEXT",0\r\nprinth 0D 0A
+
+// mBatch
+prints "EVT:BATCH_INC",0\r\nprinth 0D 0A
+
+// mBack
+prints "EVT:HOME",0\r\nprinth 0D 0A
+
+// mStart
+prints "EVT:DATA_START",0\r\nprinth 0D 0A

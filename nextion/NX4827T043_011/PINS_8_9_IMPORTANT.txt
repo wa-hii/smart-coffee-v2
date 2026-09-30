@@ -1,0 +1,17 @@
+# IMPORTANT — your current D8/D9 wiring on ATmega2560
+
+You previously specified Nextion RX/TX on Mega2560 digital pins 8 and 9.
+
+With the standard Arduino `SoftwareSerial` library, Mega/Mega2560 cannot reliably use D8/D9 as a
+software-serial receive pair. The standard receive-capable pins are a limited set (for example
+10–15, 50–53, and A8–A15).
+
+For this project, the recommended connection is the Mega2560 hardware UART:
+- Nextion TX -> Mega RX1 (pin 19)
+- Nextion RX -> Mega TX1 (pin 18)
+- GND -> GND
+- `Serial1.begin(115200);`
+
+If the PCB is already fixed to D8/D9, do not blindly copy the Serial1 example. Keep your existing
+physical wiring only if the serial library you use explicitly supports RX on D8 for Mega2560 and
+you have verified bidirectional communication. Otherwise, move the link to Serial1.
