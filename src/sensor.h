@@ -12,11 +12,14 @@
 #include <EEPROM.h>
 #include "ADS1X15.h"
 #include "MQUnifiedsensor.h"
+#include "sht30.h"
 #include "TGSSensor.h"
 
 // ─── Software I2C Pins ────────────────────────────────────────────────────────
-#define PIN_SDA   35
-#define PIN_SCL   34
+#define PIN_SDA   20
+#define PIN_SCL   21
+
+// Wire uses the ATmega2560 hardware I2C pins above; this is not software I2C.
 
 // ─── I2C Addresses (4× ADS1115) ──────────────────────────────────────────────
 #define I2C_ADDR_ADS1   0x48   // ADDR → GND
@@ -79,6 +82,11 @@ public:
 
     void readAll();             // Baca 10 channel ADC
 
+    bool hasSht30() const { return hasSht30_; }
+    bool environmentValid() const { return environmentValid_; }
+    float getTemperatureC() const { return temperatureC_; }
+    float getHumidityRh() const { return humidityRh_; }
+
     uint16_t        getAdc(uint8_t idx) const { return adc_[idx]; }
     const uint16_t* getAdcArray()       const { return adc_; }
 
@@ -91,6 +99,12 @@ private:
     bool hasAds2_ = false;
     bool hasAds3_ = false;
     bool hasAds4_ = false;
+    bool hasSht30_ = false;
+    bool environmentValid_ = false;
+    float temperatureC_ = 0.0f;
+    float humidityRh_ = 0.0f;
+
+    Sht30 sht30_;
 
     // 3× MQ sensor
     MQUnifiedsensor mq135_, mq3_, mq8_;

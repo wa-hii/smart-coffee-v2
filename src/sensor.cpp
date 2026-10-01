@@ -96,6 +96,11 @@ bool SensorArray::begin() {
   Serial.print(foundCount);
   Serial.println(F("/4\"}"));
 
+  hasSht30_ = sht30_.begin();
+  if (!hasSht30_) {
+    Serial.println(F("{\"warn\":\"SHT30 (0x44) tidak terdeteksi\"}"));
+  }
+
   // ── Konfigurasi MQ sensors ───────────────────────────────────────────────
   mq135_.setRegressionMethod(1);
   mq135_.setRL(SENSOR_RL[SENSOR_MQ135]);
@@ -358,6 +363,12 @@ void SensorArray::readAll() {
     adc_[SENSOR_TGS813] = 0;
     adc_[SENSOR_TGS816] = 0;
   }
+
+  if (hasSht30_) {
+    environmentValid_ = sht30_.read(temperatureC_, humidityRh_);
+  } else {
+    environmentValid_ = false;
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -396,6 +407,19 @@ void SensorArray::printJsonData(const char *phase, uint32_t cycle,
   Serial.print(adc_[SENSOR_TGS813]);
   Serial.print(F(",\"adc_tgs816\":"));
   Serial.print(adc_[SENSOR_TGS816]);
+
+  Serial.print(F(",\"temperature_c\":"));
+  if (environmentValid_) {
+    Serial.print(temperatureC_, 2);
+  } else {
+    Serial.print(F("null"));
+  }
+  Serial.print(F(",\"humidity_rh\":"));
+  if (environmentValid_) {
+    Serial.print(humidityRh_, 2);
+  } else {
+    Serial.print(F("null"));
+  }
 
 #if USE_PPM
   // TODO: Tambahkan perhitungan PPM per gas jika diperlukan
