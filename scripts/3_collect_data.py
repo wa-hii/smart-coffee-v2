@@ -48,9 +48,9 @@ except Exception:
 # ─── Konfigurasi Akuisisi Default ──────────────────────────────────────────────
 BAUD_RATE        = 115200
 OUTPUT_DIR       = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'data'))
-ACQ_PURGE_S      = 120    # Durasi purging per run (detik)
-ACQ_COLLECT_S    = 60   # Durasi collecting per run (detik)
-ACQ_REPETITIONS  = 40   # Jumlah run per sampel kopi
+ACQ_PURGE_S      = 25     # Durasi purging per run (detik)
+ACQ_COLLECT_S    = 5      # Durasi collecting per run (detik)
+ACQ_REPETITIONS  = 5      # Jumlah run per sampel kopi
 
 # ─── Database Sampel Eksperimen (Predefined Metadata) ───────────────────────────
 KNOWN_SAMPLES = {
@@ -62,7 +62,8 @@ KNOWN_SAMPLES = {
     'L-TEM': {'roast_level': 'light',  'origin': 'Arabika Temanggung'},
     'L-CAT': {'roast_level': 'light',  'origin': 'Arabika Catuji Mekarwangi'},
     'L-GAW': {'roast_level': 'light',  'origin': 'Arabika Gayo Wine'},
-
+    'L-MING': {'roast_level': 'light', 'origin': 'Arabika Sumatra Utara'},
+    
     # MEDIUM ROAST
     'M-MAN': {'roast_level': 'medium', 'origin': 'Arabika Manglayang Jawa Barat'},
     'M-RAT': {'roast_level': 'medium', 'origin': 'Arabika Ratawali Aceh'},
@@ -71,6 +72,7 @@ KNOWN_SAMPLES = {
     # 'M-MUK': {'roast_level': 'medium', 'origin': 'Arabika Temanggung Mukidi'},
     'M-CAT': {'roast_level': 'medium', 'origin': 'Arabika Catuji Mekarwangi'},
     'M-GAW': {'roast_level': 'medium', 'origin': 'Arabika Gayo Wine'},
+    'M-MING': {'roast_level': 'medium', 'origin': 'Arabika Sumatra Utara'},
 
     # DARK ROAST
     'D-MAN': {'roast_level': 'dark',   'origin': 'Arabika Manglayang Jawa Barat'},
@@ -81,7 +83,7 @@ KNOWN_SAMPLES = {
     'D-CAT': {'roast_level': 'dark',   'origin': 'Arabika Catuji Mekarwangi'},
     'D-GAW': {'roast_level': 'dark',   'origin': 'Arabika Gayo Wine'},
     'D-MUK': {'roast_level': 'dark',   'origin': 'Arabika Temanggung Mukidi Roasting Sendiri'},
-
+    'D-MING': {'roast_level': 'dark', 'origin': 'Arabika Sumatra Utara'},
 }
 
 VALID_ROAST_LEVELS = ['light', 'medium', 'dark']
@@ -93,13 +95,13 @@ ADC_COLS = [
 ]
 
 SENSOR_CONFIG = {
-    'adc_tgs2600': {'label': 'TGS2600', 'color': '#64FFDA', 'group': 'TGS'},
-    'adc_tgs2602': {'label': 'TGS2602', 'color': '#A7FFEB', 'group': 'TGS'},
+    'adc_tgs2600': {'label': 'TGS2600', 'color': "#FF7664", 'group': 'TGS'},
+    'adc_tgs2602': {'label': 'TGS2602', 'color': "#FEFFA7", 'group': 'TGS'},
     'adc_tgs816':  {'label': 'TGS816',  'color': '#76FF03', 'group': 'TGS'},
-    'adc_tgs813':  {'label': 'TGS813',  'color': '#B2FF59', 'group': 'TGS'},
-    'adc_mq8':     {'label': 'MQ8',     'color': '#FFAB00', 'group': 'MQ'},
-    'adc_tgs2611': {'label': 'TGS2611', 'color': '#00BFA5', 'group': 'TGS'},
-    'adc_tgs2620': {'label': 'TGS2620', 'color': '#18FFFF', 'group': 'TGS'},
+    'adc_tgs813':  {'label': 'TGS813',  'color': "#59FFF1", 'group': 'TGS'},
+    'adc_mq8':     {'label': 'MQ8',     'color': "#006EFF", 'group': 'MQ'},
+    'adc_tgs2611': {'label': 'TGS2611', 'color': "#7300BF", 'group': 'TGS'},
+    'adc_tgs2620': {'label': 'TGS2620', 'color': "#FF18BA", 'group': 'TGS'},
     'adc_tgs822':  {'label': 'TGS822',  'color': '#00E676', 'group': 'TGS'},
     'adc_mq135':   {'label': 'MQ135',   'color': '#FF6D00', 'group': 'MQ'},
     'adc_mq3':     {'label': 'MQ3',     'color': '#FF3D00', 'group': 'MQ'},
@@ -160,8 +162,7 @@ def prompt_metadata():
         default_origin = KNOWN_SAMPLES[sid]['origin']
         print(f"  ✓ Terdeteksi preset: Roast={default_roast}, Origin={default_origin}")
 
-        roast_in = input(f"Masukkan Roast Level [{default_roast}]: ").strip().lower()
-        roast_level = roast_in if roast_in else default_roast
+        roast_level = KNOWN_SAMPLES[sid]['roast_level']
 
         origin_in = input(f"Masukkan Origin [{default_origin}]: ").strip()
         origin = origin_in if origin_in else default_origin
@@ -178,13 +179,14 @@ def prompt_metadata():
 
 # ─── Data Collector & Store Thread ──────────────────────────────────────────
 class RawDataCollector:
-    def __init__(self, ser, sample_id, roast_level, origin, batch_id, out_csv):
+    def __init__(self, ser, sample_id, roast_level, origin, batch_id, out_csv, target_cycles=ACQ_REPETITIONS):
         self.ser = ser
         self.sample_id = sample_id
         self.roast_level = roast_level
         self.origin = origin
         self.batch_id = batch_id
         self.out_csv = out_csv
+        self.target_cycles = target_cycles
         self.lock = threading.Lock()
 
         self.rows = []
@@ -198,8 +200,8 @@ class RawDataCollector:
 
         # Status State
         self.phase = 'idle'
-        self.cycle = 0          # run_id (1 s.d. 10)
-        self.cycles_total = ACQ_REPETITIONS
+        self.cycle = 0          # run_id
+        self.cycles_total = target_cycles or ACQ_REPETITIONS
         self.collect_s = ACQ_COLLECT_S
         self.purge_s = ACQ_PURGE_S
         self.status_msg = 'Menunggu data serial...'
@@ -231,7 +233,10 @@ class RawDataCollector:
                 if event == 'ACQ_START':
                     self.collect_s = data.get('collect_s', self.collect_s)
                     self.purge_s = data.get('purge_s', self.purge_s)
-                    self.cycles_total = data.get('cycles_total', self.cycles_total)
+                    if not self.target_cycles:
+                        self.cycles_total = data.get('cycles_total', self.cycles_total)
+                    else:
+                        self.cycles_total = self.target_cycles
                     self.cycle = data.get('cycle', 1)
                     self.phase = data.get('phase', 'purging')
                     self.status_msg = f"🚀 Start: Run 01/{self.cycles_total:02d} ({self.phase.upper()})"
@@ -239,8 +244,24 @@ class RawDataCollector:
                     continue
 
                 if event == 'PHASE_CHANGE':
-                    self.cycle = data.get('cycle', self.cycle)
-                    self.phase = data.get('phase', self.phase)
+                    new_cycle = data.get('cycle', self.cycle)
+                    new_phase = data.get('phase', self.phase)
+
+                    # Jika mikro lanjut ke siklus melebihi target, hentikan langsung!
+                    if self.target_cycles and new_cycle > self.target_cycles:
+                        print(f"\n🎯 Target {self.target_cycles} Run selesai! Mengirim #stop; ke ATmega...")
+                        try:
+                            self.ser.write(b'#stop;')
+                        except Exception:
+                            pass
+                        total = len(self.rows)
+                        self.status_msg = f"✅ Akuisisi Selesai ({self.target_cycles} Run, {total} Sampel)"
+                        print(f"✅ {self.target_cycles} Run selesai! Total sampel raw data: {total}")
+                        self.acquisition_done = True
+                        continue
+
+                    self.cycle = new_cycle
+                    self.phase = new_phase
                     self.status_msg = f"Phase -> {self.phase.upper()} (Run {self.cycle:02d}/{self.cycles_total:02d})"
                     print(f"  🔄 Phase: {self.phase.upper()} | Run {self.cycle:02d}/{self.cycles_total:02d}")
                     continue
@@ -248,7 +269,7 @@ class RawDataCollector:
                 if event == 'ACQ_COMPLETE':
                     total = data.get('total_samples', len(self.rows))
                     self.status_msg = f"✅ Akuisisi Selesai ({total} Sampel Raw Data)"
-                    print(f"\n✅ 40 Run selesai! Total sampel raw data: {total}")
+                    print(f"\n✅ {self.cycles_total} Run selesai! Total sampel raw data: {total}")
                     self.acquisition_done = True
                     continue
 
@@ -262,6 +283,15 @@ class RawDataCollector:
                 phase = data.get('phase', 'idle')
                 cycle = data.get('cycle', 0)
                 sample_idx = data.get('sample_idx', 0)
+
+                # Jika siklus melampaui target, segera hentikan
+                if self.target_cycles and cycle > self.target_cycles:
+                    try:
+                        self.ser.write(b'#stop;')
+                    except Exception:
+                        pass
+                    self.acquisition_done = True
+                    break
 
                 if phase in ('purging', 'collecting'):
                     # Susun metadata lengkap untuk setiap baris data
@@ -369,7 +399,7 @@ def run_live_gui(collector):
                 ax.set_xlim(max(0, ts[0]), ts[-1] + 2)
 
         if collector.acquisition_done:
-            status_text.set_text(f"[OK] 40 Run Selesai! CSV: {os.path.basename(collector.out_csv)}")
+            status_text.set_text(f"[OK] {collector.cycles_total} Run Selesai! CSV: {os.path.basename(collector.out_csv)}")
             status_text.set_color('#A371F7')
 
         return list(lines.values())
@@ -399,7 +429,7 @@ def main():
     if args.sample:
         sample_id = args.sample.upper()
         if sample_id in KNOWN_SAMPLES:
-            roast_level = args.roast_level or KNOWN_SAMPLES[sample_id]['roast_level']
+            roast_level = KNOWN_SAMPLES[sample_id]['roast_level']
             origin      = args.origin      or KNOWN_SAMPLES[sample_id]['origin']
         else:
             roast_level = args.roast_level or 'custom'
@@ -422,14 +452,14 @@ def main():
 
     print(f"""
 ╔══════════════════════════════════════════════════════════════════════╗
-║           E-NOSE Kopi — Pengumpulan Raw Data (15 Run)                ║
+║           E-NOSE Kopi — Pengumpulan Raw Data ({ACQ_REPETITIONS} Run)                ║
 ╠══════════════════════════════════════════════════════════════════════╣
 ║  Sample ID    : {sample_id:<52} ║
 ║  Roast Level  : {roast_level.upper():<52} ║
 ║  Origin       : {origin:<52} ║
 ║  Batch ID     : {batch_id:<52} ║
 ║  Port Serial  : {port:<52} ║
-║  Skema Run    : 40 Run × ({ACQ_PURGE_S}s Purging + {ACQ_COLLECT_S}s Collecting){'':<14} ║
+║  Skema Run    : {ACQ_REPETITIONS} Run × ({ACQ_PURGE_S}s Purging + {ACQ_COLLECT_S}s Collecting){'':<14} ║
 ║  Output File  : {os.path.basename(out_csv):<52} ║
 ╚══════════════════════════════════════════════════════════════════════╝
 """)
@@ -444,7 +474,7 @@ def main():
 
     time.sleep(2)  # Wait for ATmega boot
 
-    collector = RawDataCollector(ser, sample_id, roast_level, origin, batch_id, out_csv)
+    collector = RawDataCollector(ser, sample_id, roast_level, origin, batch_id, out_csv, target_cycles=args.repetitions)
     t_thread = threading.Thread(target=collector.run, daemon=True)
     t_thread.start()
 
@@ -500,10 +530,10 @@ def main():
    Roast Level   : {roast_level}
    Origin        : {origin}
    Batch ID      : {batch_id}
-   Purging Rows  : {purging_n} sampel ({ACQ_PURGE_S}s × 40 run)
-   Collect Rows  : {collecting_n} sampel ({ACQ_COLLECT_S}s × 40 run)
+   Purging Rows  : {purging_n} sampel ({ACQ_PURGE_S}s × {ACQ_REPETITIONS} run)
+   Collect Rows  : {collecting_n} sampel ({ACQ_COLLECT_S}s × {ACQ_REPETITIONS} run)
    Total Baris   : {len(df)} baris raw data
-   Total Kolom   : {len(df.columns)} kolom#valve_on
+   Total Kolom   : {len(df.columns)} kolom
    
 """)
     else:

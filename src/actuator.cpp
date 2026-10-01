@@ -2,7 +2,7 @@
 
 // Inisialisasi variabel statik
 bool Actuator::s_reversePolarity = false;  // false: Pin 10 HIGH / Pin 11 LOW; true: Pin 11 HIGH / Pin 10 LOW
-bool Actuator::s_normallyHigh = true;      // Purging = HIGH, Collecting = LOW
+bool Actuator::s_normallyHigh = false;     // Collecting = ON (Hisap Sampel), Purging = OFF (Udara Bersih)
 bool Actuator::s_valveState = false;       // status fisik valve: false=OFF (0V), true=ON (+Vs)
 
 void Actuator::begin() {
@@ -59,24 +59,24 @@ bool Actuator::isValveOn() {
 
 // ═════════════════════════════════════════════════════════════════════════════
 // Logika Valve Siklus Akuisisi:
-// Collecting (Hisap Sampel) = Valve LOW
-// Purging (Udara Bersih)    = Valve HIGH
-// Idle / Stop               = Valve OFF (LOW)
+// Collecting (Hisap Sampel) = Valve ON (+Vs, Port 1/33 terbuka)
+// Purging (Udara Bersih)    = Valve OFF (0V, Port 3/11 spring return terbuka)
+// Idle / Stop               = Valve OFF (0V)
 // ═════════════════════════════════════════════════════════════════════════════
 
 void Actuator::setCollecting() {
     if (s_normallyHigh) {
-        valveOff();   // Saat collecting: valve LOW (0V)
+        valveOff();
     } else {
-        valveOn();
+        valveOn();    // Saat collecting: valve ON (+Vs) menghirup aroma sampel kopi
     }
 }
 
 void Actuator::setPurging() {
     if (s_normallyHigh) {
-        valveOn();    // Saat purging: valve HIGH (Pin 10 HIGH, Pin 11 LOW)
+        valveOn();
     } else {
-        valveOff();
+        valveOff();   // Saat purging: valve OFF (0V) menarik udara bersih bebas
     }
 }
 

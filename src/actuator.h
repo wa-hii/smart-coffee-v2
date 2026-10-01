@@ -10,9 +10,9 @@
 //   - Pin 11 ATmega2560 ──► Pin B (IN2 Driver Valve)
 //
 // Mode Operasi:
-//   - PURGING    : Valve HIGH (Pin 10 HIGH, Pin 11 LOW) -> Udara Bersih
-//   - COLLECTING : Valve LOW  (Pin 10 LOW,  Pin 11 LOW) -> Sampel Kopi
-//   - IDLE / STOP: Valve OFF  (Pin 10 LOW,  Pin 11 LOW)
+//   - PURGING    : Valve OFF (0V, spring return)       -> Udara Bersih
+//   - COLLECTING : Valve ON  (Pin 10 HIGH, Pin 11 LOW) -> Sampel Kopi
+//   - IDLE / STOP: Valve OFF (0V)
 // ═════════════════════════════════════════════════════════════════════════════
 
 #define PIN_VALVE_A     10   // Pin 10 ATmega2560 (Pin A)
