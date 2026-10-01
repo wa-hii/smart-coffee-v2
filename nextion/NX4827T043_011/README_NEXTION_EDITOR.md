@@ -40,6 +40,11 @@ branches.
 - Controller owns purge/collect timing and CSV naming.
 - Nextion only displays state and reports user touches.
 
+During `pDataRun`, `tSensors` is reused as a compact live sensor readout. The
+firmware rotates through all ten ADC channels once per sensor refresh, for
+example `MQ3:1234` or `TGS816:N/A`. Dedicated fields can be added later when
+the HMI is revised and recompiled.
+
 ## AI test flow
 `pHome -> pTest -> pTestRun -> pResult`
 
@@ -47,6 +52,9 @@ branches.
 - ATmega performs sensor acquisition.
 - Raspberry Pi 5 performs feature extraction + AI inference.
 - Result page receives roast prediction, origin prediction, confidence, and probabilities.
+- The current firmware populates the roast label when on-device inference is
+  enabled. Confidence, origin, and class probabilities remain `N/A` until a
+  verified result source provides those values.
 
 ## Baud
 The package assumes 115200 baud for controller communication. Keep the editor/runtime setting and

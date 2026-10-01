@@ -90,6 +90,28 @@ public:
     uint16_t        getAdc(uint8_t idx) const { return adc_[idx]; }
     const uint16_t* getAdcArray()       const { return adc_; }
 
+    // Distinguish a missing ADS1115 from a legitimate zero sample.
+    bool adcAvailable(uint8_t idx) const {
+        switch (idx) {
+        case SENSOR_TGS822:
+        case SENSOR_MQ135:
+        case SENSOR_MQ3:
+            return hasAds1_;
+        case SENSOR_TGS2611:
+        case SENSOR_TGS2620:
+            return hasAds2_;
+        case SENSOR_TGS2600:
+        case SENSOR_TGS2602:
+            return hasAds3_;
+        case SENSOR_MQ8:
+        case SENSOR_TGS813:
+        case SENSOR_TGS816:
+            return hasAds4_;
+        default:
+            return false;
+        }
+    }
+
     void printJsonData(const char* phase, uint32_t cycle, uint32_t sampleIdx);
 
 private:

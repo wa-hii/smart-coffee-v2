@@ -87,6 +87,8 @@ void scanI2C();
 void handleNextionEvent(const char *event);
 void showNextionPage(const char *pageName);
 void updateNextionRunStatus();
+void updateNextionSensorSnapshot();
+void updateNextionInferenceResult();
 void pauseAcquisition();
 void resumeAcquisition();
 void sendNextionAlert(const char *title, const char *message,
@@ -106,9 +108,13 @@ char nextionPageName[16] = "pSplash";
 uint8_t roastSelection = 0;
 uint8_t originSelection = 0;
 uint16_t batchNumber = 1;
+uint8_t nextionSensorIndex = 0;
 
 static const char *const ROAST_OPTIONS[] = {"light", "medium", "dark"};
 static const char *const ORIGIN_OPTIONS[] = {"unknown", "Arabika"};
+static const char *const SENSOR_UI_NAMES[NUM_SENSORS] = {
+    "TGS822", "MQ135",  "MQ3",    "TGS2611", "TGS2620",
+    "TGS2600", "TGS2602", "MQ8",    "TGS813",  "TGS816"};
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  scanI2C() — Scan semua alamat I2C, cetak device yang ditemukan
@@ -308,8 +314,15 @@ void processAcquisitionState() {
         setActuators();
         printAcquisitionSummary();
         doInference();
-        showNextionPage("pDataDone");
-        nextion.text("pDataDone.tFile", "Result host pending");
+        updateNextionInferenceResult();
+        if (strcmp(inference.predictLabel(), "N/A") != 0) {
+          showNextionPage("pResult");
+          nextion.text("pResult.tRConf", "Confidence N/A");
+          nextion.text("pResult.tOrigin", "Origin N/A");
+        } else {
+          showNextionPage("pDataDone");
+          nextion.text("pDataDone.tFile", "Result belum tersedia");
+        }
         acqState = AcqState::IDLE;
       }
     }
@@ -368,6 +381,9 @@ void showNextionPage(const char *pageName) {
   }
   strncpy(nextionPageName, pageName, sizeof(nextionPageName) - 1);
   nextionPageName[sizeof(nextionPageName) - 1] = '\0';
+  if (strcmp(pageName, "pDataRun") == 0) {
+    nextionSensorIndex = 0;
+  }
 }
 
 void sendNextionAlert(const char *title, const char *message,
@@ -414,10 +430,41 @@ void updateNextionRunStatus() {
     nextion.text("pDataRun.tTemp", "N/A");
     nextion.text("pDataRun.tHum", "N/A");
   }
-  nextion.text("pDataRun.tSensors",
-               sensorsReady ? (sensors.hasSht30() ? "10 ADC + SHT OK"
-                                                   : "10 ADC / SHT N/A")
-                            : "ADC ERROR");
+  updateNextionSensorSnapshot();
+}
+
+void updateNextionSensorSnapshot() {
+  if (strcmp(nextionPageName, "pDataRun") != 0) {
+    return;
+  }
+  if (!sensorsReady) {
+    nextion.text("pDataRun.tSensors", "ADC ERROR");
+    return;
+  }
+
+  const uint8_t index = nextionSensorIndex;
+  char text[24] = {};
+  if (sensors.adcAvailable(index)) {
+    snprintf(text, sizeof(text), "%s:%u", SENSOR_UI_NAMES[index],
+             sensors.getAdc(index));
+  } else {
+    snprintf(text, sizeof(text), "%s:N/A", SENSOR_UI_NAMES[index]);
+  }
+  nextion.text("pDataRun.tSensors", text);
+  nextionSensorIndex = (index + 1) % NUM_SENSORS;
+}
+
+void updateNextionInferenceResult() {
+  const char *label = inference.predictLabel();
+  const bool resultReady = label != nullptr && strcmp(label, "N/A") != 0;
+
+  nextion.text("pResult.tRoast", resultReady ? label : "N/A");
+  nextion.text("pResult.tRConf", "N/A");
+  nextion.text("pResult.tOrigin", "N/A");
+  nextion.text("pResult.tOConf", "N/A");
+  nextion.progress("pResult.jLight", 0);
+  nextion.progress("pResult.jMedium", 0);
+  nextion.progress("pResult.jDark", 0);
 }
 
 void handleNextionEvent(const char *event) {
