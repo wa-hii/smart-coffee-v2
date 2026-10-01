@@ -20,9 +20,12 @@
 #include "TaskScheduler.h"
 #include "actuator.h"
 #include "inference.h"
+#include "nextion_transport.h"
 #include "sensor.h"
 #include <Arduino.h>
 #include <Wire.h>
+#include <stdio.h>
+#include <string.h>
 
 // ─── Konfigurasi Akuisisi
 // ─────────────────────────────────────────────────────
@@ -33,7 +36,7 @@
 // ─── Feature Flags
 // ────────────────────────────────────────────────────────────
 #ifndef IS_CALIBRATING_GAS_SENSOR
-#define IS_CALIBRATING_GAS_SENSOR 1 // 1 = kalibrasi ulang, 0 = pakai EEPROM
+#define IS_CALIBRATING_GAS_SENSOR 0 // 1 hanya untuk prosedur kalibrasi terawasi
 #endif
 
 // ─── Task Scheduler Intervals
@@ -43,7 +46,7 @@
 
 // ─── State Machine
 // ────────────────────────────────────────────────────────────
-enum class AcqState { IDLE, COLLECTING, PURGING, COMPLETE };
+enum class AcqState { IDLE, COLLECTING, PURGING, PAUSED, COMPLETE };
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  Global Objects
@@ -52,6 +55,7 @@ SensorArray sensors;
 Actuator actuator;
 Inference inference;
 Scheduler scheduler;
+NextionTransport nextion(Serial1);
 
 // ─── State Akuisisi
 // ───────────────────────────────────────────────────────────
@@ -80,6 +84,13 @@ void printAcquisitionSummary();
 void doInference();
 void printWelcome();
 void scanI2C();
+void handleNextionEvent(const char *event);
+void showNextionPage(const char *pageName);
+void updateNextionRunStatus();
+void pauseAcquisition();
+void resumeAcquisition();
+void sendNextionAlert(const char *title, const char *message,
+                      const char *action);
 
 // ─── TaskScheduler Tasks
 // ──────────────────────────────────────────────────────
@@ -89,6 +100,15 @@ Task taskSerial(TASK_INTERVAL_MS_SERIAL, TASK_FOREVER, &serialCallback);
 // ─── Status sensor
 // ────────────────────────────────────────────────────────────
 bool sensorsReady = false;
+bool nextionHomeSent = false;
+uint32_t nextionBootMs = 0;
+char nextionPageName[16] = "pSplash";
+uint8_t roastSelection = 0;
+uint8_t originSelection = 0;
+uint16_t batchNumber = 1;
+
+static const char *const ROAST_OPTIONS[] = {"light", "medium", "dark"};
+static const char *const ORIGIN_OPTIONS[] = {"unknown", "Arabika"};
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  scanI2C() — Scan semua alamat I2C, cetak device yang ditemukan
@@ -127,6 +147,8 @@ void scanI2C() {
 // ═══════════════════════════════════════════════════════════════════════════════
 void setup() {
   Serial.begin(115200);
+  nextion.begin(115200);
+  nextionBootMs = millis();
 
   actuator.begin();
 
@@ -137,7 +159,7 @@ void setup() {
   sensorsReady = sensors.begin();
   if (!sensorsReady) {
     Serial.println(F("{\"warn\":\"Sensor init gagal. Periksa wiring "
-                     "(SDA=pin35, SCL=pin34).\"}"));
+                     "(SDA=pin20, SCL=pin21).\"}"));
     Serial.println(F("{\"warn\":\"Kirim #scan; untuk scan ulang I2C bus.\"}"));
   }
 
@@ -224,8 +246,28 @@ void stopAcquisition() {
   Serial.println(F("{\"event\":\"ACQ_STOP\",\"phase\":\"idle\"}"));
 }
 
+void pauseAcquisition() {
+  if (acqState != AcqState::COLLECTING && acqState != AcqState::PURGING) {
+    return;
+  }
+  acqState = AcqState::PAUSED;
+  setActuators();
+  Serial.println(F("{\"event\":\"ACQ_PAUSE\",\"phase\":\"paused\"}"));
+}
+
+void resumeAcquisition() {
+  if (acqState != AcqState::PAUSED) {
+    return;
+  }
+  acqState = AcqState::PURGING;
+  acqPhaseStartMs = millis();
+  setActuators();
+  Serial.println(F("{\"event\":\"ACQ_RESUME\",\"phase\":\"purging\"}"));
+}
+
 void processAcquisitionState() {
-  if (acqState == AcqState::IDLE || acqState == AcqState::COMPLETE)
+  if (acqState == AcqState::IDLE || acqState == AcqState::PAUSED ||
+      acqState == AcqState::COMPLETE)
     return;
 
   unsigned long elapsedMs = millis() - acqPhaseStartMs;
@@ -266,6 +308,8 @@ void processAcquisitionState() {
         setActuators();
         printAcquisitionSummary();
         doInference();
+        showNextionPage("pDataDone");
+        nextion.text("pDataDone.tFile", "Result host pending");
         acqState = AcqState::IDLE;
       }
     }
@@ -280,6 +324,7 @@ void setActuators() {
   case AcqState::PURGING:
     actuator.setPurging();
     break;
+  case AcqState::PAUSED:
   default: // IDLE / COMPLETE
     actuator.stop();
     break;
@@ -294,6 +339,8 @@ const char *acqStateName() {
     return "purging";
   case AcqState::COMPLETE:
     return "complete";
+  case AcqState::PAUSED:
+    return "paused";
   default:
     return "idle";
   }
@@ -311,11 +358,164 @@ void printAcquisitionSummary() {
 
 void doInference() { inference.printResult(); }
 
+void showNextionPage(const char *pageName) {
+  if (pageName == nullptr) {
+    return;
+  }
+  nextion.page(pageName);
+  if (strcmp(pageName, "pSplash") != 0) {
+    nextionHomeSent = true;
+  }
+  strncpy(nextionPageName, pageName, sizeof(nextionPageName) - 1);
+  nextionPageName[sizeof(nextionPageName) - 1] = '\0';
+}
+
+void sendNextionAlert(const char *title, const char *message,
+                      const char *action) {
+  showNextionPage("pAlert");
+  nextion.text("pAlert.tAlert", title);
+  nextion.text("pAlert.tMsg", message);
+  nextion.text("pAlert.tAction", action);
+}
+
+void updateNextionRunStatus() {
+  if (strcmp(nextionPageName, "pDataRun") != 0) {
+    return;
+  }
+
+  char text[32] = {};
+  const uint32_t cycle = acqCycle == 0 ? 1 : acqCycle;
+  const uint32_t totalSeconds =
+      acqState == AcqState::PURGING ? ACQ_PURGE_SECONDS
+                                    : ACQ_COLLECTION_SECONDS;
+  const uint32_t elapsedSeconds = (millis() - acqPhaseStartMs) / 1000UL;
+  const uint32_t remaining = elapsedSeconds < totalSeconds
+                                 ? totalSeconds - elapsedSeconds
+                                 : 0;
+  const uint8_t cyclePercent =
+      static_cast<uint8_t>((cycle * 100UL) / ACQ_REPETITIONS);
+
+  snprintf(text, sizeof(text), "BATCH-%04u", batchNumber);
+  nextion.text("pDataRun.tSample", text);
+  snprintf(text, sizeof(text), "CYCLE %lu / %u", (unsigned long)cycle,
+           ACQ_REPETITIONS);
+  nextion.text("pDataRun.tCycle", text);
+  nextion.progress("pDataRun.jCycle", cyclePercent > 100 ? 100 : cyclePercent);
+  nextion.text("pDataRun.tPhase", acqStateName());
+  snprintf(text, sizeof(text), "%02lu:%02lu", (unsigned long)(remaining / 60),
+           (unsigned long)(remaining % 60));
+  nextion.text("pDataRun.tRemain", text);
+  if (sensors.environmentValid()) {
+    snprintf(text, sizeof(text), "%.1f C", sensors.getTemperatureC());
+    nextion.text("pDataRun.tTemp", text);
+    snprintf(text, sizeof(text), "%.1f %%RH", sensors.getHumidityRh());
+    nextion.text("pDataRun.tHum", text);
+  } else {
+    nextion.text("pDataRun.tTemp", "N/A");
+    nextion.text("pDataRun.tHum", "N/A");
+  }
+  nextion.text("pDataRun.tSensors",
+               sensorsReady ? (sensors.hasSht30() ? "10 ADC + SHT OK"
+                                                   : "10 ADC / SHT N/A")
+                            : "ADC ERROR");
+}
+
+void handleNextionEvent(const char *event) {
+  if (event == nullptr || strncmp(event, "EVT:", 4) != 0) {
+    return;
+  }
+
+  if (strcmp(event, "EVT:HOME") == 0) {
+    if (acqState != AcqState::IDLE) {
+      stopAcquisition();
+    }
+    showNextionPage("pHome");
+  } else if (strcmp(event, "EVT:TAKE_OPEN") == 0) {
+    showNextionPage("pTake");
+  } else if (strcmp(event, "EVT:TEST_START") == 0) {
+    showNextionPage("pTest");
+  } else if (strcmp(event, "EVT:HISTORY") == 0) {
+    showNextionPage("pHistory");
+    nextion.text("pHistory.tH0", "History belum tersedia");
+  } else if (strcmp(event, "EVT:SETTINGS") == 0) {
+    showNextionPage("pSettings");
+    nextion.text("pSettings.tDevId", "ATMEGA2560");
+    nextion.text("pSettings.tFw", "E-NOSE v2");
+  } else if (strcmp(event, "EVT:ROAST_NEXT") == 0) {
+    roastSelection = (roastSelection + 1) % 3;
+    nextion.text("pTake.tRoast", ROAST_OPTIONS[roastSelection]);
+  } else if (strcmp(event, "EVT:ORIGIN_NEXT") == 0) {
+    originSelection = (originSelection + 1) % 2;
+    nextion.text("pTake.tOrigin", ORIGIN_OPTIONS[originSelection]);
+  } else if (strcmp(event, "EVT:BATCH_INC") == 0) {
+    if (batchNumber < 9999) {
+      ++batchNumber;
+    }
+    char batch[24] = {};
+    snprintf(batch, sizeof(batch), "BATCH-%04u", batchNumber);
+    nextion.text("pTake.tBatch", batch);
+  } else if (strcmp(event, "EVT:DATA_START") == 0) {
+    if (acqState == AcqState::PAUSED) {
+      resumeAcquisition();
+    } else if (acqState == AcqState::IDLE && sensorsReady) {
+      startAcquisition();
+      showNextionPage("pDataRun");
+    } else if (!sensorsReady) {
+      sendNextionAlert("Sensor error", "ADC belum siap", "Periksa I2C lalu retry");
+    } else {
+      sendNextionAlert("Acquisition aktif", "Run sedang berjalan", "Gunakan pause/cancel");
+    }
+  } else if (strcmp(event, "EVT:DATA_PAUSE") == 0) {
+    pauseAcquisition();
+    updateNextionRunStatus();
+  } else if (strcmp(event, "EVT:DATA_CANCEL") == 0) {
+    stopAcquisition();
+    showNextionPage("pHome");
+  } else if (strcmp(event, "EVT:NEW_BATCH") == 0) {
+    showNextionPage("pTake");
+  } else if (strcmp(event, "EVT:CAL_START") == 0) {
+    if (strcmp(nextionPageName, "pCal") != 0) {
+      showNextionPage("pCal");
+    } else {
+      sendNextionAlert("Calibration locked", "Validasi chamber dan valve dulu",
+                       "Calibration belum dijalankan");
+    }
+  } else if (strcmp(event, "EVT:AI_START") == 0) {
+    showNextionPage("pTestRun");
+    nextion.text("pTestRun.tPi", "Pi pending");
+    nextion.text("pTestRun.tEta", "Pi protocol belum aktif");
+  } else if (strcmp(event, "EVT:AI_CANCEL") == 0) {
+    showNextionPage("pHome");
+  } else if (strcmp(event, "EVT:RESULT_SAVE") == 0) {
+    sendNextionAlert("Result pending", "Belum ada result AI valid", "Tidak ada yang disimpan");
+  } else if (strcmp(event, "EVT:HISTORY_CLEAR") == 0) {
+    sendNextionAlert("History locked", "Storage Pi belum terhubung", "Tidak ada yang dihapus");
+  } else if (strcmp(event, "EVT:RESET") == 0) {
+    sendNextionAlert("Reset locked", "Reset config perlu konfirmasi host", "Tidak ada perubahan");
+  } else if (strcmp(event, "EVT:RETRY") == 0) {
+    showNextionPage("pHome");
+  } else if (strcmp(event, "EVT:EXIT") == 0) {
+    stopAcquisition();
+    sendNextionAlert("System active", "Power off dilakukan manual", "Hardware tetap aman");
+  } else {
+    Serial.print(F("{\"warn\":\"Unknown Nextion event\",\"event\":\""));
+    Serial.print(event);
+    Serial.println(F("\"}"));
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 //  SERIAL COMMAND PARSING
 // ═══════════════════════════════════════════════════════════════════════════════
 
 void serialCallback() {
+  nextion.poll(handleNextionEvent);
+
+  if (!nextionHomeSent && millis() - nextionBootMs >= 3000UL) {
+    showNextionPage("pHome");
+    nextionHomeSent = true;
+  }
+
   while (Serial.available()) {
     char c = (char)Serial.read();
 
@@ -507,4 +707,7 @@ void adsCallback() {
 
   // 3. Kirim JSON sensor data
   sensors.printJsonData(acqStateName(), acqCycle, acqSampleIdx);
+
+  // 4. Refresh the HMI from the latest bounded snapshot.
+  updateNextionRunStatus();
 }
