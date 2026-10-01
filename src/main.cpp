@@ -86,6 +86,12 @@ void printWelcome();
 void scanI2C();
 void handleNextionEvent(const char *event);
 void showNextionPage(const char *pageName);
+void updateNextionTakePage();
+void updateNextionTestPage();
+void updateNextionHistoryPage();
+void updateNextionSettingsPage();
+void updateNextionTestRunPage();
+void updateNextionCalibrationPage();
 void updateNextionRunStatus();
 void updateNextionSensorSnapshot();
 void updateNextionInferenceResult();
@@ -168,6 +174,11 @@ void setup() {
                      "(SDA=pin20, SCL=pin21).\"}"));
     Serial.println(F("{\"warn\":\"Kirim #scan; untuk scan ulang I2C bus.\"}"));
   }
+
+  nextion.text("pSplash.tAtmega", sensorsReady ? "READY" : "ERROR");
+  nextion.text("pSplash.tPi", "PENDING");
+  nextion.text("pSplash.tHmi", "READY");
+  nextion.progress("pSplash.jInit", 100);
 
 #if IS_CALIBRATING_GAS_SENSOR
   if (sensorsReady) {
@@ -383,7 +394,76 @@ void showNextionPage(const char *pageName) {
   nextionPageName[sizeof(nextionPageName) - 1] = '\0';
   if (strcmp(pageName, "pDataRun") == 0) {
     nextionSensorIndex = 0;
+  } else if (strcmp(pageName, "pTake") == 0) {
+    updateNextionTakePage();
+  } else if (strcmp(pageName, "pTest") == 0) {
+    updateNextionTestPage();
+  } else if (strcmp(pageName, "pHistory") == 0) {
+    updateNextionHistoryPage();
+  } else if (strcmp(pageName, "pSettings") == 0) {
+    updateNextionSettingsPage();
+  } else if (strcmp(pageName, "pTestRun") == 0) {
+    updateNextionTestRunPage();
+  } else if (strcmp(pageName, "pCal") == 0) {
+    updateNextionCalibrationPage();
+  } else if (strcmp(pageName, "pResult") == 0) {
+    updateNextionInferenceResult();
   }
+}
+
+void updateNextionTakePage() {
+  char batch[24] = {};
+  char cycles[24] = {};
+  snprintf(batch, sizeof(batch), "BATCH-%04u", batchNumber);
+  snprintf(cycles, sizeof(cycles), "%u cycles", ACQ_REPETITIONS);
+  nextion.text("pTake.tRoast", ROAST_OPTIONS[roastSelection]);
+  nextion.text("pTake.tOrigin", ORIGIN_OPTIONS[originSelection]);
+  nextion.text("pTake.tBatch", batch);
+  nextion.text("pTake.tCycles", cycles);
+  nextion.text("pTake.tFile", "Ready for acquisition");
+}
+
+void updateNextionTestPage() {
+  nextion.text("pTest.tTestId", "ATMEGA2560");
+  nextion.text("pTest.tMode", "Sensor AI test");
+  nextion.text("pTest.tAtmega", sensorsReady ? "READY" : "ERROR");
+  nextion.text("pTest.tPi", "PENDING");
+  nextion.text("pTest.tSensors", sensorsReady ? "10 ADC" : "ADC ERROR");
+}
+
+void updateNextionHistoryPage() {
+  const char *message = "History belum tersedia";
+  nextion.text("pHistory.tH0", message);
+  nextion.text("pHistory.tH1", message);
+  nextion.text("pHistory.tH2", message);
+  nextion.text("pHistory.tH3", message);
+}
+
+void updateNextionSettingsPage() {
+  nextion.text("pSettings.tWifi", "N/A");
+  nextion.text("pSettings.tDuration", "60s / 120s");
+  nextion.text("pSettings.tBright", "Panel default");
+  nextion.text("pSettings.tLang", "Indonesia");
+  nextion.text("pSettings.tDevId", "ATMEGA2560");
+  nextion.text("pSettings.tFw", "E-NOSE v2");
+}
+
+void updateNextionTestRunPage() {
+  nextion.text("pTestRun.tTestId", "ATMEGA2560");
+  nextion.text("pTestRun.tPi", "Pi pending");
+  nextion.progress("pTestRun.jAI", 0);
+  nextion.text("pTestRun.tStep1", "Waiting for host");
+  nextion.text("pTestRun.tStep2", "Sensor data ready");
+  nextion.text("pTestRun.tStep3", "Inference pending");
+  nextion.text("pTestRun.tStep4", "Result pending");
+  nextion.text("pTestRun.tEta", "Pi protocol belum aktif");
+}
+
+void updateNextionCalibrationPage() {
+  nextion.text("pCal.tSensors", sensorsReady ? "10 ADC ready" : "ADC ERROR");
+  nextion.text("pCal.tPump", "Manual check");
+  nextion.text("pCal.tChamber", "Belum divalidasi");
+  nextion.text("pCal.tBase", "N/A");
 }
 
 void sendNextionAlert(const char *title, const char *message,
@@ -422,9 +502,11 @@ void updateNextionRunStatus() {
            (unsigned long)(remaining % 60));
   nextion.text("pDataRun.tRemain", text);
   if (sensors.environmentValid()) {
-    snprintf(text, sizeof(text), "%.1f C", sensors.getTemperatureC());
+    snprintf(text, sizeof(text), "%.1f C",
+             static_cast<double>(sensors.getTemperatureC()));
     nextion.text("pDataRun.tTemp", text);
-    snprintf(text, sizeof(text), "%.1f %%RH", sensors.getHumidityRh());
+    snprintf(text, sizeof(text), "%.1f %%RH",
+             static_cast<double>(sensors.getHumidityRh()));
     nextion.text("pDataRun.tHum", text);
   } else {
     nextion.text("pDataRun.tTemp", "N/A");
