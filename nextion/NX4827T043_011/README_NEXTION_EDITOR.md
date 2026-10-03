@@ -1,61 +1,134 @@
-# ROAST SENSE – NX4827T043_011
+# ROAST SENSE - Nextion NX4827T043_011
 
-Target: **NX4827T043_011**
-Series: **Basic**
-Resolution: **480 × 272 landscape**
+Target display: **NX4827T043_011 (Basic)**
+Resolution: **480 x 272 landscape**
+UART: **9600 baud, 8N1**
+Controller in this integration: **ATmega2560 only**
 
-This package is the model-specific implementation set for the ROAST SENSE e-nose UI.
+The visual source of truth is the final Figma page fix in UI-ENOSE. The
+12 exported frames are kept byte-identical in backgrounds_clean_png/ and
+mockups_png/. Do not redraw, recolor, resize, or substitute those screens.
 
-## Folders
-- `backgrounds_clean_bmp/` — import these 24-bit BMPs into Nextion Editor. Dynamic value areas are blank.
-- `backgrounds_clean_png/` — PNG equivalents.
-- `mockups_bmp/` / `mockups_png/` — visual reference with example values.
-- `nextion_events/` — Touch Release code for Hotspot components.
-- `component_map.csv` — exact page/object names and coordinates.
-- `nextion_project_spec.json` — full machine-readable project mapping.
+## Canonical project
 
-## Build in Nextion Editor
-1. Create a new project and choose **NX4827T043_011**.
-2. Set landscape 480×272.
-3. Add 12 pages in this exact order:
-   `pSplash`, `pHome`, `pTake`, `pDataRun`, `pDataDone`, `pTest`,
-   `pTestRun`, `pResult`, `pCal`, `pSettings`, `pHistory`, `pAlert`.
-4. Import the BMP files from `backgrounds_clean_bmp/`.
-5. Put the matching image as a full-page Picture/background on each page.
-6. Add only the dynamic Text/Progress objects listed in `component_map.csv`.
-7. Add transparent Hotspot objects over every button region in `component_map.csv`.
-8. Paste the corresponding Touch Release code from `nextion_events/`.
-9. Generate the 3 fonts listed in `nextion_project_spec.json`.
-10. Compile and verify every page in Nextion Simulator before uploading to the panel.
+Use project/RoastSense_NX4827T043_011.HMI.
 
-## Why this layout is intentionally shared across both 4.3-inch models
-The UI stays inside the Basic-series component subset. That means the same ATmega/Raspberry Pi
-state machine and UART protocol can be used on both target displays without maintaining two logic
-branches.
+This is the canonical editable Nextion Editor project. It is generated from an
+Editor-created NX4827T043_011 container, the locked 480x272 Figma exports, and
+the dynamic component/event map in this directory.
 
-## Acquisition flow
-`pHome -> pTake -> pDataRun -> pDataDone`
+The old compiled TFT under build/ predates the final Figma sync and must not be
+treated as the final UI. Open the canonical HMI in Nextion Editor, compile it
+there, and upload the newly compiled TFT to the display.
 
-- Labeled data acquisition: 40 cycles.
-- Controller owns purge/collect timing and CSV naming.
-- Nextion only displays state and reports user touches.
+## Reproducible HMI build
 
-During `pDataRun`, `tSensors` is reused as a compact live sensor readout. The
-firmware rotates through all ten ADC channels once per sensor refresh, for
-example `MQ3:1234` or `TGS816:N/A`. Dedicated fields can be added later when
-the HMI is revised and recompiled.
+From the repository root run:
 
-## AI test flow
-`pHome -> pTest -> pTestRun -> pResult`
+    python nextion/NX4827T043_011/tools/build_figma_fix_hmi.py --baseline nextion/NX4827T043_011/project/RoastSense_NX4827T043_011.HMI --images nextion/NX4827T043_011/backgrounds_clean_png --output nextion/NX4827T043_011/project/RoastSense_NX4827T043_011.HMI
 
-- User does not enter roast/origin for an unknown sample.
-- ATmega performs sensor acquisition.
-- Raspberry Pi 5 performs feature extraction + AI inference.
-- Result page receives roast prediction, origin prediction, confidence, and probabilities.
-- The current firmware populates the roast label when on-device inference is
-  enabled. Confidence, origin, and class probabilities remain `N/A` until a
-  verified result source provides those values.
+The builder is idempotent. It verifies the target model CRC, all 12 page CRCs,
+the directory checksum, mandatory dynamic components, and required EVT touch
+events.
 
-## Baud
-The package assumes 115200 baud for controller communication. Keep the editor/runtime setting and
-the ATmega code consistent.
+Full offline contract QA:
+
+    python nextion/NX4827T043_011/tools/verify_nextion_atmega_contract.py
+
+That QA also verifies every HMI background against the locked final Figma
+export and checks that every HMI event is represented in the ATmega firmware.
+
+## Page order
+
+1. pSplash - 00_Splash
+2. pHome - 01_Home
+3. pTake - 02_TakeData
+4. pDataRun - 03_DataRun
+5. pDataDone - 04_DataDone
+6. pTest - 05_StartTest
+7. pTestRun - 06_TestRun
+8. pResult - 07_TestResult
+9. pCal - 08_Calibration
+10. pSettings - 09_Settings
+11. pHistory - 10_History
+12. pAlert - 11_Alert
+
+component_map.csv is the authoritative dynamic overlay/hotspot geometry.
+nextion_events/ contains the corresponding Touch Release event source.
+
+## Nextion -> ATmega protocol
+
+Touch handlers emit one ASCII line using:
+
+    prints "EVT:DATA_START",0
+    printh 0D 0A
+
+The ATmega parser only accepts printable ASCII plus CR/LF. Native binary
+Nextion return packets are rejected. bkcmd=0 is also sent at boot to suppress
+command-response traffic.
+
+ATmega -> Nextion commands use the standard Nextion FF FF FF terminator.
+
+## Wiring
+
+- Nextion TX -> ATmega2560 **PH0/RXD2, physical MCU pin 8**
+- Nextion RX -> ATmega2560 **PH1/TXD2, physical MCU pin 9**
+- GND -> GND
+
+On an Arduino Mega 2560 header these same USART2 signals are RX2/D17 and
+TX2/D16. The production firmware therefore uses Serial2. Physical package pins
+8/9 must not be confused with Arduino digital pins D8/D9.
+
+## Take Data flow
+
+pHome -> pTake -> pDataRun -> pDataDone
+
+The ATmega owns all state:
+
+- Roast Level up/down cycles through LIGHT, MEDIUM, DARK.
+- Origin up/down cycles through the configured origin list.
+- Batch ID uses minus/plus with minimum B01.
+- Cycle count is read directly from ACQ_REPETITIONS in src/main.cpp.
+- File name is generated automatically as roast-origin_Bxx.csv.
+- Status becomes "Siap untuk pengambilan data" and START is enabled only when
+  every required value is valid.
+- PAUSE is a true pause/resume toggle; current phase and remaining time are
+  preserved.
+
+## Start Test flow
+
+pHome -> pTest -> pTestRun -> pResult
+
+This integration is intentionally ATmega-only. START AI TEST launches the same
+sensor acquisition state machine in AI_TEST mode. When acquisition finishes,
+the ATmega calls the existing on-device Inference module.
+
+If USE_ON_DEVICE_INFERENCE is disabled or the local model cannot provide a
+verified value, the result is shown as N/A. Origin, confidence, and class
+probabilities also remain N/A unless a verified ATmega-side source exists.
+No Raspberry Pi result is fabricated and no Raspberry Pi integration is added
+by this workstream.
+
+## Calibration, settings, history, and alerts
+
+- CALIBRATION runs SensorArray::calibrate() only while acquisition is idle,
+  stores R0 in EEPROM, reloads it, and refreshes the calibration screen.
+- RESET resets UI selections and display brightness only. It does not erase
+  sensor calibration.
+- HISTORY stores the four latest UI summaries in ATmega RAM.
+- The final Figma button is labelled EXPORT. The current HMI container keeps
+  the legacy wire token EVT:HISTORY_CLEAR; firmware interprets it as
+  non-destructive export to the USB debug Serial.
+- RESULT SAVE exports the current local result to USB debug Serial.
+- EXIT stops acquisition/actuators and presents a safe manual-power-off alert.
+
+## Validation before flashing hardware
+
+Run:
+
+    pio run -e mega2560
+    pio run -e nextion_test
+    python nextion/NX4827T043_011/tools/verify_nextion_atmega_contract.py
+
+Then open the canonical HMI in Nextion Editor, compile it, exercise every page
+in the simulator, and flash the newly generated TFT to the physical panel.

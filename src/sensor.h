@@ -83,6 +83,9 @@ public:
     void readAll();             // Baca 10 channel ADC
 
     bool hasSht30() const { return hasSht30_; }
+    bool allAdcAvailable() const {
+        return hasAds1_ && hasAds2_ && hasAds3_ && hasAds4_;
+    }
     bool environmentValid() const { return environmentValid_; }
     float getTemperatureC() const { return temperatureC_; }
     float getHumidityRh() const { return humidityRh_; }
