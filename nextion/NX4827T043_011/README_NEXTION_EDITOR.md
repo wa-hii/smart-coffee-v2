@@ -11,7 +11,12 @@ mockups_png/. Do not redraw, recolor, resize, or substitute those screens.
 
 ## Canonical project
 
-Use project/RoastSense_NX4827T043_011_COMPILE_READY.HMI for the current final build.
+Use project/RoastSense_NX4827T043_011_COMPILE_READY_SPLASH.HMI for the current
+final build.
+
+This revision changes **only 00_Splash** to the latest Figma version. Pages
+01_Home through 11_Alert are preserved byte-for-byte from the previous
+COMPILE_READY HMI.
 
 Do not compile the older RoastSense_NX4827T043_011.HMI or
 RoastSense_NX4827T043_011_FIXED.HMI. The COMPILE_READY project removes the four

@@ -21,7 +21,7 @@ SCRIPT = Path(__file__).resolve()
 DISPLAY_ROOT = SCRIPT.parents[1]
 REPO_ROOT = SCRIPT.parents[3]
 GENERATOR = DISPLAY_ROOT / "tools" / "build_figma_fix_hmi.py"
-HMI = DISPLAY_ROOT / "project" / "RoastSense_NX4827T043_011_COMPILE_READY.HMI"
+HMI = DISPLAY_ROOT / "project" / "RoastSense_NX4827T043_011_COMPILE_READY_SPLASH.HMI"
 ASSETS = DISPLAY_ROOT / "backgrounds_clean_png"
 MOCKUPS = DISPLAY_ROOT / "mockups_png"
 MAIN_CPP = REPO_ROOT / "src" / "main.cpp"
@@ -44,7 +44,7 @@ NAMES = [
 # SHA-256 prefixes from the locked Figma page fix, exported at 1x on
 # 2026-10-03. These make accidental fallback to an older mockup fail loudly.
 FIGMA_SHA256_PREFIX = {
-    "00_Splash": "943c7e59a9f48abc",
+    "00_Splash": "bfd05e09a6fea3cb",
     "01_Home": "959efaad1342993e",
     "02_TakeData": "a6311a4c93e444f6",
     "03_DataRun": "925875797c74504c",
