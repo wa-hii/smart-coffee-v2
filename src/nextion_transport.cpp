@@ -81,3 +81,31 @@ void NextionTransport::progress(const char *object, uint8_t percent) {
   }
   value(object, percent);
 }
+
+void NextionTransport::numericAttribute(const char *object,
+                                        const char *attribute, long value) {
+  if (object == nullptr || attribute == nullptr) {
+    return;
+  }
+  serial_.print(object);
+  serial_.print('.');
+  serial_.print(attribute);
+  serial_.print('=');
+  serial_.print(value);
+  terminator();
+}
+
+void NextionTransport::touch(const char *object, bool enabled) {
+  if (object == nullptr) {
+    return;
+  }
+  serial_.print(F("tsw "));
+  serial_.print(object);
+  serial_.print(',');
+  serial_.print(enabled ? 1 : 0);
+  terminator();
+}
+
+void NextionTransport::textColor(const char *object, uint16_t color) {
+  numericAttribute(object, "pco", color);
+}

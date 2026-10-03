@@ -3,9 +3,11 @@
 
 #include "../src/nextion_event_parser.h"
 
-// Production smoke test: Nextion TX -> Mega RX1 D19, RX -> TX1 D18.
-#define NEXTION_SERIAL Serial1
-#define NEXTION_BAUD 115200
+// Production smoke test:
+//   Nextion TX -> ATmega2560 PH0/RXD2 (physical MCU pin 8; Mega header D17)
+//   Nextion RX -> ATmega2560 PH1/TXD2 (physical MCU pin 9; Mega header D16)
+#define NEXTION_SERIAL Serial2
+#define NEXTION_BAUD 9600
 
 static char eventStorage[64] = {};
 static char eventLine[64] = {};
@@ -44,8 +46,9 @@ void setup() {
   Serial.begin(115200);
   NEXTION_SERIAL.begin(NEXTION_BAUD);
 
-  Serial.println(F("[BOOT] Nextion Serial1 smoke test"));
-  Serial.println(F("[BOOT] TX=D18 RX=D19 baud=115200"));
+  Serial.println(F("[BOOT] Nextion Serial2 smoke test"));
+  Serial.println(F("[BOOT] MCU RXD2=PH0/pin8, TXD2=PH1/pin9, baud=9600"));
+  Serial.println(F("[BOOT] Arduino Mega header equivalent: RX2=D17, TX2=D16"));
   delay(3000);
   sendCommand("page pHome");
   nextPageAt = millis() + 3000UL;

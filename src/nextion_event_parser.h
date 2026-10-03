@@ -29,6 +29,15 @@ public:
       return false;
     }
 
+    // This project deliberately uses an ASCII line protocol from HMI event
+    // handlers (prints "EVT:...",0 + CRLF). Nextion's native return packets
+    // are binary and end in FF FF FF. Never let those bytes contaminate an
+    // event line or accidentally form a valid command.
+    if (byte < 0x20 || byte > 0x7E) {
+      reset();
+      return false;
+    }
+
     if (ready_) {
       // The consumer must take the pending frame before accepting another one.
       return false;

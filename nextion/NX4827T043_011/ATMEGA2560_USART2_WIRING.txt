@@ -1,0 +1,19 @@
+# IMPORTANT — ATmega2560 physical MCU pins 8/9
+
+The PCB connection is to the ATmega2560 package pins:
+- physical MCU pin 8 = PH0 / RXD2
+- physical MCU pin 9 = PH1 / TXD2
+
+These signals belong to USART2, therefore Arduino/PlatformIO must use `Serial2`.
+
+Equivalent Arduino Mega 2560 board-header pins are:
+- Nextion TX -> Mega RX2 / D17 -> ATmega2560 PH0/RXD2
+- Nextion RX -> Mega TX2 / D16 -> ATmega2560 PH1/TXD2
+- GND -> GND
+- `Serial2.begin(9600);`
+
+The current `.HMI` project is configured at 9600 baud, so the ATmega firmware must use the same
+rate unless the HMI project is explicitly changed and recompiled.
+
+Do not confuse physical ATmega2560 package pins 8/9 with Arduino digital pins D8/D9. Arduino D8/D9
+are PH5/PH6 and are not the RXD2/TXD2 pair.

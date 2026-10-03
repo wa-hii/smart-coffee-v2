@@ -1,15 +1,15 @@
 /*
   ROAST SENSE - Nextion command helpers for ATmega2560
 
-  RECOMMENDED wiring on Mega2560:
-    Nextion TX -> Mega RX1 pin 19
-    Nextion RX -> Mega TX1 pin 18
+  Wiring used by this project:
+    Nextion TX -> ATmega2560 PH0/RXD2 physical pin 8 (Mega header RX2/D17)
+    Nextion RX -> ATmega2560 PH1/TXD2 physical pin 9 (Mega header TX2/D16)
     Common GND
-  Uses Serial1 because hardware UART is much more reliable at 115200.
+  Uses USART2 / Serial2.
 
   If your current wiring is on D8/D9, read PINS_8_9_IMPORTANT.txt first.
 */
-HardwareSerial &NEXTION = Serial1;
+HardwareSerial &NEXTION = Serial2;
 
 void nexEnd() {
   NEXTION.write(0xFF); NEXTION.write(0xFF); NEXTION.write(0xFF);
@@ -52,7 +52,7 @@ void handleNextionEvent(const String &evt) {
 
 void setup() {
   Serial.begin(115200);
-  NEXTION.begin(115200);
+  NEXTION.begin(9600);
   delay(500);
   nexCmd("page pSplash");
 }
