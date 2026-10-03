@@ -1,12 +1,21 @@
 // pTake Touch Release events
 
-// mRoast
+// mRoast — arrow up / previous roast
+prints "EVT:ROAST_PREV",0\r\nprinth 0D 0A
+
+// mRNext — arrow down / next roast
 prints "EVT:ROAST_NEXT",0\r\nprinth 0D 0A
 
-// mOrigin
+// mOrigin — arrow up / previous origin
+prints "EVT:ORIGIN_PREV",0\r\nprinth 0D 0A
+
+// mOrgNxt — arrow down / next origin
 prints "EVT:ORIGIN_NEXT",0\r\nprinth 0D 0A
 
-// mBatch
+// mBatch — minus
+prints "EVT:BATCH_DEC",0\r\nprinth 0D 0A
+
+// mBInc0 — plus
 prints "EVT:BATCH_INC",0\r\nprinth 0D 0A
 
 // mBack

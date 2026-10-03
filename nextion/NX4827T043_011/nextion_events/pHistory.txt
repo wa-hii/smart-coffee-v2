@@ -1,6 +1,9 @@
 // pHistory Touch Release events
 
 // mClear
+// The final Figma button is labelled EXPORT.  The current Editor-generated
+// container keeps the legacy wire event name for binary compatibility; the
+// ATmega firmware interprets it as EXPORT, not destructive clear.
 prints "EVT:HISTORY_CLEAR",0\r\nprinth 0D 0A
 
 // mHome
