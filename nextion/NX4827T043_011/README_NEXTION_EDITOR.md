@@ -11,7 +11,12 @@ mockups_png/. Do not redraw, recolor, resize, or substitute those screens.
 
 ## Canonical project
 
-Use project/RoastSense_NX4827T043_011.HMI.
+Use project/RoastSense_NX4827T043_011_FIXED.HMI for the current final build.
+
+The older project/RoastSense_NX4827T043_011.HMI may still be locked by an
+already-open Nextion Editor session. It contains four legacy pSplash objects
+that were previously moved to the canvas edge and can trigger Position Invalid
+on compile. The FIXED project removes those legacy objects completely.
 
 This is the canonical editable Nextion Editor project. It is generated from an
 Editor-created NX4827T043_011 container, the locked 480x272 Figma exports, and

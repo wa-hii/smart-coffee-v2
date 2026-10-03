@@ -29,7 +29,7 @@ PCH_SIZE = 12
 EXPECTED_MODEL_CRC = 0xCA296EB1  # NX4827T043_011 from the Editor-generated container
 
 REQUIRED_COMPONENTS = {
-    0: {"jInit", "tAtmega", "tPi", "tHmi"},
+    0: set(),
     1: {"mTest", "mData", "mSet", "mHist", "mCal", "mExit"},
     2: {
         "tRoast", "tOrigin", "tBatch", "tCycles", "tFile", "tStat",
@@ -298,6 +298,36 @@ def upsert_clone(pa: bytes, source_name: str, new_name: str, **kwargs) -> bytes:
     return replace_component(pa, new_name, **kwargs)
 
 
+def remove_components(pa: bytes, names: set[str]) -> bytes:
+    """Remove components and rebuild the page's PCH table.
+
+    The page object itself is also represented as component record 0 and is
+    preserved. This is used for legacy dynamic objects that are not present in
+    the locked Figma design. Removing them is preferable to moving them outside
+    the canvas because Nextion Editor validates every component position.
+    """
+    kept = []
+    for _, _, _, third, _, rec in component_records(pa):
+        if component_name(rec) not in names:
+            kept.append((third, rec))
+
+    header = bytearray(pa[:PCH_BASE])
+    pchs = bytearray()
+    data = bytearray()
+    relative_start = len(kept) * PCH_SIZE
+
+    for new_id, (third, rec) in enumerate(kept):
+        patched = patch_record(rec, comp_id=new_id)
+        pchs += struct.pack("<III", relative_start + len(data), len(patched), third)
+        data += patched
+
+    out = bytearray(header + pchs + data)
+    struct.pack_into("<I", out, 12, len(kept))
+    struct.pack_into("<I", out, 4, len(out))
+    struct.pack_into("<I", out, 0, page_crc(bytes(out)))
+    return bytes(out)
+
+
 def replace_picture(raw: bytes, picture_id: int, png: Path) -> bytes:
     im = Image.open(png).convert("RGB")
     if im.size != (480, 272):
@@ -348,12 +378,10 @@ def text_style(pa: bytes, name: str, x, y, w, h, *, bg=WHITE, fg=BLACK,
 
 def build_pages(raw: bytes) -> bytes:
     # pSplash — the final Figma screen intentionally has no MCU status chips
-    # or progress bar. Keep the legacy dynamic objects present in the project
-    # container but move them off the visible design so the final frame remains
-    # pixel-identical.
+    # or progress bar. Remove the legacy objects completely. Moving them to the
+    # canvas boundary causes "Position Invalid" in Nextion Editor.
     pa = get_page(raw, 0)
-    for name in ("tAtmega", "tPi", "tHmi", "jInit"):
-        pa = replace_component(pa, name, x=0, y=271, w=1, h=1)
+    pa = remove_components(pa, {"tAtmega", "tPi", "tHmi", "jInit"})
     raw = rewrite_page(raw, 0, pa)
 
     # pHome — hotspot geometry is the fixed Figma button geometry.
@@ -519,6 +547,24 @@ def verify(raw: bytes):
         missing = REQUIRED_COMPONENTS[pid] - names
         if missing:
             raise AssertionError(f"page {pid} missing components: {sorted(missing)}")
+        for *_, rec in component_records(pa):
+            attrs = {key: attr_bytes(rec, key) for key in ("x", "y", "w", "h")}
+            if not all(value is not None for value in attrs.values()):
+                continue
+            values = {
+                key: int.from_bytes(value, "little")
+                for key, value in attrs.items()
+            }
+            if (
+                values["w"] < 1
+                or values["h"] < 1
+                or values["x"] + values["w"] > 480
+                or values["y"] + values["h"] > 272
+            ):
+                raise AssertionError(
+                    f"page {pid} component {component_name(rec)!r} "
+                    f"position invalid: {values}"
+                )
         pages.append((pid, pa[24:40].split(b"\0",1)[0].decode("ascii"), struct.unpack_from("<I",pa,12)[0]))
 
     present_events = {

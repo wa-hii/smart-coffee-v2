@@ -1,8 +1,4 @@
 page,name,type,x,y,w,h,font_id,event
-pSplash,jInit,Progress,0,271,1,1,,
-pSplash,tAtmega,Text,0,271,1,1,0,
-pSplash,tPi,Text,0,271,1,1,0,
-pSplash,tHmi,Text,0,271,1,1,0,
 pHome,mTest,Hotspot,245,48,216,27,,EVT:TEST_START
 pHome,mData,Hotspot,245,84,216,27,,EVT:TAKE_OPEN
 pHome,mSet,Hotspot,245,119,216,27,,EVT:SETTINGS
