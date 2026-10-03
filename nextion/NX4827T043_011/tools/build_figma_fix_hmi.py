@@ -369,11 +369,35 @@ DONE_MAGENTA = rgb565((203,48,224))
 TEST_MINT = rgb565((191,242,236))
 TEST_STATUS_GREEN = rgb565((179,241,194))
 
+LEGACY_SPLASH_INIT_LINES = (
+    b"jInit.val=0",
+    b'tAtmega.txt="WAIT"',
+    b'tPi.txt="WAIT"',
+    b'tHmi.txt="READY"',
+)
+
 
 def text_style(pa: bytes, name: str, x, y, w, h, *, bg=WHITE, fg=BLACK,
                font=0, maxl=48, xcen=1, ycen=1):
     return replace_component(pa, name, x=x, y=y, w=w, h=h, sta=1, bco=bg,
                              pco=fg, font=font, txt_maxl=maxl, xcen=xcen, ycen=ycen)
+
+
+def neutralize_legacy_splash_init(pa: bytes) -> bytes:
+    """Make removed pSplash init references harmless without changing layout."""
+    _, _, size, _, physical, rec = find_component(pa, "pSplash")
+    out_rec = bytearray(rec)
+    for line in LEGACY_SPLASH_INIT_LINES:
+        pos = bytes(out_rec).find(line)
+        if pos >= 0:
+            replacement = b"doevents".ljust(len(line), b" ")
+            out_rec[pos:pos + len(line)] = replacement
+    out = bytearray(pa)
+    if len(out_rec) != size:
+        raise AssertionError("pSplash no-op rewrite changed record size")
+    out[physical:physical + size] = out_rec
+    struct.pack_into("<I", out, 0, page_crc(bytes(out)))
+    return bytes(out)
 
 
 def build_pages(raw: bytes) -> bytes:
@@ -382,6 +406,7 @@ def build_pages(raw: bytes) -> bytes:
     # canvas boundary causes "Position Invalid" in Nextion Editor.
     pa = get_page(raw, 0)
     pa = remove_components(pa, {"tAtmega", "tPi", "tHmi", "jInit"})
+    pa = neutralize_legacy_splash_init(pa)
     raw = rewrite_page(raw, 0, pa)
 
     # pHome — hotspot geometry is the fixed Figma button geometry.
@@ -547,6 +572,12 @@ def verify(raw: bytes):
         missing = REQUIRED_COMPONENTS[pid] - names
         if missing:
             raise AssertionError(f"page {pid} missing components: {sorted(missing)}")
+        if pid == 0:
+            for legacy in LEGACY_SPLASH_INIT_LINES:
+                if legacy in pa:
+                    raise AssertionError(
+                        f"pSplash still references removed legacy object: {legacy!r}"
+                    )
         for *_, rec in component_records(pa):
             attrs = {key: attr_bytes(rec, key) for key in ("x", "y", "w", "h")}
             if not all(value is not None for value in attrs.values()):
