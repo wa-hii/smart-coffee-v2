@@ -11,12 +11,18 @@ mockups_png/. Do not redraw, recolor, resize, or substitute those screens.
 
 ## Canonical project
 
-Use project/RoastSense_NX4827T043_011_COMPILE_READY_SPLASH.HMI for the current
-final build.
+Use project/RoastSense_NX4827T043_011_COMPILE_READY.HMI for the current final
+build.
 
-This revision changes **only 00_Splash** to the latest Figma version. Pages
-01_Home through 11_Alert are preserved byte-for-byte from the previous
-COMPILE_READY HMI.
+The latest 00_Splash Figma revision is patched directly into this canonical
+HMI. Pages 01_Home through 11_Alert are not rebuilt, so manual text-size and
+layout adjustments made in Nextion Editor remain preserved.
+
+Because the canonical HMI has been manually saved by Nextion Editor, its page
+blob packing is Editor-managed and may differ from the original binary
+generator layout. Do not rebuild this file from the old HMI baseline. For
+future visual-only revisions, patch only the relevant picture resource. The
+final structural check is Nextion Editor **Compile**.
 
 Do not compile the older RoastSense_NX4827T043_011.HMI or
 RoastSense_NX4827T043_011_FIXED.HMI. The COMPILE_READY project removes the four

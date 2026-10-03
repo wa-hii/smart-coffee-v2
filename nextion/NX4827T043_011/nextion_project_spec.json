@@ -15,7 +15,7 @@
     "policy": "Do not alter final Figma visual design; only overlay dynamic Nextion objects."
   },
   "canonical_artifacts": {
-    "hmi": "project/RoastSense_NX4827T043_011_COMPILE_READY_SPLASH.HMI",
+    "hmi": "project/RoastSense_NX4827T043_011_COMPILE_READY.HMI",
     "png_dir": "backgrounds_clean_png",
     "bmp_dir": "backgrounds_clean_bmp",
     "component_map": "component_map.csv",
