@@ -287,9 +287,20 @@ class RawDataCollector:
                     for col in ADC_COLS:
                         row[col] = data.get(col, None)
 
-                    # Sensor Suhu & Kelembapan (jika tersedia)
-                    row['temperature'] = data.get('temp', None)
-                    row['humidity'] = data.get('humidity', None)
+                    # Sensor suhu & kelembapan.
+                    #
+                    # Firmware ATmega2560 canonical mengirim key:
+                    #   temperature_c, humidity_rh
+                    # Tetap dukung nama key lama agar file/script lama tidak
+                    # langsung rusak bila masih dipakai saat pengujian.
+                    row['temperature'] = data.get(
+                        'temperature_c',
+                        data.get('temperature', data.get('temp', None))
+                    )
+                    row['humidity'] = data.get(
+                        'humidity_rh',
+                        data.get('humidity', None)
+                    )
 
                     with self.lock:
                         self.rows.append(row)
