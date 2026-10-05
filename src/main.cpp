@@ -746,11 +746,15 @@ void updateNextionRunStatus() {
            (unsigned long)(remaining % 60));
   nextion.text("tRemain", text);
   if (sensors.environmentValid()) {
-    snprintf(text, sizeof(text), "%.1f C",
-             static_cast<double>(sensors.getTemperatureC()));
+    // AVR-libc printf/snprintf tidak mengaktifkan formatter %f secara default.
+    // Menggunakan %.1f di ATmega2560 dapat menghasilkan "?" di Nextion walau
+    // nilai SHT30 valid. dtostrf() adalah formatter float yang aman di AVR.
+    char value[16] = {};
+    dtostrf(sensors.getTemperatureC(), 0, 1, value);
+    snprintf(text, sizeof(text), "%s C", value);
     nextion.text("tTemp", text);
-    snprintf(text, sizeof(text), "%.1f %%RH",
-             static_cast<double>(sensors.getHumidityRh()));
+    dtostrf(sensors.getHumidityRh(), 0, 1, value);
+    snprintf(text, sizeof(text), "%s %%RH", value);
     nextion.text("tHum", text);
   } else {
     nextion.text("tTemp", "N/A");

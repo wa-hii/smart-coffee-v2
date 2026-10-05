@@ -366,6 +366,13 @@ void SensorArray::readAll() {
 
   if (hasSht30_) {
     environmentValid_ = sht30_.read(temperatureC_, humidityRh_);
+    if (!environmentValid_) {
+      // SHT30 kadang dapat gagal satu transaksi di bus I2C yang juga dipakai
+      // empat ADS1115. Satu retry terukur menjaga sampling tetap sederhana
+      // tetapi mengurangi missing temperature/humidity sesaat.
+      delay(5);
+      environmentValid_ = sht30_.read(temperatureC_, humidityRh_);
+    }
   } else {
     environmentValid_ = false;
   }

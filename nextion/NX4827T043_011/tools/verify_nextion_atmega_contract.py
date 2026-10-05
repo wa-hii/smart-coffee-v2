@@ -146,6 +146,23 @@ def main() -> int:
             ", ".join(missing_hmi_events),
         )
     print("PASS: production link = Serial2 @ 9600 baud")
+
+    # Runtime-critical pDataRun component types. jCycle must be a true Nextion
+    # Progress component because firmware writes jCycle.val=<0..100>.
+    page_data_run = generator.get_page(raw, 3)
+    jcycle = generator.find_component(page_data_run, "jCycle")[5]
+    ttemp = generator.find_component(page_data_run, "tTemp")[5]
+    thum = generator.find_component(page_data_run, "tHum")[5]
+    assert generator.attr_bytes(jcycle, "type") == b"j", (
+        "pDataRun.jCycle is not a Progress component"
+    )
+    assert generator.attr_bytes(ttemp, "type") == b"t", (
+        "pDataRun.tTemp is not a Text component"
+    )
+    assert generator.attr_bytes(thum, "type") == b"t", (
+        "pDataRun.tHum is not a Text component"
+    )
+    print("PASS: pDataRun runtime types = jCycle Progress, tTemp/tHum Text")
     return 0
 
 
