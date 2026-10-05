@@ -118,6 +118,40 @@ Pada tahap kerja saat ini fokus project adalah akuisisi data. Jangan
 menjalankan training model atau menganggap model lama sebagai model deployment
 Raspberry Pi sebelum pipeline AI diperbarui secara terpisah.
 
+### Akuisisi langsung dari LCD Nextion
+
+Laptop dapat menjadi passive autosave host pada USB Serial COM5. Setelah
+firmware terbaru terpasang, alurnya:
+
+    pilih Roast / Origin / Batch di pTake
+        -> tekan START di Nextion
+        -> ATmega menjalankan 5 siklus
+        -> COM5 mengirim raw JSON + metadata pilihan LCD
+        -> scripts/lcd_acquisition_service.py menyimpan CSV ke data/raw/
+
+Listener tidak mengirim command start ke ATmega. START tetap berasal dari LCD.
+Service juga hanya menyimpan mode labeled_data; AI test tidak dimasukkan ke
+dataset.
+
+Install background listener + autostart Windows:
+
+    powershell -ExecutionPolicy Bypass -File scripts/install_lcd_autosave.ps1
+
+Cek status:
+
+    powershell -ExecutionPolicy Bypass -File scripts/status_lcd_autosave.ps1
+
+Stop dan lepaskan autostart:
+
+    powershell -ExecutionPolicy Bypass -File scripts/uninstall_lcd_autosave.ps1
+
+Saat listener aktif, COM5 bersifat eksklusif. Hentikan listener lebih dulu
+sebelum memakai PlatformIO upload, Serial Monitor, atau 3_collect_data.py.
+
+Data run aktif ditulis lebih dahulu ke data/raw/.incoming/. Setelah
+ACQ_COMPLETE diterima, file dipindahkan menjadi CSV final. Run terputus
+dipertahankan di data/raw/incomplete/ agar data tidak hilang diam-diam.
+
 ## Pipeline data/AI
 
 - raw acquisition: `data/raw/`

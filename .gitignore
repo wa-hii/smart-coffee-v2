@@ -14,3 +14,12 @@ __pycache__/
 *.bak
 *.swp
 *~
+
+# Runtime/background acquisition artifacts
+logs/
+data/raw/.incoming/
+data/raw/incomplete/
+
+# Local Nextion compiler/QA artifacts
+nextion/NX4827T043_011/build/
+nextion/NX4827T043_011/project/RoastSense_UI_FIX_QA.HMI

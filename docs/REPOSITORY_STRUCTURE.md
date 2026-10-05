@@ -42,6 +42,16 @@ QA akuisisi aktif:
 Validator tersebut hanya memeriksa B32. Tahap saat ini tidak menjalankan
 training model atau deployment Raspberry Pi.
 
+### Host autosave acquisition
+
+- scripts/lcd_acquisition_service.py — passive listener COM5 untuk START dari Nextion.
+- scripts/install_lcd_autosave.ps1 — pasang listener ke Windows Startup dan jalankan hidden menggunakan pythonw.exe.
+- scripts/status_lcd_autosave.ps1 — cek process/status/log listener.
+- scripts/uninstall_lcd_autosave.ps1 — hentikan listener dan hapus autostart.
+
+COM5 hanya boleh dimiliki satu process pada satu waktu. Stop listener sebelum
+firmware upload, Serial Monitor, atau manual collector.
+
 ## AI dan hasil
 
 - `models/` — model terlatih serta metadata fitur.

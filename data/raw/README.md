@@ -41,3 +41,20 @@ dianggap memenuhi kontrak akuisisi B32.
 
 Fokus project saat ini adalah pengambilan dan validasi raw data. Training model
 AI dan deployment Raspberry Pi belum dijalankan dalam tahap ini.
+
+## Autosave dari Nextion ke laptop
+
+Untuk pengambilan data tanpa menjalankan 3_collect_data.py secara manual,
+gunakan background listener:
+
+    scripts/lcd_acquisition_service.py
+
+Listener menunggu COM5 dan membuat CSV berdasarkan metadata yang dikirim
+ATmega saat START ditekan dari halaman pTake. Metadata meliputi sample_id,
+roast_level, origin_code, batch_id, dan filename.
+
+- data sementara: data/raw/.incoming/
+- data selesai: data/raw/*.csv
+- run terputus: data/raw/incomplete/
+
+Folder runtime tersebut tidak masuk Git.
