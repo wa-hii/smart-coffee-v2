@@ -100,8 +100,23 @@ Firmware utama juga mencetak event yang diterima sebagai:
 ## Akuisisi data
 
 Data baru dari `scripts/3_collect_data.py` disimpan ke `data/raw/`.
-Konfigurasi durasi/run mengikuti nilai aktif pada firmware dan script
-akuisisi; keduanya harus selalu disinkronkan sebelum eksperimen resmi.
+Kontrak akuisisi aktif mulai B32 adalah:
+
+- 5 run;
+- 25 detik purging + 5 detik collecting per run;
+- 10 kanal gas menggunakan adc_mq3, bukan adc_mq9;
+- temperature dan humidity SHT30 ikut disimpan di setiap row.
+
+Validasi raw data aktif sengaja dibatasi ke B32:
+
+    python scripts/validate_b32_acquisition.py
+
+Raw data lama yang masih menggunakan MQ9 tidak dihapus. File tersebut
+dipisahkan ke data/raw/legacy_mq9/ dan dikecualikan dari validasi B32.
+
+Pada tahap kerja saat ini fokus project adalah akuisisi data. Jangan
+menjalankan training model atau menganggap model lama sebagai model deployment
+Raspberry Pi sebelum pipeline AI diperbarui secara terpisah.
 
 ## Pipeline data/AI
 

@@ -28,8 +28,19 @@ ATmega2560 PH0/RXD2 physical pin 8 dan PH1/TXD2 physical pin 9.
 
 - `data/raw/` — data mentah hasil akuisisi. Jangan dimodifikasi oleh pipeline
   preprocessing.
+- `data/raw/*_B32.csv` — baseline akuisisi aktif: MQ3, 5 run, 25 s purging,
+  5 s collecting, temperature + humidity.
+- `data/raw/legacy_mq9/` — raw data historis yang header-nya masih memakai
+  adc_mq9. Data dipertahankan apa adanya dan tidak ikut QA B32.
 - `data/processed/` — feature dataset dan dataset siap training.
 - `data/analysis/` — report/log validasi dataset.
+
+QA akuisisi aktif:
+
+    python scripts/validate_b32_acquisition.py
+
+Validator tersebut hanya memeriksa B32. Tahap saat ini tidak menjalankan
+training model atau deployment Raspberry Pi.
 
 ## AI dan hasil
 

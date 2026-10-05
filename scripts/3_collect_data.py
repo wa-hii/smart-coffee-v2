@@ -3,14 +3,12 @@
 ═══════════════════════════════════════════════════════════════════════════════
 Script Pengumpulan RAW DATA E-NOSE Kopi via Serial ke CSV (dengan Live Plot).
 
-Eksperimen 11 Sampel Kopi:
-  LIGHT  : L-MAN (Manglayang Jabar), L-RAT (Ratawali Aceh), L-GAY (Gayo Aceh), L-MER (Merapi)
-  MEDIUM : M-MAN (Manglayang Jabar), M-RAT (Ratawali Aceh), M-TEM (Temanggung), M-TIM (Timor Leste)
-  DARK   : D-MAN (Manglayang Jabar), D-RAT (Ratawali Aceh), D-GAY (Gayo Aceh)
+Metadata sample tersedia pada KNOWN_SAMPLES di script ini. Baseline akuisisi
+aktif dimulai dari B32 dengan sensor MQ3 serta temperature/humidity.
 
-Flow per Sampel (10 Run):
-  Satu Run  : PURGING (30 s) ──► COLLECTING (180 s) ──► Simpan Raw Data
-  Satu File : 10 Run per Sampel ──► Output CSV: <sample_id>_<batch_id>.csv
+Flow Akuisisi Aktif (mulai baseline B32):
+  Satu Run  : PURGING (25 s) ──► COLLECTING (5 s) ──► Simpan Raw Data
+  Satu File : 5 Run per Sampel ──► Output CSV: <sample_id>_<batch_id>.csv
 
 Metadata per Baris:
   timestamp, sample_id, roast_level, origin, batch_id, run_id, phase, sample_idx,
@@ -19,7 +17,7 @@ Metadata per Baris:
 
 Cara Pakai:
   python 3_collect_data.py
-  python 3_collect_data.py --port COM5 --sample L-MAN --batch B01
+  python 3_collect_data.py --port COM5 --sample M-TOR --batch B32
   python 3_collect_data.py --no-plot
 ═══════════════════════════════════════════════════════════════════════════════
 """
@@ -122,9 +120,18 @@ def parse_args():
     p.add_argument('--origin',      type=str, default=None, help='Asal Kopi (Origin)')
     p.add_argument('--batch',       type=str, default=None, help='Batch ID (misal B01)')
     p.add_argument('--baud',        type=int, default=BAUD_RATE)
-    p.add_argument('--purge-s',     type=int, default=ACQ_PURGE_S,   help='Durasi purging per run (s)')
-    p.add_argument('--collect-s',   type=int, default=ACQ_COLLECT_S, help='Durasi collecting per run (s)')
-    p.add_argument('--repetitions', type=int, default=ACQ_REPETITIONS, help='Jumlah run (default 10)')
+    p.add_argument(
+        '--purge-s', type=int, default=ACQ_PURGE_S,
+        help='Ekspektasi durasi purging firmware per run (default 25 s)'
+    )
+    p.add_argument(
+        '--collect-s', type=int, default=ACQ_COLLECT_S,
+        help='Ekspektasi durasi collecting firmware per run (default 5 s)'
+    )
+    p.add_argument(
+        '--repetitions', type=int, default=ACQ_REPETITIONS,
+        help='Ekspektasi jumlah run firmware (default 5)'
+    )
     p.add_argument('--no-plot',     action='store_true', help='Matikan GUI grafik real-time')
     return p.parse_args()
 
@@ -205,7 +212,7 @@ class RawDataCollector:
 
         # Status State
         self.phase = 'idle'
-        self.cycle = 0          # run_id (1 s.d. 10)
+        self.cycle = 0          # run_id (1 s.d. cycles_total)
         self.cycles_total = ACQ_REPETITIONS
         self.collect_s = ACQ_COLLECT_S
         self.purge_s = ACQ_PURGE_S
@@ -236,9 +243,30 @@ class RawDataCollector:
                 event = data.get('event', '')
 
                 if event == 'ACQ_START':
-                    self.collect_s = data.get('collect_s', self.collect_s)
-                    self.purge_s = data.get('purge_s', self.purge_s)
-                    self.cycles_total = data.get('cycles_total', self.cycles_total)
+                    actual_collect_s = data.get('collect_s', self.collect_s)
+                    actual_purge_s = data.get('purge_s', self.purge_s)
+                    actual_cycles = data.get('cycles_total', self.cycles_total)
+
+                    expected_contract = (
+                        self.cycles_total,
+                        self.purge_s,
+                        self.collect_s,
+                    )
+                    actual_contract = (
+                        actual_cycles,
+                        actual_purge_s,
+                        actual_collect_s,
+                    )
+                    if actual_contract != expected_contract:
+                        print(
+                            "⚠️  Kontrak firmware berbeda dari ekspektasi host: "
+                            f"expected={expected_contract}, actual={actual_contract}. "
+                            "Akuisisi tetap disimpan mengikuti nilai firmware."
+                        )
+
+                    self.collect_s = actual_collect_s
+                    self.purge_s = actual_purge_s
+                    self.cycles_total = actual_cycles
                     self.cycle = data.get('cycle', 1)
                     self.phase = data.get('phase', 'purging')
                     self.status_msg = f"🚀 Start: Run 01/{self.cycles_total:02d} ({self.phase.upper()})"
@@ -255,7 +283,10 @@ class RawDataCollector:
                 if event == 'ACQ_COMPLETE':
                     total = data.get('total_samples', len(self.rows))
                     self.status_msg = f"✅ Akuisisi Selesai ({total} Sampel Raw Data)"
-                    print(f"\n✅ 5 Run selesai! Total sampel raw data: {total}")
+                    print(
+                        f"\n✅ {self.cycles_total} Run selesai! "
+                        f"Total sampel raw data: {total}"
+                    )
                     self.acquisition_done = True
                     continue
 
@@ -387,7 +418,10 @@ def run_live_gui(collector):
                 ax.set_xlim(max(0, ts[0]), ts[-1] + 2)
 
         if collector.acquisition_done:
-            status_text.set_text(f"[OK] 5 Run Selesai! CSV: {os.path.basename(collector.out_csv)}")
+            status_text.set_text(
+                f"[OK] {collector.cycles_total} Run Selesai! "
+                f"CSV: {os.path.basename(collector.out_csv)}"
+            )
             status_text.set_color('#A371F7')
 
         return list(lines.values())
@@ -440,14 +474,14 @@ def main():
 
     print(f"""
 ╔══════════════════════════════════════════════════════════════════════╗
-║           E-NOSE Kopi — Pengumpulan Raw Data (15 Run)                ║
+║           E-NOSE Kopi — Pengumpulan Raw Data                         ║
 ╠══════════════════════════════════════════════════════════════════════╣
 ║  Sample ID    : {sample_id:<52} ║
 ║  Roast Level  : {roast_level.upper():<52} ║
 ║  Origin       : {origin:<52} ║
 ║  Batch ID     : {batch_id:<52} ║
 ║  Port Serial  : {port:<52} ║
-║  Skema Run    : 5 Run × ({ACQ_PURGE_S}s Purging + {ACQ_COLLECT_S}s Collecting){'':<14} ║
+║  Skema Run    : {ACQ_REPETITIONS} Run × ({ACQ_PURGE_S}s Purging + {ACQ_COLLECT_S}s Collecting){'':<14} ║
 ║  Output File  : {os.path.basename(out_csv):<52} ║
 ╚══════════════════════════════════════════════════════════════════════╝
 """)
@@ -463,6 +497,11 @@ def main():
     time.sleep(2)  # Wait for ATmega boot
 
     collector = RawDataCollector(ser, sample_id, roast_level, origin, batch_id, out_csv)
+    # Nilai CLI adalah ekspektasi kontrak host. Firmware tetap menjadi sumber
+    # kebenaran durasi/jumlah siklus dan mengirim nilai aktual lewat ACQ_START.
+    collector.purge_s = args.purge_s
+    collector.collect_s = args.collect_s
+    collector.cycles_total = args.repetitions
     t_thread = threading.Thread(target=collector.run, daemon=True)
     t_thread.start()
 
@@ -499,18 +538,20 @@ def main():
             'run_id', 'phase', 'sample_idx'
         ] + ADC_COLS
 
-        # Tambahkan temperature & humidity jika ada di DataFrame
-        if 'temperature' in df.columns: ordered_cols.append('temperature')
-        if 'humidity' in df.columns:    ordered_cols.append('humidity')
+        # Temperature & humidity adalah bagian kontrak CSV akuisisi aktif.
+        ordered_cols += ['temperature', 'humidity']
 
-        # Pastikan hanya kolom yang ada di df yang disertakan
-        final_cols = [c for c in ordered_cols if c in df.columns]
-        df = df[final_cols]
+        # Semua row collector selalu memiliki temperature/humidity. Jika
+        # pembacaan SHT30 invalid, nilainya disimpan sebagai kosong/NaN agar
+        # raw data tidak dibuang dan kegagalan sensor tetap terlihat.
+        df = df[ordered_cols]
 
         df.to_csv(out_csv, index=False)
 
         collecting_n = len(df[df['phase'] == 'collecting'])
         purging_n    = len(df[df['phase'] == 'purging'])
+        temperature_missing = int(df['temperature'].isna().sum())
+        humidity_missing = int(df['humidity'].isna().sum())
         print(f"""
 📄 RAW DATA BERHASIL DISIMPAN KE CSV!
    File Location : {out_csv}
@@ -518,12 +559,22 @@ def main():
    Roast Level   : {roast_level}
    Origin        : {origin}
    Batch ID      : {batch_id}
-   Purging Rows  : {purging_n} sampel ({ACQ_PURGE_S}s × 5 run)
-   Collect Rows  : {collecting_n} sampel ({ACQ_COLLECT_S}s × 5 run)
+   Purging Rows  : {purging_n} sampel
+   Collect Rows  : {collecting_n} sampel
    Total Baris   : {len(df)} baris raw data
-   Total Kolom   : {len(df.columns)} kolom#valve_on
+   Total Kolom   : {len(df.columns)} kolom
+   Temp Missing  : {temperature_missing}
+   Hum Missing   : {humidity_missing}
    
 """)
+        if temperature_missing or humidity_missing:
+            print(
+                "⚠️  WARNING: Ada data temperature/humidity kosong. "
+                "CSV tetap disimpan agar raw acquisition tidak hilang. "
+                "Periksa SHT30 sebelum pengambilan data berikutnya."
+            )
+        else:
+            print("✅ Temperature dan humidity tersimpan lengkap.")
     else:
         print("\n⚠️ Tidak ada data yang diterima. File CSV tidak dibuat.")
 
