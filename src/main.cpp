@@ -124,7 +124,9 @@ uint32_t nextionBootMs = 0;
 char nextionPageName[16] = "pSplash";
 uint8_t roastSelection = 0;
 uint8_t originSelection = 0;
-uint16_t batchNumber = 10;
+// Baseline akuisisi aktif dimulai dari B32. NEXT/BATCH +/- tetap dapat
+// digunakan untuk batch berikutnya.
+uint16_t batchNumber = 32;
 uint8_t nextionSensorIndex = 0;
 uint16_t testSequence = 1;
 
@@ -138,7 +140,8 @@ uint8_t uiHistoryCount = 0;
 static const char *const ROAST_OPTIONS[] = {"LIGHT", "MEDIUM", "DARK"};
 static const char *const ORIGIN_OPTIONS[] = {
     "MING", "MAN", "RAT", "GAY", "MER", "TEM",
-    "CAT",  "GAW", "TIM", "BAR", "MUK", "CAW"};
+    "CAT",  "GAW", "TIM", "BAR", "MUK", "CAW",
+    "GRB",  "TOR"};
 static constexpr uint8_t ROAST_OPTION_COUNT =
     sizeof(ROAST_OPTIONS) / sizeof(ROAST_OPTIONS[0]);
 static constexpr uint8_t ORIGIN_OPTION_COUNT =
@@ -273,9 +276,38 @@ void startAcquisition(AcquisitionMode mode) {
   setActuators();
 
   // Event: ACQ_START
+  //
+  // Metadata ini membuat laptop dapat menjadi passive listener: operator
+  // memilih roast/origin/batch dan menekan START di Nextion, lalu host dapat
+  // menyimpan CSV tanpa prompt/command manual.
+  char takeFilename[40] = {};
+  buildTakeFilename(takeFilename, sizeof(takeFilename), true);
+  const char roastCode =
+      roastSelection == 0 ? 'L' : (roastSelection == 1 ? 'M' : 'D');
+  const char *roastLevel =
+      roastSelection == 0 ? "light"
+                          : (roastSelection == 1 ? "medium" : "dark");
+
   Serial.print(F("{\"event\":\"ACQ_START\",\"mode\":\""));
   Serial.print(mode == AcquisitionMode::AI_TEST ? F("ai_test") : F("labeled_data"));
   Serial.print(F("\",\"phase\":\"purging\",\"cycle\":1"));
+  Serial.print(F(",\"source\":\"nextion_or_serial\""));
+  Serial.print(F(",\"sample_id\":\""));
+  Serial.print(roastCode);
+  Serial.print('-');
+  Serial.print(ORIGIN_OPTIONS[originSelection]);
+  Serial.print(F("\",\"roast_level\":\""));
+  Serial.print(roastLevel);
+  Serial.print(F("\",\"origin_code\":\""));
+  Serial.print(ORIGIN_OPTIONS[originSelection]);
+  Serial.print(F("\",\"batch_id\":\"B"));
+  if (batchNumber < 10) {
+    Serial.print('0');
+  }
+  Serial.print(batchNumber);
+  Serial.print(F("\",\"filename\":\""));
+  Serial.print(takeFilename);
+  Serial.print('"');
   Serial.print(F(",\"cycles_total\":"));
   Serial.print(ACQ_REPETITIONS);
   Serial.print(F(",\"collect_s\":"));
@@ -652,7 +684,7 @@ void exportUiHistory() {
 void resetUiSettings() {
   roastSelection = 0;
   originSelection = 0;
-  batchNumber = 10;
+  batchNumber = 32;
   nextion.command("dim=80");
 }
 
