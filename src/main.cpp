@@ -102,6 +102,7 @@ void updateNextionRunStatus();
 void updateNextionSensorSnapshot();
 void updateNextionInferenceResult();
 void buildTakeFilename(char *buffer, size_t size, bool withExtension = true);
+void restoreNextionPageAfterBoot();
 void pauseAcquisition();
 void resumeAcquisition();
 void sendNextionAlert(const char *title, const char *message,
@@ -807,6 +808,26 @@ void updateNextionInferenceResult() {
   nextion.progress("jDark", 0);
 }
 
+void restoreNextionPageAfterBoot() {
+  // The HMI can reboot independently from the ATmega (for example after
+  // flashing a TFT via microSD). Restore the page that matches the current
+  // acquisition state instead of leaving the display on pSplash.
+  if (acqState == AcqState::COLLECTING ||
+      acqState == AcqState::PURGING ||
+      acqState == AcqState::PAUSED) {
+    if (acqMode == AcquisitionMode::AI_TEST) {
+      showNextionPage("pTestRun");
+      updateNextionTestRunPage();
+    } else {
+      showNextionPage("pDataRun");
+      updateNextionRunStatus();
+    }
+  } else {
+    showNextionPage("pHome");
+  }
+  nextionHomeSent = true;
+}
+
 void handleNextionEvent(const char *event) {
   if (event == nullptr || strncmp(event, "EVT:", 4) != 0) {
     return;
@@ -816,7 +837,9 @@ void handleNextionEvent(const char *event) {
   Serial.print(event);
   Serial.println(F("\"}"));
 
-  if (strcmp(event, "EVT:HOME") == 0) {
+  if (strcmp(event, "EVT:HMI_READY") == 0) {
+    restoreNextionPageAfterBoot();
+  } else if (strcmp(event, "EVT:HOME") == 0) {
     if (acqState != AcqState::IDLE) {
       stopAcquisition();
     }
