@@ -4,8 +4,8 @@ import pandas as pd
 import glob
 
 # Konfigurasi path
-DATA_DIR = '../data/'
-OUTPUT_CSV = '../data/dataset_fitur.csv'
+DATA_DIR = '../data/raw/'
+OUTPUT_CSV = '../data/processed/dataset_fitur.csv'
 
 def extract_features():
     all_features = []

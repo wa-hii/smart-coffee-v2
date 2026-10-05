@@ -30,7 +30,7 @@ import sys
 import argparse
 import pandas as pd
 
-DATA_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'data'))
+DATA_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'data', 'raw'))
 EXPECTED_ADC_COLS = [
     'adc_tgs822', 'adc_mq135', 'adc_mq9', 'adc_tgs2611', 'adc_tgs2620',
     'adc_tgs2600', 'adc_tgs2602', 'adc_mq8', 'adc_tgs813', 'adc_tgs816'

@@ -1,125 +1,114 @@
-<<<<<<< HEAD
-# Roaster-Control
+# Smart Coffee E-Nose v2
 
-Hardware program for the Smart Coffee Roaster Control System, running on ESP32
-(PlatformIO / Arduino framework).
+Firmware, antarmuka Nextion, akuisisi data, dan pipeline AI untuk sistem
+e-nose berbasis **ATmega2560**.
 
-## What this firmware actually does
+## Hardware utama
 
-Current scope of `src/main.cpp` is **e-nose data acquisition + Nextion status
-bridge**. It does *not* run the fuzzy-logic roasting control loop — the
-`FuzzyController`, `RelayRegister`, `MAX6675_library`, `DFRobot_MLX90614`,
-`ESP32_Servo` and `NextionInterface` libraries in `lib/` exist in the repo but
-are **not wired into `src/main.cpp`**. If you're picking this project up,
-that control loop (temperature sensing + heater/servo actuation via fuzzy
-logic) still needs to be implemented and integrated with the code below —
-don't assume it already runs on the device.
+- ATmega2560
+- 10 kanal sensor gas melalui ADS1115
+- SHT30 untuk temperatur/kelembapan
+- pompa + valve
+- Nextion NX4827T043_011
+- Raspberry Pi 5 untuk integrasi/inferensi lanjutan
 
-What runs today:
-- Reads 6 gas sensors (e-nose) + temperature/humidity, computes PPM per gas
-  channel, and streams everything as one JSON line per sample over serial.
-- Listens on the same serial line for short text commands (`#preheat`,
-  `#charge`, `#light`, `#medium`, `#dark`, `#finish`) — typically sent by a
-  host-side script/model — and reflects them as text + background color on a
-  Nextion touch display.
+## Komunikasi serial
 
-## Hardware wiring
+### USB/host
 
-| Peripheral | Bus / Pin | Notes |
+`Serial` menggunakan **115200 baud** untuk log, command, dan akuisisi data ke
+PC/Raspberry Pi.
+
+### Nextion
+
+Nextion menggunakan **USART2 / `Serial2` pada 9600 baud**, sesuai konfigurasi
+aktif file HMI.
+
+| Jalur | ATmega2560 package | Arduino Mega header equivalent |
 |---|---|---|
-| ADS1115 #1 | I2C `0x48` (ADDR→GND) | ch0=MQ-135, ch1=MQ-3, ch2=MQ-137, ch3=MQ-138 |
-| ADS1115 #2 | I2C `0x49` (ADDR→VCC) | ch0=MQ-2, ch1=MQ-136, ch2=TGS822, ch3=TGS2620 |
-| SHT31 (temp/humidity) | I2C `0x44` | |
-| Valve PWM | GPIO 27 (`IN_VLV0`) | LEDC ch0, 5 kHz, 8-bit |
-| Pump PWM | GPIO 23 (`SC_IN`) | LEDC ch1, 5 kHz, 8-bit |
-| PC / host link | `Serial` @ 115200 | JSON sensor data out, `#command` text in |
-| Nextion display | `Serial2` @ 9600 | status text/color only (waveform push is currently disabled, see `USE_NEXTION_GRAPH`) |
+| Nextion TX -> MCU RX | PH0 / RXD2, physical pin 8 | RX2 / D17 |
+| Nextion RX <- MCU TX | PH1 / TXD2, physical pin 9 | TX2 / D16 |
+| Ground | GND | GND |
 
-Wire both ADS1115 boards on the same I2C bus (they're distinguished by
-address, not by separate buses).
+Catatan: **physical pin 8/9 pada IC ATmega2560 bukan Arduino digital D8/D9**.
+PH0/PH1 adalah USART2, sehingga firmware harus memakai `Serial2`.
 
-## Build & flash
+## Struktur repository
 
-Requires [PlatformIO](https://platformio.org/) (CLI or VS Code extension).
-
-```bash
-pio run                # build
-pio run -t upload       # flash to the ESP32
-pio device monitor -b 115200   # watch JSON output (matches monitor_speed in platformio.ini)
+```text
+.
+├── src/                 firmware ATmega2560 utama
+├── include/             header/model untuk firmware
+├── lib/                 library embedded lokal
+├── test/                smoke/unit test firmware
+├── platformio.ini       konfigurasi PlatformIO
+├── nextion/             source HMI, TFT, asset, event, dokumentasi
+├── scripts/             akuisisi, validasi, feature engineering, training
+├── data/
+│   ├── raw/             data sensor mentah
+│   ├── processed/       feature dataset dan dataset ML
+│   └── analysis/        hasil validasi kualitas data
+├── models/              model AI dan metadata fitur
+├── results/
+│   ├── plots/           plot analisis/model
+│   └── sensor-plots/    plot detail tiap sampel/sensor
+├── docs/                dokumentasi proyek
+└── archive/             kode/eksperimen lama yang tidak lagi canonical
 ```
 
-## First-time gas sensor calibration (do this before trusting any PPM value)
+Firmware canonical hanya berada di `src/`. File lama dan eksperimen tidak
+boleh dijadikan sumber implementasi produksi tanpa verifikasi.
 
-The gas sensors need a per-device R0 baseline stored in flash (NVS,
-namespace `enose_r0`). A fresh board (or one that's had flash erased) has no
-baseline yet, and the firmware will now refuse to run with an explicit error
-instead of silently reporting garbage PPM values.
+## Build firmware
 
-1. In `src/main.cpp`, set `#define IS_CALIBRATING_GAS_SENSOR 1`.
-2. Flash and power up the board **in clean, still air** (no coffee, no
-   solvents/alcohol nearby) — this is what "R0" is measured against.
-3. Let it run once through `setup()`; it prints
-   `{"info" : "calibration done"}` and writes R0 values to NVS.
-4. Set `IS_CALIBRATING_GAS_SENSOR` back to `0` and reflash. From now on the
-   board loads the stored R0 values on every boot.
-
-If you skip this and boot with `IS_CALIBRATING_GAS_SENSOR = 0` on an
-uncalibrated board, you'll see:
-```json
-{"error" : "Gas sensors not calibrated yet. Set IS_CALIBRATING_GAS_SENSOR to 1, reflash once in clean air, then set it back to 0."}
-```
-repeating on serial — that's the fix above, not a hardware fault.
-
-Other startup errors and what they mean:
-- `{"error" : "SHT31 ERROR!"}` — temp/humidity sensor not found on I2C (check wiring/address `0x44`).
-- `{"error" : "ADS 1 ERROR!"}` / `"ADS 2 ERROR!"` — the corresponding ADS1115 not found at `0x48`/`0x49`.
-
-## Reading the e-nose data yourself
-
-Every sample is one JSON object per line on the PC serial link (115200 baud). Example fields:
-
-```json
-{
-  "adc_mq135": 12345, "adc_mq136": 0, "...": "raw 16-bit ADC readings",
-  "temp": 24.8, "humidity": 55.2,
-  "mq135_co": 1.2, "mq135_alcohol": 3.4, "mq135_co2": 410.0, "mq135_toluen": 0.1, "mq135_nh4": 0.2, "mq135_aceton": 0.0,
-  "mq136_co": 0.0, "mq136_nh4": 0.0, "mq136_h2s": 0.0,
-  "mq137_co": 0.0, "mq137_ethanol": 0.0, "mq137_nh3": 0.0,
-  "mq138_benzene": 0.0, "mq138_hexane": 0.0, "mq138_co": 0.0, "mq138_alcohol": 0.0, "mq138_propane": 0.0,
-  "mq2_h2": 0.0, "mq2_lpg": 0.0, "mq2_co": 0.0, "mq2_alcohol": 0.0, "mq2_propane": 0.0,
-  "mq3_lpg": 0.0, "mq3_ch4": 0.0, "mq3_co": 0.0, "mq3_alcohol": 0.0, "mq3_benzene": 0.0, "mq3_hexane": 0.0,
-  "tgs822_methane": 0.0, "tgs822_co": 0.0, "tgs822_isobutane": 0.0, "tgs822_hexane": 0.0, "tgs822_benzene": 0.0, "tgs822_ethanol": 0.0, "tgs822_acetone": 0.0,
-  "tgs2620_methane": 0.0, "tgs2620_co": 0.0, "tgs2620_isobutane": 0.0, "tgs2620_h2": 0.0, "tgs2620_ethanol": 0.0
-}
+```powershell
+pio run -e mega2560
 ```
 
-Set `#define USE_PPM 0` in `src/main.cpp` if you only want raw ADC values
-(smaller/faster JSON, no per-gas PPM math).
+Upload ke board:
 
-Quick way to try it from a PC with the board plugged in over USB:
-
-```bash
-pip install pyserial
-python3 - <<'EOF'
-from scripts.SerialHandler import SerialHandler
-h = SerialHandler(port="/dev/tty.usbserial-XXXX", baud=115200)  # adjust port
-while True:
-    print(h.read())
-EOF
+```powershell
+pio run -e mega2560 -t upload
 ```
-(On Windows/Linux, adjust the port to `COM3`, `/dev/ttyUSB0`, etc.)
 
-To send a display status command from the host to the board (e.g. once your
-own logic decides the roast level), write the raw bytes over the same port:
-`h.write(b"#medium;")` — commands must end with `;` and start with `#`.
+Serial Monitor USB:
 
-## Known data caveat
+```powershell
+pio device monitor -e mega2560
+```
 
-`data/note.txt` documents that in the `arabica1`–`arabica5` sample sets, the
-TGS2620 and TGS822 channels were wired/labeled swapped. If you're using
-those specific CSVs for training/analysis, swap the two columns back before
-use; sensor readings collected after that note was written should already be
-correct per the wiring table above.
-=======
-# smart-coffee-v2
->>>>>>> a1cb6022b976725868572fc9d3fa2449d41f550b
+## Uji komunikasi Nextion
+
+Environment `nextion_test` dipakai untuk mengisolasi komunikasi LCD dari
+sensor/aktuator.
+
+```powershell
+pio run -e nextion_test
+pio run -e nextion_test -t upload
+pio device monitor -e nextion_test
+```
+
+Jika komunikasi benar, firmware test akan mengubah halaman Nextion dan event
+sentuhan akan muncul sebagai `[NEXTION RX] EVT:...` pada Serial Monitor.
+
+Firmware utama juga mencetak event yang diterima sebagai:
+
+```text
+{"nextion_event":"EVT:DATA_START"}
+```
+
+## Akuisisi data
+
+Data baru dari `scripts/3_collect_data.py` disimpan ke `data/raw/`.
+Konfigurasi durasi/run mengikuti nilai aktif pada firmware dan script
+akuisisi; keduanya harus selalu disinkronkan sebelum eksperimen resmi.
+
+## Pipeline data/AI
+
+- raw acquisition: `data/raw/`
+- feature/ML dataset: `data/processed/`
+- validation reports: `data/analysis/`
+- trained models: `models/`
+- evaluation and plots: `results/`
+
+Jangan commit cache Python, virtual environment, atau build PlatformIO.

@@ -48,13 +48,13 @@ from sklearn.metrics import accuracy_score, classification_report
 # ─── Path Konfigurasi ────────────────────────────────────────────────────────
 SCRIPTS_DIR       = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR          = os.path.normpath(os.path.join(SCRIPTS_DIR, '..'))
-DATA_DIR          = os.path.join(BASE_DIR, 'data')
+DATA_DIR          = os.path.join(BASE_DIR, 'data', 'processed')
 INCLUDE_DIR       = os.path.join(BASE_DIR, 'include')
-MODEL_PATH        = os.path.join(DATA_DIR, 'model_rf.joblib')
+MODEL_PATH        = os.path.join(BASE_DIR, 'models', 'model_rf.joblib')
 BATCH_DATASET     = os.path.join(DATA_DIR, 'dataset_fitur.csv')
 INTERACTIVE_CSV   = os.path.join(DATA_DIR, 'dataset_interactive.csv')
 OUTPUT_HEADER     = os.path.join(INCLUDE_DIR, 'model_rf_atmega.h')
-FEAT_JSON         = os.path.join(DATA_DIR, 'feature_list.json')
+FEAT_JSON         = os.path.join(BASE_DIR, 'models', 'feature_list.json')
 
 BAUD_RATE         = 115200
 VALID_LABELS      = ['light', 'medium', 'dark']

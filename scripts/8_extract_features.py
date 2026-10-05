@@ -6,8 +6,8 @@ Tujuan:
   - Hanya gunakan fase 'collecting' untuk ekstraksi fitur
   - Hitung 12 statistik per sensor per RUN
   - Output:
-      processed/run_statistics.csv   <- statistik per run per sensor (format panjang)
-      processed/feature_dataset.csv  <- dataset siap analisis (1 baris = 1 RUN)
+      data/processed/run_statistics.csv   <- statistik per run per sensor (format panjang)
+      data/processed/feature_dataset.csv  <- dataset siap analisis (1 baris = 1 RUN)
 
 Fitur per sensor (12):
   mean, median, min, max, range, std, var,
@@ -25,8 +25,8 @@ from scipy import stats as sp_stats
 warnings.filterwarnings('ignore')
 
 BASE_DIR      = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
-DATA_DIR      = os.path.join(BASE_DIR, 'data')
-PROCESSED_DIR = os.path.join(BASE_DIR, 'processed')
+DATA_DIR      = os.path.join(BASE_DIR, 'data', 'raw')
+PROCESSED_DIR = os.path.join(BASE_DIR, 'data', 'processed')
 
 ADC_COLS = [
     'adc_tgs822', 'adc_mq135',  'adc_mq9',    'adc_tgs2611',
@@ -210,8 +210,8 @@ def process_all_files():
     print(f"  Missing value              : {'0 PASS' if len(nan_cols)==0 else str(len(nan_cols))+' WARNING'}")
     print(f"  Outlier potensial          : {len(extremes)} fitur")
     print()
-    print(f"  processed/feature_dataset.csv")
-    print(f"  processed/run_statistics.csv")
+    print(f"  data/processed/feature_dataset.csv")
+    print(f"  data/processed/run_statistics.csv")
     print()
     print("[DONE] Feature extraction selesai. RAW CSV tidak diubah.")
 

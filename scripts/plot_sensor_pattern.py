@@ -3,8 +3,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-DATA_DIR = Path("../data")
-OUTPUT_DIR = Path("../hasil_plot_sensor")
+DATA_DIR = Path("../data/raw")
+OUTPUT_DIR = Path("../results/sensor-plots")
 
 SENSORS = [
     "adc_tgs822",

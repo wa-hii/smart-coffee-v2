@@ -47,10 +47,10 @@ except Exception:
 
 # ─── Konfigurasi Akuisisi Default ──────────────────────────────────────────────
 BAUD_RATE        = 115200
-OUTPUT_DIR       = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'data'))
-ACQ_PURGE_S      = 120    # Durasi purging per run (detik)
-ACQ_COLLECT_S    = 60   # Durasi collecting per run (detik)
-ACQ_REPETITIONS  = 40   # Jumlah run per sampel kopi
+OUTPUT_DIR       = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'data', 'raw'))
+ACQ_PURGE_S      = 25   # Durasi purging per run (detik)
+ACQ_COLLECT_S    = 5   # Durasi collecting per run (detik)
+ACQ_REPETITIONS  = 5   # Jumlah run per sampel kopi
 
 # ─── Database Sampel Eksperimen (Predefined Metadata) ───────────────────────────
 KNOWN_SAMPLES = {
@@ -63,6 +63,8 @@ KNOWN_SAMPLES = {
     'L-CAT': {'roast_level': 'light',  'origin': 'Arabika Catuji Mekarwangi'},
     'L-GAW': {'roast_level': 'light',  'origin': 'Arabika Gayo Wine'},
     'L-MING': {'roast_level': 'light', 'origin': 'Arabika Sumatra Utara'},
+    'L-TOR': {'roast_level': 'light', 'origin': 'Arabika Toraja Washed'},
+    'L-GRB': {'roast_level': 'light', 'origin': 'Arabika Redbourbon Gayo Aceh Natural'},
     
     # MEDIUM ROAST
     'M-MAN': {'roast_level': 'medium', 'origin': 'Arabika Manglayang Jawa Barat'},
@@ -73,6 +75,8 @@ KNOWN_SAMPLES = {
     'M-CAT': {'roast_level': 'medium', 'origin': 'Arabika Catuji Mekarwangi'},
     'M-GAW': {'roast_level': 'medium', 'origin': 'Arabika Gayo Wine'},
     'M-MING': {'roast_level': 'medium', 'origin': 'Arabika Sumatra Utara'},
+    'M-TOR': {'roast_level': 'medium', 'origin': 'Arabika Toraja Washed'},
+    'M-GRB': {'roast_level': 'medium', 'origin': 'Arabika Redbourbon Gayo Aceh Natural'},
 
     # DARK ROAST
     'D-MAN': {'roast_level': 'dark',   'origin': 'Arabika Manglayang Jawa Barat'},
@@ -84,6 +88,8 @@ KNOWN_SAMPLES = {
     'D-GAW': {'roast_level': 'dark',   'origin': 'Arabika Gayo Wine'},
     'D-MUK': {'roast_level': 'dark',   'origin': 'Arabika Temanggung Mukidi Roasting Sendiri'},
     'D-MING': {'roast_level': 'dark', 'origin': 'Arabika Sumatra Utara'},
+    'D-TOR': {'roast_level': 'dark',   'origin': 'Arabika Toraja Washed'},
+    'D-GRB': {'roast_level': 'dark', 'origin': 'Arabika Redbourbon Gayo Aceh Natural'},
 }
 
 VALID_ROAST_LEVELS = ['light', 'medium', 'dark']
@@ -249,7 +255,7 @@ class RawDataCollector:
                 if event == 'ACQ_COMPLETE':
                     total = data.get('total_samples', len(self.rows))
                     self.status_msg = f"✅ Akuisisi Selesai ({total} Sampel Raw Data)"
-                    print(f"\n✅ 40 Run selesai! Total sampel raw data: {total}")
+                    print(f"\n✅ 5 Run selesai! Total sampel raw data: {total}")
                     self.acquisition_done = True
                     continue
 
@@ -370,7 +376,7 @@ def run_live_gui(collector):
                 ax.set_xlim(max(0, ts[0]), ts[-1] + 2)
 
         if collector.acquisition_done:
-            status_text.set_text(f"[OK] 40 Run Selesai! CSV: {os.path.basename(collector.out_csv)}")
+            status_text.set_text(f"[OK] 5 Run Selesai! CSV: {os.path.basename(collector.out_csv)}")
             status_text.set_color('#A371F7')
 
         return list(lines.values())
@@ -430,7 +436,7 @@ def main():
 ║  Origin       : {origin:<52} ║
 ║  Batch ID     : {batch_id:<52} ║
 ║  Port Serial  : {port:<52} ║
-║  Skema Run    : 40 Run × ({ACQ_PURGE_S}s Purging + {ACQ_COLLECT_S}s Collecting){'':<14} ║
+║  Skema Run    : 5 Run × ({ACQ_PURGE_S}s Purging + {ACQ_COLLECT_S}s Collecting){'':<14} ║
 ║  Output File  : {os.path.basename(out_csv):<52} ║
 ╚══════════════════════════════════════════════════════════════════════╝
 """)
@@ -501,8 +507,8 @@ def main():
    Roast Level   : {roast_level}
    Origin        : {origin}
    Batch ID      : {batch_id}
-   Purging Rows  : {purging_n} sampel ({ACQ_PURGE_S}s × 40 run)
-   Collect Rows  : {collecting_n} sampel ({ACQ_COLLECT_S}s × 40 run)
+   Purging Rows  : {purging_n} sampel ({ACQ_PURGE_S}s × 5 run)
+   Collect Rows  : {collecting_n} sampel ({ACQ_COLLECT_S}s × 5 run)
    Total Baris   : {len(df)} baris raw data
    Total Kolom   : {len(df.columns)} kolom#valve_on
    

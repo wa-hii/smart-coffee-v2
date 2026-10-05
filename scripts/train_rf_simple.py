@@ -2,7 +2,7 @@
 Simple Random Forest training script for the smart-coffee project.
 
 Usage:
-  python scripts/train_rf_simple.py --file ../data/dataset_fitur.csv
+  python scripts/train_rf_simple.py --file ../data/processed/dataset_fitur.csv
 
 The script:
 - loads dataset CSV
@@ -31,7 +31,7 @@ except Exception:
 
 def main():
     p = argparse.ArgumentParser(description='Train a simple Random Forest on dataset_fitur.csv')
-    p.add_argument('--file', '-f', default=os.path.join('..', 'data', 'dataset_fitur.csv'))
+    p.add_argument('--file', '-f', default=os.path.join('..', 'data', 'processed', 'dataset_fitur.csv'))
     p.add_argument('--n-estimators', type=int, default=15)
     p.add_argument('--max-depth', type=int, default=6)
     p.add_argument('--test-size', type=float, default=0.2)

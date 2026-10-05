@@ -9,7 +9,7 @@ interpreter. It expects:
  - scripts/1_ekstraksi_fitur.py
  - scripts/train_rf_simple.py
 
-It will produce `data/dataset_fitur.csv`, `models/rf_model.joblib` and if
+It will produce `data/processed/dataset_fitur.csv`, `models/rf_model.joblib` and if
 `--export-header` is passed and `micromlgen` is installed, `include/model_rf.h`.
 """
 import argparse
@@ -39,13 +39,13 @@ def main():
     call('1_ekstraksi_fitur.py')
 
     # 2) Train RF and save model
-    train_args = ['--file', os.path.join('..','data','dataset_fitur.csv')]
+    train_args = ['--file', os.path.join('..','data','processed','dataset_fitur.csv')]
     if args.export_header:
         train_args.append('--export-header')
     call('train_rf_simple.py', train_args)
 
     print('\n=== Pipeline complete ===')
-    print(' - dataset: data/dataset_fitur.csv')
+    print(' - dataset: data/processed/dataset_fitur.csv')
     print(' - model:   models/rf_model.joblib')
     if args.export_header:
         print(' - header:  include/model_rf.h (if micromlgen installed)')

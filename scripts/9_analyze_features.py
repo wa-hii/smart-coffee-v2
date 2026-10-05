@@ -1,13 +1,13 @@
 """
 9_analyze_features.py - Feature Dataset Analysis -- E-NOSE Kopi
 ==============================================================================
-Input : processed/feature_dataset.csv
+Input : data/processed/feature_dataset.csv
 Output:
-  plots/features/boxplots/        - Boxplot per sensor per fitur statistik
-  plots/features/distributions/   - Distribusi KDE per roast level
-  plots/features/correlations/    - Correlation heatmap
-  plots/features/batch_comparison/ - Batch effect analysis
-  processed/feature_analysis_report.md
+  results/plots/features/boxplots/         - Boxplot per sensor per fitur statistik
+  results/plots/features/distributions/    - Distribusi KDE per roast level
+  results/plots/features/correlations/     - Correlation heatmap
+  results/plots/features/batch_comparison/ - Batch effect analysis
+  data/processed/feature_analysis_report.md
 
 TIDAK ADA Training ML / Random Forest.
 RAW CSV TIDAK DIUBAH.
@@ -31,8 +31,8 @@ warnings.filterwarnings('ignore')
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 BASE_DIR      = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
-PROCESSED_DIR = os.path.join(BASE_DIR, 'processed')
-PLOTS_DIR     = os.path.join(BASE_DIR, 'plots', 'features')
+PROCESSED_DIR = os.path.join(BASE_DIR, 'data', 'processed')
+PLOTS_DIR     = os.path.join(BASE_DIR, 'results', 'plots', 'features')
 
 FEATURE_CSV = os.path.join(PROCESSED_DIR, 'feature_dataset.csv')
 REPORT_MD   = os.path.join(PROCESSED_DIR, 'feature_analysis_report.md')
@@ -111,7 +111,7 @@ def plot_boxplots(df, feat_cols, report):
         plt.savefig(out_path, dpi=DPI, bbox_inches='tight')
         plt.close()
 
-    report.append(f"File disimpan di: `plots/features/boxplots/boxplot_<sensor>.png`\n")
+    report.append(f"File disimpan di: `results/plots/features/boxplots/boxplot_<sensor>.png`\n")
     print(f"  [OK] Boxplots saved -> {PLOT_BOXPLOT}")
 
 
@@ -160,7 +160,7 @@ def plot_distributions(df, feat_cols, report):
         plt.savefig(out_path, dpi=DPI, bbox_inches='tight')
         plt.close()
 
-    report.append(f"File disimpan di: `plots/features/distributions/dist_<sensor>.png`\n")
+    report.append(f"File disimpan di: `results/plots/features/distributions/dist_<sensor>.png`\n")
     print(f"  [OK] Distributions saved -> {PLOT_DIST}")
 
 
@@ -226,7 +226,7 @@ def plot_correlations(df, feat_cols, report):
     for a, b, r in high_corr[:20]:
         report.append(f"| {a} | {b} | {r:.4f} |\n")
 
-    report.append(f"\nFile disimpan di: `plots/features/correlations/corr_<stat>.png`\n")
+    report.append(f"\nFile disimpan di: `results/plots/features/correlations/corr_<stat>.png`\n")
     print(f"  [OK] Correlations saved -> {PLOT_CORR}")
     return high_corr
 
@@ -326,7 +326,7 @@ def plot_batch_analysis(df, feat_cols, report):
     else:
         report.append(f"\n> Tidak ada indikasi drift yang signifikan (>10%) antar batch.\n")
 
-    report.append(f"\nFile disimpan di: `plots/features/batch_comparison/batch_<sensor>.png`\n")
+    report.append(f"\nFile disimpan di: `results/plots/features/batch_comparison/batch_<sensor>.png`\n")
     print(f"  [OK] Batch analysis saved -> {PLOT_BATCH}")
     return drift_flags
 
@@ -550,7 +550,7 @@ def main():
     print(f"  Fitur sangat berkorelasi (r>0.95)  : {len(high_corr)} pasangan")
     print(f"  Indikasi drift batch               : {len(drift_flags)} sensor")
     print()
-    print(f"  Plots       -> plots/features/")
+    print(f"  Plots       -> results/plots/features/")
     print(f"  Report      -> {REPORT_MD}")
     print(f"  Significance-> {os.path.join(PROCESSED_DIR,'feature_significance.csv')}")
     print()

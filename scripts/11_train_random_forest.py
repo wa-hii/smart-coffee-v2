@@ -1,7 +1,7 @@
 """
 11_train_random_forest.py - Random Forest Classification -- E-NOSE Kopi
 ==============================================================================
-Input  : processed/ml_dataset_final.csv
+Input  : data/processed/ml_dataset_final.csv
 Output :
   models/
     random_forest_baseline.joblib
@@ -41,7 +41,7 @@ warnings.filterwarnings('ignore')
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 BASE_DIR      = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
-PROCESSED_DIR = os.path.join(BASE_DIR, 'processed')
+PROCESSED_DIR = os.path.join(BASE_DIR, 'data', 'processed')
 MODELS_DIR    = os.path.join(BASE_DIR, 'models')
 RESULTS_DIR   = os.path.join(BASE_DIR, 'results')
 
@@ -453,7 +453,7 @@ def main():
     report.append("---\n\n")
 
     report.append("## 1. Dataset yang Digunakan\n\n")
-    report.append(f"- File: `processed/ml_dataset_final.csv`\n")
+    report.append(f"- File: `data/processed/ml_dataset_final.csv`\n")
     report.append(f"- Total RUN: **{len(df)}**\n")
     report.append(f"- Feature input: **{len(feat_cols)}** fitur numerik\n")
     report.append(f"- Target: `roast_level` (Light / Medium / Dark)\n\n")

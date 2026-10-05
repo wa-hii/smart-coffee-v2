@@ -2,10 +2,10 @@
 """plot_collecting.py
 
 Plot ADC sensor values from a collected CSV (phase=collecting by default).
-Saves an overlay plot and individual sensor plots into data/plots/.
+Saves an overlay plot and individual sensor plots into results/plots/collecting/.
 
 Usage:
-  python scripts/plot_collecting.py --file ../data/light_20260810_160508.csv --phase collecting
+  python scripts/plot_collecting.py --file ../data/raw/light_20260810_160508.csv --phase collecting
 """
 import argparse
 import os
@@ -20,7 +20,7 @@ except Exception:
 
 def main():
     p = argparse.ArgumentParser(description='Plot collecting data CSV')
-    p.add_argument('--file', '-f', default=os.path.join('..','data','light_20260810_160508.csv'))
+    p.add_argument('--file', '-f', default=os.path.join('..','data','raw','light_20260810_160508.csv'))
     p.add_argument('--phase', '-p', default='collecting', help='phase to filter: collecting or purging')
     p.add_argument('--sensors', '-s', nargs='*', default=None, help='list of sensor columns to plot (default: autodetect adc_*)')
     args = p.parse_args()
@@ -57,7 +57,8 @@ def main():
         print('No sensor columns found (look for columns starting with "adc_").')
         return
 
-    outdir = os.path.join(os.path.dirname(fp), 'plots')
+    root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    outdir = os.path.join(root_dir, 'results', 'plots', 'collecting')
     os.makedirs(outdir, exist_ok=True)
 
     # Overlay plot

@@ -2,13 +2,13 @@
 10_finalize_dataset.py - Finalisasi Dataset untuk Machine Learning -- E-NOSE Kopi
 ==============================================================================
 Input:
-  processed/feature_dataset.csv
-  processed/feature_significance.csv
+  data/processed/feature_dataset.csv
+  data/processed/feature_significance.csv
 
 Output:
-  processed/ml_dataset_full.csv    <- Semua 120 fitur + metadata
-  processed/ml_dataset_final.csv   <- Fitur terpilih (non-redundan, signifikan)
-  processed/ml_dataset_summary.md  <- Ringkasan lengkap
+  data/processed/ml_dataset_full.csv    <- Semua 120 fitur + metadata
+  data/processed/ml_dataset_final.csv   <- Fitur terpilih (non-redundan, signifikan)
+  data/processed/ml_dataset_summary.md  <- Ringkasan lengkap
 
 TIDAK ADA Training ML / Random Forest.
 RAW CSV TIDAK DIUBAH.
@@ -23,7 +23,7 @@ from scipy.stats import zscore
 warnings.filterwarnings('ignore')
 
 BASE_DIR      = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
-PROCESSED_DIR = os.path.join(BASE_DIR, 'processed')
+PROCESSED_DIR = os.path.join(BASE_DIR, 'data', 'processed')
 FEATURE_CSV   = os.path.join(PROCESSED_DIR, 'feature_dataset.csv')
 SIG_CSV       = os.path.join(PROCESSED_DIR, 'feature_significance.csv')
 
@@ -347,7 +347,7 @@ def main():
                          f"{orow['n_outlier_feats']} | {orow['max_z']:.2f} | "
                          f"`{orow['outlier_features']}` |\n")
         if len(outlier_df) > 20:
-            lines.append(f"\n*...dan {len(outlier_df)-20} run lainnya. Lihat `processed/outlier_report.csv`.*\n\n")
+            lines.append(f"\n*...dan {len(outlier_df)-20} run lainnya. Lihat `data/processed/outlier_report.csv`.*\n\n")
     else:
         lines.append("> Tidak ada run dengan z-score outlier > 3.5.\n\n")
 

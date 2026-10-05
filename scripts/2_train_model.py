@@ -12,7 +12,7 @@ except ImportError:
     exit()
 
 # Konfigurasi path
-DATA_CSV = '../data/dataset_fitur.csv'
+DATA_CSV = '../data/processed/dataset_fitur.csv'
 OUTPUT_HEADER = '../include/model_rf.h'
 
 def train_and_export():

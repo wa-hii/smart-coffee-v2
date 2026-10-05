@@ -21,9 +21,9 @@ Tugas & Cakupan Validasi (15 Poin Check):
  15. Kebenaran roast level (light, medium, dark)
 
 Output:
-  data_analysis/validation_report.csv
-  data_analysis/validation_summary.txt
-  data_analysis/logs/validation_<YYYYMMDD_HHMMSS>.log
+  data/analysis/validation_report.csv
+  data/analysis/validation_summary.txt
+  data/analysis/logs/validation_<YYYYMMDD_HHMMSS>.log
 
 Catatan: SCRIPT INI TIDAK MENGUBAH / MENGHAPUS RAW CSV ASLI.
 ═══════════════════════════════════════════════════════════════════════════════
@@ -38,8 +38,8 @@ import numpy as np
 
 # ─── Configuration ────────────────────────────────────────────────────────────
 BASE_DIR     = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
-DATA_DIR     = os.path.join(BASE_DIR, 'data')
-ANALYSIS_DIR = os.path.join(BASE_DIR, 'data_analysis')
+DATA_DIR     = os.path.join(BASE_DIR, 'data', 'raw')
+ANALYSIS_DIR = os.path.join(BASE_DIR, 'data', 'analysis')
 LOGS_DIR     = os.path.join(ANALYSIS_DIR, 'logs')
 
 # Database Sampel Eksperimen (Target 11 Sampel)
@@ -390,7 +390,7 @@ Output Files Generated:
     with open(log_file_path, 'w', encoding='utf-8') as f_log:
         f_log.write("\n".join(log_lines))
 
-    print(f"\n[OK] Validasi selesai! Hasil tersimpan di folder 'data_analysis/'.")
+    print(f"\n[OK] Validasi selesai! Hasil tersimpan di folder 'data/analysis/'.")
 
 
 if __name__ == '__main__':

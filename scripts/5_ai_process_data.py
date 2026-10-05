@@ -283,10 +283,10 @@ def predict_with_model(model_path: str | Path, input_data: str | Path) -> pd.Dat
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="AI Processing dataset e-nose kopi")
     parser.add_argument("--mode", choices=["train", "predict", "full"], default="full")
-    parser.add_argument("--data-dir", default="data", help="Folder data yang berisi CSV/TXT")
-    parser.add_argument("--model-path", default="data/coffee_roast_model.pkl", help="Path file model")
+    parser.add_argument("--data-dir", default="data/raw", help="Folder data mentah yang berisi CSV/TXT")
+    parser.add_argument("--model-path", default="models/coffee_roast_model.pkl", help="Path file model")
     parser.add_argument("--input", default="", help="File atau folder input untuk prediksi")
-    parser.add_argument("--output-dir", default="data", help="Folder output model/dataset")
+    parser.add_argument("--output-dir", default="data/processed", help="Folder output dataset terproses")
     return parser.parse_args()
 
 

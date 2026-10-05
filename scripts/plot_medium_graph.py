@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 base_dir = Path(__file__).resolve().parent.parent
-csv_path = base_dir / "data" / "medium_20260811_170159.csv"
-out_dir = base_dir / "data" / "plots"
+csv_path = base_dir / "data" / "raw" / "medium_20260811_170159.csv"
+out_dir = base_dir / "results" / "plots"
 out_dir.mkdir(parents=True, exist_ok=True)
 
 # Baca data

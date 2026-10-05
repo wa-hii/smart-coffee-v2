@@ -57,12 +57,13 @@ except ImportError:
 
 # ─── Path konfigurasi ────────────────────────────────────────────────────────
 SCRIPTS_DIR   = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR      = os.path.join(SCRIPTS_DIR, '..', 'data')
-OUTPUT_DIR    = os.path.join(SCRIPTS_DIR, '..', 'data')
+DATA_DIR      = os.path.join(SCRIPTS_DIR, '..', 'data', 'raw')
+OUTPUT_DIR    = os.path.join(SCRIPTS_DIR, '..', 'data', 'processed')
 INCLUDE_DIR   = os.path.join(SCRIPTS_DIR, '..', 'include')
 OUTPUT_CSV    = os.path.join(OUTPUT_DIR,  'dataset_fitur.csv')
 OUTPUT_HEADER = os.path.join(INCLUDE_DIR, 'model_rf.h')
-OUTPUT_PLOT   = os.path.join(OUTPUT_DIR,  'confusion_matrix.png')
+OUTPUT_PLOT   = os.path.join(SCRIPTS_DIR, '..', 'results', 'plots',
+                             'confusion_matrix_legacy.png')
 
 VALID_LABELS  = ['light', 'medium', 'dark']
 
