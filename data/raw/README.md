@@ -1,0 +1,43 @@
+# Raw Acquisition Data
+
+Folder ini menyimpan data mentah hasil akuisisi E-NOSE. Nilai raw CSV tidak
+boleh diubah setelah pengambilan data.
+
+## Kontrak akuisisi aktif mulai B32
+
+Baseline yang saat ini dipakai untuk pengambilan data adalah B32:
+
+- 5 run per file;
+- purging 25 detik per run;
+- collecting 5 detik per run;
+- 10 kanal gas dengan adc_mq3, bukan adc_mq9;
+- temperature dan humidity dari SHT30 wajib ikut tersimpan;
+- file B32 aktif berada langsung di data/raw/*_B32.csv.
+
+Validasi canonical:
+
+    python scripts/validate_b32_acquisition.py
+
+Validator hanya membaca file B32 dan tidak menjalankan preprocessing, feature
+extraction, atau training model.
+
+## Data lama MQ9
+
+Semua raw CSV yang header-nya masih menggunakan adc_mq9 dipertahankan tanpa
+modifikasi di:
+
+    data/raw/legacy_mq9/
+
+Struktur subfolder lama dipertahankan di bawah folder tersebut. Data legacy
+tidak dihapus dan tidak menjadi bagian dari QA akuisisi B32.
+
+## Data MQ3 sebelum B32
+
+Raw data lain yang sudah menggunakan MQ3 tetapi dibuat sebelum baseline B32
+tetap dipertahankan pada lokasi historisnya. Data tersebut tidak otomatis
+dianggap memenuhi kontrak akuisisi B32.
+
+## Scope saat ini
+
+Fokus project saat ini adalah pengambilan dan validasi raw data. Training model
+AI dan deployment Raspberry Pi belum dijalankan dalam tahap ini.
