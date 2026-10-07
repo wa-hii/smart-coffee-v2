@@ -17,6 +17,8 @@ SENSORS = [
     "adc_mq8",
     "adc_tgs813",
     "adc_tgs816",
+    "temperature",
+    "humidity",
 ]
 
 RECURSIVE = True
