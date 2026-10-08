@@ -33,6 +33,7 @@ import shutil
 import signal
 import sys
 import time
+import uuid
 
 from serial import Serial, SerialException
 
@@ -188,7 +189,12 @@ def unique_final_path(filename: str) -> Path:
     if not path.exists():
         return path
     stamp = time.strftime("%Y%m%d_%H%M%S")
-    return RAW_DIR / f"{Path(filename).stem}_{stamp}.csv"
+    for number in range(1, 10000):
+        suffix = "" if number == 1 else f"_{number}"
+        candidate = RAW_DIR / f"{Path(filename).stem}_{stamp}{suffix}.csv"
+        if not candidate.exists():
+            return candidate
+    raise RuntimeError("Too many filename collisions for acquisition")
 
 
 class AcquisitionSession:
@@ -209,6 +215,13 @@ class AcquisitionSession:
             raise ValueError(f"roast_level tidak valid: {self.roast_level!r}")
         if not self.sample_id or not self.batch_id:
             raise ValueError("sample_id/batch_id kosong pada ACQ_START")
+        expected_roast = {"L": "light", "M": "medium", "D": "dark"}.get(
+            self.sample_id[:1]
+        )
+        if self.roast_level != expected_roast:
+            raise ValueError("roast_level tidak cocok dengan prefix sample_id")
+        if self.origin_code and self.sample_id.split("-", 1)[-1] != self.origin_code:
+            raise ValueError("origin_code tidak cocok dengan sample_id")
 
         RAW_DIR.mkdir(parents=True, exist_ok=True)
         INCOMING_DIR.mkdir(parents=True, exist_ok=True)
@@ -216,7 +229,7 @@ class AcquisitionSession:
 
         self.final_path = unique_final_path(self.filename)
         self.partial_path = (
-            INCOMING_DIR / f"{self.final_path.stem}.partial.csv"
+            INCOMING_DIR / f"{self.final_path.stem}_{uuid.uuid4().hex}.partial.csv"
         )
         self.file = open(
             self.partial_path,
@@ -270,7 +283,18 @@ class AcquisitionSession:
             self.file.flush()
             os.fsync(self.file.fileno())
             self.file.close()
-        os.replace(self.partial_path, self.final_path)
+        # Atomic no-clobber publication on the same filesystem: create a new
+        # hard link first, then remove the staging name. Unlike os.replace(),
+        # os.link() fails when a concurrent writer already created the target.
+        for _ in range(100):
+            try:
+                os.link(self.partial_path, self.final_path)
+                break
+            except FileExistsError:
+                self.final_path = unique_final_path(self.filename)
+        else:
+            raise RuntimeError("Could not reserve a unique acquisition filename")
+        self.partial_path.unlink()
         self.logger.info(
             "ACQ COMPLETE file=%s rows=%d",
             self.final_path,
@@ -349,6 +373,16 @@ class AcquisitionService:
 
         if event == "ACQ_COMPLETE":
             if self.session is None:
+                return
+            # Firmware completion does not itself prove five complete cycles.
+            # Validate the staged CSV before publishing it as finished raw.
+            from validate_acquisition import validate_file
+
+            issues = validate_file(self.session.partial_path)
+            if issues:
+                self.logger.error("Incomplete/invalid ACQ_COMPLETE: %s", "; ".join(issues))
+                self.session.preserve_incomplete("ACQ_COMPLETE validation failed")
+                self.session = None
                 return
             final_path = self.session.complete()
             self.session = None

@@ -59,7 +59,20 @@ def is_sensor_payload(data: Any) -> bool:
         return False
     if str(data.get("phase", "")).strip().lower() not in VALID_PHASES:
         return False
-    return all(data.get(key) is not None for key in SENSOR_REQUIRED_KEYS)
+    if any(data.get(key) is None for key in SENSOR_REQUIRED_KEYS):
+        return False
+    if not _integer_in_range(data["timestamp"], 0, 0xFFFFFFFF):
+        return False
+    if not _integer_in_range(data["cycle"], 1, 65535):
+        return False
+    if not _integer_in_range(data["sample_idx"], 1, 65535):
+        return False
+    return all(_integer_in_range(data[key], 0, 32767) for key in ADC_COLS)
+
+
+def _integer_in_range(value: Any, lower: int, upper: int) -> bool:
+    """Reject booleans, floats, strings and out-of-range ADC/control fields."""
+    return type(value) is int and lower <= value <= upper
 
 
 def sensor_payload_rejection_reason(data: Any) -> str:
@@ -75,6 +88,14 @@ def sensor_payload_rejection_reason(data: Any) -> str:
     missing = [key for key in SENSOR_REQUIRED_KEYS if data.get(key) is None]
     if missing:
         return "missing required sensor keys: " + ", ".join(missing)
+    for key, lower, upper in (
+        ("timestamp", 0, 0xFFFFFFFF),
+        ("cycle", 1, 65535),
+        ("sample_idx", 1, 65535),
+        *((column, 0, 32767) for column in ADC_COLS),
+    ):
+        if not _integer_in_range(data[key], lower, upper):
+            return f"invalid {key}: expected integer in [{lower}, {upper}]"
     return "unknown sensor payload mismatch"
 
 

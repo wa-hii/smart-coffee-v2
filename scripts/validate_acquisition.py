@@ -34,7 +34,9 @@ def classify_rows(df: pd.DataFrame) -> tuple[pd.Series, pd.Series, pd.Series]:
         index=df.index,
     )
     sensor_rows = numeric.notna().all(axis=1)
-    metadata_only = numeric.isna().all(axis=1)
+    # An actual legacy PHASE_CHANGE CSV row has *empty* sensor fields.
+    # Nonnumeric/corrupt text in those columns must not masquerade as an event.
+    metadata_only = df[core_columns].isna().all(axis=1)
     partial_rows = ~(sensor_rows | metadata_only)
     return sensor_rows, metadata_only, partial_rows
 
@@ -114,15 +116,39 @@ def validate_file(path: Path) -> list[str]:
         errors.append(
             f"metadata-only rows terlalu banyak: {metadata_count} (maks 9)"
         )
+    metadata = df.loc[metadata_mask]
+    if not metadata.empty:
+        required_meta = ["sample_id", "roast_level", "origin", "batch_id",
+                         "run_id", "phase"]
+        if metadata[required_meta].isna().any().any():
+            errors.append("metadata-only row has missing event metadata")
+        if metadata.duplicated(subset=["run_id", "phase"]).any():
+            errors.append("duplicate historical phase-change metadata rows")
 
     sensor_df = df.loc[sensor_mask].copy()
     if not sensor_df.empty:
+        duplicate_keys = ["run_id", "phase", "sample_idx"]
+        duplicates = sensor_df.duplicated(subset=duplicate_keys, keep=False)
+        if duplicates.any():
+            errors.append(
+                f"duplicate sensor index (run_id, phase, sample_idx): "
+                f"{int(duplicates.sum())} rows"
+            )
+
+        for field in ("run_id", "sample_idx"):
+            numeric = pd.to_numeric(sensor_df[field], errors="coerce")
+            if (
+                numeric.isna().any()
+                or (numeric < 1).any()
+                or (numeric % 1 != 0).any()
+            ):
+                errors.append(f"{field}: non-integer, missing, or nonpositive")
+
         for column in ADC_COLS:
             values = pd.to_numeric(sensor_df[column], errors="coerce")
-            if ((values < 0) | (values > 32767)).any():
+            if ((values < 0) | (values > 32767) | (values % 1 != 0)).any():
                 errors.append(
-                    f"{column} memiliki nilai di luar rentang ADS1115 "
-                    "0..32767"
+                    f"{column} bukan integer dalam rentang ADS1115 0..32767"
                 )
 
         timestamps = pd.to_numeric(sensor_df["timestamp"], errors="coerce")

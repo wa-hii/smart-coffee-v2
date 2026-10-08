@@ -8,6 +8,7 @@ from acquisition_schema import (
     ADC_COLS,
     CSV_COLUMNS,
     is_sensor_payload,
+    sensor_payload_rejection_reason,
     sensor_row_from_payload,
 )
 from lcd_acquisition_service import AcquisitionService
@@ -53,6 +54,15 @@ def main() -> int:
     missing_adc = dict(sensor)
     missing_adc["adc_mq3"] = None
     assert not is_sensor_payload(missing_adc)
+
+    for invalid in (True, "1000", 1000.5, -1, 32768):
+        frame = dict(sensor, adc_mq3=invalid)
+        assert not is_sensor_payload(frame), invalid
+        assert "invalid adc_mq3" in sensor_payload_rejection_reason(frame)
+
+    for field, invalid in (("timestamp", -1), ("cycle", 0),
+                           ("sample_idx", 0), ("sample_idx", 2.5)):
+        assert not is_sensor_payload(dict(sensor, **{field: invalid}))
 
     row = sensor_row_from_payload(
         env_missing,
