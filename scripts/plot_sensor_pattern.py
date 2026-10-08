@@ -28,26 +28,15 @@ from matplotlib.lines import Line2D
 import numpy as np
 import pandas as pd
 
+from acquisition_schema import ADC_COLS
+
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data" / "raw"
 OUTPUT_DIR = ROOT / "results" / "sensor-plots"
 ORIGIN_OUTPUT_DIR = OUTPUT_DIR / "by-origin"
 
-SENSORS = [
-    "adc_tgs822",
-    "adc_mq135",
-    "adc_mq3",
-    "adc_tgs2611",
-    "adc_tgs2620",
-    "adc_tgs2600",
-    "adc_tgs2602",
-    "adc_mq8",
-    "adc_tgs813",
-    "adc_tgs816",
-    "temperature",
-    "humidity",
-]
+SENSORS = ADC_COLS + ["temperature", "humidity"]
 
 ROAST_ORDER = ("light", "medium", "dark")
 ROAST_COLORS = {
@@ -151,6 +140,19 @@ def load_data(file_path: Path) -> pd.DataFrame:
         if column in df.columns:
             df[column] = pd.to_numeric(df[column], errors="coerce")
 
+    # Historical LCD acquisitions (B33-B35) may contain metadata-only rows
+    # emitted from PHASE_CHANGE events.  Preserve the raw CSV unchanged, but
+    # remove those rows in-memory before plotting so they cannot create NaN
+    # gaps / broken lines in normalized plots.
+    sensor_frame_cols = [
+        column
+        for column in ["timestamp", "sample_idx"] + ADC_COLS
+        if column in df.columns
+    ]
+    if sensor_frame_cols:
+        metadata_only = df[sensor_frame_cols].isna().all(axis=1)
+        df = df.loc[~metadata_only].copy()
+
     df = df.dropna(subset=["run_id"]).copy()
     df["run_id"] = df["run_id"].astype(int)
     df["phase"] = df["phase"].astype(str).str.lower().str.strip()
@@ -176,6 +178,21 @@ def output_is_current(output: Path, sources: Iterable[Path]) -> bool:
         return True
     newest_source = max(path.stat().st_mtime for path in source_list)
     return output.stat().st_mtime >= newest_source
+
+
+def sample_output_is_current(output: Path, source_csv: Path) -> bool:
+    """Freshness rule for per-sample plots.
+
+    The normalized overview previously kept metadata-only PHASE_CHANGE rows,
+    which could introduce NaN gaps.  Treat this generator file as an
+    additional dependency for that output so the fixed implementation is
+    regenerated once after a plotting-code update.  Other per-sensor plots
+    already filtered NaNs and only depend on the source CSV.
+    """
+    sources = [source_csv]
+    if output.name == "all_sensors_normalized.png":
+        sources.append(Path(__file__).resolve())
+    return output_is_current(output, sources)
 
 
 def valid_sensor_rows(df: pd.DataFrame, sensor: str) -> pd.DataFrame:
@@ -418,7 +435,7 @@ def process_file(
         not force
         and expected_from_header
         and all(
-            output_is_current(path, [file_path])
+            sample_output_is_current(path, file_path)
             for path in expected_from_header
         )
     ):
@@ -445,7 +462,10 @@ def process_file(
     if (
         not force
         and expected
-        and all(output_is_current(path, [file_path]) for path in expected)
+        and all(
+            sample_output_is_current(path, file_path)
+            for path in expected
+        )
     ):
         print(f"[SKIP lengkap] {file_path.name}")
         return 0, len(expected)
@@ -454,7 +474,7 @@ def process_file(
         pending = [
             path
             for path in expected
-            if force or not output_is_current(path, [file_path])
+            if force or not sample_output_is_current(path, file_path)
         ]
         print(f"[DRY SAMPLE] {file_path.name}: pending={len(pending)}")
         return len(pending), len(expected) - len(pending)
@@ -474,14 +494,14 @@ def process_file(
             (output_folder / f"mean_{sensor}.png", plot_mean_cycle),
         )
         for output_path, plotter in tasks:
-            if not force and output_is_current(output_path, [file_path]):
+            if not force and sample_output_is_current(output_path, file_path):
                 skipped += 1
                 continue
             if plotter(df, sensor, output_path, title):
                 generated += 1
 
     normalized_path = output_folder / "all_sensors_normalized.png"
-    if not force and output_is_current(normalized_path, [file_path]):
+    if not force and sample_output_is_current(normalized_path, file_path):
         skipped += 1
     elif plot_all_sensors_normalized(df, normalized_path, title):
         generated += 1

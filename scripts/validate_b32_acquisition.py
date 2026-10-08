@@ -18,34 +18,14 @@ from pathlib import Path
 
 import pandas as pd
 
+from acquisition_schema import ADC_COLS, CSV_COLUMNS
+
 
 ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = ROOT / "data" / "raw"
 BATCH_ID = "B32"
 
-ADC_COLS = [
-    "adc_tgs822",
-    "adc_mq135",
-    "adc_mq3",
-    "adc_tgs2611",
-    "adc_tgs2620",
-    "adc_tgs2600",
-    "adc_tgs2602",
-    "adc_mq8",
-    "adc_tgs813",
-    "adc_tgs816",
-]
-
-EXPECTED_COLUMNS = [
-    "timestamp",
-    "sample_id",
-    "roast_level",
-    "origin",
-    "batch_id",
-    "run_id",
-    "phase",
-    "sample_idx",
-] + ADC_COLS + ["temperature", "humidity"]
+EXPECTED_COLUMNS = CSV_COLUMNS
 
 EXPECTED_RUNS = [1, 2, 3, 4, 5]
 VALID_PHASES = {"purging", "collecting"}

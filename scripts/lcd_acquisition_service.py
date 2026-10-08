@@ -36,6 +36,12 @@ import time
 
 from serial import Serial, SerialException
 
+from acquisition_schema import (
+    CSV_COLUMNS,
+    is_sensor_payload,
+    sensor_payload_rejection_reason,
+    sensor_row_from_payload,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = ROOT / "data" / "raw"
@@ -48,30 +54,6 @@ LOCK_FILE = LOG_DIR / "acquisition_service.lock"
 
 DEFAULT_PORT = "COM5"
 DEFAULT_BAUD = 115200
-
-ADC_COLS = [
-    "adc_tgs822",
-    "adc_mq135",
-    "adc_mq3",
-    "adc_tgs2611",
-    "adc_tgs2620",
-    "adc_tgs2600",
-    "adc_tgs2602",
-    "adc_mq8",
-    "adc_tgs813",
-    "adc_tgs816",
-]
-
-CSV_COLUMNS = [
-    "timestamp",
-    "sample_id",
-    "roast_level",
-    "origin",
-    "batch_id",
-    "run_id",
-    "phase",
-    "sample_idx",
-] + ADC_COLS + ["temperature", "humidity"]
 
 # Samakan metadata origin dengan dataset yang sudah dipakai 3_collect_data.py.
 ORIGIN_BY_SAMPLE = {
@@ -256,36 +238,32 @@ class AcquisitionSession:
             self.final_path.name,
         )
 
-    def write_sensor(self, data: dict) -> None:
-        phase = str(data.get("phase", ""))
-        if phase not in {"purging", "collecting"}:
-            return
+    def write_sensor(self, data: dict) -> bool:
+        """Write only a genuine firmware sensor sample.
 
-        row = {
-            "timestamp": data.get("timestamp"),
-            "sample_id": self.sample_id,
-            "roast_level": self.roast_level,
-            "origin": self.origin,
-            "batch_id": self.batch_id,
-            "run_id": data.get("cycle"),
-            "phase": phase,
-            "sample_idx": data.get("sample_idx"),
-            "temperature": data.get(
-                "temperature_c",
-                data.get("temperature", data.get("temp")),
-            ),
-            "humidity": data.get(
-                "humidity_rh",
-                data.get("humidity"),
-            ),
-        }
-        for col in ADC_COLS:
-            row[col] = data.get(col)
+        PHASE_CHANGE and other event frames can carry phase/cycle metadata but
+        do not carry ADC values.  They must never become CSV rows.
+        """
+        if not is_sensor_payload(data):
+            self.logger.warning(
+                "Sensor payload ditolak: %s",
+                sensor_payload_rejection_reason(data),
+            )
+            return False
+
+        row = sensor_row_from_payload(
+            data,
+            sample_id=self.sample_id,
+            roast_level=self.roast_level,
+            origin=self.origin,
+            batch_id=self.batch_id,
+        )
 
         self.writer.writerow(row)
         self.file.flush()
         os.fsync(self.file.fileno())
         self.rows += 1
+        return True
 
     def complete(self) -> Path:
         if not self.file.closed:
@@ -373,9 +351,8 @@ class AcquisitionService:
             if self.session is None:
                 return
             final_path = self.session.complete()
-            batch_id = self.session.batch_id
             self.session = None
-            self.validate_if_b32(final_path, batch_id)
+            self.validate_completed_file(final_path)
             return
 
         if event == "ACQ_STOP":
@@ -384,27 +361,41 @@ class AcquisitionService:
                 self.session = None
             return
 
+        # Semua frame yang memiliki field event adalah control/status event,
+        # bukan sample sensor.  Unknown event juga fail-closed agar event baru
+        # di firmware tidak diam-diam masuk sebagai row CSV kosong.
+        if event:
+            self.logger.debug("Mengabaikan event frame: %s", event)
+            return
+
         if self.session is not None:
             self.session.write_sensor(data)
 
-    def validate_if_b32(self, path: Path, batch_id: str) -> None:
-        if batch_id != "B32":
-            return
+    def validate_completed_file(self, path: Path) -> None:
+        """Run generic canonical acquisition validation after autosave."""
         try:
-            from validate_b32_acquisition import validate_file
+            from validate_acquisition import file_summary, validate_file
 
             errors = validate_file(path)
             if errors:
                 self.logger.error(
-                    "B32 validation FAIL %s: %s",
+                    "Acquisition validation FAIL %s: %s",
                     path.name,
                     "; ".join(errors),
                 )
             else:
-                self.logger.info("B32 validation PASS %s", path.name)
+                summary = file_summary(path)
+                self.logger.info(
+                    "Acquisition validation PASS %s "
+                    "sensor_rows=%d metadata_rows=%d partial_rows=%d",
+                    path.name,
+                    summary["sensor_rows"],
+                    summary["metadata_rows"],
+                    summary["partial_rows"],
+                )
         except Exception:
             self.logger.exception(
-                "B32 validator gagal dijalankan untuk %s",
+                "Acquisition validator gagal dijalankan untuk %s",
                 path,
             )
 

@@ -6,6 +6,11 @@ Script Pengumpulan RAW DATA E-NOSE Kopi via Serial ke CSV (dengan Live Plot).
 Metadata sample tersedia pada KNOWN_SAMPLES di script ini. Baseline akuisisi
 aktif dimulai dari B32 dengan sensor MQ3 serta temperature/humidity.
 
+PENTING:
+  Script ini adalah collector MANUAL yang mengirim #start; dari laptop.
+  Jika pengambilan data dimulai dari LCD Nextion, CSV ditulis oleh
+  scripts/lcd_acquisition_service.py (passive listener), bukan file ini.
+
 Flow Akuisisi Aktif (mulai baseline B32):
   Satu Run  : PURGING (25 s) ──► COLLECTING (5 s) ──► Simpan Raw Data
   Satu File : 5 Run per Sampel ──► Output CSV: <sample_id>_<batch_id>.csv
@@ -38,6 +43,13 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
+from acquisition_schema import (
+    ADC_COLS,
+    is_sensor_payload,
+    sensor_payload_rejection_reason,
+    sensor_row_from_payload,
+)
+
 try:
     matplotlib.use('TkAgg')
 except Exception:
@@ -63,6 +75,7 @@ KNOWN_SAMPLES = {
     'L-MING': {'roast_level': 'light', 'origin': 'Arabika Sumatra Utara'},
     'L-TOR': {'roast_level': 'light', 'origin': 'Arabika Toraja Washed'},
     'L-GRB': {'roast_level': 'light', 'origin': 'Arabika Redbourbon Gayo Aceh Natural'},
+    'L-CAW': {'roast_level': 'light', 'origin': 'CAW'},
     
     # MEDIUM ROAST
     'M-MAN': {'roast_level': 'medium', 'origin': 'Arabika Manglayang Jawa Barat'},
@@ -75,6 +88,8 @@ KNOWN_SAMPLES = {
     'M-MING': {'roast_level': 'medium', 'origin': 'Arabika Sumatra Utara'},
     'M-TOR': {'roast_level': 'medium', 'origin': 'Arabika Toraja Washed'},
     'M-GRB': {'roast_level': 'medium', 'origin': 'Arabika Redbourbon Gayo Aceh Natural'},
+    'M-MUK': {'roast_level': 'medium', 'origin': 'Arabika Temanggung Mukidi'},
+    'M-CAW': {'roast_level': 'medium', 'origin': 'CAW'},
 
     # DARK ROAST
     'D-MAN': {'roast_level': 'dark',   'origin': 'Arabika Manglayang Jawa Barat'},
@@ -91,12 +106,6 @@ KNOWN_SAMPLES = {
 }
 
 VALID_ROAST_LEVELS = ['light', 'medium', 'dark']
-
-# Kolom Raw ADC 10 Sensor Gas E-NOSE v2
-ADC_COLS = [
-    'adc_tgs822', 'adc_mq135', 'adc_mq3', 'adc_tgs2611', 'adc_tgs2620',
-    'adc_tgs2600', 'adc_tgs2602', 'adc_mq8', 'adc_tgs813', 'adc_tgs816'
-]
 
 SENSOR_CONFIG = {
     'adc_tgs2600': {'label': 'TGS2600', 'color': "#FF7664", 'group': 'TGS'},
@@ -296,55 +305,42 @@ class RawDataCollector:
                     self.acquisition_done = True
                     continue
 
-                # Data sampel raw sensor
-                phase = data.get('phase', 'idle')
-                cycle = data.get('cycle', 0)
-                sample_idx = data.get('sample_idx', 0)
+                # Fail-closed: event/control frame yang tidak dikenali tidak
+                # pernah dianggap sensor sample.
+                if event:
+                    print(f"  [event diabaikan] {event}")
+                    continue
 
-                if phase in ('purging', 'collecting'):
-                    # Susun metadata lengkap untuk setiap baris data
-                    row = {
-                        'timestamp': data.get('timestamp', int(time.time() * 1000)),
-                        'sample_id': self.sample_id,
-                        'roast_level': self.roast_level,
-                        'origin': self.origin,
-                        'batch_id': self.batch_id,
-                        'run_id': cycle,
-                        'phase': phase,
-                        'sample_idx': sample_idx,
-                    }
+                if not is_sensor_payload(data):
+                    print(
+                        "  [payload sensor ditolak] "
+                        f"{sensor_payload_rejection_reason(data)}"
+                    )
+                    continue
 
-                    # Masukkan 10 raw ADC sensor values
+                row = sensor_row_from_payload(
+                    data,
+                    sample_id=self.sample_id,
+                    roast_level=self.roast_level,
+                    origin=self.origin,
+                    batch_id=self.batch_id,
+                )
+                phase = row['phase']
+                cycle = int(row['run_id'])
+                sample_idx = int(row['sample_idx'])
+
+                with self.lock:
+                    self.rows.append(row)
+                    self.phase = phase
+                    self.cycle = cycle
+
+                    # Push ke plot deques
+                    t_sec = len(self.rows)
+                    self.timestamps.append(t_sec)
                     for col in ADC_COLS:
-                        row[col] = data.get(col, None)
+                        self.sensor_data[col].append(row[col])
 
-                    # Sensor suhu & kelembapan.
-                    #
-                    # Firmware ATmega2560 canonical mengirim key:
-                    #   temperature_c, humidity_rh
-                    # Tetap dukung nama key lama agar file/script lama tidak
-                    # langsung rusak bila masih dipakai saat pengujian.
-                    row['temperature'] = data.get(
-                        'temperature_c',
-                        data.get('temperature', data.get('temp', None))
-                    )
-                    row['humidity'] = data.get(
-                        'humidity_rh',
-                        data.get('humidity', None)
-                    )
-
-                    with self.lock:
-                        self.rows.append(row)
-                        self.phase = phase
-                        self.cycle = cycle
-
-                        # Push ke plot deques
-                        t_sec = len(self.rows)
-                        self.timestamps.append(t_sec)
-                        for col in ADC_COLS:
-                            self.sensor_data[col].append(data.get(col, 0))
-
-                        self.status_msg = f"Run {cycle:02d}/{self.cycles_total:02d} | {phase.upper()} #{sample_idx}"
+                    self.status_msg = f"Run {cycle:02d}/{self.cycles_total:02d} | {phase.upper()} #{sample_idx}"
 
         except Exception as e:
             print(f"\n❌ Error serial loop: {e}")
