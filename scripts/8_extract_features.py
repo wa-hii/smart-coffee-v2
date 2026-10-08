@@ -75,6 +75,18 @@ def process_all_files():
         print("[ERROR] Tidak ada file CSV terstandarisasi di folder data/.")
         sys.exit(1)
 
+    # This historical pipeline assumes MQ9 and collecting runs >=10 samples.
+    # Refuse to mix B32+ MQ3 acquisitions with legacy artifacts, even if some
+    # historical files happen to satisfy the old minimum length.
+    import re
+    if any((m := re.search(r'_B(\d+)', os.path.basename(path))) and
+           int(m.group(1)) >= 32 for path in csv_files):
+        raise RuntimeError(
+            "Mixed legacy MQ9 and B32+ MQ3 acquisitions detected. "
+            "Historical feature files were NOT overwritten; use "
+            "scripts/extract_b32_features.py for the current data."
+        )
+
     print(f"[INFO] Ditemukan {len(csv_files)} file CSV.")
     print(f"[INFO] Sensor: {len(ADC_COLS)} channel | Fitur: {len(FEATURE_SUFFIXES)} per sensor")
     print(f"[INFO] Total fitur numerik: {len(ADC_COLS)*len(FEATURE_SUFFIXES)}\n")
@@ -138,6 +150,13 @@ def process_all_files():
             total_runs += 1
 
     print()
+
+    if not all_rows:
+        # Do not overwrite historical processed datasets with an empty output.
+        raise RuntimeError(
+            "No compatible runs for this legacy MQ9 extractor. "
+            "Current MQ3 5-second acquisitions require a revised pipeline."
+        )
 
     feature_df = pd.DataFrame(all_rows)
     meta = ['sample_id','roast_level','origin','batch_id','run_id','n_collect_pts']
