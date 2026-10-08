@@ -1,151 +1,112 @@
-# ROAST SENSE - Nextion NX4827T043_011
+# Panduan Nextion Editor — RoastSense NX4827T043_011
 
-Target display: **NX4827T043_011 (Basic)**
-Resolution: **480 x 272 landscape**
-UART: **9600 baud, 8N1**
-Controller in this integration: **ATmega2560 only**
+**Layar target:** NX4827T043_011 (Basic), resolusi **480 × 272 piksel** dengan komunikasi UART **9600 baud, 8N1**. Pengendali antarmuka pada integrasi yang sudah ada adalah **ATmega2560**.
 
-The visual source of truth is the final Figma page fix in UI-ENOSE. The
-12 exported frames are kept byte-identical in backgrounds_clean_png/ and
-mockups_png/. Do not redraw, recolor, resize, or substitute those screens.
+Sumber visual utama adalah desain Figma final pada **UI-ENOSE**. Dua belas frame hasil ekspor di folder backgrounds_clean_png/ dan mockups_png/ harus dipertahankan identik. Jangan menggambar ulang, mengganti warna, mengubah ukuran atau mengganti desain yang telah dikunci.
 
-## Canonical project
+## 1. Proyek HMI yang menjadi acuan
 
-Use project/RoastSense_NX4827T043_011_COMPILE_READY.HMI for the current final
-build.
+Gunakan proyek:
 
-The latest 00_Splash Figma revision is patched directly into this canonical
-HMI. Pages 01_Home through 11_Alert are not rebuilt, so manual text-size and
-layout adjustments made in Nextion Editor remain preserved.
+    project/RoastSense_NX4827T043_011_COMPILE_READY.HMI
 
-Because the canonical HMI has been manually saved by Nextion Editor, its page
-blob packing is Editor-managed and may differ from the original binary
-generator layout. Do not rebuild this file from the old HMI baseline. For
-future visual-only revisions, patch only the relevant picture resource. The
-final structural check is Nextion Editor **Compile**.
+Perbaikan Figma pada halaman **00_Splash** sudah dimasukkan ke proyek HMI ini. Halaman **01_Home sampai 11_Alert** tidak dibuat ulang, sehingga penyempurnaan ukuran teks dan tata letak yang telah disimpan manual lewat Nextion Editor tetap dipertahankan.
 
-Do not compile the older RoastSense_NX4827T043_011.HMI or
-RoastSense_NX4827T043_011_FIXED.HMI. The COMPILE_READY project removes the four
-legacy pSplash objects and also neutralizes their four old page-load init
-instructions, which otherwise produce Invalid Variables during Nextion Editor
-compile.
+Karena proyek HMI canonical sudah pernah disimpan melalui Nextion Editor, susunan biner internalnya mengikuti editor dan dapat berbeda dari hasil generator awal. Untuk revisi tampilan, ubah hanya sumber gambar yang diperlukan. **Validasi struktur terakhir wajib menggunakan fitur Compile pada Nextion Editor.**
 
-This is the canonical editable Nextion Editor project. It is generated from an
-Editor-created NX4827T043_011 container, the locked 480x272 Figma exports, and
-the dynamic component/event map in this directory.
+Jangan memakai file lama **RoastSense_NX4827T043_011.HMI** atau **RoastSense_NX4827T043_011_FIXED.HMI** untuk membuat TFT final. Versi COMPILE_READY telah membuang empat objek pSplash lama dan menonaktifkan empat perintah inisialisasi lama yang sebelumnya memunculkan kesalahan Invalid Variables.
 
-The old compiled TFT under build/ predates the final Figma sync and must not be
-treated as the final UI. Open the canonical HMI in Nextion Editor, compile it
-there, and upload the newly compiled TFT to the display.
+TFT lama pada folder build/ dibuat sebelum sinkronisasi akhir dengan Figma dan **belum dapat dianggap sebagai hasil final**. Buka HMI canonical, lakukan kompilasi menggunakan Nextion Editor, periksa simulator, lalu unggah TFT terbaru ke layar **setelah ada persetujuan pengujian fisik**.
 
-## Reproducible HMI build
+## 2. Pembuatan HMI yang dapat direproduksi
 
-From the repository root run:
+Perintah generator lama berikut hanya merupakan referensi untuk menyiapkan ulang aset berdasarkan baseline lama. **Jangan menjalankannya langsung pada HMI canonical final karena berisiko menimpa hasil edit manual.** Gunakan output terpisah bila perlu eksperimen:
 
     python nextion/NX4827T043_011/tools/build_figma_fix_hmi.py --baseline nextion/NX4827T043_011/project/RoastSense_NX4827T043_011.HMI --images nextion/NX4827T043_011/backgrounds_clean_png --output nextion/NX4827T043_011/project/RoastSense_NX4827T043_011.HMI
 
-The builder is idempotent. It verifies the target model CRC, all 12 page CRCs,
-the directory checksum, mandatory dynamic components, and required EVT touch
-events.
-
-Full offline contract QA:
+Generator melakukan verifikasi CRC model layar, CRC 12 halaman, checksum direktori, komponen dinamis yang wajib ada, dan event sentuhan. Untuk memeriksa kontrak HMI–ATmega secara offline:
 
     python nextion/NX4827T043_011/tools/verify_nextion_atmega_contract.py
 
-That QA also verifies every HMI background against the locked final Figma
-export and checks that every HMI event is represented in the ATmega firmware.
+Pemeriksaan ini juga memastikan aset HMI sesuai gambar Figma yang terkunci serta seluruh event HMI diwakili dalam firmware ATmega. **PASS offline tidak menggantikan kompilasi editor atau pengujian layar fisik.**
 
-## Page order
+## 3. Urutan 12 halaman Nextion
 
-1. pSplash - 00_Splash
-2. pHome - 01_Home
-3. pTake - 02_TakeData
-4. pDataRun - 03_DataRun
-5. pDataDone - 04_DataDone
-6. pTest - 05_StartTest
-7. pTestRun - 06_TestRun
-8. pResult - 07_TestResult
-9. pCal - 08_Calibration
-10. pSettings - 09_Settings
-11. pHistory - 10_History
-12. pAlert - 11_Alert
+| No. | Halaman Nextion | Layar rancangan |
+|---|---|---|
+| 1 | pSplash | 00_Splash |
+| 2 | pHome | 01_Home |
+| 3 | pTake | 02_TakeData |
+| 4 | pDataRun | 03_DataRun |
+| 5 | pDataDone | 04_DataDone |
+| 6 | pTest | 05_StartTest |
+| 7 | pTestRun | 06_TestRun |
+| 8 | pResult | 07_TestResult |
+| 9 | pCal | 08_Calibration |
+| 10 | pSettings | 09_Settings |
+| 11 | pHistory | 10_History |
+| 12 | pAlert | 11_Alert |
 
-component_map.csv is the authoritative dynamic overlay/hotspot geometry.
-nextion_events/ contains the corresponding Touch Release event source.
+Berkas **component_map.csv** menjadi acuan posisi serta ukuran komponen/hotspot dinamis. Folder **nextion_events/** berisi instruksi event **Touch Release** yang sesuai.
 
-## Nextion -> ATmega protocol
+## 4. Protokol komunikasi Nextion dan ATmega
 
-Touch handlers emit one ASCII line using:
+Event sentuhan dari Nextion dikirim sebagai baris ASCII:
 
     prints "EVT:DATA_START",0
     printh 0D 0A
 
-The ATmega parser only accepts printable ASCII plus CR/LF. Native binary
-Nextion return packets are rejected. bkcmd=0 is also sent at boot to suppress
-command-response traffic.
+Parser ATmega hanya menerima karakter ASCII yang dapat dicetak ditambah CR/LF. Paket respons biner bawaan Nextion ditolak. Firmware mengirim **bkcmd=0** saat awal menyala agar respons command tidak bercampur dengan event.
 
-ATmega -> Nextion commands use the standard Nextion FF FF FF terminator.
+Perintah dari ATmega menuju Nextion menggunakan terminator standar **FF FF FF**.
 
-## Wiring
+### Koneksi kabel
 
-- Nextion TX -> ATmega2560 **PH0/RXD2, physical MCU pin 8**
-- Nextion RX -> ATmega2560 **PH1/TXD2, physical MCU pin 9**
-- GND -> GND
+- **Nextion TX → ATmega2560 PH0/RXD2**, pin fisik IC **8**.
+- **Nextion RX ← ATmega2560 PH1/TXD2**, pin fisik IC **9**.
+- **GND → GND**.
 
-On an Arduino Mega 2560 header these same USART2 signals are RX2/D17 and
-TX2/D16. The production firmware therefore uses Serial2. Physical package pins
-8/9 must not be confused with Arduino digital pins D8/D9.
+Pada header board Arduino Mega 2560, kedua sinyal tersebut adalah **RX2/D17 dan TX2/D16**. Firmware produksi menggunakan **Serial2**. **Pin fisik IC 8/9 bukan pin digital Arduino D8/D9.**
 
-## Take Data flow
+## 5. Alur AMBIL DATA
 
-pHome -> pTake -> pDataRun -> pDataDone
+    pHome → pTake → pDataRun → pDataDone
 
-The ATmega owns all state:
+- ATmega memegang state machine dan menjalankan seluruh alur.
+- Tombol tingkat roasting memilih **LIGHT, MEDIUM, DARK**.
+- Tombol origin memilih kode asal kopi yang tersedia.
+- Batch dapat dinaikkan atau diturunkan, minimum **B01**.
+- Jumlah siklus berasal dari konfigurasi **ACQ_REPETITIONS** pada src/main.cpp.
+- Nama CSV otomatis mengikuti pola **roast-origin_Bxx.csv**.
+- START hanya dapat diaktifkan ketika pilihan sah dan sensor yang disyaratkan siap.
+- Tombol PAUSE melakukan jeda serta melanjutkan kembali fase/timer yang sedang berlangsung.
+- Listener host secara pasif menyimpan labeled_data; event perubahan fase tidak boleh dianggap sebagai baris sensor.
 
-- Roast Level up/down cycles through LIGHT, MEDIUM, DARK.
-- Origin up/down cycles through the configured origin list.
-- Batch ID uses minus/plus with minimum B01.
-- Cycle count is read directly from ACQ_REPETITIONS in src/main.cpp.
-- File name is generated automatically as roast-origin_Bxx.csv.
-- Status becomes "Siap untuk pengambilan data" and START is enabled only when
-  every required value is valid.
-- PAUSE is a true pause/resume toggle; current phase and remaining time are
-  preserved.
+## 6. Alur START TEST dan AI
 
-## Start Test flow
+    pHome → pTest → pTestRun → pResult
 
-pHome -> pTest -> pTestRun -> pResult
+Implementasi yang **sudah ada** menggunakan ATmega saja: START AI TEST mengaktifkan state machine akuisisi yang sama pada mode AI_TEST, kemudian ATmega memanggil modul Inference yang tersedia.
 
-This integration is intentionally ATmega-only. START AI TEST launches the same
-sensor acquisition state machine in AI_TEST mode. When acquisition finishes,
-the ATmega calls the existing on-device Inference module.
+Jika **USE_ON_DEVICE_INFERENCE** dinonaktifkan atau tidak ada model yang memberi hasil terverifikasi, layar menampilkan **N/A**. Origin, confidence, dan probabilitas juga N/A selama belum ada sumber hasil AI yang sah. **Hasil dari Raspberry Pi 5 tidak boleh ditampilkan seolah-olah sudah tersedia**, karena jalur tersebut masih dalam perencanaan.
 
-If USE_ON_DEVICE_INFERENCE is disabled or the local model cannot provide a
-verified value, the result is shown as N/A. Origin, confidence, and class
-probabilities also remain N/A unless a verified ATmega-side source exists.
-No Raspberry Pi result is fabricated and no Raspberry Pi integration is added
-by this workstream.
+## 7. Kalibrasi, pengaturan, riwayat, dan notifikasi
 
-## Calibration, settings, history, and alerts
+- **CALIBRATION** hanya dijalankan saat akuisisi berhenti. Fungsi SensorArray::calibrate() menghitung R0 dan menyimpannya ke EEPROM, lalu sistem membaca ulang. Aktivasi pada hardware membutuhkan persetujuan.
+- **RESET** mengembalikan pilihan antarmuka dan kecerahan layar, **bukan** menghapus kalibrasi sensor.
+- **HISTORY** menyimpan empat ringkasan antarmuka terbaru dalam RAM ATmega.
+- Tombol final bertuliskan **EXPORT** masih mengirim token lama EVT:HISTORY_CLEAR; firmware menerjemahkannya sebagai **ekspor ke Serial USB**, bukan menghapus data.
+- **RESULT SAVE** mengirim hasil inferensi lokal yang tersedia ke Serial USB.
+- **EXIT** menghentikan akuisisi/aktuator, menampilkan keadaan aman, dan meminta pemadaman daya secara manual.
 
-- CALIBRATION runs SensorArray::calibrate() only while acquisition is idle,
-  stores R0 in EEPROM, reloads it, and refreshes the calibration screen.
-- RESET resets UI selections and display brightness only. It does not erase
-  sensor calibration.
-- HISTORY stores the four latest UI summaries in ATmega RAM.
-- The final Figma button is labelled EXPORT. The current HMI container keeps
-  the legacy wire token EVT:HISTORY_CLEAR; firmware interprets it as
-  non-destructive export to the USB debug Serial.
-- RESULT SAVE exports the current local result to USB debug Serial.
-- EXIT stops acquisition/actuators and presents a safe manual-power-off alert.
+## 8. Checklist QA sebelum flashing
 
-## Validation before flashing hardware
-
-Run:
+Jalankan perintah berikut tanpa mengunggah firmware:
 
     pio run -e mega2560
     pio run -e nextion_test
     python nextion/NX4827T043_011/tools/verify_nextion_atmega_contract.py
 
-Then open the canonical HMI in Nextion Editor, compile it, exercise every page
-in the simulator, and flash the newly generated TFT to the physical panel.
+Sesudah itu, **dengan persetujuan pengujian hardware**, buka HMI canonical di Nextion Editor, lakukan Compile, uji tiap halaman di simulator, lalu unggah hasil TFT terbaru ke perangkat dan verifikasi komunikasi serial dua arah.
+
+Jangan menyamakan **verifikasi offline**, **kompilasi editor**, **simulasi editor**, **upload TFT**, dan **pengujian perangkat nyata** sebagai bukti yang identik.

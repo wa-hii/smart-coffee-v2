@@ -1,88 +1,67 @@
-# Nextion ↔ ATmega2560 ↔ Raspberry Pi 5 E2E contract (proposed)
+# Rancangan Integrasi Nextion–ATmega2560–Raspberry Pi 5
 
-**Design document only. No live Pi/USB protocol modifications have been made.**
+**Status: rancangan teknis, belum diterapkan pada perangkat fisik.** Tidak ada perubahan protokol komunikasi USB atau deployment Raspberry Pi pada sesi audit ini.
 
-## Current vs target
+## 1. Arsitektur saat ini dan target
 
-Current: ten analog gas channels → four ADS1115 → ATmega2560; SHT30 is
-**direct I2C** on the shared bus (it does not pass through an ADS1115).
-ATmega directly drives pump/valve and Nextion (Serial2 at 9600 baud); USB
-Serial at 115200 baud streams JSON events/readings to a host. The local
-TinyML option is disabled by default; origin/confidence are N/A.
+**Arsitektur saat ini:** Sepuluh kanal sensor gas → empat ADS1115 → ATmega2560. Sensor SHT30 menggunakan **bus I2C langsung**, bukan melewati ADS1115. ATmega mengendalikan pompa, valve, dan Nextion melalui Serial2 @ 9600 baud; Serial USB @ 115200 baud mengirim event serta pengukuran JSON ke komputer. Opsi inferensi TinyML lokal tidak aktif secara bawaan; hasil origin/confidence berstatus N/A.
 
-Target (preferred hybrid):
+**Arsitektur target yang direkomendasikan (hybrid):**
 
-`Nextion START TEST → ATmega control/acquisition → USB JSON → Raspberry Pi 5
-→ stream validator → feature contract → AI pipeline → result+abstention
-→ USB result/ACK → ATmega → Nextion pResult`
+    Nextion START TEST
+      → ATmega2560 (kontrol perangkat dan akuisisi)
+      → Serial USB (payload JSON)
+      → Raspberry Pi 5 (validasi dan penyusunan sesi)
+      → Preprocessing dan ekstraksi fitur
+      → Model AI terverifikasi
+      → Keputusan prediksi / unknown
+      → Serial USB (hasil dan acknowledgment)
+      → ATmega2560
+      → Nextion pResult
 
-No inference should block pump/valve safety state transitions. Host is an
-optional intelligence layer: USB disconnection, missing model, timeout or
-unrecognized sample must yield a truthful N/A/error rather than guess.
+Inferensi tidak boleh menghalangi mekanisme keselamatan pompa, valve, dan pengaturan waktu pada ATmega. Raspberry Pi merupakan lapisan pemrosesan AI, bukan pengendali utama keselamatan perangkat. Jika USB terputus, model tidak ditemukan, timeout, atau data tidak valid, layar harus menampilkan kesalahan atau **N/A**, bukan hasil tebakan.
 
-## Responsibility map
+## 2. Pembagian tanggung jawab
 
-| Component | Owns | Explicitly does not own |
+| Komponen | Tanggung jawab utama | Bukan tanggung jawabnya |
 |---|---|---|
-| ATmega2560 | ADC/SHT30, actuators, state-machine time, MCU safety, event tags, Nextion serial | Model training, dataset fitting, large file/history storage |
-| Nextion | UI interactions, settings, progress, N/A/error screen | Ground truth for AI_TEST, raw acquisition metadata reconciliation |
-| Raspberry Pi 5 | Reception, loss detection, valid run assembly, 5-cycle feature extraction, validated model/pipeline, result/unknown, persistent audit logs | Direct safety-critical valve/pump commands |
-| Offline training PC | Provenance, group CV, model selection, model-card/versioned deployment export | On-line hyperparameter fitting from test data |
+| **ATmega2560** | Baca ADC/SHT30, kontrol aktuator, state machine, waktu akuisisi, keselamatan perangkat, event, komunikasi Nextion | Training model, penyimpanan data besar, fitting preprocessing |
+| **Nextion** | Interaksi pengguna, pemilihan metadata untuk AMBIL DATA, progres, status, hasil dan error | Menetapkan ground truth pada AI_TEST atau menjalankan model AI |
+| **Raspberry Pi 5** | Menerima serial, memvalidasi payload, mendeteksi data hilang, menyusun lima siklus, ekstraksi fitur, inferensi, unknown/N/A, log dan riwayat | Mengendalikan pompa/valve secara langsung |
+| **Komputer training offline** | Inventaris dataset, validasi kelompok, eksperimen model, pemilihan fitur, ekspor artefak terverifikasi | Melakukan fitting otomatis pada data pengujian saat perangkat berjalan |
 
-## Proposed USB protocol v1 — NOT YET IMPLEMENTED
+## 3. Usulan kontrak serial USB versi 1 — belum diimplementasikan
 
-Represent each message as newline-delimited UTF-8 JSON with `version=1`,
-`type`, `session_id` (UUID), `message_seq` (monotonic within session),
-`device_id`, `emitted_uptime_ms`, and `mode`. Types:
+Format yang disarankan: pesan **JSON UTF-8 per baris (NDJSON)** dengan field version=1, type, session_id (UUID), message_seq (urutan pesan dalam sesi), device_id, emitted_uptime_ms, dan mode.
 
-- `ACQ_START`: mode `labeled_data` or `ai_test`; config cycles/purge/collect,
-  firmware schema; labels only for `labeled_data`.
-- `SENSOR_SAMPLE`: cycle, phase, sample_idx, ordered ADC data (all ten),
-  temperature/humidity nullable with a quality code.
-- `PHASE_CHANGE`, `ACQ_PAUSE`, `ACQ_RESUME`, `ACQ_STOP`, `ACQ_COMPLETE`: status
-  with counts; control events must **never** become sample records.
-- `INFERENCE_REQUEST`: emitted only after valid 5-cycle AI_TEST acquisition.
-- `INFERENCE_RESULT`: echoes session_id, model_version, prediction or unknown,
-  calibrated probabilities only if available and validated, quality flags,
-  artifact hash; origin may be unknown independently of roast.
-- `INFERENCE_ERROR`: no device, invalid acquisition, incomplete session,
-  unsupported model/schema or timeout. MCU displays N/A with a reason.
-- `ACK` / `NACK`: sequence/session correlation; retransmission only for
-  idempotent commands/results (never implicitly repeat physical START).
+| Jenis pesan | Fungsi dan field utama |
+|---|---|
+| **ACQ_START** | Menandai mode labeled_data atau ai_test; memuat jumlah siklus/durasi purging/collecting dan versi firmware/skema. Label hanya boleh digunakan pada labeled_data. |
+| **SENSOR_SAMPLE** | Membawa nomor siklus, fase, sample_idx, seluruh 10 ADC, suhu/kelembapan opsional dan kode kualitas. |
+| **PHASE_CHANGE / ACQ_PAUSE / ACQ_RESUME / ACQ_STOP / ACQ_COMPLETE** | Perubahan status serta jumlah sampel; event tidak pernah dihitung sebagai baris sensor. |
+| **INFERENCE_REQUEST** | Permintaan model setelah lima siklus AI_TEST valid dan lengkap. |
+| **INFERENCE_RESULT** | session_id yang sama, versi model, prediksi atau unknown, probabilitas terkalibrasi bila tersedia, tanda kualitas dan hash artefak. Origin dapat unknown walaupun roast terprediksi. |
+| **INFERENCE_ERROR** | Kesalahan data/sesi/model/skema, perangkat host tidak tersedia, atau timeout. ATmega menampilkan N/A dan alasan. |
+| **ACK / NACK** | Konfirmasi nomor pesan dan sesi; pengiriman ulang hanya untuk operasi idempoten, **bukan** memulai kembali pengambilan data fisik secara otomatis. |
 
-Payload examples above are proposed semantic fields, **not evidence of
-currently emitted firmware messages**. Distinguish `run_id` (cycle 1..5) from
-`session_id` (unique acquisition), `sample_id` (label) and physical specimen
-UID (multiple acquisitions may use the same coffee specimen).
+Nama dan field di atas adalah **usulan desain**, belum merupakan pesan yang benar-benar dikeluarkan firmware. Bedakan dengan jelas **run_id** (siklus ke-1 s.d. ke-5), **session_id** (satu pengambilan data), **sample_id** (kode label), serta **ID spesimen fisik** (kopi yang sama mungkin diuji berkali-kali).
 
-## Reliability and UX acceptance tests
+## 4. Skenario QA dan kriteria penerimaan
 
-1. Offline replay valid 5-cycle AI_TEST → exactly one inference result; no
-   roast/origin training labels are fed to the model.
-2. Missing ADC, wrong order/shape, duplicate seq, corrupt JSON, out-of-order
-   cycle, impossible environmental values → reject or quality-flag as designed.
-3. MCU reboot or Nextion reboot mid-run → never claim completed capture;
-   display correct recovery/unknown state.
-4. Pi offline or model missing → bounded inference timeout and N/A, while
-   ATmega actuators remain in defined safe state.
-5. Complete labeled capture → atomic CSV, host provenance, no class inference;
-   partial file remains quarantined with reason, not silently deleted.
-6. Verify latency and serial throughput on actual Raspberry Pi 5. Record
-   percentile latency, resource usage, model footprint and error recovery.
-7. Only after consent/maintenance window: live test of each UI button,
-   pumping/valve timing, SHT30 failure, serial reconnect and power failure.
+1. Replay offline lima siklus AI_TEST valid menghasilkan **tepat satu** hasil inferensi dan tidak mengalirkan metadata ground truth ke masukan model.
+2. ADC hilang, kanal tertukar, pesan rusak/duplikat, siklus tidak berurutan, nilai lingkungan tidak masuk akal, atau sequence berulang harus ditolak atau diberi status kualitas secara eksplisit.
+3. Restart ATmega/Nextion di tengah akuisisi tidak boleh menampilkan hasil seolah-olah proses selesai; harus kembali ke status pemulihan yang sesuai.
+4. Raspberry Pi mati, model tidak tersedia, atau inferensi melewati batas waktu → tampil **N/A**. Aktuator tetap mengikuti keadaan aman yang diatur ATmega.
+5. Mode AMBIL DATA menyimpan CSV final secara aman hanya setelah validasi; file parsial dipertahankan di lokasi terpisah beserta alasan, bukan dihapus tanpa catatan.
+6. Ukur p50/p95 latensi, penggunaan CPU/RAM, ukuran model, keandalan koneksi dan waktu pemulihan pada **Raspberry Pi 5 nyata**.
+7. Setelah ada persetujuan terpisah, lakukan verifikasi tombol Nextion, fase pompa/valve, kegagalan SHT30, rekoneksi USB, serta pemulihan setelah listrik terputus.
 
-## Platform selection
+## 5. Keputusan platform
 
-- **Hybrid Pi5+ATmega — recommended** because four ADS1115/actuation already
-  belong to MCU, while Pi5 can run ordinary sklearn models, store provenance
-  and support replaceable model artifacts. Still pending device benchmark.
-- ATmega-only inference — preserve as historical fallback experiment, not
-  default. SRAM 8 KB, current feature parity and class mapping must be proven;
-  existing model header cannot be assumed compatible with MQ3/62 features.
-- Pi-only hardware control — not recommended; introduces unnecessary safety
-  coupling and bypasses established MCU timing.
+- **Hybrid ATmega2560 + Raspberry Pi 5 — direkomendasikan.** ATmega tetap menjalankan akuisisi dan aktuator, sementara Pi menjalankan Python/sklearn, pipeline model, penyimpanan data, dan pencatatan hasil. Masih membutuhkan benchmark dan pembuktian pada perangkat.
+- **Inferensi sepenuhnya di ATmega — dipertahankan sebagai opsi eksperimen.** SRAM ATmega hanya 8 KB; ukuran model, urutan fitur, pemetaan kelas dan kesesuaian MQ3 harus dibuktikan. Header model_rf.h historis tidak otomatis kompatibel dengan 62 fitur kandidat.
+- **Kontrol seluruh perangkat dipindahkan ke Raspberry Pi — tidak direkomendasikan.** Cara ini menambah ketergantungan keselamatan aktuator pada sistem operasi dan komunikasi host.
 
-Hardware evidence and physical approval remain separate from offline builds.
-Do not touch COM5 while the listener owns it, upload TFT, flash MCU or restart
-live services during offline QA.
+## 6. Batas pekerjaan yang memerlukan persetujuan
+
+Pengujian offline tidak boleh membuka COM5 saat dimiliki autosave listener, me-restart layanan yang aktif, mengunggah firmware/TFT, mengubah kalibrasi EEPROM, atau menggerakkan pompa/valve. Bukti kompilasi dan simulasi **bukan** pengganti pengujian fisik.

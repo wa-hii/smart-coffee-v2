@@ -1,301 +1,168 @@
-# MASTER SMART COFFEE E-NOSE AI RESEARCH AND IMPLEMENTATION ROADMAP
+# PETA JALAN INDUK PENELITIAN DAN IMPLEMENTASI AI E2E SMART COFFEE E-NOSE
 
-**Authority v1 / 2026-10-08.** Scope: Smart Coffee E-Nose v2 / RoastSense,
-ATmega2560 + Nextion + host/Raspberry Pi 5. Existing hardware acquisition
-must remain stable; **do not auto-implement future phases**. Current evidence:
-`00_CURRENT_STATE.md`, `06_INDEPENDENT_AUDIT_QA_QC.md`.
+**Dokumen acuan utama versi 1 — 8 Oktober 2026.** Ruang lingkup: Smart Coffee E-Nose v2 / RoastSense dengan ATmega2560, Nextion, komputer host dan Raspberry Pi 5. Pengembangan dilakukan dengan menjaga kestabilan akuisisi yang telah berjalan. **Jangan otomatis mengerjakan semua tahap berikutnya.**
 
-## Non-negotiable engineering rules
+Dokumen bukti dasar: **00_CURRENT_STATE.md** dan **06_INDEPENDENT_AUDIT_QA_QC.md**. Keputusan tentang model dan protokol lanjutan dijabarkan pada dokumen **03** dan **04**.
 
-- Source code, Git status, real raw files and reproducible tests outrank old
-  documentation. Label proposed interfaces distinctly from current firmware.
-- Preserve raw MQ9 legacy, raw MQ3 B32+, HMI and final Figma assets. No
-  irreversible rewrite, COM5 contention, EEPROM calibration, live upload or
-  physical acquisition without separate approval.
-- Distinguish a CSV file/acquisition, five cycles, batch/day/session, physical
-  coffee specimen, and origin/roast labels. **Avoid training/test leakage**.
-- Track three gates separately: **software offline**, **hardware bench**, and
-  **prospective inference**. No automatic DONE across gates.
-- Every phase uses the loop: inspect → reproduce → fix → targeted test →
-  independent QA → documented evidence → go/no-go. Include failure fixtures.
-- Priority: P0 correctness and valid data; P1 model evaluation/architecture;
-  P2 enhancements. Evidence artifacts must be reproducible by CLI/Git hash.
+## A. Prinsip kerja dan batas keselamatan
 
-## Snapshot and dependency graph
+1. Kode sumber, status Git, data mentah aktual, dan hasil pengujian yang dapat diulang lebih kuat daripada dokumentasi lama. Pisahkan fungsi yang sudah diuji dari yang masih direncanakan.
+2. Pertahankan dataset historis MQ9, raw MQ3 B32+, seluruh HMI, dan aset Figma yang sudah dikunci. Tidak boleh menimpa raw, membuka COM5 yang sedang dipakai, mengganti EEPROM, flashing, atau melakukan akuisisi fisik tanpa persetujuan.
+3. Bedakan **file akuisisi**, **siklus**, **batch**, **sesi/hari pengukuran**, **spesimen kopi fisik**, dan **label roast/origin**. Pembagian data training dan test harus menghindari kebocoran antar-unit yang berkorelasi.
+4. Kesiapan dinilai lewat **tiga gerbang terpisah**: pengujian software offline, pengujian hardware nyata, dan validasi inferensi prospektif. Keberhasilan satu gerbang tidak berarti seluruh sistem siap.
+5. Terapkan alur kerja: **inspeksi → reproduksi masalah → analisis akar masalah → perbaikan → pengujian regresi → QA independen → dokumentasi → keputusan go/no-go**.
+6. Prioritas: **P0** untuk kebenaran sistem/data dan validitas metode; **P1** untuk evaluasi AI serta integrasi; **P2** untuk penyempurnaan tambahan. Simpan bukti berupa keluaran CLI, hash, metrik, dan commit.
 
-| Phase | Status | Priority | Main predecessor | Hardware needed? |
+## B. Ringkasan status dan dependensi
+
+| Tahap | Status saat audit | Prioritas | Dependensi utama | Perangkat fisik diperlukan? |
 |---|---|---|---|---|
-| 0 Current state and methodology | PARTIAL | P0 | None | No |
-| 1 Firmware/Nextion/acquisition quality | PARTIAL | P0 | 0 | For final physical sign-off |
-| 2 Dataset catalog/quality | PARTIAL | P0 | 0–1 | Not for existing files; yes for new specimens |
-| 3 Reproducible preprocessing/features | PARTIAL candidate | P0 | 2 | No |
-| 4 Baselines/challengers | PLANNED | P1 | 3 | No |
-| 5 Cross-batch evaluation/unknown | PLANNED | P0 | 3–4 | New specimens for final sign-off |
-| 6 Model selection/runtime artifact | BLOCKED by 5 | P1 | 5 | Device for latency |
-| 7 Pi/ATmega integration design | PARTIAL design | P1 | 1, 6 | Required for integration |
-| 8 Full offline E2E mock replay | PLANNED | P1 | 6–7 | No |
-| 9 Hardware integration | BLOCKED approval | P1 | 8 | Yes |
-| 10 Prospective validation/promotion | BLOCKED | P0 release gate | 5, 9 | Yes |
+| 0. Penutupan kondisi aktual dan metodologi | SEBAGIAN | P0 | Tidak ada | Tidak |
+| 1. Mutu firmware, sensor, Nextion, dan akuisisi | SEBAGIAN | P0 | 0 | Ya, untuk verifikasi final |
+| 2. Inventaris dan kualitas dataset | SEBAGIAN | P0 | 0–1 | Tidak untuk data lama; ya untuk sampel baru |
+| 3. Preprocessing dan fitur yang dapat direproduksi | KANDIDAT SEBAGIAN | P0 | 2 | Tidak |
+| 4. Penelitian model baseline dan challenger | DIRENCANAKAN | P1 | 3 | Tidak |
+| 5. Generalisasi lintas batch, drift dan unknown | DIRENCANAKAN | P0 | 3–4 | Ya untuk pengujian prospektif |
+| 6. Pemilihan model dan kontrak artefak | TERHAMBAT OLEH 5 | P1 | 5 | Ya untuk benchmark perangkat |
+| 7. Persiapan integrasi Raspberry Pi–ATmega | SEBAGIAN (DESAIN) | P1 | 1, 6 | Ya untuk integrasi |
+| 8. Simulasi E2E penuh secara offline | DIRENCANAKAN | P1 | 6–7 | Tidak |
+| 9. Integrasi dan validasi hardware | MENUNGGU PERSETUJUAN | P1 | 8 | Ya |
+| 10. Validasi prospektif dan promosi model final | TERHAMBAT | P0 (gerbang rilis) | 5, 9 | Ya |
 
-Dependencies follow quality gates, not a commitment to execute work in one
-session. 0–3 can substantially advance offline. 4–6 depend on scientific
-validity; 9–10 cannot be simulated as completed physical evidence.
+Status **SEBAGIAN** berarti sebagian kode atau bukti telah tersedia, tetapi kriteria selesai belum terpenuhi. Status **TERHAMBAT** berarti pelaksanaan final belum boleh dilakukan. Tahap 0–3 dapat banyak diselesaikan offline; tahap 9–10 tidak dapat dinyatakan selesai hanya berdasarkan simulasi.
 
-## Phase 0 — Current-state and methodology closure
+## Tahap 0 — Penutupan kondisi aktual dan metodologi
 
-- **Objective / status / priority:** freeze actual architecture, scope,
-  repository authority; PARTIAL, P0; independent audit baseline established.
-- **Dependencies / design:** branch inventory, active hardware ownership,
-  labeled vs AI_TEST semantics, schema versions; no hardware required.
-- **Tasks:** reconcile Git history/docs/source; map ADC order, phase machine,
-  12 Nextion pages, uploader, active HMI; resolve source-of-truth conflicts,
-  outdated comments and origin taxonomy; define unique sample/session UID.
-- **Files:** README, platformio.ini, src/, nextion/, scripts/, docs/00.
-- **Tests / negative:** `git status --short --branch`, offline PlatformIO
-  builds, Nextion verifier; detect mismatched labels, stale TFT, differing
-  USART/baud and unwanted local change overwrites.
-- **Outputs / evidence:** current-state document, architecture map, source
-  schema, Git/diff/test logs; B32+ 86-file inventory as reference.
-- **Acceptance / go-no-go:** every subsystem has named current authority,
-  provenance and evidence status; unresolved conflicts explicitly BLOCKED.
-- **Risks / mitigation / done:** old documentation drift; source/tests outrank
-  prose. DONE after full inventory reconciliation and reviewed sign-off.
+- **Tujuan, status, prioritas:** menetapkan arsitektur, cakupan eksperimen, dan dokumen acuan proyek; **SEBAGIAN, P0**.
+- **Dependensi dan desain:** inventaris branch, subsistem, protokol labeled_data/AI_TEST, versi skema, serta keputusan siapa yang mengendalikan sensor dan aktuator. Tidak memerlukan perangkat fisik.
+- **Pekerjaan:** cocokkan seluruh Git history, dokumentasi, dan implementasi; periksa peta ADC, lima fase/state akuisisi, 12 halaman Nextion, HMI final, urutan sensor, baud, serta ketidakcocokan istilah dan asal kopi. Tetapkan format ID sesi/spesimen yang lebih jelas.
+- **Modul relevan:** README.md, platformio.ini, src/, nextion/, scripts/, docs/00_CURRENT_STATE.md.
+- **Pengujian dan skenario negatif:** git status --short --branch; kompilasi PlatformIO; verifikasi HMI; cari label yang tidak konsisten, versi TFT lama, baud berbeda, dan kemungkinan perubahan lokal tertimpa.
+- **Keluaran dan bukti:** peta subsistem, dokumen kondisi aktual, kontrak dataset/protokol, log pengujian, dan identitas commit.
+- **Kriteria selesai / go-no-go:** setiap subsistem memiliki sumber acuan tunggal dan tingkat bukti yang jelas. Konflik belum terselesaikan wajib diberi status TERHAMBAT.
+- **Risiko:** dokumentasi historis dapat berbeda dari perangkat; gunakan bukti kode dan pengujian, bukan hanya narasi. Tahap dinyatakan SELESAI setelah seluruh konflik utama ditutup dan ditinjau.
 
-## Phase 1 — Hardware/firmware/data-acquisition quality closure
+## Tahap 1 — Penutupan mutu firmware, Nextion, dan akuisisi
 
-- **Objective / status / priority:** no mislabeled phase or lost/corrupt data;
-  PARTIAL P0; listener/schema/validator fixes tested offline.
-- **Dependencies / design:** phase timing, 10 ADC channels + shared SHT30 I2C,
-  actuator failsafe, Nextion 9600, USB 115200; MCU owns physical state.
-- **Tasks:** inspect ADC gain/saturation, warm-up/R0/RL/EEPROM, retry/failure
-  handling, sample_idx and millis rollover, phase-boundary attribution,
-  pump/valve timing, pause/resume, user commands and missing sensor path.
-- **Files:** src/main.cpp, sensor.*, actuator.*, sht30.*, nextion_transport.*,
-  acquisition_schema.py, collectors, LCD autosave and validators.
-- **Tests / negative:** `pio run -e mega2560 -e nextion_test`,
-  `python scripts/test_acquisition_suite.py`, offline HMI verifier; malformed
-  ADC, duplicate idx, metadata-only event, disconnected serial, same-second
-  filename collision, Nextion reboot, cancellation and idle/safe actuator.
-- **Outputs / evidence:** annotated transition trace/oscilloscope or logged
-  boundary run, stable raw CSV and regression suite; no raw rewrite.
-- **Acceptance / go-no-go:** all required sensor frames typed/ranged; zero
-  silent sensor/event confusion, duplicate output overwrite or unsafe actuator
-  recovery; 25+5 s timing objectively bench measured before firmware change.
-- **Risks / mitigation / done:** timing refactor could change dataset
-  semantics; use offline simulation then approved physical regression. Final
-  DONE requires bench tests, so currently NO-GO for hardware claims.
+- **Tujuan, status, prioritas:** tidak ada sampel salah fase, baris CSV palsu, hilang atau tertimpa secara diam-diam; **SEBAGIAN, P0**. Sejumlah perbaikan validator dan listener sudah teruji offline.
+- **Dependensi dan desain:** pembacaan sepuluh kanal ADC dengan SHT30 pada I2C; state machine dan keselamatan aktuator di ATmega; komunikasi Nextion 9600 dan USB 115200 baud.
+- **Pekerjaan:** audit alamat/gain/saturasi ADS, pemanasan dan stabilisasi R0/RL, EEPROM, SHT30 gagal, sample_idx, millis rollover, pembacaan tepat batas fase, timer, pemulihan pause/resume, pompa/valve, serial reconnect, kontrol layar dan log.
+- **Modul relevan:** src/main.cpp, sensor.*, actuator.*, sht30.*, nextion_transport.*, scripts/acquisition_schema.py, manual collector, listener LCD dan validator.
+- **Pengujian:** pio run -e mega2560 -e nextion_test; python scripts/test_acquisition_suite.py; pemeriksa kontrak HMI.
+- **Skenario negatif:** event-only row, ADC rusak, sample_idx duplikat, file bertabrakan, USB terputus, Nextion reboot, cancel, sensor hilang dan fail-safe aktuator.
+- **Keluaran dan bukti:** regression tests, jejak perubahan fase, sampel CSV, serta pengukuran aktual durasi pompa/valve menggunakan alat yang disetujui.
+- **Kriteria selesai / go-no-go:** tidak ada metadata yang disimpan sebagai sensor, tidak ada overwrite, semua input dinilai ketat, fase 25+5 detik dibuktikan di perangkat. Tanpa uji fisik, klaim kebenaran timing tetap **NO-GO**.
+- **Risiko:** perubahan state machine dapat mengubah semantik dataset lama. Lakukan simulasi lalu bench test terkontrol; jangan refactor timing tanpa bukti.
 
-## Phase 2 — Dataset catalog and quality assessment
+## Tahap 2 — Inventaris, provenance, dan evaluasi kualitas dataset
 
-- **Objective / status / priority:** auditable independent measurement units;
-  PARTIAL P0. Current 86-file inventory/validator DONE; scientific audit pending.
-- **Dependencies / design:** Phase 1 stable schema and provenance fields,
-  historical MQ9 isolated from current MQ3; existing files offline only.
-- **Tasks:** immutable hashes, file/batch/roast/origin/cycle distributions,
-  repeat specimens, unknown metadata, missing env, drift, baseline return,
-  carryover, confounds from order/day/coffee mass; check B32–B35 plots.
-- **Files:** data/raw/, `scripts/audit_b32_dataset.py`,
-  `validate_acquisition.py`, plot_sensor_pattern.py, data/analysis/.
-- **Tests / negative:** `python scripts/audit_b32_dataset.py`; swapped MQ9,
-  phase-only rows, invalid timestamp, duplicate samples and inconsistent
-  origin codes; compare plots with raw and per-run phase boundaries.
-- **Outputs / evidence:** dataset manifest and missing-provenance report,
-  class coverage map, invalid vs usable cohorts, signal/temperature drift.
-- **Acceptance / go-no-go:** every training file tied to raw hash, batch,
-  source schema and an explicit independence assumption; reject incomplete
-  input from ML. Dataset validity != physical generalization readiness.
-- **Risks / mitigation / done:** four batches can hide session correlation;
-  collect independent days/specimens. DONE after provenance is complete.
+- **Tujuan, status, prioritas:** menentukan unit sampel independen yang benar serta kelayakan dataset; **SEBAGIAN, P0**. Inventaris awal 86 file dan validator selesai, penilaian ilmiah masih berjalan.
+- **Dependensi dan desain:** skema MQ3 aktif dari Tahap 1; MQ9 historis dipisahkan; inventaris raw yang ada dapat diproses offline.
+- **Pekerjaan:** buat manifest hash tiap file; hitung distribusi roast, origin, batch, siklus, sensor hilang dan outlier. Evaluasi drift, baseline recovery, carryover, urutan pengukuran, suhu/kelembapan, tanggal/sesi, massa dan persiapan kopi, serta spesimen yang diukur ulang. Tinjau grafik B32–B35 berdasarkan batas fase.
+- **Modul relevan:** data/raw/, scripts/audit_b32_dataset.py, validate_acquisition.py, plot_sensor_pattern.py dan data/analysis/.
+- **Pengujian dan kasus negatif:** python scripts/audit_b32_dataset.py; deteksi MQ9 pada data MQ3, baris parsial, timestamp tidak valid, duplikasi, label origin tidak konsisten, serta grafik yang menggabungkan run berbeda.
+- **Keluaran dan bukti:** katalog dataset ber-hash, tabel kelengkapan kelas, daftar masalah provenance dan laporan drift/kualitas sinyal.
+- **Kriteria selesai / go-no-go:** tiap file training memiliki skema, hash, batch, status kualitas, serta asumsi independensi yang eksplisit. File gagal validasi tidak boleh masuk model. Validitas CSV tidak sama dengan generalisasi sensor.
+- **Risiko:** empat batch mungkin tetap berkorelasi antar-hari atau spesimen. Pengumpulan sampel baru harus menggunakan ID spesimen/sesi.
 
-## Phase 3 — Reproducible preprocessing/feature pipeline
+## Tahap 3 — Preprocessing dan ekstraksi fitur yang dapat diulang
 
-- **Objective / status / priority:** identical feature vector for fit and Pi
-  inference; PARTIAL candidate P0; 62 numeric features/86 rows exported.
-- **Dependencies / design:** Phase 2 valid MQ3 measurements; one file = one
-  observation, five internal cycles aggregated, no fitted transform globally.
-- **Tasks:** baseline-relative response, slope, SD, sensors/temperature
-  handling; stable ordered schema; dimensionality/stability ablation; decide
-  if using purge trailing points is physically reliable.
-- **Files:** `scripts/extract_b32_features.py`,
-  `data/processed/b32_b35_features_candidate.csv` and `.schema.json`.
-- **Tests / negative:** run explicit `--output` in new location; replay same
-  file twice identical, invert phase/missing ADC/non-monotonic timestamp fail,
-  collision/legacy inputs denied; no train data fit before splitting.
-- **Outputs / evidence:** hash-addressed schema, deterministic sample-level
-  features and independent Python test; model input whitelist `f_*`.
-- **Acceptance / go-no-go:** no data loss or NaN/inf, exact order, one row/file,
-  strict invalid-file rejection, cross-machine parity verified; CANDIDATE
-  remains NO-GO for deployment until ablation and training-serving parity.
-- **Risks / mitigation / done:** 62 features for 86 observations invites
-  overfit; use compact subsets, regularization and fold-contained selection.
+- **Tujuan, status, prioritas:** menghasilkan vektor masukan yang sama antara training dan inferensi; **SEBAGIAN (KANDIDAT), P0**. Artefak awal: 86 observasi, 62 fitur numerik.
+- **Dependensi dan desain:** hanya data MQ3 yang lolos validator; **satu file = satu observasi**, lima siklus di dalamnya diagregasi. Operasi preprocessing yang memerlukan fitting hanya boleh memakai data training.
+- **Pekerjaan:** evaluasi rerata sensor, respons relatif baseline, slope, SD, suhu/kelembapan, agregasi antar-siklus, kestabilan fitur, serta jumlah fitur optimal. Uji apakah memakai lima titik purging terakhir valid secara fisik.
+- **Modul relevan:** scripts/extract_b32_features.py, data/processed/b32_b35_features_candidate.csv dan b32_b35_features_candidate.schema.json.
+- **Pengujian dan kasus negatif:** ekstraksi berulang menghasilkan nilai identik; file dengan ADC kosong, timestamp tidak berurutan, fase tertukar, data MQ9 atau output yang sudah ada harus ditolak. Gunakan path output baru untuk percobaan berbeda.
+- **Keluaran dan bukti:** tabel fitur dengan provenance, skema fitur berurutan, log pengujian deterministik dan daftar fitur hanya dengan awalan f_.
+- **Kriteria selesai / go-no-go:** nol fitur NaN/inf, urutan fitur konsisten, satu baris per file, tidak mengubah raw, fitur inference sesuai fitur training. Status tetap KANDIDAT sampai evaluasi ilmiah lulus.
+- **Risiko:** 62 fitur untuk 86 observasi mudah overfitting. Bandingkan himpunan fitur lebih ringkas dengan regularisasi di dalam fold.
 
-## Phase 4 — Baseline and challenger model research
+## Tahap 4 — Penelitian model baseline dan challenger
 
-- **Objective / status / priority:** compare classical models fairly;
-  PLANNED P1. Historical MQ9 RF not an active baseline.
-- **Dependencies / design:** 3, evaluation folds frozen before tuning;
-  labels for roast-only, known-origin, joint only if supported.
-- **Tasks:** dummy/majority, LogisticRegression, shrinkage LDA, linear/RBF
-  SVM, RF/ExtraTrees, PLS-DA, kNN; optional boosting; defer temporal CNN/
-  ROCKET unless new sequences/data justify them.
-- **Files:** new versioned experiments under scripts/ or research/, model
-  registry outside legacy `models/random_forest_final.joblib`.
-- **Tests / negative:** grouped CV, training-fold-only scaler/selector, seeded
-  reproducible runs, shuffled-label sanity check; reject folds lacking a class
-  for claims about that class.
-- **Outputs / evidence:** per-fold macro F1/balanced accuracy, latency, byte
-  size, confusion matrices, manifest, exact config and reproducibility logs.
-- **Acceptance / go-no-go:** baseline with all relevant folds and no leakage;
-  no test-set tuning. No model promotion based on 86 correlated files alone.
-- **Risks / mitigation / done:** tiny class/sample sizes; regularize, limit
-  hyperparameters, report uncertainty, acquire new independent samples.
+- **Tujuan, status, prioritas:** membandingkan model sederhana dan kompleks dengan metode adil; **DIRENCANAKAN, P1**. Random Forest MQ9 lama bukan baseline baru.
+- **Dependensi dan desain:** Tahap 3 selesai; pembagian data evaluasi dan target roast-only/known-origin ditetapkan sebelum tuning.
+- **Pekerjaan:** uji DummyClassifier, Logistic Regression, shrinkage LDA, SVM linear/RBF, RF/ExtraTrees, PLS-DA, k-NN dan boosting opsional. Model temporal mendalam hanya bila tambahan dataset dan panjang sinyal membenarkannya.
+- **Modul relevan:** skrip eksperimen baru yang terversi; simpan model kandidat terpisah dari models/random_forest_final.joblib historis.
+- **Pengujian dan kasus negatif:** grouped CV, scaler dan feature selector hanya pada training fold, seed tetap, uji pengacakan label, serta pemeriksaan fold yang tidak memiliki kelas tertentu.
+- **Keluaran dan bukti:** macro-F1, balanced accuracy, confusion matrix, metrik per batch, latensi, ukuran artefak dan konfigurasi eksperimen yang dapat diulang.
+- **Kriteria selesai / go-no-go:** semua hasil melampirkan pembagian kelompok dan tanpa data leakage; model tidak dipilih berdasarkan data uji final. Tidak mempromosikan model hanya dari 86 file berkorelasi.
+- **Risiko:** variasi kelas dan sampel sangat terbatas; gunakan regularisasi, hyperparameter sederhana, serta laporkan ketidakpastian.
 
-## Phase 5 — Cross-batch generalization, drift and unknown rejection
+## Tahap 5 — Evaluasi lintas batch, drift, dan penolakan unknown
 
-- **Objective / status / priority:** prove robust unseen acquisition accuracy;
-  PLANNED P0 release prerequisite.
-- **Dependencies / design:** 2–4 and frozen thresholds; batch-group LOBO as
-  stress test, then prospective new specimen/day/instrument holdout.
-- **Tasks:** 4 batch-held-out folds, class-coverage diagnostics, group-aware
-  nested tune only when defensible, per-origin/roast results, prediction
-  calibration, unknown/unseen origin policy, drift/humidity sensitivity,
-  false-confident errors and early-cycle ablation.
-- **Files:** immutable evaluation manifest, results/ grouped reports,
-  sklearn Pipeline artifact for each training split.
-- **Tests / negative:** inspect group overlap (must be zero); unseen
-  roast-origin combination, unknown origin, intentionally corrupted sensor,
-  drift/temperature perturbations, ill-defined labels and repeated tests.
-- **Outputs / evidence:** held-out fold reports plus prospective signed-off
-  dataset independent of development data; risk/coverage curve.
-- **Acceptance / go-no-go:** no fold leakage, bounded false-confident outputs,
-  score intervals and per-class coverage documented; minimum score/abstain
-  thresholds **pre-agreed before seeing prospective set**.
-- **Risks / mitigation / done:** missing classes in small folds make multiclass
-  metrics unstable. Report N/A rather than average-away failures; final DONE
-  requires new specimen validation.
+- **Tujuan, status, prioritas:** membuktikan generalisasi pada pengambilan data baru; **DIRENCANAKAN, P0 sebagai syarat rilis AI**.
+- **Dependensi dan desain:** Tahap 2–4, target serta ambang dipastikan sebelum evaluasi; validasi Leave-One-Batch-Out (LOBO) awal dan pengujian spesimen/hari baru secara prospektif.
+- **Pekerjaan:** evaluasi empat fold lintas batch B32–B35, ketersediaan kelas pada tiap fold, pemisahan berdasarkan ID spesimen/sesi baru, kalibrasi confidence, unknown origin, efek drift/suhu/kelembapan, serta kelayakan keputusan sebelum lima siklus berakhir.
+- **Modul relevan:** manifest evaluasi tetap, laporan results/, artefak sklearn Pipeline per fold, dan dokumentasi 03.
+- **Pengujian dan kasus negatif:** tidak boleh ada group overlap; uji kelas yang tak tersedia, origin asing, ADC rusak, pergeseran baseline, outlier, dan threshold confidence yang terlalu optimistis.
+- **Keluaran dan bukti:** confusion matrix per batch, metrik per kelas, kurva risiko/cakupan abstain, interval ketidakpastian, serta dataset prospektif terpisah.
+- **Kriteria selesai / go-no-go:** kebocoran antar-fold nihil, kesalahan confident terkendali, batas mutu ditetapkan sebelum pengujian prospektif. Jika kelas tidak ada pada fold, nyatakan keterbatasannya, bukan menyamarkan dengan rerata.
+- **Risiko:** empat batch dan ketimpangan kombinasi kelas dapat menghasilkan metrik tidak stabil. Penutupan tahap membutuhkan data tambahan yang independen.
 
-## Phase 6 — Model selection and inference artifact contract
+## Tahap 6 — Pemilihan model dan kontrak artefak inferensi
 
-- **Objective / status / priority:** choose a deployable frozen pipeline;
-  BLOCKED by 5, P1.
-- **Dependencies / design:** promotion after performance, calibration and
-  prospective validation; single model registry and immutable model card.
-- **Tasks:** select roast model, origin policy, unknown/abstain calibration,
-  stable class ordering, `f_*` feature checksum/order, sensor version mapping,
-  model size and speed/DRAM limit, latency-budget agreement.
-- **Files:** models/ registry proposal, frozen sklearn Pipeline, feature
-  schema JSON, docs/03, replay/inference tests.
-- **Tests / negative:** mismatch schema/feature dimension or order, unknown
-  origin, absent model, corrupt artifact, library incompatibility, serial
-  timeout; must return explicit error/N/A, never a guessed class.
-- **Outputs / evidence:** model card with training/validation provenance,
-  artifact SHA, exact environment and CPU benchmark.
-- **Acceptance / go-no-go:** model scores meet pre-registered quality gates
-  on held-out data; fit/serve parity; no confidence without calibration;
-  otherwise NO-GO and continue collecting data.
-- **Risks / mitigation / done:** accidental leakage from old RF model headers;
-  do not reuse legacy model_rf.h or auto-activate AVR TinyML.
+- **Tujuan, status, prioritas:** memilih pipeline yang telah dibekukan dan kompatibel dengan perangkat; **TERHAMBAT oleh Tahap 5, P1**.
+- **Dependensi dan desain:** model hanya dipromosikan setelah generalisasi, kalibrasi, dan validasi prospektif; seluruh model memiliki identitas/hash dan model card.
+- **Pekerjaan:** pilih model roast dan kebijakan origin, threshold unknown, urutan label, nama/urutan fitur, aturan nilai hilang, versi sensor/firmware, batas RAM dan latensi.
+- **Modul relevan:** registry models/ yang direncanakan, sklearn Pipeline, skema fitur JSON, dokumentasi 03 dan tes inferensi.
+- **Pengujian negatif:** skema fitur berbeda, jumlah/urutan fitur salah, model tidak ditemukan, artefak rusak, origin asing, library tidak kompatibel dan timeout → hasil N/A atau error.
+- **Keluaran dan bukti:** model card, hash artefak, versi dependency, provenance data latih/uji, uji kompatibilitas, dan benchmark perangkat.
+- **Kriteria selesai / go-no-go:** seluruh ambang penerimaan yang telah ditetapkan terpenuhi; fitur train–serve identik; confidence memiliki dasar kalibrasi; jika belum, model tidak dipromosikan.
+- **Risiko:** header model_rf.h historis bisa tidak sesuai MQ3/62 fitur. Jangan otomatis mengaktifkan TinyML ATmega.
 
-## Phase 7 — Raspberry Pi 5 / ATmega integration preparation
+## Tahap 7 — Persiapan integrasi Raspberry Pi 5 dan ATmega
 
-- **Objective / status / priority:** explicit interoperable protocol; PARTIAL
-  design only P1; proposal in `04_NEXTION_ATMEGA_RASPI_ARCHITECTURE.md`.
-- **Dependencies / design:** phases 1 and 6; ATmega remains sole owner of
-  valve, pump, timing and safety; Pi model host is optional.
-- **Tasks:** versioned NDJSON `session_id`/`message_seq`/ACK/error, host process
-  isolation, USB reconnect/deduplication, label-free AI_TEST, result to ATmega
-  then Nextion; session and error log; prohibit two COM owners.
-- **Files:** new host adapter (future), src/main.cpp (only approved change),
-  src/nextion_* and docs/04.
-- **Tests / negative:** packet loss/dup/out-of-order, Pi unresponsive, MCU or
-  display reboot, timeout, malformed sample, hostile filename; no actuator
-  change from host, no fabricated origin/confidence.
-- **Outputs / evidence:** protocol fixture suite, interface diagram, Pi
-  deployment instructions, test matrix and rollback recipe.
-- **Acceptance / go-no-go:** deterministic recovery, one result per session,
-  clear N/A mode, no COM conflict, measured resource/timeout limits.
-- **Risks / mitigation / done:** live protocol upgrades require dual-version
-  compatibility; mock first, bench only with authorization.
+- **Tujuan, status, prioritas:** menyediakan kontrak komunikasi dua arah yang dapat diandalkan; **SEBAGIAN (DESAIN), P1**.
+- **Dependensi dan desain:** Tahap 1 dan 6. ATmega tetap mengendalikan aktuator/timing; host hanya bertanggung jawab atas validasi, penyimpanan, dan AI.
+- **Pekerjaan:** rancang NDJSON terversi dengan session_id/message_seq, ACK/NACK, timeout, penanganan pesan duplikat, reconnect USB, result mapping, unknown/N/A, dan pemisahan label AMBIL DATA dari AI_TEST.
+- **Modul relevan:** adapter host yang akan dibuat, src/main.cpp hanya setelah persetujuan, nextion_transport.*, dokumen 04.
+- **Pengujian negatif:** USB terputus, paket rusak/terlambat/duplikat, restart MCU/Nextion/Pi, file berbahaya, hasil model tanpa sumber, dan dua proses berebut COM5.
+- **Keluaran dan bukti:** diagram antarmuka, spesifikasi payload, fixture protokol, rencana deployment Pi, skenario error dan rollback.
+- **Kriteria selesai / go-no-go:** setiap sesi menghasilkan paling banyak satu hasil final yang konsisten; semua kegagalan berujung status aman dan informatif; tidak ada perubahan kontrol aktuator oleh host.
+- **Risiko:** pembaruan protokol dapat mengganggu listener produksi. Siapkan kompatibilitas dua versi, uji mock dahulu, dan pengujian fisik hanya dengan izin.
 
-## Phase 8 — Full E2E offline integration/replay
+## Tahap 8 — Simulasi E2E lengkap tanpa hardware
 
-- **Objective / status / priority:** simulate button-to-prediction path
-  without touching hardware; PLANNED P1.
-- **Dependencies / design:** phases 6–7; mock Nextion events, MCU trace,
-  validator, feature generator, runtime, message ACK/error.
-- **Tasks:** replay B32+ labeled mode to autosave mock, AI_TEST mode to
-  model+decision mock, N/A and unknown screens; reject label leakage.
-- **Files:** simulation fixtures and CLI tests (new), schema/model cards,
-  docs/07 when implemented; keep production `Serial2` protocol unchanged.
-- **Tests / negative:** corrupt/duplicate event, stop/pause, incomplete run,
-  missing model, low-confidence class, stale session and simulated disconnect.
-- **Outputs / evidence:** deterministic replay outputs, JSON trace, pass/fail
-  E2E report, no input/raw mutation.
-- **Acceptance / go-no-go:** all positive/negative fixtures pass on a clean
-  environment with reproducible hashes; final hardware test still pending.
-- **Risks / mitigation / done:** mock cannot prove ADC/wiring/timing; only
-  label software-level E2E as DONE.
+- **Tujuan, status, prioritas:** membuktikan alur tombol hingga hasil secara software; **DIRENCANAKAN, P1**.
+- **Dependensi dan desain:** Tahap 6–7; mock event Nextion, trace ATmega, validator, ekstraktor fitur, model, dan hasil/galat.
+- **Pekerjaan:** replay data B32+ berlabel melalui simulasi autosave; jalankan AI_TEST melalui validator → model → keputusan → mock pResult. Pastikan ground truth tidak bocor ke prediksi.
+- **Modul relevan:** fixture baru, pengujian CLI, skema fitur/model, rancangan komunikasi versi 1.
+- **Pengujian negatif:** event duplikat, stop/pause, akuisisi tidak lengkap, model hilang, prediksi rendah confidence, session_id lama, koneksi terputus.
+- **Keluaran dan bukti:** laporan tes E2E offline, trace JSON deterministik, hasil prediksi yang dapat ditelusuri dan tanpa modifikasi input.
+- **Kriteria selesai / go-no-go:** seluruh kasus positif dan negatif lolos pada lingkungan bersih, dengan log dan hash yang dapat diperiksa. Tetap **belum** berarti E2E perangkat fisik.
+- **Risiko:** mock tidak dapat membuktikan wiring, saturasi ADC, kualitas aroma atau timing nyata.
 
-## Phase 9 — Physical hardware integration and validation
+## Tahap 9 — Integrasi dan validasi perangkat fisik
 
-- **Objective / status / priority:** prove real 3-device communication;
-  BLOCKED approval P1.
-- **Dependencies / design:** Phase 8 PASS; bench-safe maintenance window,
-  exclusive COM owner, known firmware/HMI backup, observer and rollback.
-- **Tasks:** verify actual ADS addresses/channel mapping, SHT30, power and
-  gas warm-up, pump/valve trace, Serial2 pin 8/9 physical IC, compiled TFT,
-  Nextion 12-page navigation, USB/Pi reconnect, end-to-end result latency.
-- **Files:** deployment log, firmware build hashes, actual Nextion-compiled
-  TFT, instrument logs and measured timings.
-- **Tests / negative:** unplug I2C/USB, partial run, MCU/LCD/Pi reboot,
-  pause/resume, valve fault, unknown coffee, aborted calibration.
-- **Outputs / evidence:** measured sensor/actuator timing and recovery,
-  release notes/photos/traces, comparison to recorded offline fixtures.
-- **Acceptance / go-no-go:** bench acceptance sign-off, no unsafe actuator
-  motion; failure causes accurate N/A and safe state; no unapproved flashes.
-- **Risks / mitigation / done:** hardware operation may contaminate samples;
-  follow SOP, segregate test data, restore last known-good revision.
+- **Tujuan, status, prioritas:** membuktikan komunikasi serta fungsi nyata ATmega–Nextion–Pi; **MENUNGGU PERSETUJUAN, P1**.
+- **Dependensi dan desain:** Tahap 8 lulus; jadwal bench test aman, COM5 eksklusif, backup firmware/HMI dan prosedur pemulihan disiapkan.
+- **Pekerjaan:** ukur kanal/alamat ADS, SHT30, tegangan, pemanasan, alur pompa/valve, kabel Serial2 pada pin IC 8/9, TFT hasil kompilasi terbaru, navigasi 12 halaman, hasil Pi → Nextion serta latensi nyata.
+- **Modul relevan:** build firmware dengan hash, proyek dan TFT Nextion, log host, foto/video atau trace pengukuran, SOP bench.
+- **Pengujian negatif:** sensor atau USB dicabut, akuisisi parsial, restart MCU/LCD/Pi, pause/resume, kegagalan aktuator, kalibrasi tidak selesai, dan kopi tidak dikenal.
+- **Keluaran dan bukti:** rekaman timing aktuator, keandalan serial, hasil pengukuran, daftar perbaikan, dan prosedur rollback.
+- **Kriteria selesai / go-no-go:** tidak ada gerakan aktuator tidak aman, status N/A benar pada kegagalan, semua jalur komunikasi diuji pada perangkat nyata dan diverifikasi independen.
+- **Risiko:** uji fisik dapat mengubah kalibrasi atau mencemari ruang aroma. Pisahkan sampel uji, ikuti SOP dan jangan flashing tanpa persetujuan.
 
-## Phase 10 — Prospective validation and production promotion
+## Tahap 10 — Validasi prospektif dan promosi model final
 
-- **Objective / status / priority:** validate unseen real coffee and promote
-  model without misleading confidence; BLOCKED, P0 release gate.
-- **Dependencies / design:** phases 5, 6, 9; frozen candidate with no leakage
-  and preregistered metrics/acceptance thresholds.
-- **Tasks:** acquire blinded independent specimens across roast/origin/day,
-  fixed warm-up/purge/collect SOP, measure repeatability, sensor drift,
-  nuisance factors, false unknown/false accept and operational latency;
-  freeze model registry and documented rollback.
-- **Files:** locked test manifest, evidence in results/, approved model card,
-  tested host deployment and rollback instructions.
-- **Tests / negative:** unseen origin/out-of-distribution coffee, missing
-  channel, unusual humidity, changed sensor calibration, cycle count mismatch,
-  corrupted model and loss of USB during inference.
-- **Outputs / evidence:** prospective confusion matrix/per-class F1, error
-  analysis, abstention coverage, uptime/failure counts, acceptance signatures.
-- **Acceptance / go-no-go:** thresholds set *before* study are met; unknown
-  class and error handling reliable; representative hardware trials completed.
-  Otherwise NO-GO, keep legacy read-only and iterate data/model design.
-- **Risks / mitigation / done:** four historical batches do not establish
-  field validity; only real blinded, instrument-verified samples can close it.
+- **Tujuan, status, prioritas:** membuktikan prediksi pada kopi baru dan merilis model secara bertanggung jawab; **TERHAMBAT, P0 sebagai gerbang rilis**.
+- **Dependensi dan desain:** Tahap 5, 6, 9 telah diselesaikan; protokol dan ambang penerimaan dibekukan sebelum menguji data prospektif.
+- **Pekerjaan:** akuisisi buta pada spesimen fisik baru lintas roast/origin/hari, SOP pemanasan/purging/collecting yang seragam, uji repeatability, drift, suhu/kelembapan, unknown, error rate, durasi inferensi, serta keandalan selama penggunaan.
+- **Modul relevan:** manifest prospektif terkunci, results/, model card final, deployment Pi yang diuji dan prosedur rollback.
+- **Pengujian negatif:** origin baru, sensor terlepas, kelembapan ekstrem, kalibrasi bergeser, jumlah siklus tidak cocok, model rusak, USB hilang saat inferensi.
+- **Keluaran dan bukti:** confusion matrix prospektif, macro-F1/per-class F1, risk–coverage, log kegagalan, bukti perangkat fisik dan persetujuan hasil.
+- **Kriteria selesai / go-no-go:** memenuhi batas mutu yang disepakati sebelum penelitian, mampu mengeluarkan unknown/error secara aman, lolos pengujian perangkat nyata. Jika gagal, kembali ke pengumpulan data atau revisi desain.
+- **Risiko:** empat batch historis tidak cukup sebagai bukti akurasi di lapangan. Hanya data uji baru dan pengukuran nyata yang dapat menutup tahap ini.
 
-## Immediate execution order and approval boundaries
+## C. Urutan pekerjaan praktis dan batas persetujuan
 
-1. **P0 offline now:** finish structural QA regression, document phase boundary
-   issue, preserve original MQ9 processed artifacts, catalog B32–B35, validate
-   one-row-per-acquisition feature candidate, record Git diff/test evidence.
-2. **P0 next experiment:** add **physical specimen UID**, wall-clock/session
-   identity, firmware/hardware versions, warm-up and coffee mass/preparation
-   metadata on newly collected samples; decide origin taxonomy.
-3. **P1 offline next:** train cheap, reproducible grouped baselines with
-   correct feature contracts, report *per-batch* errors and unknown handling.
-4. **P1 architecture:** complete host/Pi communication proposal, mock replay,
-   loss/reconnect tests before bench.
-5. **Hardware approval required:** live COM access, instrument measurements,
-   firmware flashing, Nextion compilation/upload, valve/pump tests, calibration
-   or EEPROM write, Raspberry Pi live deployment.
+1. **P0, bisa dilakukan offline:** finalisasi regresi akuisisi, dokumentasikan risiko batas fase, pertahankan dataset/model historis, lengkapi inventaris B32–B35, uji konsistensi fitur satu-observasi-per-file, serta simpan bukti Git dan hasil tes.
+2. **P0, eksperimen data berikutnya:** tambahkan **ID spesimen fisik**, ID sesi unik, waktu kalender, versi hardware/firmware, lama pemanasan, massa kopi, preparasi dan definisi kelas origin pada metadata pengukuran baru.
+3. **P1, penelitian AI offline:** bangun baseline sederhana yang reproducible, gunakan grouped cross-validation, analisis metrik per batch/roast/origin, dan kaji mekanisme unknown.
+4. **P1, persiapan integrasi:** lengkapi rancangan serial dan adapter Pi, lakukan simulasi alur Nextion → ATmega → Pi → hasil termasuk putus koneksi.
+5. **Wajib persetujuan terpisah:** akses COM5 langsung, flashing firmware, kompilasi/upload TFT untuk alat, aktivasi pompa/valve, kalibrasi/EEPROM, serta deployment Pi live.
 
-**Readiness now:** offline firmware + HMI contract + CSV structural QA are
-supported; AI validation, Pi result loop and real device E2E remain NOT DONE.
-Review roadmap after every new dataset batch, model promotion candidate or
-physical bench evidence. Do not infer success from plots or training accuracy.
+## D. Definisi kesiapan proyek saat ini
+
+**Sudah ada bukti:** kompilasi firmware offline, kontrak HMI offline, validator akuisisi yang diperketat, serta kandidat skema fitur.
+
+**Belum dapat dinyatakan selesai:** validasi model B32–B35 lintas batch dan prospektif, inferensi Raspberry Pi dua arah, serta pengujian seluruh perangkat fisik. Audit roadmap ini setiap ada batch baru, kandidat model, atau bukti bench test. **Grafik yang terlihat bagus dan akurasi training tinggi tidak otomatis membuktikan sistem siap digunakan.**

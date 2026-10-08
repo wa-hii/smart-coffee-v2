@@ -1,100 +1,64 @@
-# AI model research and evaluation decision — 2026-10-08
+# Penelitian dan Evaluasi Model AI — 8 Oktober 2026
 
-**Status: research and evaluation plan; no new model trained or approved.**
+**Status: rancangan penelitian dan evaluasi. Belum ada model B32–B35 yang dilatih atau disetujui untuk digunakan pada perangkat.**
 
-## Current evidence and formulation
+## 1. Dasar bukti dan rumusan tugas
 
-- B32–B35: 86 acquisition CSVs, 23 observed roast-origin combinations,
-  4 batches; only ~5 collecting points/cycle. Five cycles in one CSV are
-  repeated measurements, not independent labeled specimens.
-- Historic RF B01–B05, legacy MQ9, 45 selected features: test accuracy 57.50%
-  baseline, 55.00% tuned. Do not report these scores as current performance.
-- Candidate `scripts/extract_b32_features.py` exports 1 row per CSV and
-  a versioned feature schema. It uses per-cycle last-5 purging baseline,
-  collecting relative response/SD/slope, then mean and SD over 5 cycles;
-  temperature/humidity means. **62 numerical features are provisional**.
-- Primary target to evaluate: roast-only (light/medium/dark). Second task:
-  known-origin-only, conditioned on adequate independent physical specimens.
-  Joint classification and hierarchical inference are research candidates,
-  not default conclusions. Unknown origin must be an explicit state.
+- Dataset B32–B35 memiliki **86 file akuisisi**, **23 kombinasi roast–origin**, dan **4 batch**. Setiap siklus hanya memiliki sekitar 5 titik collecting; lima siklus dalam satu file merupakan pengukuran berulang, bukan lima spesimen independen.
+- Model Random Forest historis B01–B05 menggunakan MQ9 dan 45 fitur terpilih. Akurasi uji baseline 57,50% dan tuned 55,00% **tidak boleh diklaim sebagai kinerja B32–B35**.
+- Ekstraktor kandidat **scripts/extract_b32_features.py** menghasilkan satu baris per CSV beserta skema fitur. Untuk setiap siklus, dihitung baseline dari lima titik purging terakhir, respons relatif collecting, standar deviasi, dan kemiringan respons; lalu dihitung rerata dan standar deviasi antar-lima siklus. Rerata suhu serta kelembapan juga ditambahkan. **Total 62 fitur numerik bersifat sementara.**
+- Tugas awal yang diprioritaskan adalah **klasifikasi tingkat roasting** (light/medium/dark). Tugas kedua adalah **klasifikasi origin yang telah dikenal**, hanya jika jumlah spesimen independen mencukupi.
+- Klasifikasi hierarkis, multi-output, dan gabungan origin × roasting merupakan opsi penelitian, bukan keputusan final. Sampel dengan origin tidak dikenal atau sinyal tidak meyakinkan harus dapat menghasilkan status **unknown/N/A**.
 
-## Model-selection matrix (hypotheses, not measured performance)
+## 2. Matriks pemilihan kandidat algoritma
 
-| Candidate | Strength | Main risk | Decision |
+| Algoritma | Kelebihan potensial | Keterbatasan/risiko | Prioritas |
 |---|---|---|---|
-| L2 multinomial Logistic Regression / shrinkage LDA | Low variance, explainable, good small-data sanity check | Linear separability | **Primary baseline pair** |
-| StandardScaler + RBF SVM | Nonlinear small-data challenger | Needs tuning/calibration | **Primary challenger** |
-| Regularized Random Forest / ExtraTrees | Nonlinear, feature attribution | Overfitting with 86 grouped observations | **Secondary challenger** |
-| PLS-DA | Projection suited to collinear e-nose features | Component count tuning inside CV | Research comparator |
-| Linear SVM, QDA, kNN | Simple comparators | QDA covariance unstable; kNN scaling/batch drift | Limited benchmark |
-| Gradient boosting / XGBoost / LightGBM / CatBoost | Captures nonlinear interactions | Higher tuning/data need | Optional if repeated folds justify |
-| ROCKET/MiniROCKET, 1D CNN, CNN-LSTM, LSTM/GRU | Raw sequence temporal patterns | ~5 collecting points and 86 acquisition units inadequate | **Deferred pending new data** |
+| Logistic Regression L2 dan LDA dengan shrinkage | Ringan, relatif mudah dijelaskan, cocok sebagai pembanding data kecil | Pemisahan kelas mungkin tidak linear | **Baseline utama** |
+| SVM linear dan SVM RBF + StandardScaler | Dapat mempelajari pola nonlinear dari data terbatas | Perlu tuning dan kalibrasi probabilitas | **Challenger utama** |
+| Random Forest dan Extra Trees dengan regularisasi | Menangkap interaksi nonlinear dan menyediakan analisis pentingnya fitur | Berisiko overfitting pada 86 observasi berkelompok | **Challenger tambahan** |
+| PLS-DA | Membantu merangkum fitur sensor yang berkorelasi | Jumlah komponen harus dipilih di dalam cross-validation | Pembanding penelitian |
+| QDA dan k-NN | Baseline sederhana | Kovarians QDA bisa tidak stabil; k-NN sensitif skala dan drift | Uji terbatas |
+| Gradient Boosting, XGBoost, LightGBM, CatBoost | Mempelajari hubungan nonlinear kompleks | Tuning lebih banyak dan membutuhkan data yang lebih kuat | Opsional setelah baseline |
+| ROCKET/MiniROCKET, CNN 1D, CNN-LSTM, LSTM, GRU | Memanfaatkan dinamika deret waktu | Lima titik collecting dan 86 unit akuisisi belum cukup untuk membenarkan kompleksitasnya | **Ditunda** |
 
-No model may be declared 'best' before group-aware cross-batch scores and
-prospective held-out data demonstrate superiority. Simpler alternatives are
-preferred if performance is statistically indistinguishable.
+**Belum ada model yang dapat disebut paling akurat.** Keputusan final harus berasal dari evaluasi lintas batch, ketahanan terhadap drift, dan pengujian prospektif. Jika kinerja setara, utamakan model yang lebih sederhana dan mudah dipelihara.
 
-## Mandatory evaluation protocol
+## 3. Protokol evaluasi yang wajib digunakan
 
-1. Build a frozen data manifest: `source_sha256`, acquisition file, sample
-   code, roast, origin taxonomy, batch, instrument/firmware version, date,
-   **physical specimen ID and session ID** (new data). Count genuine independent
-   samples; with present metadata, batch is only an imperfect proxy.
-2. Gate failed CSVs prior to extraction. Keep metadata out of `X`: never
-   include sample_id, roast_level, origin, batch_id, filename, source hash,
-   sample_idx or elapsed uptime as classifier inputs.
-3. Split by `batch_id` with LeaveOneGroupOut on B32–B35 as an initial
-   stress test; report four separate fold metrics and **class coverage**.
-   Do not interpret it as a final prospective test because development already
-   inspected these batches and their labels/classes vary.
-4. Refit StandardScaler, imputer, feature selection, PCA/PLS, calibration and
-   model using **training fold only**, encapsulated in sklearn Pipeline.
-   Tune C, gamma, trees, dimension and abstention thresholds inside an inner
-   grouped CV **only when enough groups exist**. If not, predefine small
-   hyperparameter grids and report uncertainty honestly.
-5. Score at **file/specimen level**, not by pooling all correlated cycles as
-   independent samples. For roast-only: accuracy, balanced accuracy,
-   macro-F1, per-class recall/F1, confusion matrix; also calibration error,
-   Brier/log loss if calibrated, abstention coverage/risk, inference latency,
-   model bytes, reproducibility.
-6. Run ablation: (a) collecting mean only, (b) baseline-relative response,
-   (c) slope/SD, (d) include/exclude temperature/humidity, (e) combine cycles,
-   (f) early-cycle decision with strict no look-ahead. Quantify sensor drift,
-   repeated-file effects and batch shift.
-7. Freeze test policy before training. Collect new prospective batch(es) and
-   known physical specimen/session IDs; never use the final holdout to select
-   features, thresholds or hyperparameters.
-8. For known-origin, report performance only across origins with adequate
-   training/holdout representation. Origin held out entirely cannot be scored
-   as a correct known-origin multiclass prediction. Use an explicit unknown
-   detection/rejection test separately.
+1. **Bekukan inventaris data.** Simpan source_sha256, nama file akuisisi, kode sampel, roast, definisi origin, batch, versi firmware dan hardware, tanggal, **ID spesimen fisik**, serta **ID sesi pengukuran** pada pengambilan data baru. Hitung jumlah spesimen independen sebenarnya, bukan sekadar jumlah siklus atau file.
+2. **Validasi sebelum ekstraksi.** Tolak CSV yang tidak lolos aturan kualitas. Jangan pernah memasukkan sample_id, roast_level, origin, batch_id, nama file, hash, sample_idx, atau uptime sebagai fitur masukan model karena merupakan label atau metadata yang dapat membocorkan identitas sampel.
+3. **Gunakan pemisahan berdasarkan kelompok.** Pada data yang ada, uji awal dapat memakai LeaveOneGroupOut dengan group=batch_id untuk B32–B35. Laporkan masing-masing empat fold dan periksa ketersediaan tiap kelas. Karena batch telah sering diperiksa selama pengembangan, ini belum menggantikan uji prospektif final.
+4. **Lakukan fitting hanya pada data latih.** StandardScaler, imputer, pemilihan fitur, PCA/PLS, kalibrasi, serta model harus dilatih dalam fold training melalui sklearn Pipeline. Tuning parameter C, gamma, pohon, jumlah komponen dan ambang abstain dilakukan dengan validasi kelompok bersarang hanya bila jumlah kelompok memadai; jika tidak, gunakan ruang parameter kecil yang telah ditentukan sebelum evaluasi.
+5. **Hitung metrik pada tingkat file/spesimen.** Minimal akurasi, balanced accuracy, macro-F1, precision/recall/F1 tiap kelas, confusion matrix, metrik kalibrasi (jika valid), cakupan abstain, risiko salah prediksi, latensi inferensi, ukuran model, dan penggunaan memori.
+6. **Lakukan ablation study.** Bandingkan rerata collecting saja, respons relatif terhadap baseline, slope/SD, penggunaan suhu–kelembapan, agregasi antar-siklus, serta keputusan dari siklus awal. Ukur pengaruh drift, pengukuran ulang, perbedaan batch, dan perubahan kondisi lingkungan.
+7. **Pisahkan data uji final.** Bekukan aturan evaluasi sebelum training; kumpulkan batch dan spesimen fisik baru secara prospektif. Data uji final tidak boleh digunakan berulang kali untuk memilih fitur, hyperparameter, atau ambang confidence.
+8. **Evaluasi origin dengan benar.** Jangan menilai origin yang tidak pernah muncul di training sebagai klasifikasi known-origin yang seharusnya dapat ditebak. Gunakan pengujian unknown/out-of-distribution secara terpisah dan laporkan cakupan origin yang benar-benar tersedia.
 
-## Model artifact and promotion contract
+## 4. Kontrak artefak model dan syarat promosi
 
-The deployable artifact must package: model + fitted preprocessing pipeline,
-`feature_schema_version`, **ordered feature names**, ADC order, missing-value
-policy, class label mapping, sensor/firmware compatibility, threshold config,
-source dataset hashes, training revision, Python/library versions and tests.
+Artefak model yang kelak digunakan harus berisi model beserta preprocessing yang telah di-fit, versi skema fitur, **urutan nama fitur**, urutan kanal ADC, kebijakan nilai hilang, pemetaan label, kompatibilitas firmware/sensor, konfigurasi ambang unknown, hash dataset asal, commit training, serta versi Python/library.
 
-Go/no-go: no data leakage, reproducible extraction, batch-level evaluation
-reported, no unsupported origin classes, calibrated abstain/failure path,
-interpreter matches training within tolerance, memory/latency benchmark on
-actual Raspberry Pi 5, and a fresh prospective test meeting a **pre-agreed**
-quality target. Numerical acceptance targets must be agreed against the
-business error cost and collected baseline; do not fabricate performance.
+Kriteria **go/no-go**:
 
-## Relevant external literature and official references
+- Tidak ada kebocoran data train–test dan ekstraksi fitur dapat direproduksi.
+- Hasil generalisasi lintas batch ditampilkan per kelompok dan per kelas.
+- Kelas origin di luar cakupan model dapat ditolak secara eksplisit.
+- Confidence hanya ditampilkan jika probabilitas telah dikalibrasi dan diuji.
+- Fitur training sama persis dengan fitur inferensi; output salah skema ditolak.
+- Model memenuhi batas latensi, memori, dan ukuran pada **Raspberry Pi 5 aktual**.
+- Hasil pada dataset prospektif memenuhi target mutu yang disepakati **sebelum** melihat hasil pengujian.
 
-- 2023 coffee E-nose study: PLSR, LDA and ANN were explored; its outcomes
-  do not transfer to our sensor arrangement or batches.
-  https://doi.org/10.1016/j.snb.2023.134229
-- 2024 roast-profile e-nose study with TGS sensors and ANN; its high published
-  cross-validation scores are **not** independent evidence for RoastSense.
-  https://doi.org/10.1016/j.sbsr.2024.100632
-- 2025 food E-nose review: drift, standardization and field reliability remain
-  challenges despite high performance in some controlled studies.
-  https://pmc.ncbi.nlm.nih.gov/articles/PMC12301011/
-- Official scikit-learn GroupKFold/LeaveOneGroupOut:
-  https://scikit-learn.org/stable/modules/cross_validation.html
-- Official scikit-learn leakage avoidance and Pipeline:
-  https://scikit-learn.org/stable/common_pitfalls.html
+Tanpa bukti tersebut, status model tetap **kandidat penelitian**, tidak boleh diaktifkan sebagai model produksi.
+
+## 5. Referensi yang tercatat untuk penelitian lanjutan
+
+Rujukan berikut dipertahankan dari dokumentasi penelitian awal dan perlu ditelaah ulang kesesuaian bibliografinya sebelum digunakan dalam publikasi:
+
+- Studi E-Nose kopi (2023), eksplorasi PLSR, LDA, dan ANN: https://doi.org/10.1016/j.snb.2023.134229
+- Studi profil roasting dengan sensor TGS dan ANN (2024): https://doi.org/10.1016/j.sbsr.2024.100632
+- Tinjauan E-Nose pangan, drift, dan keandalan (2025): https://pmc.ncbi.nlm.nih.gov/articles/PMC12301011/
+- Dokumentasi resmi scikit-learn untuk validasi kelompok: https://scikit-learn.org/stable/modules/cross_validation.html
+- Dokumentasi resmi scikit-learn tentang data leakage dan Pipeline: https://scikit-learn.org/stable/common_pitfalls.html
+
+Hasil penelitian lain tidak otomatis berlaku pada susunan sensor, batch, dan kondisi eksperimen RoastSense.

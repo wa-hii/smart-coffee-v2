@@ -1,22 +1,22 @@
 # Smart Coffee E-Nose v2
 
-Firmware, antarmuka Nextion, akuisisi data, dan pipeline AI untuk sistem
+Firmware, antarmuka Nextion, akuisisi data, dan alur pemrosesan AI untuk sistem
 e-nose berbasis **ATmega2560**.
 
-## Hardware utama
+## Perangkat keras utama
 
 - ATmega2560
 - 10 kanal sensor gas melalui ADS1115
 - SHT30 untuk temperatur/kelembapan
 - pompa + valve
 - Nextion NX4827T043_011
-- Raspberry Pi 5 untuk integrasi/inferensi lanjutan
+- Raspberry Pi 5 untuk integrasi dan inferensi lanjutan
 
 ## Komunikasi serial
 
-### USB/host
+### USB/komputer host
 
-`Serial` menggunakan **115200 baud** untuk log, command, dan akuisisi data ke
+`Serial` menggunakan **115200 baud** untuk pencatatan, perintah, dan akuisisi data ke
 PC/Raspberry Pi.
 
 ### Nextion
@@ -24,16 +24,16 @@ PC/Raspberry Pi.
 Nextion menggunakan **USART2 / `Serial2` pada 9600 baud**, sesuai konfigurasi
 aktif file HMI.
 
-| Jalur | ATmega2560 package | Arduino Mega header equivalent |
+| Jalur | Pin fisik IC ATmega2560 | Pin setara pada header Arduino Mega |
 |---|---|---|
-| Nextion TX -> MCU RX | PH0 / RXD2, physical pin 8 | RX2 / D17 |
-| Nextion RX <- MCU TX | PH1 / TXD2, physical pin 9 | TX2 / D16 |
+| Nextion TX → MCU RX | PH0 / RXD2, pin fisik 8 | RX2 / D17 |
+| Nextion RX ← MCU TX | PH1 / TXD2, pin fisik 9 | TX2 / D16 |
 | Ground | GND | GND |
 
-Catatan: **physical pin 8/9 pada IC ATmega2560 bukan Arduino digital D8/D9**.
+Catatan: **pin fisik 8/9 pada IC ATmega2560 bukan pin digital Arduino D8/D9**.
 PH0/PH1 adalah USART2, sehingga firmware harus memakai `Serial2`.
 
-## Struktur repository
+## Struktur repositori
 
 ```text
 .
@@ -56,16 +56,16 @@ PH0/PH1 adalah USART2, sehingga firmware harus memakai `Serial2`.
 └── archive/             kode/eksperimen lama yang tidak lagi canonical
 ```
 
-Firmware canonical hanya berada di `src/`. File lama dan eksperimen tidak
+Firmware utama hanya berada di `src/`. File lama dan eksperimen tidak
 boleh dijadikan sumber implementasi produksi tanpa verifikasi.
 
-## Build firmware
+## Kompilasi firmware
 
 ```powershell
 pio run -e mega2560
 ```
 
-Upload ke board:
+Unggah ke board (hanya setelah ada persetujuan penggunaan perangkat):
 
 ```powershell
 pio run -e mega2560 -t upload
@@ -79,7 +79,7 @@ pio device monitor -e mega2560
 
 ## Uji komunikasi Nextion
 
-Environment `nextion_test` dipakai untuk mengisolasi komunikasi LCD dari
+Konfigurasi pengujian `nextion_test` dipakai untuk mengisolasi komunikasi LCD dari
 sensor/aktuator.
 
 ```powershell
@@ -88,7 +88,7 @@ pio run -e nextion_test -t upload
 pio device monitor -e nextion_test
 ```
 
-Jika komunikasi benar, firmware test akan mengubah halaman Nextion dan event
+Jika komunikasi benar, firmware pengujian akan mengubah halaman Nextion dan event
 sentuhan akan muncul sebagai `[NEXTION RX] EVT:...` pada Serial Monitor.
 
 Firmware utama juga mencetak event yang diterima sebagai:
@@ -102,28 +102,28 @@ Firmware utama juga mencetak event yang diterima sebagai:
 Data baru dari `scripts/3_collect_data.py` disimpan ke `data/raw/`.
 Kontrak akuisisi aktif mulai B32 adalah:
 
-- 5 run;
+- 5 siklus;
 - 25 detik purging + 5 detik collecting per run;
 - 10 kanal gas menggunakan adc_mq3, bukan adc_mq9;
-- temperature dan humidity SHT30 ikut disimpan di setiap row.
+- suhu dan kelembapan SHT30 ikut disimpan pada setiap baris.
 
 Validasi raw B32 secara khusus:
 
     python scripts/validate_b32_acquisition.py
 
-Validasi seluruh batch B32–B35, regression tests dan inventaris kualitas
+Validasi seluruh batch B32–B35, pengujian regresi dan inventaris kualitas
 terbaru (semuanya aman dijalankan secara offline tanpa COM5):
 
     python scripts/test_acquisition_suite.py
     python scripts/test_feature_pipeline.py
     python scripts/audit_b32_dataset.py
 
-Candidate feature schema dari MQ3 (tidak menjalankan model training):
+Pembuatan skema fitur kandidat dari MQ3 (tidak melatih model AI):
 
     python scripts/extract_b32_features.py --output data/processed/b32_b35_features_candidate.csv
 
-Perintah ekstraksi menolak overwrite output yang sudah ada; gunakan nama file
-output baru untuk eksperimen/revisi selanjutnya. Setiap CSV menjadi satu
+Perintah ekstraksi menolak penimpaan file keluaran yang sudah ada; gunakan nama file
+keluaran baru untuk eksperimen/revisi selanjutnya. Setiap CSV menjadi satu
 observasi agregat lima siklus, bukan lima sampel independen.
 
 **Baca sebelum implementasi AI:** `docs/00_CURRENT_STATE.md`,
@@ -135,26 +135,26 @@ observasi agregat lima siklus, bukan lima sampel independen.
 Raw data lama yang masih menggunakan MQ9 tidak dihapus. File tersebut
 dipisahkan ke data/raw/legacy_mq9/ dan dikecualikan dari validasi B32.
 
-Model historis B01–B05 (MQ9) bukan model deployment untuk data B32–B35 (MQ3).
+Model historis B01–B05 (MQ9) bukan model yang siap diterapkan pada data B32–B35 (MQ3).
 Penelitian fitur awal telah dimulai, tetapi belum ada model B32–B35 yang
-tervalidasi untuk inferensi perangkat atau deployment Raspberry Pi 5.
+tervalidasi untuk inferensi perangkat atau penerapan pada Raspberry Pi 5.
 
 ### Akuisisi langsung dari LCD Nextion
 
-Laptop dapat menjadi passive autosave host pada USB Serial COM5. Setelah
+Laptop dapat menjadi penerima dan penyimpan data secara pasif melalui USB Serial COM5. Setelah
 firmware terbaru terpasang, alurnya:
 
-    pilih Roast / Origin / Batch di pTake
+    pilih Tingkat Roasting / Origin / Batch di pTake
         -> tekan START di Nextion
         -> ATmega menjalankan 5 siklus
-        -> COM5 mengirim raw JSON + metadata pilihan LCD
+        -> COM5 mengirim data JSON mentah + metadata pilihan LCD
         -> scripts/lcd_acquisition_service.py menyimpan CSV ke data/raw/
 
-Listener tidak mengirim command start ke ATmega. START tetap berasal dari LCD.
-Service juga hanya menyimpan mode labeled_data; AI test tidak dimasukkan ke
+Layanan penerima tidak mengirim perintah START ke ATmega. START tetap berasal dari LCD.
+Layanan hanya menyimpan mode labeled_data; pengujian AI tidak dimasukkan ke
 dataset.
 
-Install background listener + autostart Windows:
+Pasang layanan penerima yang berjalan otomatis saat Windows dinyalakan:
 
     powershell -ExecutionPolicy Bypass -File scripts/install_lcd_autosave.ps1
 
@@ -162,23 +162,35 @@ Cek status:
 
     powershell -ExecutionPolicy Bypass -File scripts/status_lcd_autosave.ps1
 
-Stop dan lepaskan autostart:
+Hentikan dan lepaskan pengaktifan otomatis:
 
     powershell -ExecutionPolicy Bypass -File scripts/uninstall_lcd_autosave.ps1
 
-Saat listener aktif, COM5 bersifat eksklusif. Hentikan listener lebih dulu
-sebelum memakai PlatformIO upload, Serial Monitor, atau 3_collect_data.py.
+Saat layanan penerima aktif, COM5 hanya dapat dimiliki satu proses. Hentikan
+layanan tersebut sebelum mengunggah firmware melalui PlatformIO, menggunakan Serial Monitor, atau menjalankan 3_collect_data.py.
 
-Data run aktif ditulis lebih dahulu ke data/raw/.incoming/. Setelah
-ACQ_COMPLETE diterima, file dipindahkan menjadi CSV final. Run terputus
+Data akuisisi aktif ditulis lebih dahulu ke data/raw/.incoming/. Setelah
+ACQ_COMPLETE diterima dan validasi lolos, file diterbitkan sebagai CSV final. Akuisisi terputus
 dipertahankan di data/raw/incomplete/ agar data tidak hilang diam-diam.
 
-## Pipeline data/AI
+## Alur pengolahan data dan AI
 
-- raw acquisition: `data/raw/`
-- feature/ML dataset: `data/processed/`
-- validation reports: `data/analysis/`
-- trained models: `models/`
-- evaluation and plots: `results/`
+- data akuisisi mentah: `data/raw/`
+- dataset fitur dan pembelajaran mesin: `data/processed/`
+- laporan validasi: `data/analysis/`
+- model yang telah dilatih: `models/`
+- hasil evaluasi dan grafik: `results/`
 
-Jangan commit cache Python, virtual environment, atau build PlatformIO.
+Jangan memasukkan cache Python, lingkungan virtual, atau hasil kompilasi PlatformIO ke commit.
+
+## Kebijakan bahasa dokumentasi
+
+Dokumentasi utama proyek ini **ditulis dalam Bahasa Indonesia**. Istilah
+teknis yang merupakan nama protokol, nama variabel, perintah, nama file, atau
+identitas perangkat tetap ditulis sesuai bentuk aslinya agar dapat digunakan
+dan ditelusuri tanpa salah tafsir.
+
+Dokumen dalam `docs/`, panduan antarmuka Nextion, serta README proyek
+menggunakan Bahasa Indonesia. Arsip pustaka pihak ketiga dan laporan hasil
+eksperimen historis dipertahankan sebagai bukti asli; jangan mengubah angka,
+keluaran program, atau lisensi hanya untuk menerjemahkan dokumentasi.

@@ -1,86 +1,87 @@
-# Repository Structure
+# Struktur Repositori Smart Coffee E-Nose v2
 
-Dokumen ini menjelaskan batas tanggung jawab setiap folder agar source,
+Dokumen ini menjelaskan batas tanggung jawab setiap folder agar kode sumber,
 dataset, hasil eksperimen, dan file lama tidak bercampur lagi.
 
-## Canonical source
+## Kode sumber utama
 
-- `src/` — firmware ATmega2560 yang dibuild oleh PlatformIO.
-- `include/` — header proyek dan model hasil export untuk firmware.
-- `lib/` — library embedded lokal.
-- `test/` — test khusus firmware/transport.
-- `platformio.ini` — konfigurasi build/upload.
+- `src/` — firmware ATmega2560 yang dikompilasi melalui PlatformIO.
+- `include/` — berkas header proyek dan model hasil ekspor untuk firmware.
+- `lib/` — pustaka embedded lokal.
+- `test/` — pengujian firmware dan komunikasi.
+- `platformio.ini` — konfigurasi kompilasi dan pengunggahan firmware.
 
-## Nextion
+## Antarmuka Nextion
 
-`nextion/NX4827T043_011/` adalah sumber tunggal untuk UI Nextion:
+`nextion/NX4827T043_011/` adalah sumber utama untuk antarmuka Nextion:
 
-- `project/*.HMI` — source project Nextion Editor.
-- `build/*.tft` — hasil compile untuk panel.
-- `nextion_events/` — event Touch Release.
-- asset BMP/PNG dan font.
-- dokumentasi komunikasi/wiring.
+- `project/*.HMI` — sumber proyek yang dapat disunting di Nextion Editor.
+- `build/*.tft` — hasil kompilasi untuk layar.
+- `nextion_events/` — event sentuhan yang dilepas (Touch Release).
+- aset gambar BMP/PNG dan huruf.
+- dokumentasi komunikasi dan pengkabelan.
 
 Komunikasi produksi menggunakan USART2 (`Serial2`) 9600 baud:
-ATmega2560 PH0/RXD2 physical pin 8 dan PH1/TXD2 physical pin 9.
+ATmega2560 PH0/RXD2 pada pin fisik IC 8 dan PH1/TXD2 pada pin fisik IC 9.
 
-## Data
+## Dataset dan hasil pemrosesan
 
-- `data/raw/` — data mentah hasil akuisisi. Jangan dimodifikasi oleh pipeline
-  preprocessing.
-- `data/raw/*_B32.csv` — baseline akuisisi aktif: MQ3, 5 run, 25 s purging,
-  5 s collecting, temperature + humidity.
-- `data/raw/legacy_mq9/` — raw data historis yang header-nya masih memakai
+- `data/raw/` — data mentah hasil akuisisi. Jangan dimodifikasi oleh alur
+  prapemrosesan.
+- `data/raw/*_B32.csv` — acuan akuisisi aktif: MQ3, 5 siklus, 25 detik purging,
+  5 detik collecting, suhu dan kelembapan.
+- `data/raw/legacy_mq9/` — data mentah historis yang nama kolomnya masih memakai
   adc_mq9. Data dipertahankan apa adanya dan tidak ikut QA B32.
-- `data/processed/` — feature dataset dan dataset siap training.
-- `data/analysis/` — report/log validasi dataset.
+- `data/processed/` — dataset fitur dan dataset siap pelatihan.
+- `data/analysis/` — laporan serta catatan validasi dataset.
 
-QA akuisisi aktif:
+Perintah pemeriksaan kualitas akuisisi:
 
     python scripts/validate_b32_acquisition.py
     python scripts/test_acquisition_suite.py
     python scripts/audit_b32_dataset.py
 
-Validator pertama hanya memeriksa B32, dua perintah berikutnya mencakup B32+
-dan inventory B32–B35. Candidate extractor MQ3 adalah
-`scripts/extract_b32_features.py` (output terpisah di `data/processed/`).
-`scripts/8_extract_features.py` adalah legacy MQ9 dan sengaja menolak
+Validator pertama hanya memeriksa B32, sedangkan dua perintah berikutnya mencakup B32+
+serta inventaris B32–B35. Ekstraktor kandidat MQ3 adalah
+`scripts/extract_b32_features.py` (hasil terpisah di `data/processed/`).
+`scripts/8_extract_features.py` merupakan skrip historis MQ9 dan sengaja menolak
 pencampuran dengan B32+; `models/random_forest_*.joblib` juga masih historis.
 
-Roadmap dan audit canonical: `docs/00_CURRENT_STATE.md`,
+Peta jalan dan audit utama: `docs/00_CURRENT_STATE.md`,
 `docs/01_MASTER_E2E_ROADMAP.md`, `docs/03_AI_MODEL_RESEARCH_AND_EVALUATION.md`,
 `docs/04_NEXTION_ATMEGA_RASPI_ARCHITECTURE.md`,
-`docs/06_INDEPENDENT_AUDIT_QA_QC.md`. Training dan deployment Pi belum DONE.
+`docs/06_INDEPENDENT_AUDIT_QA_QC.md`. Pelatihan model dan pemasangan sistem inferensi pada Raspberry Pi belum selesai.
 
-### Host autosave acquisition
+### Layanan penyimpanan akuisisi otomatis pada komputer
 
-- scripts/lcd_acquisition_service.py — passive listener COM5 untuk START dari Nextion.
-- scripts/install_lcd_autosave.ps1 — pasang listener ke Windows Startup dan jalankan hidden menggunakan pythonw.exe.
-- scripts/status_lcd_autosave.ps1 — cek process/status/log listener.
-- scripts/uninstall_lcd_autosave.ps1 — hentikan listener dan hapus autostart.
+- scripts/lcd_acquisition_service.py — penerima data COM5 pasif untuk proses yang dimulai melalui Nextion.
+- scripts/install_lcd_autosave.ps1 — pasang penerima data agar berjalan otomatis saat Windows dinyalakan, tanpa menampilkan jendela.
+- scripts/status_lcd_autosave.ps1 — periksa proses, status, dan catatan layanan akuisisi.
+- scripts/uninstall_lcd_autosave.ps1 — hentikan layanan penerima dan nonaktifkan proses otomatis saat Windows dinyalakan.
 
-COM5 hanya boleh dimiliki satu process pada satu waktu. Stop listener sebelum
-firmware upload, Serial Monitor, atau manual collector.
+COM5 hanya boleh dimiliki satu proses pada satu waktu. Hentikan layanan
+penerima sebelum mengunggah firmware, membuka Serial Monitor, atau menjalankan
+pengumpul data manual.
 
-## AI dan hasil
+## Model AI dan hasil eksperimen
 
 - `models/` — model terlatih serta metadata fitur.
 - `results/` — laporan evaluasi.
 - `results/plots/` — visualisasi analisis/model.
 - `results/sensor-plots/` — visualisasi per sampel/sensor.
 
-## Archive
+## Arsip
 
-- `archive/legacy/` — source/arsip lama yang tidak lagi canonical.
-- `archive/experiments/` — notebook atau eksperimen eksploratif.
+- `archive/legacy/` — kode sumber atau arsip lama yang tidak lagi menjadi acuan utama.
+- `archive/experiments/` — buku catatan komputasi atau eksperimen eksploratif.
 
-File di `archive/` tidak boleh digunakan oleh build produksi.
+File dalam `archive/` tidak boleh digunakan pada kompilasi firmware produksi tanpa pemeriksaan.
 
 ## Aturan penambahan file
 
-1. Firmware baru masuk ke `src/`, bukan root.
+1. Firmware baru masuk ke `src/`, bukan direktori utama.
 2. CSV hasil alat masuk ke `data/raw/`.
 3. Dataset hasil transformasi masuk ke `data/processed/`.
-4. Plot dan laporan hasil eksperimen masuk ke `results/`.
-5. File sementara, cache, dan output build tidak di-commit.
+4. Grafik dan laporan hasil eksperimen masuk ke `results/`.
+5. File sementara, cache, dan hasil kompilasi tidak dimasukkan ke commit.
 6. Eksperimen yang sudah tidak aktif dipindahkan ke `archive/`.

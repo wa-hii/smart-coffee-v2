@@ -1,96 +1,85 @@
-# Independent audit & QA/QC — Smart Coffee E-Nose v2
+# Audit Independen dan QA/QC — Smart Coffee E-Nose v2
 
-Date: 2026-10-08. Branch: `wahyu`; starting HEAD: `54d3321`.
-Review scope: firmware/static design, Nextion HMI contract, CSV listener,
-raw B32–B35 quality, prior ML artifacts and Raspberry Pi 5 design. No COM5,
-EEPROM, physical acquisition, flashing, or model training was performed.
+**Tanggal:** 8 Oktober 2026. **Branch:** wahyu. **HEAD awal:** 54d3321.
 
-## Executive finding
+**Ruang lingkup:** pemeriksaan statis firmware dan arsitektur, kontrak HMI Nextion, listener CSV, kualitas dataset B32–B35, artefak AI historis, serta rancangan integrasi Raspberry Pi 5. Tidak dilakukan akses COM5, perubahan EEPROM, pengambilan data fisik, flashing, maupun training model baru.
 
-The active sensor acquisition data are **structurally usable for research**
-but no batch-independent AI model is yet validated. The former MQ9/long-run
-feature pipeline is incompatible with the active MQ3/5-second contract. Device
-integration is neither completed nor demonstrated by firmware builds.
+## 1. Ringkasan eksekutif
 
-## Evidence-based findings
+Dataset akuisisi yang tersedia **lolos validasi struktur dan dapat digunakan sebagai kandidat penelitian**, tetapi belum ada model AI yang teruji generalisasinya secara independen. Pipeline fitur MQ9/collecting panjang sebelumnya tidak cocok dengan kontrak baru MQ3/collecting 5 detik. Keberhasilan kompilasi firmware bukan bukti bahwa integrasi Raspberry Pi dan seluruh perangkat telah berjalan.
 
-| Severity | Finding | Evidence | Action/status |
+## 2. Temuan berdasarkan bukti
+
+| Prioritas | Temuan | Bukti | Tindakan/status |
 |---|---|---|---|
-| P0 | PHASE_CHANGE metadata row previously written into CSV | historical B33–B35 contain 612 such records; prior fix `54d3321` | Current schema regression rechecked; read-time metadata excluded |
-| P0 | JSON non-null ADC check accepted strings/out-of-range | previous `acquisition_schema.py` used `is not None` | Integer/range checks and negative tests added |
-| P0 | Duplicate `run_id/phase/sample_idx` previously undetected | validator lacked duplicate-key check | Validator + synthetic regression |
-| P0 | Autosave output could collide within a second/overwrite | unique timestamp suffix + `os.replace` | unique numbered suffix, UUID staging and no-clobber atomic publication |
-| P0 | Old extractor uses MQ9 and at least 10 collecting rows | `scripts/8_extract_features.py` | Explicit fail-closed guard; separate MQ3 feature candidate |
-| P0 | Historical ML validation not comparable with B32+ | B01–B05 results, RF 57.5% and 55%; intra-train StratifiedKFold over correlated runs | Promotion blocked; group-aware evaluation specified |
-| P1 | Phase boundary sample attribution risk | `adsCallback` reads sensor before state transition but prints post-transition phase | Documented, **not changed** pending controlled timing test |
-| P1 | Origin and confidence currently unavailable | `USE_ON_DEVICE_INFERENCE=0` by default; `pResult` N/A fields | Hybrid host inference proposed, not implemented |
-| P1 | Session identity and physical specimen metadata absent | `sample_id` and `batch_id` identify label/repeated batch, `millis()` is uptime | UID + host timestamp + specimen provenance contract planned |
-| P2 | Nextion offline contract checker uses deprecated Pillow `.getdata()` | offline verifier warning | Non-blocking tool maintenance candidate |
+| **P0** | Event PHASE_CHANGE dahulu ditulis sebagai baris CSV sensor | Terdapat 612 baris metadata-only pada B33–B35; bugfix sebelumnya 54d3321 | Regresi kontrak diperiksa ulang; event dikecualikan saat pembacaan tanpa mengubah raw |
+| **P0** | Payload ADC non-null sebelumnya menerima string atau bilangan di luar rentang | Validator lama hanya mengecek nilai bukan None | Ditambah validasi tipe integer/rentang dan pengujian kasus salah |
+| **P0** | Indeks sensor duplikat belum ditangani | Validator lama tidak memeriksa run_id/phase/sample_idx yang sama | Ditambahkan aturan duplikasi dan pengujian CSV sintetis |
+| **P0** | Nama file autosave bisa berbenturan dan berisiko tertimpa | Sufiks detik dan os.replace pada implementasi lama | Penomoran nama unik, file staging UUID dan publikasi yang menolak penimpaan |
+| **P0** | Ekstraktor MQ9 mensyaratkan minimal 10 titik collecting | scripts/8_extract_features.py | Ditambah penolakan pencampuran; ekstraktor kandidat MQ3 dibuat terpisah |
+| **P0** | Hasil ML historis tidak mewakili data B32+ | Random Forest B01–B05: 57,50% dan 55,00%; CV memakai run yang berkorelasi | Promosi model ditahan; evaluasi berbasis kelompok dirancang |
+| **P1** | Risiko sampel salah diberi label fase pada batas transisi | ADC dibaca sebelum perubahan state, JSON dikirim sesudahnya | Dicatat untuk pengujian timing; **belum diubah** |
+| **P1** | Origin dan confidence belum memiliki sumber hasil valid | TinyML dinonaktifkan secara bawaan; halaman hasil memakai N/A | Integrasi inferensi hybrid dirancang, **belum diterapkan** |
+| **P1** | Tidak ada ID sesi/spesimen fisik eksplisit | sample_id/batch_id tidak membuktikan independensi; millis() adalah uptime | Direncanakan identitas UID, timestamp host dan metadata spesimen |
+| **P2** | Pemeriksa HMI menggunakan metode Pillow yang akan dihentikan | Muncul peringatan deprecated pada fungsi getdata() | Kandidat pemeliharaan tooling, tidak menghalangi QA sekarang |
 
-## Initial dataset QA (real local files, no modifications)
+## 3. Hasil audit dataset aktual
 
-| Metric | Value |
+| Parameter | Hasil |
 |---|---:|
-| B32 / B33 / B34 / B35 files | 18 / 20 / 22 / 26 |
-| Total files | 86 |
-| Complete sensor rows | 13,003 |
-| Metadata-only rows | 612 |
-| Partial sensor rows | 0 |
-| Sensor rows purging / collecting | 10,756 / 2,247 |
-| Missing SHT30 temperature/humidity rows | 0 / 0 |
-| Observed raw ADC zeros / 32767 saturation values | 0 / 0 |
-| Roasting labels light/medium/dark (file counts) | 30 / 28 / 28 |
-| Unique sample code (roast × origin) | 23 |
-| Validator PASS | 86/86 |
-| Candidate features per acquisition | 62 |
+| Jumlah file B32 / B33 / B34 / B35 | 18 / 20 / 22 / 26 |
+| Jumlah file keseluruhan | **86** |
+| Baris sensor lengkap | **13.003** |
+| Baris event metadata-only | **612** |
+| Baris sensor parsial | **0** |
+| Baris sensor purging / collecting | 10.756 / 2.247 |
+| Nilai suhu / kelembapan yang hilang | 0 / 0 |
+| Nilai ADC 0 / saturasi 32767 yang ditemukan | 0 / 0 |
+| Jumlah file light / medium / dark | 30 / 28 / 28 |
+| Kombinasi kode roast × origin teramati | 23 |
+| CSV lolos validator | **86/86** |
+| Jumlah fitur kandidat tiap file | **62** |
 
-These counts do not certify the validity of roast ground truth, calibration,
-sensor drift resilience, nor 86 **independent physical specimens**.
+Hasil di atas **hanya menunjukkan kesesuaian dengan validator struktur**, bukan bukti bahwa label roast/origin benar, sensor terkalibrasi, data bebas drift, atau terdapat 86 spesimen kopi fisik independen.
 
-## Reproducible offline tests
+## 4. Perintah pengujian offline yang dapat diulang
 
-```powershell
-pio run -e mega2560 -e nextion_test
-python nextion/NX4827T043_011/tools/verify_nextion_atmega_contract.py
-python scripts/test_acquisition_suite.py
-python scripts/test_feature_pipeline.py
-python scripts/audit_b32_dataset.py
-python scripts/validate_b32_acquisition.py
-# Explicit and separately versioned candidate output; does NOT train AI:
-python scripts/extract_b32_features.py --output data/processed/b32_b35_features_candidate.csv
-```
+Jalankan dari root repositori:
 
-Evidence established during this audit:
+    pio run -e mega2560 -e nextion_test
+    python nextion/NX4827T043_011/tools/verify_nextion_atmega_contract.py
+    python scripts/test_acquisition_suite.py
+    python scripts/test_feature_pipeline.py
+    python scripts/audit_b32_dataset.py
+    python scripts/validate_b32_acquisition.py
 
-- PlatformIO release builds PASS on `mega2560` and `nextion_test`.
-  Main firmware: static RAM 3,720/8,192 bytes, flash 35,854/253,952 bytes;
-  test firmware RAM 541/8,192, flash 5,062/253,952 bytes.
-- HMI verifier PASS for 12 locked Figma assets, 12 HMI pages, 23 mapped
-  events, `Serial2` 9600, pDataRun controls. No Nextion Editor/live results.
-- Acquisition payload, synthetic CSV integrity, 86-file validator, and
-  62-feature candidate regressions all PASS in this environment.
-- Full B32–B35 inventory command reports 13,615 total CSV rows and validates
-  file-level observations. Re-running extractor requires a fresh output path,
-  intentionally refusing to overwrite earlier candidate artifacts.
+Untuk menghasilkan **artefak fitur kandidat** secara terpisah (tanpa training):
 
-## Residual risks and independent gates
+    python scripts/extract_b32_features.py --output data/processed/b32_b35_features_candidate.csv
 
-1. **No hardware evidence:** verify phase attribution, SHT30 & ADS mapping,
-   pump/valve timing, warm-up/clean-air calibration, COM5/LCD and real TFT.
-2. **No model benchmark on current data:** no valid B32–B35 accuracy, origin
-   classifier, calibration, unknown detection or Pi inference result yet.
-3. **No prospective proof:** new blind session/specimen test and independent
-   holdout must follow a frozen protocol. 4 batches are exploratory only.
-4. **Dataset taxonomy:** resolve different labels for code TEM/MUK and record
-   whether each code is an origin, cultivar, processing method or vendor.
-5. **Approval required:** firmware flash, TFT upload, calibration/EEPROM,
-   actual COM5 access, Raspberry Pi live deployment, motor/pump actuation.
+Skrip fitur sengaja menolak penimpaan file output yang sudah ada. Untuk eksperimen baru, gunakan nama output berbeda.
 
-## QA disposition
+## 5. Hasil QA yang dapat dibuktikan
 
-Offline build/HMI acquisition-CSV gate: **PASS** within documented limits.
-Scientific AI generalization gate: **NOT ASSESSED / BLOCKED**.
-Pi/device physical E2E gate: **NOT TESTED / BLOCKED**.
+- **Kompilasi PlatformIO PASS:** mega2560 dan nextion_test. Sebelum perubahan Python ini, firmware utama menggunakan RAM statis 3.720/8.192 byte (45,4%) dan flash 35.854/253.952 byte (14,1%); firmware uji menggunakan RAM 541/8.192 byte dan flash 5.062/253.952 byte.
+- **Kontrak HMI offline PASS:** 12 aset Figma terkunci, 12 halaman HMI, 23 event terwakili pada handler, Serial2 @ 9600 baud dan tipe komponen utama pDataRun.
+- **QA data PASS:** regresi payload, validator CSV sintetis, pengujian benturan nama file dan validasi 86/86 berkas B32–B35. Ekstraksi kandidat 62 fitur juga lolos pengujian deterministik.
+- **Batas penting:** tidak ada pembuktian kompilasi dan upload TFT melalui Nextion Editor, pengukuran UART nyata, validasi fisik sensor, akurasi model B32–B35, maupun latensi Pi.
 
-Authority for next steps: `01_MASTER_E2E_ROADMAP.md`. Do not claim full
-device readiness until both remaining gates are independently closed.
+## 6. Risiko tersisa dan langkah verifikasi independen
+
+1. **Pengujian fisik:** verifikasi batas fase, alamat/kanal ADS, SHT30, urutan sensor, PWM, pompa/valve, pemanasan, kalibrasi, serta HMI/TFT nyata.
+2. **Pengujian model:** benchmark B32–B35 lintas batch, kualitas klasifikasi origin, kalibrasi probabilitas, deteksi unknown, dan inferensi Raspberry Pi 5 belum tersedia.
+3. **Validasi prospektif:** diperlukan spesimen/sesi baru yang benar-benar independen serta data uji yang dikunci sebelumnya; empat batch lama hanya tahap eksplorasi.
+4. **Keseragaman label:** pastikan kode TEM/MUK tidak mencampurkan origin, metode proses, varietas, vendor atau kondisi roasting yang berbeda.
+5. **Tindakan yang memerlukan persetujuan:** membuka COM5, flashing ATmega, upload TFT, kalibrasi/EEPROM, pengoperasian pompa/valve, dan deployment Pi secara langsung.
+
+## 7. Keputusan QA akhir
+
+| Gerbang verifikasi | Status |
+|---|---|
+| Kompilasi firmware, kontrak HMI, dan integritas CSV secara offline | **PASS dalam batas pengujian yang disebutkan** |
+| Generalisasi ilmiah model AI | **BELUM DINILAI / TERHAMBAT** |
+| Integrasi fisik Raspberry Pi–ATmega–Nextion secara menyeluruh | **BELUM DIUJI / TERHAMBAT** |
+
+Dokumen tindak lanjut utama adalah **01_MASTER_E2E_ROADMAP.md**. Jangan menyatakan perangkat telah siap penuh sebelum gerbang pengujian AI dan perangkat fisik benar-benar ditutup dengan bukti.
