@@ -18,8 +18,22 @@ Validasi canonical:
 
     python scripts/validate_b32_acquisition.py
 
-Validator hanya membaca file B32 dan tidak menjalankan preprocessing, feature
-extraction, atau training model.
+Validator tersebut hanya membaca file B32 dan tidak menjalankan training model.
+Untuk seluruh B32–B35 gunakan:
+
+    python scripts/test_acquisition_suite.py
+    python scripts/audit_b32_dataset.py
+
+Beberapa berkas B33–B35 yang direkam sebelum bugfix `54d3321` masih mengandung
+baris event `PHASE_CHANGE` tanpa nilai sensor. Validator mengklasifikasikan
+baris itu sebagai metadata-only; jangan hapus atau ubah CSV asli. Ekstraksi
+dan plot perlu mengecualikannya hanya pada saat dibaca. Field suhu/kelembapan
+dapat bernilai null jika SHT30 gagal; ini harus dicatat sebagai missing,
+tidak diinterpolasi sembarangan.
+
+Satu file berisi lima siklus, namun tidak identik dengan lima spesimen kopi
+independen. `timestamp` firmware adalah uptime millisecond; untuk sampel baru
+perlu identitas spesimen, session UID, waktu kalender, dan versi firmware.
 
 ## Data lama MQ9
 

@@ -107,16 +107,37 @@ Kontrak akuisisi aktif mulai B32 adalah:
 - 10 kanal gas menggunakan adc_mq3, bukan adc_mq9;
 - temperature dan humidity SHT30 ikut disimpan di setiap row.
 
-Validasi raw data aktif sengaja dibatasi ke B32:
+Validasi raw B32 secara khusus:
 
     python scripts/validate_b32_acquisition.py
+
+Validasi seluruh batch B32–B35, regression tests dan inventaris kualitas
+terbaru (semuanya aman dijalankan secara offline tanpa COM5):
+
+    python scripts/test_acquisition_suite.py
+    python scripts/test_feature_pipeline.py
+    python scripts/audit_b32_dataset.py
+
+Candidate feature schema dari MQ3 (tidak menjalankan model training):
+
+    python scripts/extract_b32_features.py --output data/processed/b32_b35_features_candidate.csv
+
+Perintah ekstraksi menolak overwrite output yang sudah ada; gunakan nama file
+output baru untuk eksperimen/revisi selanjutnya. Setiap CSV menjadi satu
+observasi agregat lima siklus, bukan lima sampel independen.
+
+**Baca sebelum implementasi AI:** `docs/00_CURRENT_STATE.md`,
+`docs/01_MASTER_E2E_ROADMAP.md`,
+`docs/03_AI_MODEL_RESEARCH_AND_EVALUATION.md`,
+`docs/04_NEXTION_ATMEGA_RASPI_ARCHITECTURE.md`, dan
+`docs/06_INDEPENDENT_AUDIT_QA_QC.md`.
 
 Raw data lama yang masih menggunakan MQ9 tidak dihapus. File tersebut
 dipisahkan ke data/raw/legacy_mq9/ dan dikecualikan dari validasi B32.
 
-Pada tahap kerja saat ini fokus project adalah akuisisi data. Jangan
-menjalankan training model atau menganggap model lama sebagai model deployment
-Raspberry Pi sebelum pipeline AI diperbarui secara terpisah.
+Model historis B01–B05 (MQ9) bukan model deployment untuk data B32–B35 (MQ3).
+Penelitian fitur awal telah dimulai, tetapi belum ada model B32–B35 yang
+tervalidasi untuk inferensi perangkat atau deployment Raspberry Pi 5.
 
 ### Akuisisi langsung dari LCD Nextion
 

@@ -38,9 +38,19 @@ ATmega2560 PH0/RXD2 physical pin 8 dan PH1/TXD2 physical pin 9.
 QA akuisisi aktif:
 
     python scripts/validate_b32_acquisition.py
+    python scripts/test_acquisition_suite.py
+    python scripts/audit_b32_dataset.py
 
-Validator tersebut hanya memeriksa B32. Tahap saat ini tidak menjalankan
-training model atau deployment Raspberry Pi.
+Validator pertama hanya memeriksa B32, dua perintah berikutnya mencakup B32+
+dan inventory B32–B35. Candidate extractor MQ3 adalah
+`scripts/extract_b32_features.py` (output terpisah di `data/processed/`).
+`scripts/8_extract_features.py` adalah legacy MQ9 dan sengaja menolak
+pencampuran dengan B32+; `models/random_forest_*.joblib` juga masih historis.
+
+Roadmap dan audit canonical: `docs/00_CURRENT_STATE.md`,
+`docs/01_MASTER_E2E_ROADMAP.md`, `docs/03_AI_MODEL_RESEARCH_AND_EVALUATION.md`,
+`docs/04_NEXTION_ATMEGA_RASPI_ARCHITECTURE.md`,
+`docs/06_INDEPENDENT_AUDIT_QA_QC.md`. Training dan deployment Pi belum DONE.
 
 ### Host autosave acquisition
 
