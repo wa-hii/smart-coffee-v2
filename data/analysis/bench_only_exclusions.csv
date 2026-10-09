@@ -1,0 +1,3 @@
+source_file,source_sha256,recorded_batch,operator_reported_medium,collection_purpose,training_eligible,exclusion_reason
+L-MING_B37.csv,e7589d02ce97bbafad27ed361221eb0246939f8e41d0df04b963865f56c4c468,B37,clean_air,stage1_nextion_bench,false,UI coffee roast/origin choice is not the actual measured clean-air medium
+M-MING_B37.csv,558f7e91a320bc6f122888ddf104c39532d166f7bbda4be02e8e5118d6d8cb6e,B37,clean_air,stage1_nextion_bench,false,UI coffee roast/origin choice is not the actual measured clean-air medium

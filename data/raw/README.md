@@ -3,6 +3,21 @@
 Folder ini menyimpan data mentah hasil akuisisi E-Nose. Nilai CSV mentah tidak
 boleh diubah setelah pengambilan data.
 
+## Peringatan provenance B37 — bench udara bersih (9 Oktober 2026)
+
+Berdasarkan konfirmasi operator bahwa selang berada pada **udara bersih** selama
+uji Nextion batch B37, `L-MING_B37.csv` dan `M-MING_B37.csv` adalah **data
+uji perangkat**, **bukan pengukuran kopi light/medium dari origin MING**.
+Label kopi di CSV hanya merekam pilihan UI pada saat pengujian. **Jangan
+gunakan dua file ini sebagai data training/evaluasi roast/origin.**
+
+Jangan mengubah, memindahkan, atau merelabel CSV mentah. Catatan pengecualian
+yang dapat diperiksa otomatis (nama file + SHA256) berada di
+`data/analysis/bench_only_exclusions.csv`; detail QA ada dalam
+`docs/reports/2026-10-09_TAHAP1_BENCH_B37_UDARA_BERSIH.md`.
+Ekstraktor kandidat MQ3 yang ada saat ini memang membatasi input pada B32–B35.
+Pipeline yang kelak membaca batch lain **wajib** menerapkan pengecualian ini.
+
 ## Kontrak akuisisi aktif mulai B32
 
 Acuan konfigurasi akuisisi yang digunakan saat ini dimulai dari B32:

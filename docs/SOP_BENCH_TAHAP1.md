@@ -53,4 +53,12 @@ Jalankan `bench_stage1_passive_qa.py` **hanya pada CSV final**; alat akan menola
 
 Laporan tiap pengujian mencatat tanggal, operator, foto/skema jika diperlukan, versi firmware/HMI, observasi fisik, file CSV final beserta SHA256, keluaran QA, dan status **PASS/FAIL/BLOCKED/NOT RUN**. Tahap 1 hanya boleh ditutup sebagai **hardware verified** setelah B01–B08 yang relevan benar-benar terbukti.
 
-**Persetujuan yang belum tercatat:** operator, waktu bench, izin uji aktif, akses eksklusif COM5, SOP valve, flashing/upload TFT, kalibrasi EEPROM, serta bukti skematik board. Sampai dipenuhi, hanya tingkat A boleh dijalankan.
+**Persetujuan pada saat SOP pertama kali disusun:** belum ada. Status setelah pelaksanaan B37 dicatat pada bagian 6. Izin pengujian melalui Nextion **bukan** izin akses eksklusif COM5, flashing/upload TFT, kalibrasi EEPROM, atau uji kegagalan/aktuator manual yang belum memiliki persetujuan tersendiri.
+
+## 6. Catatan pelaksanaan operator (9 Oktober 2026)
+
+Pengguna menyetujui Tingkat B **terbatas pada pengoperasian Nextion dan akuisisi terkontrol** dengan operator di alat, tanpa flashing, TFT upload, kalibrasi/EEPROM, dan intervensi COM5. Operator kemudian mengonfirmasi pengujian batch B37 menggunakan **udara bersih**. Dua CSV final dan log serial telah diperiksa pasif; lihat `docs/reports/2026-10-09_TAHAP1_BENCH_B37_UDARA_BERSIH.md`.
+
+**Hasil:** B04 jalur penerimaan/simpan CSV PASS untuk dua sesi; B03/B05 **belum lulus menyeluruh** karena collecting pada salah satu run menghasilkan 6 sampel di dua siklus serta belum ada bukti waktu dan posisi valve fisik. B06 baru didukung laporan operator tentang penggunaan Nextion, belum rekaman semua halaman/event. Izin ini **bukan** persetujuan untuk memulai fault injection, flash, power-cycle, atau uji aktuator manual dari jarak jauh.
+
+**Penting:** untuk bench udara bersih berikutnya, hindari penggunaan label kopi pada CSV. Bila UI masih mewajibkan pilihan kopi, catat perbedaan medium aktual di manifest provenance dan tetap kecualikan dari dataset AI.

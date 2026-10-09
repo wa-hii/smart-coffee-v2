@@ -35,7 +35,8 @@ def inspect_completed_csv(path: Path) -> dict:
             or "partial" in path.name.lower()):
         raise ValueError("Menolak berkas parsial/incomplete yang mungkin masih ditulis")
 
-    errors = list(validate_file(path))
+    validator_errors = list(validate_file(path))
+    errors = validator_errors.copy()
     df = pd.read_csv(path)
     if list(df.columns) != CSV_COLUMNS:
         raise ValueError("Skema CSV tidak sesuai kontrak, tidak diproses lebih lanjut")
@@ -57,7 +58,7 @@ def inspect_completed_csv(path: Path) -> dict:
                     f"Siklus {cycle} {phase}: {len(group)} sampel, harapan {expected}"
                 )
             if len(group) and group["sample_idx"].tolist() != list(
-                range(1, expected + 1)
+                range(1, len(group) + 1)
             ):
                 errors.append(f"sample_idx tidak kontigu: {cycle}:{phase}")
 
@@ -94,6 +95,7 @@ def inspect_completed_csv(path: Path) -> dict:
             float(df["humidity"].min()), float(df["humidity"].max())
         ),
         "errors": errors,
+        "validator_errors": validator_errors,
         "warnings": warnings,
     }
 
@@ -119,7 +121,10 @@ def main() -> int:
         print("WARNING:", warning)
     for error in info["errors"]:
         print("FAIL:", error)
-    print("CSV_INTEGRITY:", "PASS" if not info["errors"] else "FAIL")
+    print("CANONICAL_CSV_VALIDATOR:",
+          "PASS" if not info["validator_errors"] else "FAIL")
+    print("STRICT_BENCH_25_5_TARGET:",
+          "PASS" if not info["errors"] else "FAIL")
     print("HARDWARE_ACTUATOR_TIMING: NOT_VERIFIED_BY_CSV")
     print("FIRMWARE_VERSION_ON_BOARD: NOT_VERIFIED_BY_CSV")
     return 0 if not info["errors"] else 1

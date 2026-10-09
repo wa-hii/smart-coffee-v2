@@ -67,6 +67,13 @@
 - **Status yang benar:** satu akuisisi fisik-to-host **lulus pemeriksaan rekaman**; versi firmware dalam alat, gerak valve/pompa, pin/wiring, pemanasan gas, Nextion fisik, dan fault injection **belum diverifikasi**. Tidak ada akses serial tambahan atau operasi terhadap alat dari agen.
 - SOP bench aktif baru berupa **draf untuk persetujuan operator**: `docs/SOP_BENCH_TAHAP1.md`. Alat QA pasif yang dapat dipakai ulang: `scripts/bench_stage1_passive_qa.py`.
 
+### Hasil operator bench B37 (udara bersih) — 9 Oktober 2026
+
+- Operator mengonfirmasi menggunakan Nextion pada batch B37 dengan selang ditempatkan pada **udara bersih**. Log listener: `L-MING_B37.csv` **150 sampel**, `M-MING_B37.csv` **152 sampel**; dua-duanya lengkap dan **PASS validator canonical**.
+- Lima siklus terbaca pada kedua run. Target ketat 25 sampel purging + 5 collecting per siklus: `L-MING_B37.csv` **PASS**, `M-MING_B37.csv` **FAIL** karena collecting siklus 1 dan 5 berjumlah 6 sampel. `sample_idx` tetap kontigu. Ini tidak langsung membuktikan adanya masalah valve.
+- **Keputusan data:** kedua file B37 diberi status **BENCH_ONLY / NOT ELIGIBLE FOR COFFEE TRAINING** melalui `data/analysis/bench_only_exclusions.csv` dan laporan `docs/reports/2026-10-09_TAHAP1_BENCH_B37_UDARA_BERSIH.md`. Label L-MING/M-MING berasal dari UI dan **tidak** mendeskripsikan medium udara bersih. CSV asli tidak diubah.
+- Status Tingkat B yang terbukti: operator menjalankan sesi dari Nextion, serial host menerima sampai COMPLETE, dan file final valid secara struktur. Identitas firmware dan gerakan valve/pompa serta semua uji gagal belum dibuktikan.
+
 ## 5. Batas pemeriksaan dan keputusan
 
 Yang dilakukan: kompilasi offline, pengujian parser/validator, pengecekan kontrak HMI, dan analisis berkas CSV yang tersedia. Tidak ada akses COM5, restart listener, penulisan EEPROM, kalibrasi, penggerakan pompa, flashing, training model, maupun deployment Raspberry Pi.
