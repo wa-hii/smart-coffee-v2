@@ -1,0 +1,545 @@
+{
+  "version": "stage3.feature.v1",
+  "input_manifest_sha256": "d9cb9c361c8b8f7d65e6b27bfed68d47e4de8fb38faea40bb2587a78fd6c802a",
+  "bench_exclusions_sha256": "cb7bf33da955b6e87be0ab90d15edad09c2a8a5055d06fce284876392f4ea43e",
+  "raw_files": [
+    {
+      "source_file": "D-CAT_B32.csv",
+      "source_sha256": "fbab0d0a01652f9bf75a86ec5172d034d48fae9fa29d99ffb3aeaacfabfc00ad"
+    },
+    {
+      "source_file": "D-CAT_B33.csv",
+      "source_sha256": "39c3c5d4061a1838ba7160e1aa0122aa167d9ae732b24365e1fbd303d7292e14"
+    },
+    {
+      "source_file": "D-CAT_B34.csv",
+      "source_sha256": "10105147b749c5e2fa58547a5f2aff046c39c0c1d66ac18f917bb7d43abd7383"
+    },
+    {
+      "source_file": "D-CAT_B35.csv",
+      "source_sha256": "51dc2e8f56a791fed8b602c87562213a40dcba6c0b4b6c34f80e072ecf5e8076"
+    },
+    {
+      "source_file": "D-CAT_B35_20261007_183310.csv",
+      "source_sha256": "91d5f1d44655df8209347769b6e535d5bb59216d7ce88aa5c0ea1ad3c16cbd20"
+    },
+    {
+      "source_file": "D-GAW_B32.csv",
+      "source_sha256": "c64b968ec1204e8aa5a0cba3f7bae4b7ad9c50f09bc42d442048e8fdb5f371f7"
+    },
+    {
+      "source_file": "D-GAW_B33.csv",
+      "source_sha256": "d5e690f538a3967e2d07ded64903d284a348c1988bcc331a380dd50b0a8be819"
+    },
+    {
+      "source_file": "D-GAW_B34.csv",
+      "source_sha256": "fe37b7d26e74909b0477f2d6c9309ccc2e6ab2a8d94341b231bfb5f1268f4ec7"
+    },
+    {
+      "source_file": "D-GAW_B35.csv",
+      "source_sha256": "409ca052ab3bafebfe6d1d0102022414f2c13e6da7bf510fd027a9e267d49bb0"
+    },
+    {
+      "source_file": "D-GRB_B32.csv",
+      "source_sha256": "d256b61691a17885cb7a4c6614e4477805b84700d1eb2549a7e652766f7d88b9"
+    },
+    {
+      "source_file": "D-GRB_B33.csv",
+      "source_sha256": "266c0b5efab36f8091fc7c816c5e01d1d964ff9d88849adf07e34f36a9523c45"
+    },
+    {
+      "source_file": "D-GRB_B34.csv",
+      "source_sha256": "8e70fa33d2e3eff702a27fe4654e53b50bcb959d1776f3267f2b9df07687a625"
+    },
+    {
+      "source_file": "D-GRB_B35.csv",
+      "source_sha256": "7a4b5b88b61fbda20215fcc988557f7ac707e1ce4fe736f1a7c3a4581e6053fc"
+    },
+    {
+      "source_file": "D-MING_B32.csv",
+      "source_sha256": "b3ac6dcf413a47bec43e41be66215e2804f32466b6fc20fbeeaa8aec396af9e1"
+    },
+    {
+      "source_file": "D-MING_B33.csv",
+      "source_sha256": "294023b15a670025ee45370199d171df3a18649d2d8df3f7c0559dc3d918f4ff"
+    },
+    {
+      "source_file": "D-MING_B34.csv",
+      "source_sha256": "59e290ca66eb80ddf7269117324c923b9cd7261c45d951b77080f4871b0e49d6"
+    },
+    {
+      "source_file": "D-MING_B35.csv",
+      "source_sha256": "ceb789eb9f079a60874e300371d265e14d3258586da33077bf335d71a8b19b86"
+    },
+    {
+      "source_file": "D-RAT_B33.csv",
+      "source_sha256": "c2f97fe25cff2ef0badf0f00fdf480a5efd0f291e06b5dc026e296d336ecef3e"
+    },
+    {
+      "source_file": "D-RAT_B34.csv",
+      "source_sha256": "395eb77d8ae09226a2dd6e1e89fb10a85cc34c4cc88a92bb322570b0f7020b05"
+    },
+    {
+      "source_file": "D-RAT_B35.csv",
+      "source_sha256": "c8209a6184b7551d7b8a52e4d2be80f20e0d9006ed1d28e01ab77f4874a63e21"
+    },
+    {
+      "source_file": "D-TEM_B32.csv",
+      "source_sha256": "2fe9d4848b55d0e5574e934049ff55888da7a570d597c868ab8a6d5d9d4bd737"
+    },
+    {
+      "source_file": "D-TEM_B33.csv",
+      "source_sha256": "201d0401afaf0ade5e9cfb6f1c8fe93065eb00a683a2bec152a6be45f0269769"
+    },
+    {
+      "source_file": "D-TEM_B34.csv",
+      "source_sha256": "aae7ab29954b0096e587354cbf081ded02fa8c467c7be3485ddab6768234f3c0"
+    },
+    {
+      "source_file": "D-TEM_B35.csv",
+      "source_sha256": "d28a01389739a2f2368568e9902988c713b9be2fa01e6bdca5e74b97de577003"
+    },
+    {
+      "source_file": "D-TOR_B32.csv",
+      "source_sha256": "41bd25990ee0efaf7ff6fb1912497f3c806fa92a0cee6650138a77a27103386a"
+    },
+    {
+      "source_file": "D-TOR_B33.csv",
+      "source_sha256": "91bc4f70d1f77972ca97592723a278d91e5a452065e871fd0c9f98068722c268"
+    },
+    {
+      "source_file": "D-TOR_B34.csv",
+      "source_sha256": "205d5e590342e61b8bc84f8f48b38c5abde9dc151169d73966d8d76369557d5d"
+    },
+    {
+      "source_file": "D-TOR_B35.csv",
+      "source_sha256": "81ceb1471dbf829a1ac620e48f8022877f579c73f0eda4b820b22408e86933a4"
+    },
+    {
+      "source_file": "L-CAT_B32.csv",
+      "source_sha256": "8968ea34fe899f35e1e0aae2c06de608a88f34d80af8b120296db2f2bbecea5b"
+    },
+    {
+      "source_file": "L-CAT_B33.csv",
+      "source_sha256": "beee43c608140eda08a5fd48fb720c81dd97e7a297b2641067c59d4462e97b81"
+    },
+    {
+      "source_file": "L-CAT_B34.csv",
+      "source_sha256": "69de5c915f01e807176414bc36306dc11174b753adb5ac3b5ccbbe82e6d46853"
+    },
+    {
+      "source_file": "L-CAT_B35.csv",
+      "source_sha256": "5b5013d6eb52d93525a24012c2a7657503c7977a6631d3f9e8ea965190007ad5"
+    },
+    {
+      "source_file": "L-CAW_B33.csv",
+      "source_sha256": "cea9d9a1e3437f03867f81cdefbe332f686f5cada5529c1acc6b28429f59ef37"
+    },
+    {
+      "source_file": "L-CAW_B34.csv",
+      "source_sha256": "17b966d271d7487d46456d21f8eb61f21bc3f641a6dcf576b3b8621b73011c88"
+    },
+    {
+      "source_file": "L-CAW_B35.csv",
+      "source_sha256": "aaf3d602d9498c0c6e7bfa7f0178ee6eacb718ccc8cfa2c9ee97f0f77b873952"
+    },
+    {
+      "source_file": "L-GAW_B32.csv",
+      "source_sha256": "69060e46b948030f274468eab6b0e158bb49993da16274d5e9a6f1b1acca6294"
+    },
+    {
+      "source_file": "L-GAW_B33.csv",
+      "source_sha256": "b18bd401235fabbaae04877ad28582fc852a2958f89e426e19da988fb7e1228e"
+    },
+    {
+      "source_file": "L-GAW_B34.csv",
+      "source_sha256": "54fb44214273a759430b312013f833d0a8fe6ca5acc1e4258e6fbea7ff136754"
+    },
+    {
+      "source_file": "L-GAW_B35.csv",
+      "source_sha256": "86a0703520812e5e25b14387cac2787ff46e859086cc82556a6f8cd68a3a0626"
+    },
+    {
+      "source_file": "L-GAY_B34.csv",
+      "source_sha256": "58fea5d72ebb7e458aba59d76a073e9fff809e24f10f3bc5bf736fbfe52cc50f"
+    },
+    {
+      "source_file": "L-GAY_B35.csv",
+      "source_sha256": "9217fe42ee36e480b4f34ba85fc15e60a015f7e1cf7e0104d0e931af0338142f"
+    },
+    {
+      "source_file": "L-GRB_B32.csv",
+      "source_sha256": "f64a1c209416ebf3b239351616e3ea4c157bfc85a7ea442f12d6a7e897341316"
+    },
+    {
+      "source_file": "L-GRB_B33.csv",
+      "source_sha256": "74de8795f95e07f1f89b136f488f18768122abc02c51b0ab3a11c69fda1b6afe"
+    },
+    {
+      "source_file": "L-GRB_B34.csv",
+      "source_sha256": "1604a1ffc9280d958f50c22ed1493bc23ec28b0c026aeaf55a9131d8911432af"
+    },
+    {
+      "source_file": "L-GRB_B35.csv",
+      "source_sha256": "fcface7223109800c03e5cff138c65366eded516657e022a8d779254ac71deaf"
+    },
+    {
+      "source_file": "L-GRB_B35_20261007_190405.csv",
+      "source_sha256": "036b5226a48786e548c3cd538b339ebd403d6c33137e67fd589c6630ccb3af2e"
+    },
+    {
+      "source_file": "L-MING_B32.csv",
+      "source_sha256": "690cc2a12ed110b9041c150fbdb266828119fc51fc5a04a4406b19912db76c09"
+    },
+    {
+      "source_file": "L-MING_B32_20261009_172056.csv",
+      "source_sha256": "0dbec4b2d19e1370bfe2c22ff358214a675b5bcba25cf88dcfebeb6dc9d5f986"
+    },
+    {
+      "source_file": "L-MING_B33.csv",
+      "source_sha256": "d934ec4efafdc4197730d121040d8a106a6380a85143612f94a5e4a88a5aebb6"
+    },
+    {
+      "source_file": "L-MING_B34.csv",
+      "source_sha256": "ebd7f4318b6d6c11fe6b7978ebf26d8a73f2d2ea8846c242e67f2009b09b37a7"
+    },
+    {
+      "source_file": "L-MING_B35.csv",
+      "source_sha256": "eef535c6b180a78c3de16ceffb388bfa08efa22dbea743e22a27b17457781a6a"
+    },
+    {
+      "source_file": "L-TEM_B32.csv",
+      "source_sha256": "518a42ad01bb65ef4b96e60fa2fe4cf813eaf76a1fe16875a64d31ef77076ba5"
+    },
+    {
+      "source_file": "L-TEM_B33.csv",
+      "source_sha256": "ea8c58278bc27692a99287f1a6dd339fd66406f4a23666ce36b9087fedee3ee7"
+    },
+    {
+      "source_file": "L-TEM_B34.csv",
+      "source_sha256": "6a84638c5ce8eeccd9075292109fd847211c159617e35031d242d91e5b187aa4"
+    },
+    {
+      "source_file": "L-TEM_B35.csv",
+      "source_sha256": "d3ff3378eae9da918e2e77487ab71afe3b25151a3e9cbb2487cfd761ee7077ea"
+    },
+    {
+      "source_file": "L-TOR_B32.csv",
+      "source_sha256": "0072cee894e80cbc5f9c16e2645b8f4670ee76b3fb1aba2ef32713095f693d7a"
+    },
+    {
+      "source_file": "L-TOR_B33.csv",
+      "source_sha256": "e27fcfae1be2592005a3fd61934861370846c02f07eb4c6eab7e167ffc1bf7e5"
+    },
+    {
+      "source_file": "L-TOR_B34.csv",
+      "source_sha256": "6ae92ce81fe7655dfba6413d844aa1d5e24a84296537913649a66ba0a3bee9a4"
+    },
+    {
+      "source_file": "L-TOR_B35.csv",
+      "source_sha256": "817a7db76c6a4f89a8fba345ff06663944b009b82fcf3e6e667517ec8275e6cf"
+    },
+    {
+      "source_file": "M-CAT_B32.csv",
+      "source_sha256": "be96c2d8ed9f01ce2330d5ec568d0aed00964f3aeefcebb0ee28f7f10eddf62c"
+    },
+    {
+      "source_file": "M-CAT_B33.csv",
+      "source_sha256": "7cda81773eb1dd46c748f6fb7e47766dfe7b9c9084f974695d96d1bfbe875615"
+    },
+    {
+      "source_file": "M-CAT_B34.csv",
+      "source_sha256": "5b7fe8ab02eb10501ada3d0c1ecd7da7ed7a86be303376b49c5b4c6cf49e5bc7"
+    },
+    {
+      "source_file": "M-CAT_B35.csv",
+      "source_sha256": "bae7b5f6d1df480775eb880337bd1d9533c97dc937f31b9efe1c32e2e527690a"
+    },
+    {
+      "source_file": "M-CAW_B35.csv",
+      "source_sha256": "6dc05407f6a9cd188149e40dd25483843e640b2518f5e2a0df5c9ef8d54bcb71"
+    },
+    {
+      "source_file": "M-GAW_B32.csv",
+      "source_sha256": "7afeb1604457e67ee4005eed53d5fc86528482cee982adf3c5f9c8a7a73bc0d2"
+    },
+    {
+      "source_file": "M-GAW_B33.csv",
+      "source_sha256": "ae967837b817e3195201a3cfd22f1d2c284d1b026dd7792da7efd3a8f5b70e3a"
+    },
+    {
+      "source_file": "M-GAW_B34.csv",
+      "source_sha256": "301971f185d99b6e1ea7f1c3c568c38e70ea8c404f2dfe057e8a43cee35eff40"
+    },
+    {
+      "source_file": "M-GAW_B35.csv",
+      "source_sha256": "b796c77c41d2d2c8d8432f89787535e41ceeb165fcecde59e009837f2d92c6e0"
+    },
+    {
+      "source_file": "M-GRB_B32.csv",
+      "source_sha256": "1ade1b3c2ea6cf4059452be0780e6d095d1318e3fc94df2da5e1d50795c69571"
+    },
+    {
+      "source_file": "M-GRB_B33.csv",
+      "source_sha256": "c1577412db8c66cc2bb1c20acad7f1dcf85e090752ae3f89e1b71f938455646f"
+    },
+    {
+      "source_file": "M-GRB_B34.csv",
+      "source_sha256": "358c0103c5a85725be77e198aa67decaa38d1dc93af3efd019727559d2436fb2"
+    },
+    {
+      "source_file": "M-GRB_B35.csv",
+      "source_sha256": "f5528d5521ae2598a97aaf1f4a0fae876f34b7baf28558b8bbbef4c900016858"
+    },
+    {
+      "source_file": "M-MING_B32.csv",
+      "source_sha256": "c8be2bb4fbaa599300e6308f82493b3cc8e48b567cd9503eaf3709ce20cc7054"
+    },
+    {
+      "source_file": "M-MING_B33.csv",
+      "source_sha256": "10f943bb6b294bee5c6e3e7909d0ad918307ba19a5f3bceed07407a4f4fe344a"
+    },
+    {
+      "source_file": "M-MING_B34.csv",
+      "source_sha256": "5b244c1b909e73e0a321a56c5a1144021fcccba3bfdb967796221fc46616cc3f"
+    },
+    {
+      "source_file": "M-MING_B35.csv",
+      "source_sha256": "563b4c51c51779b566683167b0caa4b75ca7716012ff219fdfd174a0f8d48175"
+    },
+    {
+      "source_file": "M-MUK_B34.csv",
+      "source_sha256": "262c15b869311ffe897fa36e6a8e36527cb47c1952da4f2bb71fa177da34e83a"
+    },
+    {
+      "source_file": "M-MUK_B35.csv",
+      "source_sha256": "cd1e319650e9858df312817ad83bdcd5ffe275a3f507570f0d345b233b40dcba"
+    },
+    {
+      "source_file": "M-MUK_B35_20261007_191444.csv",
+      "source_sha256": "c6fa68c932b21ff63f97e385cb73e6cd0ee358533fc36458cb2e34f804a2e9b2"
+    },
+    {
+      "source_file": "M-TEM_B32.csv",
+      "source_sha256": "827e0aa3dd753c3a28754f95e5056653ffd82cce64348a840001445041c58d31"
+    },
+    {
+      "source_file": "M-TEM_B33.csv",
+      "source_sha256": "0678a330f30b5fbb877284e6fd355db24962084599fb7c4cabe37f310194cd4f"
+    },
+    {
+      "source_file": "M-TEM_B34.csv",
+      "source_sha256": "f78f9813712ef995e6a0180c632bb87b02a4247c1898522f3eff2780ae282844"
+    },
+    {
+      "source_file": "M-TEM_B35.csv",
+      "source_sha256": "c9f0e8a8cb366116919cc533a84e3f8f4f0fd783d283fa3fa5288b3fe3fadcee"
+    },
+    {
+      "source_file": "M-TOR_B32.csv",
+      "source_sha256": "98156df846467abb4deab0dc0092c57f70c44dea59c37715b5b0097f80cf1dc6"
+    },
+    {
+      "source_file": "M-TOR_B33.csv",
+      "source_sha256": "a544f4662a60715b38996df7754d3f72038c1e7c6cc5bc7a12e9fd52394d73c5"
+    },
+    {
+      "source_file": "M-TOR_B34.csv",
+      "source_sha256": "011084251c0daf093731171bb9052072cc1f4123dec0e0b475d19c90d3235c51"
+    },
+    {
+      "source_file": "M-TOR_B35.csv",
+      "source_sha256": "4dfeb8936f2deba35ad11372d153d5d30f48f9549a5f119887183f2e4d138b07"
+    }
+  ],
+  "feature_rows_accepted": [
+    "D-CAT_B32.csv",
+    "D-CAT_B33.csv",
+    "D-CAT_B34.csv",
+    "D-CAT_B35.csv",
+    "D-CAT_B35_20261007_183310.csv",
+    "D-GAW_B32.csv",
+    "D-GAW_B33.csv",
+    "D-GAW_B34.csv",
+    "D-GAW_B35.csv",
+    "D-GRB_B32.csv",
+    "D-GRB_B33.csv",
+    "D-GRB_B34.csv",
+    "D-GRB_B35.csv",
+    "D-MING_B32.csv",
+    "D-MING_B33.csv",
+    "D-MING_B34.csv",
+    "D-MING_B35.csv",
+    "D-RAT_B33.csv",
+    "D-RAT_B34.csv",
+    "D-RAT_B35.csv",
+    "D-TEM_B32.csv",
+    "D-TEM_B33.csv",
+    "D-TEM_B34.csv",
+    "D-TEM_B35.csv",
+    "D-TOR_B32.csv",
+    "D-TOR_B33.csv",
+    "D-TOR_B34.csv",
+    "D-TOR_B35.csv",
+    "L-CAT_B32.csv",
+    "L-CAT_B33.csv",
+    "L-CAT_B34.csv",
+    "L-CAT_B35.csv",
+    "L-CAW_B33.csv",
+    "L-CAW_B35.csv",
+    "L-GAW_B32.csv",
+    "L-GAW_B33.csv",
+    "L-GAW_B34.csv",
+    "L-GAW_B35.csv",
+    "L-GAY_B34.csv",
+    "L-GAY_B35.csv",
+    "L-GRB_B32.csv",
+    "L-GRB_B33.csv",
+    "L-GRB_B34.csv",
+    "L-GRB_B35.csv",
+    "L-GRB_B35_20261007_190405.csv",
+    "L-MING_B32.csv",
+    "L-MING_B32_20261009_172056.csv",
+    "L-MING_B33.csv",
+    "L-MING_B34.csv",
+    "L-MING_B35.csv",
+    "L-TEM_B32.csv",
+    "L-TEM_B33.csv",
+    "L-TEM_B34.csv",
+    "L-TEM_B35.csv",
+    "L-TOR_B32.csv",
+    "L-TOR_B33.csv",
+    "L-TOR_B34.csv",
+    "L-TOR_B35.csv",
+    "M-CAT_B32.csv",
+    "M-CAT_B33.csv",
+    "M-CAT_B34.csv",
+    "M-CAT_B35.csv",
+    "M-CAW_B35.csv",
+    "M-GAW_B32.csv",
+    "M-GAW_B33.csv",
+    "M-GAW_B34.csv",
+    "M-GAW_B35.csv",
+    "M-GRB_B32.csv",
+    "M-GRB_B33.csv",
+    "M-GRB_B34.csv",
+    "M-GRB_B35.csv",
+    "M-MING_B32.csv",
+    "M-MING_B33.csv",
+    "M-MING_B34.csv",
+    "M-MING_B35.csv",
+    "M-MUK_B34.csv",
+    "M-MUK_B35.csv",
+    "M-MUK_B35_20261007_191444.csv",
+    "M-TEM_B32.csv",
+    "M-TEM_B33.csv",
+    "M-TEM_B34.csv",
+    "M-TEM_B35.csv",
+    "M-TOR_B32.csv",
+    "M-TOR_B33.csv",
+    "M-TOR_B34.csv",
+    "M-TOR_B35.csv"
+  ],
+  "feature_rows_held": [
+    "L-CAW_B34.csv"
+  ],
+  "sensor_adc_order": [
+    "adc_tgs822",
+    "adc_mq135",
+    "adc_mq3",
+    "adc_tgs2611",
+    "adc_tgs2620",
+    "adc_tgs2600",
+    "adc_tgs2602",
+    "adc_mq8",
+    "adc_tgs813",
+    "adc_tgs816"
+  ],
+  "feature_order": [
+    "f_tgs822_relative_response_mean5",
+    "f_tgs822_relative_response_std5",
+    "f_tgs822_collect_std_mean5",
+    "f_tgs822_collect_std_std5",
+    "f_tgs822_collect_slope_per_s_mean5",
+    "f_tgs822_collect_slope_per_s_std5",
+    "f_mq135_relative_response_mean5",
+    "f_mq135_relative_response_std5",
+    "f_mq135_collect_std_mean5",
+    "f_mq135_collect_std_std5",
+    "f_mq135_collect_slope_per_s_mean5",
+    "f_mq135_collect_slope_per_s_std5",
+    "f_mq3_relative_response_mean5",
+    "f_mq3_relative_response_std5",
+    "f_mq3_collect_std_mean5",
+    "f_mq3_collect_std_std5",
+    "f_mq3_collect_slope_per_s_mean5",
+    "f_mq3_collect_slope_per_s_std5",
+    "f_tgs2611_relative_response_mean5",
+    "f_tgs2611_relative_response_std5",
+    "f_tgs2611_collect_std_mean5",
+    "f_tgs2611_collect_std_std5",
+    "f_tgs2611_collect_slope_per_s_mean5",
+    "f_tgs2611_collect_slope_per_s_std5",
+    "f_tgs2620_relative_response_mean5",
+    "f_tgs2620_relative_response_std5",
+    "f_tgs2620_collect_std_mean5",
+    "f_tgs2620_collect_std_std5",
+    "f_tgs2620_collect_slope_per_s_mean5",
+    "f_tgs2620_collect_slope_per_s_std5",
+    "f_tgs2600_relative_response_mean5",
+    "f_tgs2600_relative_response_std5",
+    "f_tgs2600_collect_std_mean5",
+    "f_tgs2600_collect_std_std5",
+    "f_tgs2600_collect_slope_per_s_mean5",
+    "f_tgs2600_collect_slope_per_s_std5",
+    "f_tgs2602_relative_response_mean5",
+    "f_tgs2602_relative_response_std5",
+    "f_tgs2602_collect_std_mean5",
+    "f_tgs2602_collect_std_std5",
+    "f_tgs2602_collect_slope_per_s_mean5",
+    "f_tgs2602_collect_slope_per_s_std5",
+    "f_mq8_relative_response_mean5",
+    "f_mq8_relative_response_std5",
+    "f_mq8_collect_std_mean5",
+    "f_mq8_collect_std_std5",
+    "f_mq8_collect_slope_per_s_mean5",
+    "f_mq8_collect_slope_per_s_std5",
+    "f_tgs813_relative_response_mean5",
+    "f_tgs813_relative_response_std5",
+    "f_tgs813_collect_std_mean5",
+    "f_tgs813_collect_std_std5",
+    "f_tgs813_collect_slope_per_s_mean5",
+    "f_tgs813_collect_slope_per_s_std5",
+    "f_tgs816_relative_response_mean5",
+    "f_tgs816_relative_response_std5",
+    "f_tgs816_collect_std_mean5",
+    "f_tgs816_collect_std_std5",
+    "f_tgs816_collect_slope_per_s_mean5",
+    "f_tgs816_collect_slope_per_s_std5",
+    "f_temperature_mean",
+    "f_humidity_mean",
+    "f_tgs822_collect_mean_mean5",
+    "f_tgs822_collect_mean_std5",
+    "f_mq135_collect_mean_mean5",
+    "f_mq135_collect_mean_std5",
+    "f_mq3_collect_mean_mean5",
+    "f_mq3_collect_mean_std5",
+    "f_tgs2611_collect_mean_mean5",
+    "f_tgs2611_collect_mean_std5",
+    "f_tgs2620_collect_mean_mean5",
+    "f_tgs2620_collect_mean_std5",
+    "f_tgs2600_collect_mean_mean5",
+    "f_tgs2600_collect_mean_std5",
+    "f_tgs2602_collect_mean_mean5",
+    "f_tgs2602_collect_mean_std5",
+    "f_mq8_collect_mean_mean5",
+    "f_mq8_collect_mean_std5",
+    "f_tgs813_collect_mean_mean5",
+    "f_tgs813_collect_mean_std5",
+    "f_tgs816_collect_mean_mean5",
+    "f_tgs816_collect_mean_std5"
+  ],
+  "unit_of_observation": "one five-cycle acquisition file",
+  "labels_physical_specimens_verified": false,
+  "status": "CANDIDATE_NOT_APPROVED_FOR_TRAINING_OR_DEPLOYMENT"
+}

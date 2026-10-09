@@ -128,6 +128,26 @@ Perintah ekstraksi menolak penimpaan file keluaran yang sudah ada; gunakan nama 
 keluaran baru untuk eksperimen/revisi selanjutnya. Setiap CSV menjadi satu
 observasi agregat lima siklus, bukan lima sampel independen.
 
+### Pipeline fitur Tahap 3 (kontrak terbaru)
+
+Tahap 3 telah membuat **input snapshot SHA256** yang dibekukan dari Tahap 2.
+Dari 87 kandidat B32–B35, **86 file lolos ekstraksi ketat** dan satu file
+`L-CAW_B34.csv` ditahan karena indeks purging siklus 1 tidak lengkap.
+Dua file B37 berisi udara bersih tetap dikecualikan dari training/evaluasi kopi.
+
+    python scripts/test_stage3_feature_pipeline.py
+    python scripts/stage3_feature_pipeline.py --output-dir data/processed/stage3_v2
+
+Gunakan output versi baru agar `stage3_v1` tidak tertimpa. Kontrak lengkap:
+`data/processed/STAGE3_FEATURE_CONTRACT.md`; QA/QC:
+`docs/reports/2026-10-09_TAHAP3_PREPROCESSING_FEATURE_QA.md`.
+
+Matriks kandidat menyediakan 62 fitur legacy dan 82 fitur eksploratori,
+dengan tujuh kelompok untuk ablation selanjutnya. **Belum ada pelatihan
+model, validasi akurasi atau izin deployment.** Kolom label, batch, filename,
+dan hash hanya metadata; untuk model, hanya kolom `f_*` yang digunakan,
+dengan normalisasi dan seleksi fitur di dalam training fold.
+
 **Baca sebelum implementasi AI:** `docs/00_CURRENT_STATE.md`,
 `docs/01_MASTER_E2E_ROADMAP.md`,
 `docs/02_KONTRAK_SISTEM_DAN_KEPUTUSAN_TAHAP0.md`,

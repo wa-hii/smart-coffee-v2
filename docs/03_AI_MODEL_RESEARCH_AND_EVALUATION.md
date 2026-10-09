@@ -12,6 +12,14 @@ Skor respons relatif dan beda baseline di `phase_metrics.csv`/`paired_baseline_d
 
 Angka **86 file** pada bagian metodologi lama di bawah merupakan **snapshot awal 8 Oktober**, bukan total terbaru. Jangan memperbarui klaim performa AI hanya karena jumlah file bertambah.
 
+## Addendum Tahap 3 — Kontrak fitur versi 1 (9 Oktober 2026)
+
+Snapshot Stage 2 B32–B35 terdiri atas 87 file kandidat, tetapi hanya **86 file memenuhi kontrak fitur yang lebih ketat**. File `L-CAW_B34.csv` ditahan: purging siklus 1 mempunyai indeks sensor 1–25 dengan **indeks 8 tidak ada**; raw tidak ditambal. Dua run B37 udara bersih tetap dikecualikan. Cohort fitur baru **berbeda** dari file historis 86-observasi sebelumnya.
+
+Pipeline baru `scripts/stage3_feature_pipeline.py` dan fungsi `extract_sensor_features` menghasilkan **62 fitur legacy** serta **82 fitur eksploratori** dari data sensor (bukan label). Kontrak tujuh grup kandidat di `data/processed/stage3_v1/feature_groups.json`: `response10`, `response20`, `dynamic30`, `dynamic32_environment`, `raw_collect10`, `legacy62`, `expanded82`. Semua **ditetapkan a priori**, bukan berdasarkan hasil pada test set. Tidak dilakukan normalisasi global atau pelatihan model.
+
+**Protokol Tahap 4:** semua model menerima **hanya kolom `f_*` dari grup yang ditentukan**; label/filename/sha/batch/metadata dilarang masuk matriks fitur. Baseline per siklus merupakan transformasi tanpa fit antardata; StandardScaler/imputer/PCA/seleksi lain harus dibentuk dan fit **di dalam training fold**. Ukuran 82 fitur untuk 86 file berisiko overfit; jangan menyatakan `expanded82` lebih baik sebelum eksperimen LOBO/batch grouping. Sementara provenance label belum diverifikasi, semua hasil training/evaluasi masa depan bersifat eksploratori.
+
 ## 1. Dasar bukti dan rumusan tugas
 
 - Dataset B32–B35 memiliki **86 file akuisisi**, **23 kombinasi roast–origin**, dan **4 batch**. Setiap siklus hanya memiliki sekitar 5 titik collecting; lima siklus dalam satu file merupakan pengukuran berulang, bukan lima spesimen independen.

@@ -2,6 +2,14 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 9 Oktober 2026 — Tahap 3: kontrak fitur MQ3 deterministik
+
+- Menjadikan `extract_sensor_features` fungsi ekstraksi murni untuk input frame sensor tanpa label; kontrak legacy 62 fitur dipertahankan. Tambah varian eksploratori 82 fitur, dengan tujuh grup subset yang didefinisikan tanpa fitting/model.
+- Memeriksa 87 kandidat Stage 2 berdasarkan SHA256. **86 lolos ekstraksi ketat**, `L-CAW_B34.csv` ditahan (sampel purging indeks 8 siklus 1 hilang). Data raw tidak diubah; dua file bench B37 dikecualikan.
+- Tambah `scripts/stage3_feature_pipeline.py`, `scripts/test_stage3_feature_pipeline.py`, `data/processed/stage3_v1/`, dan kontrak `data/processed/STAGE3_FEATURE_CONTRACT.md`. Melindungi dari file/hash berbeda, metadata/label bocor ke model, CSV ADC invalid, suhu/kelembapan hilang, penulisan ke raw atau overwrite output tidak sengaja.
+- Dokumentasi: `docs/reports/2026-10-09_TAHAP3_PREPROCESSING_FEATURE_QA.md`. Model belum dilatih; label/spesimen independen, baseline dan evaluasi LOBO masih membutuhkan Tahap 2/4/5.
+- QA akhir **PASS**: PlatformIO kedua environment, HMI 12 halaman/23 event, validator 89/89 CSV umum, 87/87 B32–B35 canonical, regresi Stage 0–3, parity/tes negatif dan compileall. **Satu file Stage 3 tetap HOLD** bukan kegagalan yang disembunyikan.
+
 ## 9 Oktober 2026 — Tahap 2: provenance dan kualitas data
 
 **Status:** perangkat audit snapshot dan QA reproduksibel selesai; verifikasi label/origin serta identitas spesimen tetap P0 terbuka.

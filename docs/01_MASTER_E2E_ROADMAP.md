@@ -20,7 +20,7 @@ Dokumen bukti dasar: **00_CURRENT_STATE.md**, **02_KONTRAK_SISTEM_DAN_KEPUTUSAN_
 | 0. Penutupan kondisi aktual dan metodologi | **AUDIT OFFLINE SELESAI; keputusan label/PCB diteruskan sebagai blocker tahap terkait** | P0 | Tidak ada | Tidak |
 | 1. Mutu firmware, sensor, Nextion, dan akuisisi | **OFFLINE PASS + NORMAL FLOW OPERATOR PASS; NEGATIVE/QUANTITATIVE BENCH TERBUKA** | P0 | 0 | Ya, untuk verifikasi final |
 | 2. Inventaris dan kualitas dataset | **AUDIT REPRODUKSIBEL SELESAI; PROVENANCE LABEL/SPESIMEN P0 TERHAMBAT** | P0 | 0–1 | Tidak untuk data lama; ya untuk sampel baru |
-| 3. Preprocessing dan fitur yang dapat direproduksi | KANDIDAT SEBAGIAN | P0 | 2 | Tidak |
+| 3. Preprocessing dan fitur yang dapat direproduksi | **PIPELINE OFFLINE PASS; FITUR KANDIDAT, METODOLOGI ML BELUM VALID** | P0 | 2 | Tidak |
 | 4. Penelitian model baseline dan challenger | DIRENCANAKAN | P1 | 3 | Tidak |
 | 5. Generalisasi lintas batch, drift dan unknown | DIRENCANAKAN | P0 | 3–4 | Ya untuk pengujian prospektif |
 | 6. Pemilihan model dan kontrak artefak | TERHAMBAT OLEH 5 | P1 | 5 | Ya untuk benchmark perangkat |
@@ -83,10 +83,14 @@ Status **SEBAGIAN** berarti sebagian kode atau bukti telah tersedia, tetapi krit
 
 ## Tahap 3 — Preprocessing dan ekstraksi fitur yang dapat diulang
 
+**Implementasi 9 Oktober 2026:** ekstraksi deterministik dari manifest SHA256 Tahap 2 menggunakan fungsi bersama `extract_sensor_features` (tanpa label, sama untuk frame CSV dan frame sensor in-memory). Dari **87 file B32–B35**, **86** lolos aturan fitur ketat, **1** (`L-CAW_B34.csv`) ditahan karena `sample_idx=8` pada purging siklus 1 hilang, walaupun lolos validator canonical yang lebih permisif. Dua run B37 udara bersih tetap dikecualikan. Terdapat tujuh grup ablation 10/20/30/32/10/62/82 fitur, output `data/processed/stage3_v1/`, dan `feature_rejections.csv`. Tes hash/snapshot, parity CSV–frame sensor, byte-for-byte reproduksi, invalid/missing ADC/SHT30/phase dan konflik B37 **PASS**. Rujukan: `docs/reports/2026-10-09_TAHAP3_PREPROCESSING_FEATURE_QA.md` serta `data/processed/STAGE3_FEATURE_CONTRACT.md`.
+
+**Keputusan:** bagian engineering Tahap 3 **selesai secara offline**. Fitur masih **kandidat**: tidak ada fitting/training dan 82 fitur untuk 86 akuisisi sangat rawan overfitting. Baseline lima titik purge terakhir perlu evaluasi fisik dan model hanya dapat dipilih setelah Tahap 4–5; provenance label dan identitas spesimen fisik Tahap 2 belum terkonfirmasi.
+
 - **Tujuan, status, prioritas:** menghasilkan vektor masukan yang sama antara training dan inferensi; **SEBAGIAN (KANDIDAT), P0**. Artefak awal: 86 observasi, 62 fitur numerik.
 - **Dependensi dan desain:** hanya data MQ3 yang lolos validator; **satu file = satu observasi**, lima siklus di dalamnya diagregasi. Operasi preprocessing yang memerlukan fitting hanya boleh memakai data training.
 - **Pekerjaan:** evaluasi rerata sensor, respons relatif baseline, slope, SD, suhu/kelembapan, agregasi antar-siklus, kestabilan fitur, serta jumlah fitur optimal. Uji apakah memakai lima titik purging terakhir valid secara fisik.
-- **Modul relevan:** scripts/extract_b32_features.py, data/processed/b32_b35_features_candidate.csv dan b32_b35_features_candidate.schema.json.
+- **Modul relevan:** `scripts/extract_b32_features.py`, `scripts/stage3_feature_pipeline.py`, `data/processed/stage3_v1/`; artefak `data/processed/b32_b35_features_candidate.csv` 86-file yang lama dipertahankan untuk audit historis, bukan sumber dataset baru.
 - **Pengujian dan kasus negatif:** ekstraksi berulang menghasilkan nilai identik; file dengan ADC kosong, timestamp tidak berurutan, fase tertukar, data MQ9 atau output yang sudah ada harus ditolak. Gunakan path output baru untuk percobaan berbeda.
 - **Keluaran dan bukti:** tabel fitur dengan provenance, skema fitur berurutan, log pengujian deterministik dan daftar fitur hanya dengan awalan f_.
 - **Kriteria selesai / go-no-go:** nol fitur NaN/inf, urutan fitur konsisten, satu baris per file, tidak mengubah raw, fitur inference sesuai fitur training. Status tetap KANDIDAT sampai evaluasi ilmiah lulus.

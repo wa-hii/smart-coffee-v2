@@ -1,0 +1,41 @@
+{
+  "version": "stage3.feature.v1",
+  "candidate_rows": 86,
+  "manifest_candidate_rows": 87,
+  "held_for_feature_quality": 1,
+  "held_file_names": [
+    "L-CAW_B34.csv"
+  ],
+  "feature_count_expanded": 82,
+  "feature_count_legacy": 62,
+  "feature_groups": {
+    "response10": 10,
+    "response20": 20,
+    "dynamic30": 30,
+    "dynamic32_environment": 32,
+    "raw_collect10": 10,
+    "legacy62": 62,
+    "expanded82": 82
+  },
+  "counts_by_batch": {
+    "B32": 19,
+    "B33": 20,
+    "B34": 21,
+    "B35": 26
+  },
+  "label_distribution_unverified": {
+    "dark": 28,
+    "light": 30,
+    "medium": 28
+  },
+  "near_constant_global_feature_count": 0,
+  "input_raw_sha256_verified": true,
+  "missing_or_nonfinite_features": 0,
+  "bench_files_excluded": [
+    "L-MING_B37.csv",
+    "M-MING_B37.csv"
+  ],
+  "fit_on_all_data": false,
+  "model_trained": false,
+  "warning": "Group variants predefined; descriptive diagnostics never used to select predictors on full dataset. Future scaling, PCA, selection and tuning MUST fit within training folds. Known labels/specimens remain unverified."
+}

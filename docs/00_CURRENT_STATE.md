@@ -83,6 +83,13 @@
 - P0 sebelum AI: label origin TEM/MUK/CAW dan `physical_specimen_id`, waktu kalender, urutan pengambilan serta identitas firmware belum dapat dibuktikan dari CSV. Status training kandidat **belum disetujui**.
 - Skrip grafik `plot_sensor_pattern.py` diperkuat agar **tidak memasukkan bench B37 sebagai kopi** atau batch baru yang belum direview ke grafik per origin. Laporan: `docs/reports/2026-10-09_TAHAP2_PROVENANCE_KUALITAS_DATASET.md`.
 
+### Tahap 3 — Ekstraksi fitur terversi dan parity host
+
+- Snapshot Tahap 2 **87 kandidat** diperiksa ulang pada tingkat siklus/indeks: **86** lolos kontrak fitur, sementara `L-CAW_B34.csv` ditahan karena hilang indeks purging **8** pada siklus 1. Raw tetap tidak diubah; validator umum Tahap 2 tidak menyatakan kesalahan ini.
+- `data/processed/stage3_v1/` menyimpan kandidat **62 dan 82 fitur**, tujuh kelompok ablation tanpa seleksi berbasis label, feature quality deskriptif, manifest SHA256 dan daftar rejections. Unit observasi tetap **satu CSV berisi lima siklus**, bukan lima spesimen.
+- `extract_sensor_features` digunakan pada kode akuisisi training serta simulasi sensor-only in-memory; tes parity **PASS**. Artefak 62-fitur lama 86 file dan artefak baru 86 file **berbeda cohort** (85 file sama; `L-CAW_B34.csv` diganti oleh `L-MING_B32_20261009_172056.csv`).
+- **Belum ada model dilatih, benchmark akurasi, atau deployment Pi**. Pilihan fitur terbaik hanya dapat ditentukan setelah CV grup dalam Tahap 4–5 dan konfirmasi provenance label/spesimen.
+
 ## 5. Batas pemeriksaan dan keputusan
 
 Yang dilakukan: kompilasi offline, pengujian parser/validator, pengecekan kontrak HMI, dan analisis berkas CSV yang tersedia. Tidak ada akses COM5, restart listener, penulisan EEPROM, kalibrasi, penggerakan pompa, flashing, training model, maupun deployment Raspberry Pi.

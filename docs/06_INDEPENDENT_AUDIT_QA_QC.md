@@ -111,3 +111,12 @@ Inventaris baru: **89 CSV B32+** (87 kandidat B32–B35, dua B37 udara bersih) d
 Audit `scripts/stage2_dataset_audit.py` menghasilkan manifest SHA256, 23 kode sampel, distribusi 31 light/28 medium/28 dark, **9 sel kode–batch kosong**, **4 sel dengan file berulang**, 180 pasangan baseline B32/B35 (18 kode × 10 kanal), dan **33 flag file–kanal** sebagai antrian review. Nilai perubahan baseline hanya proxy eksploratori; identitas spesimen, waktu pengukuran dan label TEM/MUK/CAW belum terverifikasi.
 
 Tes negatif `scripts/test_stage2_dataset_audit.py` dan `scripts/test_stage2_plot_provenance.py` harus **PASS** sebelum promosi perbaikan. Generator grafik sekarang mengecualikan data bench udara bersih yang tercatat manifest dan menahan batch B36+ tanpa audit. **Status akhir:** ketersediaan alat audit dan struktur data PASS; metodologi label independen untuk training/validasi model **P0 TERHAMBAT**. Laporan detail `docs/reports/2026-10-09_TAHAP2_PROVENANCE_KUALITAS_DATASET.md`.
+
+## Addendum Tahap 3 — QA pipeline fitur (9 Oktober 2026)
+
+- `scripts/stage3_feature_pipeline.py` menggunakan manifest SHA256 Tahap 2, verifikasi checksum setiap CSV, dan fungsi `extract_sensor_features` bersama untuk data CSV maupun in-memory (calon host Pi). Tidak menerima label sebagai masukan formula sensor, dan tidak melakukan fit/seleksi fitur global.
+- Dari 87 kandidat B32–B35, **86 menerima vektor fitur**, satu (`L-CAW_B34.csv`) **HOLD_FOR_QA** karena `sample_idx=8` hilang pada fase purging siklus 1. Sebelumnya file tersebut lolos validator umum; kebutuhan QA fitur lebih ketat kini terdokumentasi. File asli tidak diubah.
+- Snapshot `data/processed/stage3_v1/` berisi 62 fitur legacy dan 82 fitur expanded, tujuh kelompok fitur ditentukan a priori, feature quality deskriptif, hash manifest/sumber, serta daftar hold. Dua file B37 udara bersih tidak ikut.
+- `scripts/test_stage3_feature_pipeline.py` menguji hash/input drift, metadata bench salah label, output overwrite, raw write protection, fitur nonfinite, hilang ADC/SHT30, mismatch fase dan parity in-memory. Existing test 62 fitur tetap PASS.
+
+**Status:** engineering Tahap 3 **PASS offline untuk 86 file terpilih**; fitting model, pemilihan jumlah fitur optimal dan generalisasi **BELUM DIUJI**. Ketidakjelasan identitas spesimen/label kopi, baseline fisik dan file yang ditahan adalah blocker penerimaan ilmiah. Laporan `docs/reports/2026-10-09_TAHAP3_PREPROCESSING_FEATURE_QA.md`.
