@@ -1,5 +1,11 @@
 # Analisis dataset Tahap 2 — snapshot lokal 9 Oktober 2026
 
+**ARSIP PRA-KOREKSI CAW:** sejak konfirmasi operator bahwa kode CAW
+adalah udara bersih, gunakan `data/analysis/stage2_v2/` untuk analisis
+dan training kandidat. Snapshot dalam direktori ini memuat empat file
+CAW sebagai kopi dan **TIDAK BOLEH** lagi digunakan untuk training/evaluasi.
+Disimpan semata untuk audit sejarah, tidak dihapus/ditimpa.
+
 Seluruh berkas di direktori ini adalah **turunan/hasil audit**, bukan sumber kebenaran label fisik. Raw CSV tetap di `data/raw/` dan tidak diubah.
 
 ## Cara menghasilkan ulang

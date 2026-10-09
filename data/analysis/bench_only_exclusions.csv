@@ -1,3 +1,7 @@
 source_file,source_sha256,recorded_batch,operator_reported_medium,collection_purpose,training_eligible,exclusion_reason
 L-MING_B37.csv,e7589d02ce97bbafad27ed361221eb0246939f8e41d0df04b963865f56c4c468,B37,clean_air,stage1_nextion_bench,false,UI coffee roast/origin choice is not the actual measured clean-air medium
 M-MING_B37.csv,558f7e91a320bc6f122888ddf104c39532d166f7bbda4be02e8e5118d6d8cb6e,B37,clean_air,stage1_nextion_bench,false,UI coffee roast/origin choice is not the actual measured clean-air medium
+L-CAW_B33.csv,cea9d9a1e3437f03867f81cdefbe332f686f5cada5529c1acc6b28429f59ef37,B33,clean_air,operator_confirmed_clean_air_code_CAW,false,CAW code is clean air and not coffee origin or roasting
+L-CAW_B34.csv,17b966d271d7487d46456d21f8eb61f21bc3f641a6dcf576b3b8621b73011c88,B34,clean_air,operator_confirmed_clean_air_code_CAW,false,CAW code is clean air and not coffee origin or roasting
+L-CAW_B35.csv,aaf3d602d9498c0c6e7bfa7f0178ee6eacb718ccc8cfa2c9ee97f0f77b873952,B35,clean_air,operator_confirmed_clean_air_code_CAW,false,CAW code is clean air and not coffee origin or roasting
+M-CAW_B35.csv,6dc05407f6a9cd188149e40dd25483843e640b2518f5e2a0df5c9ef8d54bcb71,B35,clean_air,operator_confirmed_clean_air_code_CAW,false,CAW code is clean air and not coffee origin or roasting

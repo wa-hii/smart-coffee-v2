@@ -94,8 +94,13 @@ def audit_files(raw_dir: Path, exclusions: dict[str, str]) -> tuple[pd.DataFrame
             raise ValueError(f"Skema tidak cocok: {path.name}")
         sensor_mask, event_mask, partial_mask = classify_rows(frame)
         sensor = frame.loc[sensor_mask].copy()
+        meta = sensor.iloc[0] if len(sensor) else None
         batch = f"B{int(match['batch']):02d}"
         if path.name in exclusions:
+            status = "excluded_bench_clean_air"
+        elif meta is not None and str(meta["sample_id"]).upper().endswith("-CAW"):
+            raise ValueError(f"P0: CAW clean air missing exclusion hash: {path.name}")
+        elif batch == "B37":
             status = "excluded_bench_clean_air"
         elif errors:
             status = "rejected_invalid"
@@ -103,7 +108,6 @@ def audit_files(raw_dir: Path, exclusions: dict[str, str]) -> tuple[pd.DataFrame
             status = "candidate_labels_unverified"
         else:
             status = "hold_new_batch_for_review"
-        meta = sensor.iloc[0] if len(sensor) else None
         timestamps = pd.to_numeric(sensor["timestamp"], errors="coerce")
         steps = timestamps.diff().dropna()
         record = {

@@ -1,5 +1,14 @@
 # Smart Coffee E-Nose v2
 
+**Update dataset dan benchmark 9 Oktober 2026:** operator mengonfirmasi
+**kode CAW dan batch B37 adalah udara bersih**, bukan origin kopi. Gunakan
+`data/analysis/stage2_v2/` dan `data/processed/stage3_v2/` untuk 83
+file kandidat kopi setelah pengecualian; `stage2/` dan `stage3_v1/`
+merupakan arsip pra-koreksi label. Benchmark Tahap 4 eksploratori
+`results/stage4_lobo_v2/` memakai LOBO dan **belum menghasilkan model
+yang boleh dipakai di Raspberry Pi**. Panduan detail:
+`docs/reports/2026-10-09_TAHAP4_MODEL_LOBO_CAW_CORRECTION.md`.
+
 Firmware, antarmuka Nextion, akuisisi data, dan alur pemrosesan AI untuk sistem
 e-nose berbasis **ATmega2560**.
 

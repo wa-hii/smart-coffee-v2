@@ -2,6 +2,26 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 9 Oktober 2026 — Tahap 4: CAW udara bersih dan benchmark LOBO
+
+- Operator mengonfirmasi **kode CAW dan seluruh batch B37 = udara bersih**.
+  Menambahkan empat CAW B33–B35 ke daftar pengecualian yang sebelumnya
+  mencakup dua B37. Kode audit/fitur/plot mencegah kebocoran CAW/B37
+  ke training dan grafik berlabel kopi, termasuk fail-closed SHA256.
+- Menghasilkan snapshot baru `data/analysis/stage2_v2/` (83 kandidat
+  kopi + 6 udara bersih, total 89 CSV), `data/processed/stage3_v2/`
+  (**83 fitur kandidat valid**), mempertahankan snapshot lama sebagai arsip
+  dan **tidak** mengedit raw.
+- Menambahkan `scripts/stage4_model_benchmark.py` dan regresi negatif
+  `scripts/test_stage4_model_benchmark.py`: 7 grup fitur × 8 baseline/
+  challenger × 4 batch LOBO = **224 fit/fold**, 4.648 prediksi.
+  Skor deskriptif tertinggi RF expanded82 macro-F1 **0,490**; LDA response10
+  **0,482**; penurunan pada B34/B35 masih tinggi.
+- Artefak benchmark `results/stage4_lobo_v2/` meliputi metrik fold,
+  metrik per kelas, confusion matrix, prediksi terindeks SHA256, peringkat
+  eksploratori serta config versi sklearn. Tidak ada model disimpan atau
+  di-deploy. Laporan `docs/reports/2026-10-09_TAHAP4_MODEL_LOBO_CAW_CORRECTION.md`.
+
 ## 9 Oktober 2026 — Tahap 3: kontrak fitur MQ3 deterministik
 
 - Menjadikan `extract_sensor_features` fungsi ekstraksi murni untuk input frame sensor tanpa label; kontrak legacy 62 fitur dipertahankan. Tambah varian eksploratori 82 fitur, dengan tujuh grup subset yang didefinisikan tanpa fitting/model.

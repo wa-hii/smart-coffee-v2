@@ -1,5 +1,21 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## Pembaruan terbaru — koreksi CAW dan Tahap 4 (9 Oktober 2026)
+
+Operator mengonfirmasi **CAW dan seluruh batch B37 adalah udara bersih**.
+Empat CAW B33–B35 dan dua CSV B37 kini dinyatakan bukan kopi,
+dikecualikan berdasarkan nama serta SHA256, tanpa mengubah data asli.
+`data/analysis/stage2_v2/` dan `data/processed/stage3_v2/` adalah
+snapshot canonical baru untuk **83 kandidat file kopi B32–B35**, bukan
+snapshot lama 87/86 yang memuat CAW.
+
+Benchmark Tahap 4 secara offline: 7 grup × 8 model × 4 batch LOBO,
+224 kombinasi fit/fold; macro-F1 rerata tertinggi deskriptif RF
+expanded82 **0,490**, hampir setara LDA response10 **0,482**.
+**Tidak ada model final/hasil validasi prospektif.** Identitas spesimen
+fisik, label roast dan perbedaan batch tetap perlu audit; lihat
+`docs/reports/2026-10-09_TAHAP4_MODEL_LOBO_CAW_CORRECTION.md`.
+
 > Sumber acuan: kode sumber, hasil QA offline, dan CSV mentah B32–B35 pada direktori utama. Dokumen ini mencatat keadaan rekayasa yang telah diperiksa, **bukan bukti pengujian perangkat fisik secara langsung**.
 
 ## 1. Repositori dan ruang lingkup

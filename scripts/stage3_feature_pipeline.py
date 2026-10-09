@@ -2,7 +2,7 @@
 
 Tidak melakukan fitting/training. Fitur identik untuk data file dan frame
 sensor in-memory (calon Raspberry Pi); label hanya metadata luar fitur.
-Jalankan: python scripts/stage3_feature_pipeline.py --output-dir data/processed/stage3_v1
+Jalankan: python scripts/stage3_feature_pipeline.py --output-dir data/processed/stage3_v3
 """
 
 from __future__ import annotations
@@ -22,7 +22,7 @@ from stage2_dataset_audit import COFFEE_BATCHES, read_exclusions
 
 ROOT = Path(__file__).resolve().parents[1]
 RAW = ROOT / "data" / "raw"
-MANIFEST = ROOT / "data" / "analysis" / "stage2" / "file_manifest.csv"
+MANIFEST = ROOT / "data" / "analysis" / "stage2_v2" / "file_manifest.csv"
 EXCLUSIONS = ROOT / "data" / "analysis" / "bench_only_exclusions.csv"
 OUTPUT_FILES = (
     "candidate_features82.csv", "candidate_legacy62.csv",
@@ -105,6 +105,15 @@ def manifest_candidates(
             or match.iloc[0]["source_sha256"] != expected
         ):
             raise ValueError(f"Bench provenance violation: {name}")
+    clean_air_rows = manifest["sample_id"].str.upper().str.endswith("-CAW") | manifest["batch"].eq("B37")
+    if not manifest.loc[clean_air_rows, "training_status"].eq(
+        "excluded_bench_clean_air"
+    ).all():
+        raise ValueError("Clean-air CAW/B37 provenance violation in Stage2 manifest")
+    if not set(manifest.loc[
+        manifest["sample_id"].str.upper().str.endswith("-CAW"), "source_file"
+    ]).issubset(exclusions):
+        raise ValueError("CAW exclusion missing SHA256 entry")
 
     candidates = manifest.loc[manifest["training_status"].eq(
         "candidate_labels_unverified"

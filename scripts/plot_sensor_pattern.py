@@ -127,6 +127,11 @@ def get_csv_files(recursive: bool = False) -> list[Path]:
                     f"Hash data bench tidak sesuai daftar pengecualian: {path.name}"
                 )
             continue
+        if re.match(r"^[DML]-CAW_B\d{2}(?:_|\.csv$)", path.name):
+            # Konfirmasi operator: CAW = udara bersih, bukan origin kopi.
+            # Bahkan file baru yang belum masuk manifest tidak boleh terplot
+            # sebagai sampel berlabel kopi.
+            continue
         batch = re.search(r"_B(\d{2})(?:_|\.csv$)", path.name)
         if batch and int(batch.group(1)) >= 36:
             continue

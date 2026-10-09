@@ -5,6 +5,14 @@ boleh diubah setelah pengambilan data.
 
 ## Peringatan provenance B37 — bench udara bersih (9 Oktober 2026)
 
+**Konfirmasi lanjutan operator (9 Oktober): seluruh kode CAW juga berarti
+UDARA BERSIH**, bukan origin kopi. Pada raw tercatat `L-CAW_B33.csv`,
+`L-CAW_B34.csv`, `L-CAW_B35.csv`, dan `M-CAW_B35.csv`; seluruh
+file tersebut dikecualikan bersama dua file B37, dengan SHA256 masing-masing
+di `data/analysis/bench_only_exclusions.csv`. File tidak diubah. Daftar
+ini mencakup pemakaian kode CAW pada B33–B35, sedangkan **semua batch B37**
+harus dianggap udara bersih meskipun pilihan UI adalah origin kopi.
+
 Berdasarkan konfirmasi operator bahwa selang berada pada **udara bersih** selama
 uji Nextion batch B37, `L-MING_B37.csv` dan `M-MING_B37.csv` adalah **data
 uji perangkat**, **bukan pengukuran kopi light/medium dari origin MING**.

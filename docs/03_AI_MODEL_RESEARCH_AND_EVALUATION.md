@@ -1,5 +1,25 @@
 # Penelitian dan Evaluasi Model AI — 8 Oktober 2026
 
+## Addendum terbaru — koreksi CAW dan benchmark Tahap 4 (9 Oktober 2026)
+
+**Konfirmasi operator: CAW dan seluruh batch B37 adalah udara bersih.**
+Empat CSV CAW B33–B35 serta dua B37 dikecualikan berdasarkan nama/hash,
+bukan diberi label roasting dari UI. Semua angka dan narasi 86/87 sampel
+di bawah adalah **snapshot historis sebelum koreksi**, bukan cohort
+canonical penelitian saat ini. Gunakan `data/analysis/stage2_v2/` dan
+`data/processed/stage3_v2/` yang memiliki **83 file kandidat kopi**.
+
+Benchmark klasifikasi roast-only **eksploratori** telah dijalankan melalui
+`scripts/stage4_model_benchmark.py`: 7 kelompok fitur × 8 model
+× Leave-One-Batch-Out pada B32–B35 (224 fit/fold). RF 82 fitur
+macro-F1 rerata **0,490** (balanced accuracy **0,545**), LDA 10 fitur
+macro-F1 **0,482** (balanced accuracy **0,544**). Fold RF B34/B35
+memiliki macro-F1 **0,344/0,383**, menunjukkan variasi performa antarbatches.
+Ini **bukan skor test akhir unbiased**, sebab ranking ditentukan dari
+fold yang dilihat semuanya. Belum ada model disetujui/di-deploy, label
+fisik kopi belum diaudit, dan belum diuji prospektif. Semua detail di
+`docs/reports/2026-10-09_TAHAP4_MODEL_LOBO_CAW_CORRECTION.md`.
+
 **Status: rancangan penelitian dan evaluasi. Belum ada model B32–B35 yang dilatih atau disetujui untuk digunakan pada perangkat.**
 
 ## Addendum Tahap 2 — provenance dan cohort (9 Oktober 2026)

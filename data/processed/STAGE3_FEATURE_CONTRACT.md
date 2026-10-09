@@ -1,5 +1,11 @@
 # Kontrak fitur Stage 3 — Snapshot v1 (9 Oktober 2026)
 
+**ADDENDUM PENTING:** Snapshot `stage3_v1/` adalah **HISTORIS dan tidak
+boleh dipakai untuk model kopi**, karena CAW kini terkonfirmasi sebagai
+udara bersih. Gunakan `data/processed/stage3_v2/` (83 file kandidat kopi)
+berdasarkan `data/analysis/stage2_v2/`. Formula 62/82 dan kelompok fitur
+tetap; hanya cohort/provenance yang dikoreksi.
+
 Status semua matriks: **KANDIDAT PENELITIAN — BELUM DISETUJUI UNTUK TRAINING FINAL / DEPLOYMENT**.
 
 ## Ekstraksi

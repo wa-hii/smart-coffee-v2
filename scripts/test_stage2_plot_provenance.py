@@ -21,6 +21,8 @@ def main() -> int:
         bench.write_text("bench", encoding="utf-8")
         new = raw / "M-MING_B38.csv"
         new.write_text("not reviewed", encoding="utf-8")
+        caw = raw / "M-CAW_B33.csv"
+        caw.write_text("clean air even if manifest missing", encoding="utf-8")
         exclusions = root / "exclusions.csv"
         pd.DataFrame([{
             "source_file": bench.name,

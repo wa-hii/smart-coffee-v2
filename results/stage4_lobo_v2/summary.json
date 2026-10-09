@@ -1,0 +1,23 @@
+{
+  "status": "EXPLORATORY_ONLY_NOT_VALIDATED_NO_MODEL_PROMOTION",
+  "observations": 83,
+  "held_out_batches": [
+    "B32",
+    "B33",
+    "B34",
+    "B35"
+  ],
+  "groups_tested": 7,
+  "models_tested": 8,
+  "fold_fits": 224,
+  "predictions": 4648,
+  "clean_air_CAW_B37_excluded": true,
+  "best_descriptive_row": {
+    "group": "expanded82",
+    "model": "random_forest",
+    "feature_count": 82,
+    "macro_f1_mean": 0.48982583774250443,
+    "balanced_accuracy_mean": 0.5451388888888888
+  },
+  "warning": "All folds were inspected in this same experiment; the highest-ranked configuration is NOT unbiased final performance. No physical specimen IDs, prospective test, confidence calibration or unknown rejection."
+}

@@ -129,7 +129,7 @@ def main() -> None:
     print(f"INFO metadata preset: manual={len(manual)}, listener={len(listener)}")
     print(f"INFO hanya kolektor manual: {sorted(manual.keys() - listener.keys())}")
     print(f"INFO hanya listener LCD: {sorted(listener.keys() - manual.keys())}")
-    print("INFO D-TEM, D-MUK, TEM/MUK dan CAW tetap perlu tinjauan semantik bersama operator")
+    print("INFO CAW telah dikonfirmasi sebagai udara bersih; TEM/MUK masih perlu verifikasi semantik")
     print("INFO UART Serial1 ke Raspberry Pi masih rancangan; bukan tes hardware")
     print("STAGE0_STATIC_CONTRACT_PASS")
 

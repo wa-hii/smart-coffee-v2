@@ -21,7 +21,7 @@ Dokumen bukti dasar: **00_CURRENT_STATE.md**, **02_KONTRAK_SISTEM_DAN_KEPUTUSAN_
 | 1. Mutu firmware, sensor, Nextion, dan akuisisi | **OFFLINE PASS + NORMAL FLOW OPERATOR PASS; NEGATIVE/QUANTITATIVE BENCH TERBUKA** | P0 | 0 | Ya, untuk verifikasi final |
 | 2. Inventaris dan kualitas dataset | **AUDIT REPRODUKSIBEL SELESAI; PROVENANCE LABEL/SPESIMEN P0 TERHAMBAT** | P0 | 0–1 | Tidak untuk data lama; ya untuk sampel baru |
 | 3. Preprocessing dan fitur yang dapat direproduksi | **PIPELINE OFFLINE PASS; FITUR KANDIDAT, METODOLOGI ML BELUM VALID** | P0 | 2 | Tidak |
-| 4. Penelitian model baseline dan challenger | DIRENCANAKAN | P1 | 3 | Tidak |
+| 4. Penelitian model baseline dan challenger | **BENCHMARK LOBO OFFLINE SELESAI; MODEL BELUM TERVALIDASI** | P1 | 3 | Tidak |
 | 5. Generalisasi lintas batch, drift dan unknown | DIRENCANAKAN | P0 | 3–4 | Ya untuk pengujian prospektif |
 | 6. Pemilihan model dan kontrak artefak | TERHAMBAT OLEH 5 | P1 | 5 | Ya untuk benchmark perangkat |
 | 7. Persiapan integrasi Raspberry Pi–ATmega | SEBAGIAN (DESAIN) | P1 | 1, 6 | Ya untuk integrasi |
@@ -97,6 +97,24 @@ Status **SEBAGIAN** berarti sebagian kode atau bukti telah tersedia, tetapi krit
 - **Risiko:** 62 fitur untuk 86 observasi mudah overfitting. Bandingkan himpunan fitur lebih ringkas dengan regularisasi di dalam fold.
 
 ## Tahap 4 — Penelitian model baseline dan challenger
+
+**9 Oktober 2026 — provenance direvisi berdasarkan operator:** seluruh
+`CAW` dan batch `B37` merupakan **udara bersih**. Empat file CAW
+B33–B35 dan dua file B37 dikecualikan melalui daftar nama/SHA256.
+Dataset kopi baru `stage2_v2` = **83 file kandidat** (dari 87 B32–B35),
+dan `stage3_v2` = **83 vektor fitur valid**; snapshot lama tetap arsip
+dan tidak boleh digunakan untuk training. Tidak ada CSV mentah yang diubah.
+
+**Benchmark offline dilakukan:** 7 grup fitur a priori × 8 baseline/challenger
+× 4 fold Leave-One-Batch-Out = **224 fit/fold**. Kode
+`scripts/stage4_model_benchmark.py`, hasil `results/stage4_lobo_v2/`,
+QA `scripts/test_stage4_model_benchmark.py`, laporan
+`docs/reports/2026-10-09_TAHAP4_MODEL_LOBO_CAW_CORRECTION.md`.
+Peringkat deskriptif: RF expanded82 macro-F1 **0,490**, LDA response10
+**0,482**. Performa RF antarbatch B32/B33/B34/B35 adalah
+**0,655/0,577/0,344/0,383**; belum stabil. **Tidak ada model dipilih,
+disimpan atau dipromosikan**; data uji final independen, label/spesimen
+terverifikasi dan uji prospektif belum tersedia (Tahap 5).
 
 - **Tujuan, status, prioritas:** membandingkan model sederhana dan kompleks dengan metode adil; **DIRENCANAKAN, P1**. Random Forest MQ9 lama bukan baseline baru.
 - **Dependensi dan desain:** Tahap 3 selesai; pembagian data evaluasi dan target roast-only/known-origin ditetapkan sebelum tuning.

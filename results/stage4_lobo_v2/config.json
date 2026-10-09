@@ -1,0 +1,38 @@
+{
+  "experiment": "stage4.LOBO.roast.exploratory.v1",
+  "seed": 20261009,
+  "input_features_sha256": "365f95d081e463edb6e692179a14f22837cd4c338b0d813a1984fc41e7feabfe",
+  "feature_group_sha256": "84f95bfb1c6e46f1209a2d2715e41907a3a5363c90ad0342017ac77418a1e569",
+  "stage3_snapshot_sha256": "0611c901a745b615415b18d28a7ca8b034de08abc4a50db8660ec74783e1c537",
+  "stage2_manifest_sha256": "da9b6fe1df2ac2887feddf6c87ac39afd7b0878512bcdd0d9c888d40d8e00374",
+  "clean_air_exclusion_sha256": "1d87a3481f95a63b68d466f345bea72c2d3fa9fcfadc682edb2f49b01724e01d",
+  "python": "3.14.3",
+  "sklearn": "1.9.0",
+  "grouping": "leave-one-batch-out",
+  "feature_groups": {
+    "response10": 10,
+    "response20": 20,
+    "dynamic30": 30,
+    "dynamic32_environment": 32,
+    "raw_collect10": 10,
+    "legacy62": 62,
+    "expanded82": 82
+  },
+  "model_definitions": {
+    "dummy_prior": "prior",
+    "logistic_l2": "StandardScaler + LogisticRegression C=1",
+    "lda_shrinkage": "StandardScaler + LDA lsqr shrinkage=auto",
+    "linear_svm": "StandardScaler + SVC linear C=1",
+    "rbf_svm": "StandardScaler + SVC rbf C=1 gamma=scale",
+    "knn5": "StandardScaler + KNN k=5",
+    "random_forest": "RF n=80 min_leaf=2 seed fixed",
+    "extra_trees": "ExtraTrees n=80 min_leaf=2 seed fixed"
+  },
+  "selection": "none; ranking is descriptive only, no untouched final holdout",
+  "labels": [
+    "dark",
+    "light",
+    "medium"
+  ],
+  "physical_specimen_independence_verified": false
+}

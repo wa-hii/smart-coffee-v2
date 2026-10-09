@@ -13,9 +13,13 @@ from test_acquisition_integrity import make_complete_run
 def main() -> int:
     root = Path(__file__).resolve().parents[1]
     manifest = pd.read_csv(root / "data/analysis/bench_only_exclusions.csv")
-    assert set(manifest["source_file"]) == {
-        "L-MING_B37.csv", "M-MING_B37.csv"
-    }
+    assert {"L-MING_B37.csv", "M-MING_B37.csv"}.issubset(
+        set(manifest["source_file"])
+    )
+    assert {
+        "L-CAW_B33.csv", "L-CAW_B34.csv", "L-CAW_B35.csv",
+        "M-CAW_B35.csv",
+    }.issubset(set(manifest["source_file"]))
     assert set(manifest["training_eligible"].astype(str).str.lower()) == {"false"}
     for entry in manifest.itertuples():
         raw = root / "data/raw" / entry.source_file
