@@ -18,7 +18,7 @@ Dokumen bukti dasar: **00_CURRENT_STATE.md**, **02_KONTRAK_SISTEM_DAN_KEPUTUSAN_
 | Tahap | Status saat audit | Prioritas | Dependensi utama | Perangkat fisik diperlukan? |
 |---|---|---|---|---|
 | 0. Penutupan kondisi aktual dan metodologi | **AUDIT OFFLINE SELESAI; keputusan label/PCB diteruskan sebagai blocker tahap terkait** | P0 | Tidak ada | Tidak |
-| 1. Mutu firmware, sensor, Nextion, dan akuisisi | **OFFLINE HARDENED; BENCH/HARDWARE BELUM DIVERIFIKASI** | P0 | 0 | Ya, untuk verifikasi final |
+| 1. Mutu firmware, sensor, Nextion, dan akuisisi | **OFFLINE PASS + 1 RUN BENCH PASIF PASS; AKTUATOR/GUI FISIK BELUM DIVERIFIKASI** | P0 | 0 | Ya, untuk verifikasi final |
 | 2. Inventaris dan kualitas dataset | SEBAGIAN | P0 | 0–1 | Tidak untuk data lama; ya untuk sampel baru |
 | 3. Preprocessing dan fitur yang dapat direproduksi | KANDIDAT SEBAGIAN | P0 | 2 | Tidak |
 | 4. Penelitian model baseline dan challenger | DIRENCANAKAN | P1 | 3 | Tidak |
@@ -51,6 +51,8 @@ Status **SEBAGIAN** berarti sebagian kode atau bukti telah tersedia, tetapi krit
 **Pelaksanaan 9 Oktober 2026:** pengamanan kode firmware dan QA offline dilakukan. Perintah `#pin_scan;` kini mengembalikan `PIN_SCAN_DISABLED` tanpa menyentuh pin; `#valve_on/off/test;` dinonaktifkan pada build default dan hanya dapat diaktifkan lewat flag build untuk SOP bench. Perintah serial `#start;` menolak sensor/ADC yang belum siap, dan `#scan;` ditolak selama akuisisi. Event `ACQ_START` pada `ai_test` tidak lagi membawa label roast/origin/batch atau nama file. `adsCallback` sekarang mengirim sampel dengan fase/siklus aslinya **sebelum** `processAcquisitionState()` menerbitkan `PHASE_CHANGE`/`ACQ_COMPLETE`; sampel idle/paused tidak lagi mengalir sebagai payload sensor. Regresi sintetik dan pengujian kontrak baru ada pada `scripts/test_stage1_firmware_contract.py` serta `scripts/test_acquisition_integrity.py`.
 
 **Gerbang QA:** kompilasi dan pengujian offline merupakan satu milestone, **bukan penutupan seluruh Tahap 1**. Timing fisik ADC–valve, jumlah sampel di perangkat, cara kerja pause/resume terhadap ruang aroma, GPIO dan driver aktuator, perbedaan USB serial, kalibrasi, EEPROM, Nextion Editor/TFT, serta pemulihan koneksi tetap **BELUM DIUJI**; membutuhkan SOP bench, jadwal, dan bukti terukur. Laporan: `docs/reports/2026-10-09_TAHAP1_FIRMWARE_AKUISISI_QA.md`.
+
+**Preflight bench pasif 9 Oktober:** listener `pythonw.exe` (PID 16472) terhubung COM5@115200 dan menyelesaikan satu sesi `L-MING_B32_20261009_172056.csv`. CSV final memiliki **150 sampel**, 5× (25 purging + 5 collecting), sample_idx kontigu, timestamp MCU 996–1004 ms antar-sampel, serta validator PASS. Ini **bukti jalur host→CSV**, bukan verifikasi timing aktuator atau versi firmware yang terpasang. Lihat `docs/reports/2026-10-09_TAHAP1_BENCH_PASIF_PRECHECK.md` dan **draf** `docs/SOP_BENCH_TAHAP1.md`. COM5 tidak diambil alih. Kriteria lulus hardware Tahap 1 **belum terpenuhi**.
 
 - **Tujuan, status, prioritas:** tidak ada sampel salah fase, baris CSV palsu, hilang atau tertimpa secara diam-diam; **SEBAGIAN, P0**. Sejumlah perbaikan validator dan listener sudah teruji offline.
 - **Dependensi dan desain:** pembacaan sepuluh kanal ADC dengan SHT30 pada I2C; state machine dan keselamatan aktuator di ATmega; komunikasi Nextion 9600 dan USB 115200 baud.

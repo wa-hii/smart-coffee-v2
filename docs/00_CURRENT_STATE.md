@@ -17,7 +17,7 @@
 | Firmware utama ATmega | Kompilasi PlatformIO mega2560 berhasil. RAM statis 3.720/8.192 byte dan flash 35.854/253.952 byte pada saat pemeriksaan. | Pembacaan sensor fisik, ketepatan waktu, stack/heap runtime, pemanasan sensor, kalibrasi, dan keselamatan aktuator. |
 | Firmware uji Nextion | Kompilasi environment nextion_test berhasil. | Pertukaran UART nyata, pemulihan koneksi, dan penanganan galat perangkat. |
 | HMI | Pemeriksa offline berhasil untuk 12 aset Figma, 12 halaman HMI, 23 event yang dipetakan, serta kontrak komunikasi. | Kompilasi Nextion Editor, simulasi editor, TFT terbaru, dan layar fisik. |
-| Akuisisi | 86 dari 86 CSV B32–B35 lolos validator struktur. | Keakuratan kalibrasi ADC/sensor, timestamp nyata, dan identitas spesimen/sesi. |
+| Akuisisi | 87 dari 87 CSV B32–B35 yang terlihat pada mesin ini (9 Oktober, setelah run baru) lolos validator struktur. | Keakuratan kalibrasi ADC/sensor, timing fisik valve, dan identitas spesimen/sesi. |
 | Ekstraksi fitur | Kandidat 62 fitur dengan 86 observasi tingkat file berhasil dibuat tanpa training. | Seleksi fitur ilmiah, uji generalisasi, dan kesesuaian fitur ketika inferensi. |
 | Model AI | Laporan historis Random Forest B01–B05 tersedia. | Evaluasi, pemilihan, serta validasi model pada B32–B35. |
 | Raspberry Pi 5 | Menjadi target integrasi yang direncanakan. | Implementasi adapter, benchmark pada Pi, dan komunikasi inferensi dua arah. |
@@ -25,6 +25,8 @@
 **Audit Tahap 0 (9 Oktober):** baseline lintas modul dicatat di `docs/02_KONTRAK_SISTEM_DAN_KEPUTUSAN_TAHAP0.md`. Script `scripts/test_stage0_contract.py` memeriksa konstanta fase, kanal ADC, format serial/CSV, sumber HMI, pemetaan preset antar-kolektor, serta pemetaan pin Nextion tanpa mengakses COM5. Opsi UART `Serial1` ke Raspberry Pi masih rancangan, bukan jalur yang telah dipasang atau aktif.
 
 ## 3. Inventaris dataset B32–B35
+
+**Snapshot dasar 8 Oktober 2026 (86 file)** dicantumkan di bawah untuk membedakan hasil audit sebelumnya dari data yang masuk kemudian:
 
 - Total **86 berkas**: B32 = 18; B33 = 20; B34 = 22; B35 = 26.
 - Total **13.615 baris CSV**: **13.003 baris sensor lengkap** serta **612 baris event historis yang hanya berisi metadata**. Tidak ditemukan baris sensor parsial menurut validator struktural.
@@ -35,7 +37,9 @@
 - Field timestamp berasal dari **millis() ATmega**, yakni waktu sejak MCU menyala, bukan tanggal dan jam kalender. CSV aktif belum menyertakan ID spesimen fisik, ID sesi atau tanggal pengukuran yang eksplisit.
 - Definisi identitas origin perlu dibakukan, terutama kode **TEM/MUK** yang memiliki variasi nama pada metadata historis.
 
-## 4. Temuan prioritas
+**Pembaruan lokal 9 Oktober 2026:** satu file final `L-MING_B32_20261009_172056.csv` menambah total menjadi **87 file**: B32=19, B33=20, B34=22, B35=26. Validator **87/87 PASS**; **13.765 baris total = 13.153 baris sensor + 612 metadata historis**, dengan **10.881 purging** dan **2.272 collecting**. Total file light=31, medium=28, dark=28; artefak ekstraksi fitur kandidat 86 observasi **belum otomatis dihitung ulang**. Run tambahan bukan bukti spesimen baru independen.
+
+## 4. Temuan prioritas awal (sebelum tindak lanjut Tahap 1)
 
 1. **P0 — Integritas CSV.** Listener lama memasukkan event PHASE_CHANGE sebagai baris CSV kosong. Bug utama sudah diperbaiki dalam commit 54d3321. Audit lanjutan menambah validasi bilangan dan rentang ADC, deteksi indeks duplikat, perlindungan benturan nama file, serta regression test.
 2. **P0 — Ketidakcocokan ekstraktor historis.** scripts/8_extract_features.py memakai MQ9 dan membutuhkan minimal 10 titik collecting; data aktif memakai MQ3 dengan sekitar 5 titik. Skrip historis kini menolak pencampuran skema dan tidak menimpa artefak lama. Ekstraktor kandidat MQ3 dibuat terpisah.
@@ -55,6 +59,13 @@
 - **Regresi:** pemeriksaan kontrak firmware baru serta tes listener untuk AI_TEST tanpa label, COMPLETE ganda, dan STOP parsial ditambahkan. Detail: `docs/reports/2026-10-09_TAHAP1_FIRMWARE_AKUISISI_QA.md`.
 
 **Status Tahap 1: perbaikan offline telah diimplementasikan, verifikasi hardware belum dilakukan.** Narasi risiko sebelumnya adalah kondisi *sebelum perbaikan*, bukan indikasi bahwa perbaikan kode belum dikerjakan.
+
+### Bukti tambahan bench pasif — 9 Oktober 2026
+
+- Listener Windows (`pythonw.exe`, PID 16472) dilaporkan terhubung ke COM5 pada 115200 baud. Log mencatat START dan COMPLETE untuk `L-MING_B32_20261009_172056.csv`; validator layanan mengonfirmasi **150 baris sensor, nol parsial**.
+- Pemeriksaan read-only terhadap CSV final mengonfirmasi lima siklus, **25 purging + 5 collecting** per siklus, interval `millis()` antar-sampel **996–1004 ms**, dan tidak ada ADC kosong/0/32767. SHA256 tercatat di `docs/reports/2026-10-09_TAHAP1_BENCH_PASIF_PRECHECK.md`.
+- **Status yang benar:** satu akuisisi fisik-to-host **lulus pemeriksaan rekaman**; versi firmware dalam alat, gerak valve/pompa, pin/wiring, pemanasan gas, Nextion fisik, dan fault injection **belum diverifikasi**. Tidak ada akses serial tambahan atau operasi terhadap alat dari agen.
+- SOP bench aktif baru berupa **draf untuk persetujuan operator**: `docs/SOP_BENCH_TAHAP1.md`. Alat QA pasif yang dapat dipakai ulang: `scripts/bench_stage1_passive_qa.py`.
 
 ## 5. Batas pemeriksaan dan keputusan
 
