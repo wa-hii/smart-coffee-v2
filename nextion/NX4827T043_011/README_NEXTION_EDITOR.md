@@ -62,11 +62,11 @@ Perintah dari ATmega menuju Nextion menggunakan terminator standar **FF FF FF**.
 
 ### Koneksi kabel
 
-- **Nextion TX → ATmega2560 PH0/RXD2**, pin fisik IC **8**.
-- **Nextion RX ← ATmega2560 PH1/TXD2**, pin fisik IC **9**.
+- **Nextion TX → ATmega2560 PH0/RXD2**, pin kemasan TQFP-100 **12**.
+- **Nextion RX ← ATmega2560 PH1/TXD2**, pin kemasan TQFP-100 **13**.
 - **GND → GND**.
 
-Pada header board Arduino Mega 2560, kedua sinyal tersebut adalah **RX2/D17 dan TX2/D16**. Firmware produksi menggunakan **Serial2**. **Pin fisik IC 8/9 bukan pin digital Arduino D8/D9.**
+Pada header Arduino Mega 2560, kedua sinyal tersebut adalah **RX2/D17 dan TX2/D16**. Firmware produksi menggunakan **Serial2**. Jangan gunakan angka pin 8/9 dari catatan lama sebagai nomor pin TQFP; periksa skematik PCB aktual sebelum mengubah wiring. Acuan: datasheet resmi Microchip ATmega2560, Figure 1-1.
 
 ## 5. Alur AMBIL DATA
 

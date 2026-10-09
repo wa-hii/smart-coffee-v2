@@ -1,6 +1,6 @@
 # Rancangan Integrasi Nextion–ATmega2560–Raspberry Pi 5
 
-**Status: rancangan teknis, belum diterapkan pada perangkat fisik.** Tidak ada perubahan protokol komunikasi USB atau deployment Raspberry Pi pada sesi audit ini.
+**Status: rancangan teknis, belum diterapkan pada perangkat fisik.** Audit Tahap 0 pada 9 Oktober 2026 mencatat opsi UART GPIO terpisah sebagai alternatif yang sedang dipertimbangkan; belum ada perubahan protokol komunikasi, kabel atau deployment. Lihat `02_KONTRAK_SISTEM_DAN_KEPUTUSAN_TAHAP0.md`.
 
 ## 1. Arsitektur saat ini dan target
 
@@ -10,12 +10,12 @@
 
     Nextion START TEST
       → ATmega2560 (kontrol perangkat dan akuisisi)
-      → Serial USB (payload JSON)
+      → transport serial (USB aktif saat ini / UART1 kandidat)
       → Raspberry Pi 5 (validasi dan penyusunan sesi)
       → Preprocessing dan ekstraksi fitur
       → Model AI terverifikasi
       → Keputusan prediksi / unknown
-      → Serial USB (hasil dan acknowledgment)
+      → transport serial yang telah disepakati (hasil dan acknowledgment)
       → ATmega2560
       → Nextion pResult
 
@@ -30,7 +30,7 @@ Inferensi tidak boleh menghalangi mekanisme keselamatan pompa, valve, dan pengat
 | **Raspberry Pi 5** | Menerima serial, memvalidasi payload, mendeteksi data hilang, menyusun lima siklus, ekstraksi fitur, inferensi, unknown/N/A, log dan riwayat | Mengendalikan pompa/valve secara langsung |
 | **Komputer training offline** | Inventaris dataset, validasi kelompok, eksperimen model, pemilihan fitur, ekspor artefak terverifikasi | Melakukan fitting otomatis pada data pengujian saat perangkat berjalan |
 
-## 3. Usulan kontrak serial USB versi 1 — belum diimplementasikan
+## 3. Usulan kontrak serial host versi 1 — belum diimplementasikan
 
 Format yang disarankan: pesan **JSON UTF-8 per baris (NDJSON)** dengan field version=1, type, session_id (UUID), message_seq (urutan pesan dalam sesi), device_id, emitted_uptime_ms, dan mode.
 
@@ -44,14 +44,23 @@ Format yang disarankan: pesan **JSON UTF-8 per baris (NDJSON)** dengan field ver
 | **INFERENCE_ERROR** | Kesalahan data/sesi/model/skema, perangkat host tidak tersedia, atau timeout. ATmega menampilkan N/A dan alasan. |
 | **ACK / NACK** | Konfirmasi nomor pesan dan sesi; pengiriman ulang hanya untuk operasi idempoten, **bukan** memulai kembali pengambilan data fisik secara otomatis. |
 
-Nama dan field di atas adalah **usulan desain**, belum merupakan pesan yang benar-benar dikeluarkan firmware. Bedakan dengan jelas **run_id** (siklus ke-1 s.d. ke-5), **session_id** (satu pengambilan data), **sample_id** (kode label), serta **ID spesimen fisik** (kopi yang sama mungkin diuji berkali-kali).
+Nama dan field di atas adalah **usulan desain**, belum merupakan pesan yang benar-benar dikeluarkan firmware. Saat ini `ai_test` masih memuat label pilihan layar di event `ACQ_START`, yang **bukan ground truth dan harus dihilangkan atau dipisahkan** saat implementasi protokol baru. Bedakan dengan jelas **run_id** (siklus ke-1 s.d. ke-5), **session_id** (satu pengambilan data), **sample_id** (kode label), serta **ID spesimen fisik** (kopi yang sama mungkin diuji berkali-kali).
+
+### Pilihan transport yang perlu diputuskan
+
+| Opsi | Kondisi aktual dan prasyarat |
+|---|---|
+| **USB Serial** | **Sudah aktif** untuk komputer/laptop melalui `Serial` @ 115200. Bisa menjadi jalur host Pi jika perangkat USB dan kepemilikan port memungkinkan. Tidak sama dengan UART GPIO langsung. |
+| **UART khusus ke Pi** | **Belum diterapkan.** Kandidat `Serial1` ATmega: TX1 D18/PD3 dan RX1 D19/PD2; Nextion tetap `Serial2`. Ke GPIO Raspberry Pi 5 diperlukan pengubah level logika 5 V↔3,3 V dan GND bersama. Periksa skematik PCB, sinyal pin yang sudah terpakai, dan SOP sebelum wiring. |
+
+**Risiko keselamatan:** perintah debug firmware `#pin_scan;` saat ini mencakup D19/RX1 dan D20/SDA, sehingga tidak boleh digunakan saat UART Pi atau bus I2C terhubung tanpa mitigasi/SOP. Skema dan pilihan akhir transport ditutup pada Tahap 7, **bukan keputusan final audit Tahap 0**.
 
 ## 4. Skenario QA dan kriteria penerimaan
 
 1. Replay offline lima siklus AI_TEST valid menghasilkan **tepat satu** hasil inferensi dan tidak mengalirkan metadata ground truth ke masukan model.
 2. ADC hilang, kanal tertukar, pesan rusak/duplikat, siklus tidak berurutan, nilai lingkungan tidak masuk akal, atau sequence berulang harus ditolak atau diberi status kualitas secara eksplisit.
 3. Restart ATmega/Nextion di tengah akuisisi tidak boleh menampilkan hasil seolah-olah proses selesai; harus kembali ke status pemulihan yang sesuai.
-4. Raspberry Pi mati, model tidak tersedia, atau inferensi melewati batas waktu → tampil **N/A**. Aktuator tetap mengikuti keadaan aman yang diatur ATmega.
+4. Raspberry Pi mati, model tidak tersedia, atau inferensi melewati batas waktu → tampil **N/A**. Aktuator tetap mengikuti keadaan aman yang diatur ATmega. Berlaku setelah adapter komunikasi dan handler hasil benar-benar diterapkan.
 5. Mode AMBIL DATA menyimpan CSV final secara aman hanya setelah validasi; file parsial dipertahankan di lokasi terpisah beserta alasan, bukan dihapus tanpa catatan.
 6. Ukur p50/p95 latensi, penggunaan CPU/RAM, ukuran model, keandalan koneksi dan waktu pemulihan pada **Raspberry Pi 5 nyata**.
 7. Setelah ada persetujuan terpisah, lakukan verifikasi tombol Nextion, fase pompa/valve, kegagalan SHT30, rekoneksi USB, serta pemulihan setelah listrik terputus.

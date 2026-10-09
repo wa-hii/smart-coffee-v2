@@ -83,3 +83,13 @@ Skrip fitur sengaja menolak penimpaan file output yang sudah ada. Untuk eksperim
 | Integrasi fisik Raspberry Pi–ATmega–Nextion secara menyeluruh | **BELUM DIUJI / TERHAMBAT** |
 
 Dokumen tindak lanjut utama adalah **01_MASTER_E2E_ROADMAP.md**. Jangan menyatakan perangkat telah siap penuh sebelum gerbang pengujian AI dan perangkat fisik benar-benar ditutup dengan bukti.
+
+## Lampiran — verifikasi ulang Tahap 0 (9 Oktober 2026)
+
+Hasil QA offline terbaru tercatat pada `docs/reports/2026-10-09_TAHAP0_AUDIT_KONTRAK_DAN_QA.md`. Ringkasan:
+
+- **PASS:** build `mega2560` dan `nextion_test`; validasi HMI offline 12 halaman/23 event; validator 86/86 CSV B32–B35 serta 18/18 B32; regresi akuisisi, fitur, dan kontrak statis baru; `compileall` serta `git diff --check`.
+- **Koreksi yang dibuktikan datasheet:** pin TQFP-100 `PH0/RXD2=12`, `PH1/TXD2=13`, bukan 8/9. Implementasi UART Nextion tidak berubah; pin PCB nyata belum diuji.
+- **Temuan baru yang masih terbuka:** `#pin_scan;` mencakup D19/RX1 dan D20/SDA; `AI_TEST` masih mengeluarkan label pilihan antarmuka pada event `ACQ_START`; tiga preset kolektor manual (`L-CAW`, `M-CAW`, `M-MUK`) tidak memiliki entri khusus di pemetaan per-sampel listener LCD. Ini bukan regresi akibat audit, tetapi temuan existing yang perlu ditangani berdasarkan tahap dan SOP.
+
+**Keputusan:** audit statis dan dokumentasi kontrak Tahap 0 selesai; tindak lanjut implementasi/hardware tetap **terbuka atau terhambat** sesuai daftar T0-01 sampai T0-07 dalam dokumen 02.

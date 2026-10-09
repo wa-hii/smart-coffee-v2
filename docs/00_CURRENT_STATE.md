@@ -1,13 +1,13 @@
-# Kondisi Aktual Smart Coffee E-Nose v2 — 8 Oktober 2026
+# Kondisi Aktual Smart Coffee E-Nose v2 — audit lanjutan 9 Oktober 2026
 
 > Sumber acuan: kode sumber, hasil QA offline, dan CSV mentah B32–B35 pada direktori utama. Dokumen ini mencatat keadaan rekayasa yang telah diperiksa, **bukan bukti pengujian perangkat fisik secara langsung**.
 
 ## 1. Repositori dan ruang lingkup
 
-- Repositori kerja: smart-coffee-v2-hardware/smart-coffee-v2-hardware, branch **wahyu**, dengan HEAD awal audit **54d3321**. Sebelum audit terdapat perubahan lokal platformio.ini untuk COM5; perubahan milik pengguna ini dipertahankan dan tidak dimasukkan ke commit.
+- Repositori kerja: smart-coffee-v2-hardware/smart-coffee-v2-hardware, branch **wahyu**. Baseline awal audit independen 8 Oktober adalah **54d3321**; baseline sebelum audit Tahap 0 tanggal 9 Oktober adalah **bf7080e**. Perubahan lokal `platformio.ini` untuk COM5 tetap milik pengguna dan tidak dimasukkan ke commit.
 - Firmware utama ATmega2560 berada di **src/**. Proyek HMI Nextion yang menjadi acuan adalah **nextion/NX4827T043_011/project/RoastSense_NX4827T043_011_COMPILE_READY.HMI**. Aset desain Figma telah dikunci; berkas TFT lama belum terbukti identik dengan HMI terbaru.
 - Urutan sensor pada firmware dan CSV: TGS822, MQ135, **MQ3**, TGS2611, TGS2620, TGS2600, TGS2602, MQ8, TGS813, TGS816. Empat ADS1115 menggunakan alamat 0x48–0x4B; SHT30 dibaca melalui bus I2C.
-- Nextion: USART2 (Serial2) 9600 baud, yaitu PH0/RXD2 pada pin fisik IC 8 (RX2/D17 pada header Arduino Mega) dan PH1/TXD2 pada pin fisik IC 9 (TX2/D16). Serial USB ke komputer/host menggunakan 115200 baud.
+- Nextion: USART2 (`Serial2`) 9600 baud, yaitu PH0/RXD2 pada **pin TQFP-100 nomor 12** (RX2/D17 pada header Arduino Mega) dan PH1/TXD2 pada **pin nomor 13** (TX2/D16). Angka pin IC 8/9 pada dokumen lama keliru menurut datasheet Microchip. Serial USB ke komputer/host menggunakan 115200 baud. Koreksi belum diverifikasi pada skematik PCB fisik.
 - Akuisisi aktif: **5 siklus × (purging 25 detik + collecting 5 detik)**, dengan durasi nominal sekitar 150 detik per pengujian. Keterlambatan antarmuka/komunikasi dan durasi nyata masih harus diukur.
 
 ## 2. Kondisi dan kesiapan subsistem
@@ -21,6 +21,8 @@
 | Ekstraksi fitur | Kandidat 62 fitur dengan 86 observasi tingkat file berhasil dibuat tanpa training. | Seleksi fitur ilmiah, uji generalisasi, dan kesesuaian fitur ketika inferensi. |
 | Model AI | Laporan historis Random Forest B01–B05 tersedia. | Evaluasi, pemilihan, serta validasi model pada B32–B35. |
 | Raspberry Pi 5 | Menjadi target integrasi yang direncanakan. | Implementasi adapter, benchmark pada Pi, dan komunikasi inferensi dua arah. |
+
+**Audit Tahap 0 (9 Oktober):** baseline lintas modul dicatat di `docs/02_KONTRAK_SISTEM_DAN_KEPUTUSAN_TAHAP0.md`. Script `scripts/test_stage0_contract.py` memeriksa konstanta fase, kanal ADC, format serial/CSV, sumber HMI, pemetaan preset antar-kolektor, serta pemetaan pin Nextion tanpa mengakses COM5. Opsi UART `Serial1` ke Raspberry Pi masih rancangan, bukan jalur yang telah dipasang atau aktif.
 
 ## 3. Inventaris dataset B32–B35
 
@@ -41,16 +43,20 @@
 4. **P1 — Risiko salah atribusi fase.** adsCallback() membaca sensor sebelum processAcquisitionState() mengganti fase, tetapi mengirim JSON sesudahnya. Sampel tepat di batas fase mungkin diberi label fase yang baru. **Belum diubah**, karena perlu bukti timing melalui simulasi dan pengujian perangkat.
 5. **P1 — Status AI perangkat.** Inferensi TinyML ATmega dinonaktifkan secara bawaan (USE_ON_DEVICE_INFERENCE=0); origin dan confidence tampil N/A. Jalur hasil inferensi dari Pi belum tervalidasi.
 6. **P1 — Metadata dan protokol.** Event saat ini belum memiliki identitas akuisisi unik, identitas spesimen fisik, waktu kalender, sequence/acknowledgment, serta kontrak hasil dan error host yang terversi.
+7. **P0 — Keselamatan diagnostik pin dan UART mendatang.** Perintah `#pin_scan;` mencakup D19/RX1 serta D20/SDA dan berpotensi mengganggu sambungan Pi atau bus sensor bila digunakan saat terhubung. Jangan menjalankan perintah ini sebelum ditinjau dan memiliki SOP.
+8. **P0 — Label pada mode AI_TEST.** Event `ACQ_START` pada `ai_test` masih menyertakan pilihan roast/origin yang merupakan metadata default UI, bukan ground truth; listener saat ini tidak menyimpannya sebagai dataset labeled. Harus dipisahkan dalam kontrak inferensi mendatang.
+9. **P0 — Keputusan label origin.** Pemetaan preset yang sama antarkolektor cocok pada kode yang beririsan, tetapi daftar preset tidak identik. Label TEM/MUK/CAW belum dibakukan berdasarkan definisi kopi nyata.
 
 ## 5. Batas pemeriksaan dan keputusan
 
 Yang dilakukan: kompilasi offline, pengujian parser/validator, pengecekan kontrak HMI, dan analisis berkas CSV yang tersedia. Tidak ada akses COM5, restart listener, penulisan EEPROM, kalibrasi, penggerakan pompa, flashing, training model, maupun deployment Raspberry Pi.
 
-**Keputusan:** kesiapan perangkat lunak untuk pemrosesan CSV secara struktural cukup baik; klaim generalisasi AI maupun E2E perangkat fisik **belum terpenuhi**. Fitur baru berstatus kandidat penelitian, bukan model siap deployment.
+**Keputusan:** kesiapan perangkat lunak untuk pemrosesan CSV secara struktural cukup baik; klaim generalisasi AI maupun E2E perangkat fisik **belum terpenuhi**. Fitur baru berstatus kandidat penelitian, bukan model siap deployment. Inventaris Tahap 0 telah diperbarui dengan sumber acuan dan pemilik masing-masing masalah terbuka; Tahap 1/2/7/9 tetap memiliki pekerjaan yang wajib dibuktikan.
 
 Dokumen lanjutan:
 
 - **01_MASTER_E2E_ROADMAP.md** — peta jalan utama.
+- **02_KONTRAK_SISTEM_DAN_KEPUTUSAN_TAHAP0.md** — baseline, koreksi pin, dan daftar keputusan terbuka.
 - **03_AI_MODEL_RESEARCH_AND_EVALUATION.md** — penelitian dan metodologi AI.
 - **04_NEXTION_ATMEGA_RASPI_ARCHITECTURE.md** — rancangan integrasi.
 - **06_INDEPENDENT_AUDIT_QA_QC.md** — temuan audit serta bukti pengujian.

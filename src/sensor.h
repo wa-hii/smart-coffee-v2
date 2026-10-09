@@ -15,7 +15,7 @@
 #include "sht30.h"
 #include "TGSSensor.h"
 
-// ─── Software I2C Pins ────────────────────────────────────────────────────────
+// ─── Hardware I2C Pins (Wire) ─────────────────────────────────────────────────
 #define PIN_SDA   20
 #define PIN_SCL   21
 

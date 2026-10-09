@@ -26,12 +26,14 @@ aktif file HMI.
 
 | Jalur | Pin fisik IC ATmega2560 | Pin setara pada header Arduino Mega |
 |---|---|---|
-| Nextion TX → MCU RX | PH0 / RXD2, pin fisik 8 | RX2 / D17 |
-| Nextion RX ← MCU TX | PH1 / TXD2, pin fisik 9 | TX2 / D16 |
+| Nextion TX → MCU RX | PH0 / RXD2, pin TQFP-100 **12** | RX2 / D17 |
+| Nextion RX ← MCU TX | PH1 / TXD2, pin TQFP-100 **13** | TX2 / D16 |
 | Ground | GND | GND |
 
-Catatan: **pin fisik 8/9 pada IC ATmega2560 bukan pin digital Arduino D8/D9**.
-PH0/PH1 adalah USART2, sehingga firmware harus memakai `Serial2`.
+Catatan: nomor pin IC TQFP-100 berbeda dari nomor pada header Arduino
+Mega. Datasheet Microchip menempatkan PH0/PH1 pada pin IC **12/13**,
+bukan 8/9; pemetaan PCB custom harus diperiksa terhadap skematik sebelum
+mengubah sambungan fisik. Firmware memakai `Serial2`.
 
 ## Struktur repositori
 
@@ -128,6 +130,7 @@ observasi agregat lima siklus, bukan lima sampel independen.
 
 **Baca sebelum implementasi AI:** `docs/00_CURRENT_STATE.md`,
 `docs/01_MASTER_E2E_ROADMAP.md`,
+`docs/02_KONTRAK_SISTEM_DAN_KEPUTUSAN_TAHAP0.md`,
 `docs/03_AI_MODEL_RESEARCH_AND_EVALUATION.md`,
 `docs/04_NEXTION_ATMEGA_RASPI_ARCHITECTURE.md`, dan
 `docs/06_INDEPENDENT_AUDIT_QA_QC.md`.

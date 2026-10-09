@@ -24,6 +24,7 @@ Sebelum bekerja, cek status Git, perubahan lokal, kode dan data terkait, serta d
 - `README.md` — gambaran proyek dan perintah kerja.
 - `docs/00_CURRENT_STATE.md` — kondisi dan batas verifikasi aktual.
 - `docs/01_MASTER_E2E_ROADMAP.md` — prioritas, dependensi, dan kriteria penerimaan.
+- `docs/02_KONTRAK_SISTEM_DAN_KEPUTUSAN_TAHAP0.md` — baseline lintas subsistem, pin resmi, dan keputusan terbuka.
 - `docs/03_AI_MODEL_RESEARCH_AND_EVALUATION.md` — penelitian serta evaluasi AI.
 - `docs/04_NEXTION_ATMEGA_RASPI_ARCHITECTURE.md` — arsitektur integrasi.
 - `docs/06_INDEPENDENT_AUDIT_QA_QC.md` — temuan, risiko, dan bukti QA/QC.
@@ -37,7 +38,7 @@ Kepemilikan direktori: `src/`, `include/`, `lib/` (firmware); `test/` (uji embed
 
 - **MCU:** ATmega2560; empat ADS1115 beralamat `0x48–0x4B`; SHT30 melalui I2C.
 - **Sepuluh kanal gas berurutan:** TGS822, MQ135, **MQ3**, TGS2611, TGS2620, TGS2600, TGS2602, MQ8, TGS813, TGS816.
-- **Nextion:** NX4827T043_011 melalui `Serial2` @ 9600 baud. Nextion TX → PH0/RXD2 (pin fisik IC 8; header Mega RX2/D17); Nextion RX ← PH1/TXD2 (pin fisik IC 9; header TX2/D16). **Pin fisik IC 8/9 bukan Arduino D8/D9.**
+- **Nextion:** NX4827T043_011 melalui `Serial2` @ 9600 baud. Nextion TX → PH0/RXD2 (**TQFP-100 pin 12**, header Mega RX2/D17); Nextion RX ← PH1/TXD2 (**TQFP-100 pin 13**, header TX2/D16). Jangan samakan nomor pin kemasan IC dengan nomor pin header Arduino; pastikan jalur PCB custom berdasarkan skematik. Acuan: datasheet Microchip ATmega2560 dan pinout Arduino Mega resmi.
 - **USB ke host:** `Serial` @ 115200 baud; Raspberry Pi 5 adalah target pemrosesan/inferensi AI.
 - **Akuisisi aktif:** lima siklus, masing-masing 25 detik purging + 5 detik collecting.
 - Dataset aktif B32+ memakai **MQ3**; data historis tertentu memakai **MQ9**. Jangan menggabungkan keduanya tanpa pembuktian kompatibilitas.
@@ -85,6 +86,7 @@ python scripts/test_acquisition_suite.py
 python scripts/validate_b32_acquisition.py
 python scripts/audit_b32_dataset.py
 python scripts/test_feature_pipeline.py
+python scripts/test_stage0_contract.py
 python -m compileall -q scripts
 ```
 

@@ -22,7 +22,8 @@ dataset, hasil eksperimen, dan file lama tidak bercampur lagi.
 - dokumentasi komunikasi dan pengkabelan.
 
 Komunikasi produksi menggunakan USART2 (`Serial2`) 9600 baud:
-ATmega2560 PH0/RXD2 pada pin fisik IC 8 dan PH1/TXD2 pada pin fisik IC 9.
+ATmega2560 PH0/RXD2 pada pin TQFP-100 12 dan PH1/TXD2 pada pin 13.
+Nomor pin header Mega masing-masing D17/RX2 dan D16/TX2.
 
 ## Dataset dan hasil pemrosesan
 
@@ -48,7 +49,8 @@ serta inventaris B32–B35. Ekstraktor kandidat MQ3 adalah
 pencampuran dengan B32+; `models/random_forest_*.joblib` juga masih historis.
 
 Peta jalan dan audit utama: `docs/00_CURRENT_STATE.md`,
-`docs/01_MASTER_E2E_ROADMAP.md`, `docs/03_AI_MODEL_RESEARCH_AND_EVALUATION.md`,
+`docs/01_MASTER_E2E_ROADMAP.md`, `docs/02_KONTRAK_SISTEM_DAN_KEPUTUSAN_TAHAP0.md`,
+`docs/03_AI_MODEL_RESEARCH_AND_EVALUATION.md`,
 `docs/04_NEXTION_ATMEGA_RASPI_ARCHITECTURE.md`,
 `docs/06_INDEPENDENT_AUDIT_QA_QC.md`. Pelatihan model dan pemasangan sistem inferensi pada Raspberry Pi belum selesai.
 

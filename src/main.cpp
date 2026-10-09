@@ -5,11 +5,12 @@
 // Portable Embedded AI untuk Standarisasi Roasting Kopi
 // Klasifikasi: Light / Medium / Dark Roast
 //
-// Alur akuisisi per sampel:
-//   COLLECTING (pompa+valve ON, ujung selang ke sampel, default 180 s)
-//     → PURGING (pompa ON, valve OFF/ke udara, default 60 s)
-//     → ulangi ACQ_REPETITIONS kali
-//   Setelah semua siklus selesai → inferensi on-device (TinyML)
+// Alur akuisisi aktif per sampel:
+//   PURGING (valve OFF/udara bersih, 25 s)
+//     → COLLECTING (valve ON/aroma kopi, 5 s)
+//     → ulangi ACQ_REPETITIONS = 5 kali
+//   Setelah mode AI_TEST selesai → inferensi lokal hanya bila diaktifkan;
+//   secara default USE_ON_DEVICE_INFERENCE=0 (hasil N/A).
 //
 // Arsitektur modular:
 //   sensor.h/cpp    — ADS1115, MQ, TGS sensors + kalibrasi EEPROM
@@ -195,7 +196,7 @@ void setup() {
   nextionBootMs = millis();
 
   Serial.println(
-      F("{\"nextion\":{\"port\":\"Serial2\",\"baud\":9600,\"mcu_rx\":\"PH0/RXD2 pin 8\",\"mcu_tx\":\"PH1/TXD2 pin 9\",\"mega_header_rx\":17,\"mega_header_tx\":16}}"));
+      F("{\"nextion\":{\"port\":\"Serial2\",\"baud\":9600,\"mcu_rx\":\"PH0/RXD2 TQFP pin 12\",\"mcu_tx\":\"PH1/TXD2 TQFP pin 13\",\"mega_header_rx\":17,\"mega_header_tx\":16}}"));
 
   actuator.begin();
 
@@ -1068,7 +1069,7 @@ void processCommand(const char *cmd) {
     // Kandidat berdasarkan berbagai interpretasi "ATmega pin 19/20":
     //   IC TQFP Pin 19 = PB0 = Arduino 53
     //   IC TQFP Pin 20 = PB1 = Arduino 52
-    //   Arduino D19 = RX1 (PJ0)
+    //   Arduino D19 = RX1 (PD2)
     //   Arduino D20 = SDA (PD1)
     //   IC TQFP Pin 6 = PE4 = Arduino 2
     //   IC TQFP Pin 7 = PE5 = Arduino 3

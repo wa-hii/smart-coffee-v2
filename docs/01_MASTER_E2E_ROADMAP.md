@@ -1,8 +1,8 @@
 # PETA JALAN INDUK PENELITIAN DAN IMPLEMENTASI AI E2E SMART COFFEE E-NOSE
 
-**Dokumen acuan utama versi 1 — 8 Oktober 2026.** Ruang lingkup: Smart Coffee E-Nose v2 / RoastSense dengan ATmega2560, Nextion, komputer host dan Raspberry Pi 5. Pengembangan dilakukan dengan menjaga kestabilan akuisisi yang telah berjalan. **Jangan otomatis mengerjakan semua tahap berikutnya.**
+**Dokumen acuan utama versi 1.1 — audit Tahap 0 tanggal 9 Oktober 2026.** Ruang lingkup: Smart Coffee E-Nose v2 / RoastSense dengan ATmega2560, Nextion, komputer host dan Raspberry Pi 5. Pengembangan dilakukan dengan menjaga kestabilan akuisisi yang telah berjalan. **Jangan otomatis mengerjakan semua tahap berikutnya.**
 
-Dokumen bukti dasar: **00_CURRENT_STATE.md** dan **06_INDEPENDENT_AUDIT_QA_QC.md**. Keputusan tentang model dan protokol lanjutan dijabarkan pada dokumen **03** dan **04**.
+Dokumen bukti dasar: **00_CURRENT_STATE.md**, **02_KONTRAK_SISTEM_DAN_KEPUTUSAN_TAHAP0.md**, dan **06_INDEPENDENT_AUDIT_QA_QC.md**. Keputusan tentang model dan protokol lanjutan dijabarkan pada dokumen **03** dan **04**.
 
 ## A. Prinsip kerja dan batas keselamatan
 
@@ -17,7 +17,7 @@ Dokumen bukti dasar: **00_CURRENT_STATE.md** dan **06_INDEPENDENT_AUDIT_QA_QC.md
 
 | Tahap | Status saat audit | Prioritas | Dependensi utama | Perangkat fisik diperlukan? |
 |---|---|---|---|---|
-| 0. Penutupan kondisi aktual dan metodologi | SEBAGIAN | P0 | Tidak ada | Tidak |
+| 0. Penutupan kondisi aktual dan metodologi | **AUDIT OFFLINE SELESAI; keputusan label/PCB diteruskan sebagai blocker tahap terkait** | P0 | Tidak ada | Tidak |
 | 1. Mutu firmware, sensor, Nextion, dan akuisisi | SEBAGIAN | P0 | 0 | Ya, untuk verifikasi final |
 | 2. Inventaris dan kualitas dataset | SEBAGIAN | P0 | 0–1 | Tidak untuk data lama; ya untuk sampel baru |
 | 3. Preprocessing dan fitur yang dapat direproduksi | KANDIDAT SEBAGIAN | P0 | 2 | Tidak |
@@ -33,20 +33,24 @@ Status **SEBAGIAN** berarti sebagian kode atau bukti telah tersedia, tetapi krit
 
 ## Tahap 0 — Penutupan kondisi aktual dan metodologi
 
+**Hasil audit 9 Oktober:** baseline firmware–Nextion–CSV–AI–host, sumber acuan tiap subsistem, koreksi datasheet untuk pin Nextion IC, status USB vs opsi UART, dan konflik label telah direkam di `02_KONTRAK_SISTEM_DAN_KEPUTUSAN_TAHAP0.md`. Komentar firmware lama tentang durasi fase diperbaiki; pengujian statis otomatis tersedia di `scripts/test_stage0_contract.py`. Koreksi teknis di dokumen **tidak mengubah wiring, baud, atau kendali aktuator**.
+
+**Batas penutupan:** tahap audit dan dokumentasi offline selesai; masalah berkode T0-01 s.d. T0-07 masih terbuka dan ditugaskan kepada Tahap 1/2/3/7/9/10. Jangan menganggap status Tahap 0 sebagai persetujuan untuk perubahan hardware, kelayakan model, atau penutupan masalah lain.
+
 - **Tujuan, status, prioritas:** menetapkan arsitektur, cakupan eksperimen, dan dokumen acuan proyek; **SEBAGIAN, P0**.
 - **Dependensi dan desain:** inventaris branch, subsistem, protokol labeled_data/AI_TEST, versi skema, serta keputusan siapa yang mengendalikan sensor dan aktuator. Tidak memerlukan perangkat fisik.
-- **Pekerjaan:** cocokkan seluruh Git history, dokumentasi, dan implementasi; periksa peta ADC, lima fase/state akuisisi, 12 halaman Nextion, HMI final, urutan sensor, baud, serta ketidakcocokan istilah dan asal kopi. Tetapkan format ID sesi/spesimen yang lebih jelas.
+- **Pekerjaan:** cocokkan riwayat Git relevan, dokumentasi, dan implementasi; periksa peta ADC, **lima siklus yang masing-masing terdiri atas dua fase**, 12 halaman Nextion, HMI final, urutan sensor, baud, serta ketidakcocokan istilah dan asal kopi. Definisikan kebutuhan ID sesi/spesimen yang lebih jelas tanpa menganggap field baru sudah aktif.
 - **Modul relevan:** README.md, platformio.ini, src/, nextion/, scripts/, docs/00_CURRENT_STATE.md.
 - **Pengujian dan skenario negatif:** git status --short --branch; kompilasi PlatformIO; verifikasi HMI; cari label yang tidak konsisten, versi TFT lama, baud berbeda, dan kemungkinan perubahan lokal tertimpa.
-- **Keluaran dan bukti:** peta subsistem, dokumen kondisi aktual, kontrak dataset/protokol, log pengujian, dan identitas commit.
-- **Kriteria selesai / go-no-go:** setiap subsistem memiliki sumber acuan tunggal dan tingkat bukti yang jelas. Konflik belum terselesaikan wajib diberi status TERHAMBAT.
+- **Keluaran dan bukti:** peta subsistem, dokumen kondisi aktual, kontrak dataset/protokol pada dokumen 02, laporan `docs/reports/`, pengujian statis yang dapat diulang, dan identitas commit.
+- **Kriteria selesai / go-no-go:** setiap subsistem memiliki sumber acuan dan tingkat bukti yang jelas. Konflik yang belum terselesaikan wajib dicatat sebagai **TERHAMBAT pada tahap pelaksanaannya** dengan pemilik dan mitigasi, bukan diam-diam dinyatakan selesai.
 - **Risiko:** dokumentasi historis dapat berbeda dari perangkat; gunakan bukti kode dan pengujian, bukan hanya narasi. Tahap dinyatakan SELESAI setelah seluruh konflik utama ditutup dan ditinjau.
 
 ## Tahap 1 — Penutupan mutu firmware, Nextion, dan akuisisi
 
 - **Tujuan, status, prioritas:** tidak ada sampel salah fase, baris CSV palsu, hilang atau tertimpa secara diam-diam; **SEBAGIAN, P0**. Sejumlah perbaikan validator dan listener sudah teruji offline.
 - **Dependensi dan desain:** pembacaan sepuluh kanal ADC dengan SHT30 pada I2C; state machine dan keselamatan aktuator di ATmega; komunikasi Nextion 9600 dan USB 115200 baud.
-- **Pekerjaan:** audit alamat/gain/saturasi ADS, pemanasan dan stabilisasi R0/RL, EEPROM, SHT30 gagal, sample_idx, millis rollover, pembacaan tepat batas fase, timer, pemulihan pause/resume, pompa/valve, serial reconnect, kontrol layar dan log.
+- **Pekerjaan:** audit alamat/gain/saturasi ADS, pemanasan dan stabilisasi R0/RL, EEPROM, SHT30 gagal, sample_idx, millis rollover, pembacaan tepat batas fase, timer, pemulihan pause/resume, pompa/valve, serial reconnect, kontrol layar dan log; **amankan perintah diagnostik `#pin_scan;` yang saat ini dapat memanipulasi D19/RX1 dan D20/SDA**.
 - **Modul relevan:** src/main.cpp, sensor.*, actuator.*, sht30.*, nextion_transport.*, scripts/acquisition_schema.py, manual collector, listener LCD dan validator.
 - **Pengujian:** pio run -e mega2560 -e nextion_test; python scripts/test_acquisition_suite.py; pemeriksa kontrak HMI.
 - **Skenario negatif:** event-only row, ADC rusak, sample_idx duplikat, file bertabrakan, USB terputus, Nextion reboot, cancel, sensor hilang dan fail-safe aktuator.
@@ -58,7 +62,7 @@ Status **SEBAGIAN** berarti sebagian kode atau bukti telah tersedia, tetapi krit
 
 - **Tujuan, status, prioritas:** menentukan unit sampel independen yang benar serta kelayakan dataset; **SEBAGIAN, P0**. Inventaris awal 86 file dan validator selesai, penilaian ilmiah masih berjalan.
 - **Dependensi dan desain:** skema MQ3 aktif dari Tahap 1; MQ9 historis dipisahkan; inventaris raw yang ada dapat diproses offline.
-- **Pekerjaan:** buat manifest hash tiap file; hitung distribusi roast, origin, batch, siklus, sensor hilang dan outlier. Evaluasi drift, baseline recovery, carryover, urutan pengukuran, suhu/kelembapan, tanggal/sesi, massa dan persiapan kopi, serta spesimen yang diukur ulang. Tinjau grafik B32–B35 berdasarkan batas fase.
+- **Pekerjaan:** buat manifest hash tiap file; hitung distribusi roast, origin, batch, siklus, sensor hilang dan outlier. **Rekonsiliasi cakupan preset antar-kolektor dan arti TEM/MUK/CAW bersama operator** tanpa mengubah raw. Evaluasi drift, baseline recovery, carryover, urutan pengukuran, suhu/kelembapan, tanggal/sesi, massa dan persiapan kopi, serta spesimen yang diukur ulang. Tinjau grafik B32–B35 berdasarkan batas fase.
 - **Modul relevan:** data/raw/, scripts/audit_b32_dataset.py, validate_acquisition.py, plot_sensor_pattern.py dan data/analysis/.
 - **Pengujian dan kasus negatif:** python scripts/audit_b32_dataset.py; deteksi MQ9 pada data MQ3, baris parsial, timestamp tidak valid, duplikasi, label origin tidak konsisten, serta grafik yang menggabungkan run berbeda.
 - **Keluaran dan bukti:** katalog dataset ber-hash, tabel kelengkapan kelas, daftar masalah provenance dan laporan drift/kualitas sinyal.
@@ -113,7 +117,7 @@ Status **SEBAGIAN** berarti sebagian kode atau bukti telah tersedia, tetapi krit
 
 - **Tujuan, status, prioritas:** menyediakan kontrak komunikasi dua arah yang dapat diandalkan; **SEBAGIAN (DESAIN), P1**.
 - **Dependensi dan desain:** Tahap 1 dan 6. ATmega tetap mengendalikan aktuator/timing; host hanya bertanggung jawab atas validasi, penyimpanan, dan AI.
-- **Pekerjaan:** rancang NDJSON terversi dengan session_id/message_seq, ACK/NACK, timeout, penanganan pesan duplikat, reconnect USB, result mapping, unknown/N/A, dan pemisahan label AMBIL DATA dari AI_TEST.
+- **Pekerjaan:** verifikasi skematik dan pilih **USB `Serial` atau UART terpisah `Serial1`** untuk Pi; untuk UART GPIO wajib translator level 5 V↔3,3 V, pemeriksaan pin dan mitigasi `#pin_scan;`. Rancang NDJSON terversi dengan session_id/message_seq, ACK/NACK, timeout, pesan duplikat, reconnect, result mapping, unknown/N/A, dan **pemisahan label AMBIL DATA dari AI_TEST**.
 - **Modul relevan:** adapter host yang akan dibuat, src/main.cpp hanya setelah persetujuan, nextion_transport.*, dokumen 04.
 - **Pengujian negatif:** USB terputus, paket rusak/terlambat/duplikat, restart MCU/Nextion/Pi, file berbahaya, hasil model tanpa sumber, dan dua proses berebut COM5.
 - **Keluaran dan bukti:** diagram antarmuka, spesifikasi payload, fixture protokol, rencana deployment Pi, skenario error dan rollback.
@@ -135,7 +139,7 @@ Status **SEBAGIAN** berarti sebagian kode atau bukti telah tersedia, tetapi krit
 
 - **Tujuan, status, prioritas:** membuktikan komunikasi serta fungsi nyata ATmega–Nextion–Pi; **MENUNGGU PERSETUJUAN, P1**.
 - **Dependensi dan desain:** Tahap 8 lulus; jadwal bench test aman, COM5 eksklusif, backup firmware/HMI dan prosedur pemulihan disiapkan.
-- **Pekerjaan:** ukur kanal/alamat ADS, SHT30, tegangan, pemanasan, alur pompa/valve, kabel Serial2 pada pin IC 8/9, TFT hasil kompilasi terbaru, navigasi 12 halaman, hasil Pi → Nextion serta latensi nyata.
+- **Pekerjaan:** ukur kanal/alamat ADS, SHT30, tegangan, pemanasan, alur pompa/valve; verifikasi skematik Nextion pada PH0/PH1 (**pin TQFP-100 12/13**, bukan 8/9), TFT hasil kompilasi terbaru, navigasi 12 halaman, hasil Pi → Nextion serta latensi nyata.
 - **Modul relevan:** build firmware dengan hash, proyek dan TFT Nextion, log host, foto/video atau trace pengukuran, SOP bench.
 - **Pengujian negatif:** sensor atau USB dicabut, akuisisi parsial, restart MCU/LCD/Pi, pause/resume, kegagalan aktuator, kalibrasi tidak selesai, dan kopi tidak dikenal.
 - **Keluaran dan bukti:** rekaman timing aktuator, keandalan serial, hasil pengukuran, daftar perbaikan, dan prosedur rollback.
