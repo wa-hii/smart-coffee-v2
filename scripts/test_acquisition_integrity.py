@@ -120,6 +120,18 @@ def main() -> int:
              patch("lcd_acquisition_service.INCOMPLETE_DIR", root / "incomplete"):
             logger = Mock()
             service = AcquisitionService("TEST", 115200, 0.1, logger)
+            # AI_TEST tidak memiliki ground truth dan tidak boleh membuat
+            # session CSV berlabel, bahkan jika sampel sensor ikut datang.
+            service.handle_event({
+                "event": "ACQ_START", "mode": "ai_test",
+                "phase": "purging", "cycle": 1,
+                "cycles_total": 5, "purge_s": 25, "collect_s": 5,
+            })
+            service.handle_event(make_sensor_payload())
+            service.handle_event({"event": "ACQ_COMPLETE"})
+            assert service.session is None
+            assert not list(root.glob("*_B96.csv"))
+
             event = {"sample_id": "D-GAW", "roast_level": "dark",
                      "origin_code": "GAW", "batch_id": "B97",
                      "filename": "D-GAW_B97.csv"}
@@ -139,6 +151,17 @@ def main() -> int:
             service.handle_event({"event": "ACQ_COMPLETE"})
             assert service.session is None
             assert (root / "D-GAW_B97.csv").exists()
+            # Duplicate completion must not clobber a final file.
+            final_bytes = (root / "D-GAW_B97.csv").read_bytes()
+            service.handle_event({"event": "ACQ_COMPLETE"})
+            assert (root / "D-GAW_B97.csv").read_bytes() == final_bytes
+
+            # STOP preserves a partial acquisition with an explicit marker.
+            service.handle_event({"event": "ACQ_START", "mode": "labeled_data", **event})
+            service.handle_event(make_sensor_payload())
+            service.handle_event({"event": "ACQ_STOP"})
+            assert service.session is None
+            assert list((root / "incomplete").glob("D-GAW_B97*_INCOMPLETE.csv"))
 
     print("ACQUISITION_INTEGRITY_REGRESSION_PASS")
     return 0

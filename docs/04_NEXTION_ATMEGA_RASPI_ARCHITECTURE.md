@@ -44,7 +44,7 @@ Format yang disarankan: pesan **JSON UTF-8 per baris (NDJSON)** dengan field ver
 | **INFERENCE_ERROR** | Kesalahan data/sesi/model/skema, perangkat host tidak tersedia, atau timeout. ATmega menampilkan N/A dan alasan. |
 | **ACK / NACK** | Konfirmasi nomor pesan dan sesi; pengiriman ulang hanya untuk operasi idempoten, **bukan** memulai kembali pengambilan data fisik secara otomatis. |
 
-Nama dan field di atas adalah **usulan desain**, belum merupakan pesan yang benar-benar dikeluarkan firmware. Saat ini `ai_test` masih memuat label pilihan layar di event `ACQ_START`, yang **bukan ground truth dan harus dihilangkan atau dipisahkan** saat implementasi protokol baru. Bedakan dengan jelas **run_id** (siklus ke-1 s.d. ke-5), **session_id** (satu pengambilan data), **sample_id** (kode label), serta **ID spesimen fisik** (kopi yang sama mungkin diuji berkali-kali).
+Nama dan field di atas adalah **usulan desain**, belum merupakan pesan yang benar-benar dikeluarkan firmware. **Perubahan Tahap 1 (9 Oktober):** firmware sekarang menghilangkan label pilihan layar dari event `ACQ_START` ketika mode `ai_test`; mode `labeled_data` tetap memuat label untuk autosave CSV. `session_id`, `message_seq`, ACK/NACK, dan hasil AI dari Pi belum tersedia. Bedakan dengan jelas **run_id** (siklus ke-1 s.d. ke-5), **session_id** (satu pengambilan data), **sample_id** (kode label), serta **ID spesimen fisik** (kopi yang sama mungkin diuji berkali-kali).
 
 ### Pilihan transport yang perlu diputuskan
 

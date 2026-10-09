@@ -93,3 +93,11 @@ Hasil QA offline terbaru tercatat pada `docs/reports/2026-10-09_TAHAP0_AUDIT_KON
 - **Temuan baru yang masih terbuka:** `#pin_scan;` mencakup D19/RX1 dan D20/SDA; `AI_TEST` masih mengeluarkan label pilihan antarmuka pada event `ACQ_START`; tiga preset kolektor manual (`L-CAW`, `M-CAW`, `M-MUK`) tidak memiliki entri khusus di pemetaan per-sampel listener LCD. Ini bukan regresi akibat audit, tetapi temuan existing yang perlu ditangani berdasarkan tahap dan SOP.
 
 **Keputusan:** audit statis dan dokumentasi kontrak Tahap 0 selesai; tindak lanjut implementasi/hardware tetap **terbuka atau terhambat** sesuai daftar T0-01 sampai T0-07 dalam dokumen 02.
+
+## Lampiran — milestone Tahap 1 (9 Oktober 2026)
+
+Perbaikan offline: penonaktifan `#pin_scan`, pengamanan perintah valve manual di balik flag default OFF, penolakan `#start` tanpa ADC siap, pemisahan metadata `AI_TEST`, dan perubahan urutan sampel sebelum `PHASE_CHANGE`/`ACQ_COMPLETE`. Regresi autosave juga menambahkan kasus AI_TEST tanpa label, COMPLETE ganda dan STOP parsial.
+
+Tes baru `python scripts/test_stage1_firmware_contract.py` memverifikasi struktur kode serta simulasi waktu ideal 1 Hz; **tidak mengukur timing fisik**. Bukti lengkap, status QA, dan daftar risiko tersisa: `docs/reports/2026-10-09_TAHAP1_FIRMWARE_AKUISISI_QA.md`.
+
+Status Tahap 1 tetap **SEBAGIAN** sampai wiring, valve, sensor, UART, Nextion TFT dan ketepatan fase telah diverifikasi pada bench dengan SOP. Hasil QA offline tidak berarti sistem fisik siap beroperasi.

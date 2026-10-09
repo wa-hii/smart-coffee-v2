@@ -82,3 +82,10 @@ Referensi resmi: [Microchip ATmega2560 datasheet, Figure 1-1](https://ww1.microc
 **Status Tahap 0:** inventaris dan baseline kontrak offline terdokumentasi, pengujian statis dapat diulang. **Keputusan fisik dan semantik label masih terbuka**, sudah diberi pemilik tahap dan bukan bukti integrasi E2E.
 
 Verifikasi ulang kontrak: `python scripts/test_stage0_contract.py`; tetap jalankan kompilasi PlatformIO, validasi CSV dan pemeriksa HMI sesuai `AGENTS.md`.
+
+## Catatan perkembangan Tahap 1 (9 Oktober 2026)
+
+- **T0-01 (implementasi software):** `#pin_scan;` telah diubah menjadi respons `PIN_SCAN_DISABLED`, tanpa pemindaian pin. Perintah `#valve_on/off/test;` dinonaktifkan secara default. Tetap memerlukan verifikasi bench untuk keselamatan alat.
+- **T0-02 (implementasi software):** event `ACQ_START` mode `ai_test` tidak lagi menyalurkan label yang berasal dari UI. Mode `labeled_data` tetap kompatibel dengan listener.
+- **T0-04 (implementasi software):** pada `adsCallback`, sampel dibaca/dikirim dahulu dengan fase aktif kemudian state machine melakukan transisi dan mengeluarkan event. Simulasi 1 Hz ideal PASS, tetapi tidak membuktikan dinamika valve/sensor pada hardware.
+- Risiko lain (T0-03, T0-05, T0-06, T0-07) **tetap terbuka**. Perubahan kode belum diunggah ke MCU fisik pada sesi ini.

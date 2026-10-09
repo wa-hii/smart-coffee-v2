@@ -1,6 +1,6 @@
 # PETA JALAN INDUK PENELITIAN DAN IMPLEMENTASI AI E2E SMART COFFEE E-NOSE
 
-**Dokumen acuan utama versi 1.1 — audit Tahap 0 tanggal 9 Oktober 2026.** Ruang lingkup: Smart Coffee E-Nose v2 / RoastSense dengan ATmega2560, Nextion, komputer host dan Raspberry Pi 5. Pengembangan dilakukan dengan menjaga kestabilan akuisisi yang telah berjalan. **Jangan otomatis mengerjakan semua tahap berikutnya.**
+**Dokumen acuan utama versi 1.2 — audit Tahap 0 dan penguatan offline Tahap 1 tanggal 9 Oktober 2026.** Ruang lingkup: Smart Coffee E-Nose v2 / RoastSense dengan ATmega2560, Nextion, komputer host dan Raspberry Pi 5. Pengembangan dilakukan dengan menjaga kestabilan akuisisi yang telah berjalan. **Jangan otomatis mengerjakan semua tahap berikutnya.**
 
 Dokumen bukti dasar: **00_CURRENT_STATE.md**, **02_KONTRAK_SISTEM_DAN_KEPUTUSAN_TAHAP0.md**, dan **06_INDEPENDENT_AUDIT_QA_QC.md**. Keputusan tentang model dan protokol lanjutan dijabarkan pada dokumen **03** dan **04**.
 
@@ -18,7 +18,7 @@ Dokumen bukti dasar: **00_CURRENT_STATE.md**, **02_KONTRAK_SISTEM_DAN_KEPUTUSAN_
 | Tahap | Status saat audit | Prioritas | Dependensi utama | Perangkat fisik diperlukan? |
 |---|---|---|---|---|
 | 0. Penutupan kondisi aktual dan metodologi | **AUDIT OFFLINE SELESAI; keputusan label/PCB diteruskan sebagai blocker tahap terkait** | P0 | Tidak ada | Tidak |
-| 1. Mutu firmware, sensor, Nextion, dan akuisisi | SEBAGIAN | P0 | 0 | Ya, untuk verifikasi final |
+| 1. Mutu firmware, sensor, Nextion, dan akuisisi | **OFFLINE HARDENED; BENCH/HARDWARE BELUM DIVERIFIKASI** | P0 | 0 | Ya, untuk verifikasi final |
 | 2. Inventaris dan kualitas dataset | SEBAGIAN | P0 | 0–1 | Tidak untuk data lama; ya untuk sampel baru |
 | 3. Preprocessing dan fitur yang dapat direproduksi | KANDIDAT SEBAGIAN | P0 | 2 | Tidak |
 | 4. Penelitian model baseline dan challenger | DIRENCANAKAN | P1 | 3 | Tidak |
@@ -48,6 +48,10 @@ Status **SEBAGIAN** berarti sebagian kode atau bukti telah tersedia, tetapi krit
 
 ## Tahap 1 — Penutupan mutu firmware, Nextion, dan akuisisi
 
+**Pelaksanaan 9 Oktober 2026:** pengamanan kode firmware dan QA offline dilakukan. Perintah `#pin_scan;` kini mengembalikan `PIN_SCAN_DISABLED` tanpa menyentuh pin; `#valve_on/off/test;` dinonaktifkan pada build default dan hanya dapat diaktifkan lewat flag build untuk SOP bench. Perintah serial `#start;` menolak sensor/ADC yang belum siap, dan `#scan;` ditolak selama akuisisi. Event `ACQ_START` pada `ai_test` tidak lagi membawa label roast/origin/batch atau nama file. `adsCallback` sekarang mengirim sampel dengan fase/siklus aslinya **sebelum** `processAcquisitionState()` menerbitkan `PHASE_CHANGE`/`ACQ_COMPLETE`; sampel idle/paused tidak lagi mengalir sebagai payload sensor. Regresi sintetik dan pengujian kontrak baru ada pada `scripts/test_stage1_firmware_contract.py` serta `scripts/test_acquisition_integrity.py`.
+
+**Gerbang QA:** kompilasi dan pengujian offline merupakan satu milestone, **bukan penutupan seluruh Tahap 1**. Timing fisik ADC–valve, jumlah sampel di perangkat, cara kerja pause/resume terhadap ruang aroma, GPIO dan driver aktuator, perbedaan USB serial, kalibrasi, EEPROM, Nextion Editor/TFT, serta pemulihan koneksi tetap **BELUM DIUJI**; membutuhkan SOP bench, jadwal, dan bukti terukur. Laporan: `docs/reports/2026-10-09_TAHAP1_FIRMWARE_AKUISISI_QA.md`.
+
 - **Tujuan, status, prioritas:** tidak ada sampel salah fase, baris CSV palsu, hilang atau tertimpa secara diam-diam; **SEBAGIAN, P0**. Sejumlah perbaikan validator dan listener sudah teruji offline.
 - **Dependensi dan desain:** pembacaan sepuluh kanal ADC dengan SHT30 pada I2C; state machine dan keselamatan aktuator di ATmega; komunikasi Nextion 9600 dan USB 115200 baud.
 - **Pekerjaan:** audit alamat/gain/saturasi ADS, pemanasan dan stabilisasi R0/RL, EEPROM, SHT30 gagal, sample_idx, millis rollover, pembacaan tepat batas fase, timer, pemulihan pause/resume, pompa/valve, serial reconnect, kontrol layar dan log; **amankan perintah diagnostik `#pin_scan;` yang saat ini dapat memanipulasi D19/RX1 dan D20/SDA**.
@@ -55,7 +59,7 @@ Status **SEBAGIAN** berarti sebagian kode atau bukti telah tersedia, tetapi krit
 - **Pengujian:** pio run -e mega2560 -e nextion_test; python scripts/test_acquisition_suite.py; pemeriksa kontrak HMI.
 - **Skenario negatif:** event-only row, ADC rusak, sample_idx duplikat, file bertabrakan, USB terputus, Nextion reboot, cancel, sensor hilang dan fail-safe aktuator.
 - **Keluaran dan bukti:** regression tests, jejak perubahan fase, sampel CSV, serta pengukuran aktual durasi pompa/valve menggunakan alat yang disetujui.
-- **Kriteria selesai / go-no-go:** tidak ada metadata yang disimpan sebagai sensor, tidak ada overwrite, semua input dinilai ketat, fase 25+5 detik dibuktikan di perangkat. Tanpa uji fisik, klaim kebenaran timing tetap **NO-GO**.
+- **Kriteria selesai / go-no-go:** tidak ada metadata yang disimpan sebagai sensor, tidak ada overwrite, semua input dinilai ketat, fase 25+5 detik dibuktikan di perangkat. Tanpa uji fisik, klaim kebenaran timing tetap **NO-GO**. Periksa juga bahwa perubahan urutan callback tidak mengubah definisi sinyal atau akuisisi valid akibat latency serial.
 - **Risiko:** perubahan state machine dapat mengubah semantik dataset lama. Lakukan simulasi lalu bench test terkontrol; jangan refactor timing tanpa bukti.
 
 ## Tahap 2 — Inventaris, provenance, dan evaluasi kualitas dataset

@@ -135,6 +135,14 @@ observasi agregat lima siklus, bukan lima sampel independen.
 `docs/04_NEXTION_ATMEGA_RASPI_ARCHITECTURE.md`, dan
 `docs/06_INDEPENDENT_AUDIT_QA_QC.md`.
 
+### Penguatan firmware dan akuisisi — Tahap 1
+
+Firmware sekarang menerbitkan sampel sensor **sebelum** event perubahan fase atau `ACQ_COMPLETE`, sehingga sampel terakhir tidak tertinggal setelah penutupan file di listener. Saat idle/paused tidak ada frame sensor akuisisi. Mode `ai_test` tidak membawa metadata label jawaban, sedangkan `labeled_data` tetap kompatibel dengan penyimpanan CSV.
+
+Untuk keselamatan, `#pin_scan;` dinonaktifkan, `#valve_on;`/`#valve_off;`/`#valve_test;` ditolak pada build default (`ENABLE_MANUAL_ACTUATOR_TESTS=0`), `#start;` mensyaratkan seluruh ADC siap, dan pemindaian I2C tidak dilakukan saat akuisisi aktif. Mengaktifkan pengujian valve manual pada build khusus memerlukan SOP yang disetujui; **jangan mengunggah firmware atau menyentuh COM5 hanya berdasarkan PASS offline**.
+
+Regresi khusus: `python scripts/test_stage1_firmware_contract.py`. Laporan: `docs/reports/2026-10-09_TAHAP1_FIRMWARE_AKUISISI_QA.md`. Durasi 25+5 detik masih perlu validasi timing pada perangkat.
+
 Raw data lama yang masih menggunakan MQ9 tidak dihapus. File tersebut
 dipisahkan ke data/raw/legacy_mq9/ dan dikecualikan dari validasi B32.
 

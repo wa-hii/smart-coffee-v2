@@ -40,6 +40,12 @@
 #define IS_CALIBRATING_GAS_SENSOR 0 // 1 hanya untuk prosedur kalibrasi terawasi
 #endif
 
+// Penggerakan valve melalui USB hanya untuk bench test ber-SOP, tidak aktif
+// pada firmware normal.
+#ifndef ENABLE_MANUAL_ACTUATOR_TESTS
+#define ENABLE_MANUAL_ACTUATOR_TESTS 0
+#endif
+
 // ─── Task Scheduler Intervals
 // ─────────────────────────────────────────────────
 #define TASK_INTERVAL_MS_ADS 1000   // 1 sampel/detik
@@ -252,10 +258,11 @@ void printWelcome() {
   Serial.println(F("    #start;       Mulai akuisisi data sensor"));
   Serial.println(F("    #stop;        Hentikan akuisisi"));
   Serial.println(F("    #scan;        Scan I2C bus"));
-  Serial.println(F("    #valve_on;    Valve solenoid ON  (test collecting)"));
-  Serial.println(F("    #valve_off;   Valve solenoid OFF (test purging)"));
-  Serial.println(
-      F("    #valve_test;  Toggle valve 3x untuk verifikasi wiring"));
+#if ENABLE_MANUAL_ACTUATOR_TESTS
+  Serial.println(F("    #valve_on; / #valve_off; / #valve_test; (SOP bench)"));
+#else
+  Serial.println(F("    Manual valve test disabled; SOP bench diperlukan"));
+#endif
   Serial.println(F("    #help;        Tampilkan bantuan"));
   Serial.println(F("=============================================="));
   Serial.println(
@@ -282,34 +289,36 @@ void startAcquisition(AcquisitionMode mode) {
   // Metadata ini membuat laptop dapat menjadi passive listener: operator
   // memilih roast/origin/batch dan menekan START di Nextion, lalu host dapat
   // menyimpan CSV tanpa prompt/command manual.
-  char takeFilename[40] = {};
-  buildTakeFilename(takeFilename, sizeof(takeFilename), true);
-  const char roastCode =
-      roastSelection == 0 ? 'L' : (roastSelection == 1 ? 'M' : 'D');
-  const char *roastLevel =
-      roastSelection == 0 ? "light"
-                          : (roastSelection == 1 ? "medium" : "dark");
-
   Serial.print(F("{\"event\":\"ACQ_START\",\"mode\":\""));
   Serial.print(mode == AcquisitionMode::AI_TEST ? F("ai_test") : F("labeled_data"));
   Serial.print(F("\",\"phase\":\"purging\",\"cycle\":1"));
   Serial.print(F(",\"source\":\"nextion_or_serial\""));
-  Serial.print(F(",\"sample_id\":\""));
-  Serial.print(roastCode);
-  Serial.print('-');
-  Serial.print(ORIGIN_OPTIONS[originSelection]);
-  Serial.print(F("\",\"roast_level\":\""));
-  Serial.print(roastLevel);
-  Serial.print(F("\",\"origin_code\":\""));
-  Serial.print(ORIGIN_OPTIONS[originSelection]);
-  Serial.print(F("\",\"batch_id\":\"B"));
-  if (batchNumber < 10) {
-    Serial.print('0');
+  // Label pTake hanya untuk labeled_data, bukan jawaban kopi pada AI_TEST.
+  if (mode == AcquisitionMode::LABELED_DATA) {
+    char takeFilename[40] = {};
+    buildTakeFilename(takeFilename, sizeof(takeFilename), true);
+    const char roastCode =
+        roastSelection == 0 ? 'L' : (roastSelection == 1 ? 'M' : 'D');
+    const char *roastLevel =
+        roastSelection == 0 ? "light"
+                            : (roastSelection == 1 ? "medium" : "dark");
+    Serial.print(F(",\"sample_id\":\""));
+    Serial.print(roastCode);
+    Serial.print('-');
+    Serial.print(ORIGIN_OPTIONS[originSelection]);
+    Serial.print(F("\",\"roast_level\":\""));
+    Serial.print(roastLevel);
+    Serial.print(F("\",\"origin_code\":\""));
+    Serial.print(ORIGIN_OPTIONS[originSelection]);
+    Serial.print(F("\",\"batch_id\":\"B"));
+    if (batchNumber < 10) {
+      Serial.print('0');
+    }
+    Serial.print(batchNumber);
+    Serial.print(F("\",\"filename\":\""));
+    Serial.print(takeFilename);
+    Serial.print('"');
   }
-  Serial.print(batchNumber);
-  Serial.print(F("\",\"filename\":\""));
-  Serial.print(takeFilename);
-  Serial.print('"');
   Serial.print(F(",\"cycles_total\":"));
   Serial.print(ACQ_REPETITIONS);
   Serial.print(F(",\"collect_s\":"));
@@ -380,7 +389,7 @@ void processAcquisitionState() {
       Serial.println();
     }
   } else if (acqState == AcqState::COLLECTING) {
-    // Akumulasi fitur untuk inferensi
+    // Akumulasi fitur dari pembacaan collecting yang baru dicatat.
     inference.accumulate(sensors.getAdcArray());
 
     if (elapsedMs >= (unsigned long)ACQ_COLLECTION_SECONDS * 1000UL) {
@@ -1000,7 +1009,11 @@ void serialCallback() {
 void processCommand(const char *cmd) {
   if (strcmp(cmd, "#start") == 0 || strcmp(cmd, "#1") == 0) {
     if (acqState == AcqState::IDLE) {
-      startAcquisition();
+      if (sensorsReady && sensors.allAdcAvailable()) {
+        startAcquisition();
+      } else {
+        Serial.println(F("{\"error\":\"ACQ_REJECTED\",\"reason\":\"ADC not ready\"}"));
+      }
     } else {
       Serial.println(F("{\"warn\":\"Akuisisi sudah berjalan. Kirim #stop; "
                        "terlebih dahulu.\"}"));
@@ -1011,10 +1024,15 @@ void processCommand(const char *cmd) {
              strcmp(cmd, "#status") == 0) {
     printWelcome();
   } else if (strcmp(cmd, "#scan") == 0) {
-    scanI2C();
+    if (acqState == AcqState::IDLE) {
+      scanI2C();
+    } else {
+      Serial.println(F("{\"warn\":\"I2C scan disabled during acquisition\"}"));
+    }
 
     // ── Valve debug commands ────────────────────────────────────────────────
   } else if (strcmp(cmd, "#valve_on") == 0) {
+#if ENABLE_MANUAL_ACTUATOR_TESTS
     if (acqState != AcqState::IDLE) {
       Serial.println(
           F("{\"warn\":\"Tidak bisa tes valve saat akuisisi berjalan.\"}"));
@@ -1024,8 +1042,12 @@ void processCommand(const char *cmd) {
     actuator.setCollecting();
     Serial.println(
         F("{\"valve\":\"ON\",\"port\":\"1/33\",\"mode\":\"collecting\"}"));
+#else
+    Serial.println(F("{\"error\":\"MANUAL_ACTUATOR_DISABLED\"}"));
+#endif
 
   } else if (strcmp(cmd, "#valve_off") == 0) {
+#if ENABLE_MANUAL_ACTUATOR_TESTS
     if (acqState != AcqState::IDLE) {
       Serial.println(
           F("{\"warn\":\"Tidak bisa tes valve saat akuisisi berjalan.\"}"));
@@ -1035,8 +1057,12 @@ void processCommand(const char *cmd) {
     actuator.setPurging();
     Serial.println(
         F("{\"valve\":\"OFF\",\"port\":\"3/11\",\"mode\":\"purging\"}"));
+#else
+    Serial.println(F("{\"error\":\"MANUAL_ACTUATOR_DISABLED\"}"));
+#endif
 
   } else if (strcmp(cmd, "#valve_test") == 0) {
+#if ENABLE_MANUAL_ACTUATOR_TESTS
     if (acqState != AcqState::IDLE) {
       Serial.println(
           F("{\"warn\":\"Tidak bisa tes valve saat akuisisi berjalan.\"}"));
@@ -1058,95 +1084,15 @@ void processCommand(const char *cmd) {
     }
     actuator.stop();
     Serial.println(F("{\"valve_test\":\"done\"}"));
+#else
+    Serial.println(F("{\"error\":\"MANUAL_ACTUATOR_DISABLED\"}"));
+#endif
 
   } else if (strcmp(cmd, "#pin_scan") == 0) {
-    if (acqState != AcqState::IDLE) {
-      Serial.println(
-          F("{\"warn\":\"Tidak bisa scan pin saat akuisisi berjalan.\"}"));
-      return;
-    }
-    // ── Pin Scanner: cari pin mana yang terhubung ke L293DD ──────────────
-    // Kandidat berdasarkan berbagai interpretasi "ATmega pin 19/20":
-    //   IC TQFP Pin 19 = PB0 = Arduino 53
-    //   IC TQFP Pin 20 = PB1 = Arduino 52
-    //   Arduino D19 = RX1 (PD2)
-    //   Arduino D20 = SDA (PD1)
-    //   IC TQFP Pin 6 = PE4 = Arduino 2
-    //   IC TQFP Pin 7 = PE5 = Arduino 3
-    //   Lainnya: 10,11,12,13,14
-    static const uint8_t scanPins[] = {2,  3,  52, 53, 19, 20,
-                                       10, 11, 12, 13, 14};
-    static const uint8_t numScan = sizeof(scanPins) / sizeof(scanPins[0]);
+    // Pemindaian pin legacy berbahaya: mengubah D19/RX1 dan SDA D20.
+    // Dinonaktifkan permanen pada firmware yang berjalan.
+    Serial.println(F("{\"error\":\"PIN_SCAN_DISABLED\"}"));
 
-    Serial.println(F("{\"pin_scan\":\"start\"}"));
-    Serial.println(
-        F("Dengarkan KLIK pada valve. Catat nomor pin yang membuatnya klik."));
-    Serial.println(F("Setiap pin akan di-toggle HIGH 2 detik lalu LOW."));
-    Serial.println(F("========================================="));
-
-    for (uint8_t i = 0; i < numScan; i++) {
-      uint8_t p = scanPins[i];
-      pinMode(p, OUTPUT);
-      digitalWrite(p, LOW);
-    }
-    delay(500);
-
-    // Fase 1: Test single pin HIGH (cari pin enable atau direct drive)
-    for (uint8_t i = 0; i < numScan; i++) {
-      uint8_t p = scanPins[i];
-      Serial.print(F(">> Pin "));
-      Serial.print(p);
-      Serial.println(F(" = HIGH (2 detik)..."));
-
-      digitalWrite(p, HIGH);
-      delay(2000);
-      digitalWrite(p, LOW);
-      delay(500);
-    }
-
-    Serial.println(F("========================================="));
-    Serial.println(F("Fase 2: Test PASANGAN pin (differential H-bridge)"));
-    Serial.println(F("========================================="));
-
-    // Fase 2: Test pasangan pin (H-Bridge differential)
-    // Pasangan kandidat utama
-    static const uint8_t pairs[][2] = {
-        {53, 52}, // PB0+PB1 (IC pin 19+20)
-        {52, 53}, // reverse
-        {2, 3},   // PE4+PE5 (IC pin 6+7)
-        {3, 2},   // reverse
-        {19, 20}, // Arduino D19+D20
-        {20, 19}, // reverse
-    };
-    static const uint8_t numPairs = sizeof(pairs) / sizeof(pairs[0]);
-
-    for (uint8_t i = 0; i < numPairs; i++) {
-      uint8_t pA = pairs[i][0];
-      uint8_t pB = pairs[i][1];
-
-      Serial.print(F(">> Pin "));
-      Serial.print(pA);
-      Serial.print(F("=HIGH + Pin "));
-      Serial.print(pB);
-      Serial.println(F("=LOW (2 detik)..."));
-
-      digitalWrite(pA, HIGH);
-      digitalWrite(pB, LOW);
-      delay(2000);
-      digitalWrite(pA, LOW);
-      digitalWrite(pB, LOW);
-      delay(500);
-    }
-
-    // Kembalikan semua pin LOW
-    for (uint8_t i = 0; i < numScan; i++) {
-      digitalWrite(scanPins[i], LOW);
-    }
-
-    Serial.println(F("========================================="));
-    Serial.println(F("{\"pin_scan\":\"done\"}"));
-    Serial.println(
-        F("Laporkan nomor pin atau pasangan yang membuat valve KLIK."));
 
   } else {
     Serial.print(F("{\"warn\":\"Perintah tidak dikenal\",\"cmd\":\""));
@@ -1160,20 +1106,23 @@ void processCommand(const char *cmd) {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 void adsCallback() {
-  // 1. Baca semua ADC
+  // Pembacaan harus dikirim dengan identitas fase SAAT dibaca. Jangan
+  // transisikan fase sebelum menulis frame, khususnya pada ACQ_COMPLETE:
+  // jika event COMPLETE muncul lebih dulu, listener menutup CSV terlalu dini.
   sensors.readAll();
 
-  // 2. Update state machine (transisi fase, akumulasi fitur)
-  processAcquisitionState();
-  acqSampleIdx++;
+  // Kirim hanya frame akuisisi aktif, bukan idle/paused/status tanpa siklus.
   if (acqState == AcqState::COLLECTING || acqState == AcqState::PURGING) {
+    ++acqSampleIdx;
     acqTotalSamples++;
+    sensors.printJsonData(acqStateName(), acqCycle, acqSampleIdx);
   }
 
-  // 3. Kirim JSON sensor data
-  sensors.printJsonData(acqStateName(), acqCycle, acqSampleIdx);
+  // Setelah sampel selesai dilabel dan dikirim, baru ubah fase/aktuator
+  // atau terbitkan PHASE_CHANGE / ACQ_COMPLETE.
+  processAcquisitionState();
 
-  // 4. Refresh the HMI from the latest bounded snapshot.
+  // Refresh HMI dari snapshot terbaru.
   updateNextionRunStatus();
   updateNextionTestRunStatus();
 }

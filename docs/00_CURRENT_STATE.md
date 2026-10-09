@@ -1,4 +1,4 @@
-# Kondisi Aktual Smart Coffee E-Nose v2 — audit lanjutan 9 Oktober 2026
+# Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
 > Sumber acuan: kode sumber, hasil QA offline, dan CSV mentah B32–B35 pada direktori utama. Dokumen ini mencatat keadaan rekayasa yang telah diperiksa, **bukan bukti pengujian perangkat fisik secara langsung**.
 
@@ -46,6 +46,15 @@
 7. **P0 — Keselamatan diagnostik pin dan UART mendatang.** Perintah `#pin_scan;` mencakup D19/RX1 serta D20/SDA dan berpotensi mengganggu sambungan Pi atau bus sensor bila digunakan saat terhubung. Jangan menjalankan perintah ini sebelum ditinjau dan memiliki SOP.
 8. **P0 — Label pada mode AI_TEST.** Event `ACQ_START` pada `ai_test` masih menyertakan pilihan roast/origin yang merupakan metadata default UI, bukan ground truth; listener saat ini tidak menyimpannya sebagai dataset labeled. Harus dipisahkan dalam kontrak inferensi mendatang.
 9. **P0 — Keputusan label origin.** Pemetaan preset yang sama antarkolektor cocok pada kode yang beririsan, tetapi daftar preset tidak identik. Label TEM/MUK/CAW belum dibakukan berdasarkan definisi kopi nyata.
+
+### Implementasi lanjutan Tahap 1 — 9 Oktober 2026
+
+- **Pengamanan offline diterapkan:** `#pin_scan;` tidak lagi menjalankan pemindaian GPIO; `#valve_on/off/test;` dinonaktifkan secara bawaan (`ENABLE_MANUAL_ACTUATOR_TESTS=0`), dan hanya boleh diaktifkan untuk SOP bench. `#start;` serial membutuhkan seluruh ADC tersedia; `#scan;` I2C diblokir ketika akuisisi berlangsung.
+- **Mode AI_TEST:** `ACQ_START` sekarang tidak mengeluarkan `sample_id`, `roast_level`, `origin_code`, `batch_id` atau `filename`. Untuk mode `labeled_data`, metadata tetap dikeluarkan agar listener lama kompatibel.
+- **Urutan sampling:** `adsCallback` mengirim frame sensor ketika fase aktif **sebelum** mengubah fase dan mengirim `PHASE_CHANGE`/`ACQ_COMPLETE`. Frame idle/paused tidak diterbitkan sebagai sampel. Pada simulasi 1 Hz ideal jumlahnya 150 sampel (125 purging, 25 collecting), tetapi kondisi waktu dan kualitas sinyal fisik belum dibuktikan.
+- **Regresi:** pemeriksaan kontrak firmware baru serta tes listener untuk AI_TEST tanpa label, COMPLETE ganda, dan STOP parsial ditambahkan. Detail: `docs/reports/2026-10-09_TAHAP1_FIRMWARE_AKUISISI_QA.md`.
+
+**Status Tahap 1: perbaikan offline telah diimplementasikan, verifikasi hardware belum dilakukan.** Narasi risiko sebelumnya adalah kondisi *sebelum perbaikan*, bukan indikasi bahwa perbaikan kode belum dikerjakan.
 
 ## 5. Batas pemeriksaan dan keputusan
 
