@@ -14,7 +14,9 @@ The script never runs preprocessing or model training.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import math
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
@@ -29,12 +31,14 @@ import numpy as np
 import pandas as pd
 
 from acquisition_schema import ADC_COLS
+from stage2_dataset_audit import read_exclusions
 
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data" / "raw"
 OUTPUT_DIR = ROOT / "results" / "sensor-plots"
 ORIGIN_OUTPUT_DIR = OUTPUT_DIR / "by-origin"
+EXCLUSION_MANIFEST = ROOT / "data" / "analysis" / "bench_only_exclusions.csv"
 
 SENSORS = ADC_COLS + ["temperature", "humidity"]
 
@@ -105,6 +109,10 @@ def sensor_ylabel(sensor: str) -> str:
 
 
 def get_csv_files(recursive: bool = False) -> list[Path]:
+    # Jangan gabungkan data bench udara bersih berlabel kopi dengan chart
+    # per-origin / per-roasting. File B36+ lainnya ditahan hingga provenance
+    # diverifikasi; tidak boleh otomatis dianggap kelas kopi terverifikasi.
+    exclusions = read_exclusions(EXCLUSION_MANIFEST)
     candidates = DATA_DIR.rglob("*.csv") if recursive else DATA_DIR.glob("*.csv")
     files: list[Path] = []
     for path in candidates:
@@ -112,6 +120,15 @@ def get_csv_files(recursive: bool = False) -> list[Path]:
         if "legacy_mq9" in parts:
             continue
         if "incomplete" in parts or ".incoming" in parts:
+            continue
+        if path.name in exclusions:
+            if hashlib.sha256(path.read_bytes()).hexdigest() != exclusions[path.name]:
+                raise ValueError(
+                    f"Hash data bench tidak sesuai daftar pengecualian: {path.name}"
+                )
+            continue
+        batch = re.search(r"_B(\d{2})(?:_|\.csv$)", path.name)
+        if batch and int(batch.group(1)) >= 36:
             continue
         files.append(path)
     return sorted(files)
@@ -821,7 +838,10 @@ def generate_origin_plots(
             )
             if (
                 not force
-                and output_is_current(output_path, candidate_sources)
+                and output_is_current(
+                    output_path,
+                    candidate_sources + [Path(__file__), EXCLUSION_MANIFEST],
+                )
             ):
                 skipped += 1
                 continue
@@ -855,7 +875,9 @@ def generate_origin_plots(
             continue
 
         output_path = overview_folder / f"roast_comparison_{sensor}.png"
-        if not force and output_is_current(output_path, source_paths):
+        if not force and output_is_current(
+            output_path, source_paths + [Path(__file__), EXCLUSION_MANIFEST]
+        ):
             skipped += 1
             continue
 

@@ -2,6 +2,16 @@
 
 **Status: rancangan penelitian dan evaluasi. Belum ada model B32–B35 yang dilatih atau disetujui untuk digunakan pada perangkat.**
 
+## Addendum Tahap 2 — provenance dan cohort (9 Oktober 2026)
+
+Manifest input yang sekarang diaudit: `data/analysis/stage2/file_manifest.csv` dan ringkasan `data/analysis/stage2/summary.json`. Terdapat **87 file kandidat B32–B35** setelah penambahan satu CSV B32, **bukan 87 spesimen fisik independen yang telah dibuktikan**. Dua CSV B37 `L-MING_B37.csv` dan `M-MING_B37.csv` adalah uji **udara bersih** dengan label UI kopi yang **tidak sah sebagai ground truth**; jangan dipakai untuk training ataupun evaluasi kopi.
+
+Distribusi label kandidat: light 31, medium 28, dark 28. Matriks 23 kode sampel pada empat batch memiliki **9 sel kosong**, **4 sel berisi lebih dari satu file**. Grouping minimal berdasarkan batch membatasi kebocoran antarsiklus, tetapi **belum mengontrol identitas spesimen yang diuji ulang**, sehingga semua nilai generalisasi model yang muncul sebelum metadata independensi tersedia harus berstatus eksploratori. Pengujian fold lintas batch harus memeriksa dukungan tiap kelas dan kode origin, dan tidak boleh memilih hyperparameter berdasarkan batch uji yang sama.
+
+Skor respons relatif dan beda baseline di `phase_metrics.csv`/`paired_baseline_drift.csv` bersifat **diagnostik sensor**, bukan fitur yang sudah terbukti stabil atau bukti drift terisolasi. Kandidat fitur 62 dimensi/86 file saat ini adalah artefak snapshot lama sebelum file B32 tambahan; Tahap 3 perlu ekstraksi ulang ke **output versi baru** dengan input manifest/hash dibekukan, preprocessing sama antara train dan inferensi, dan aturan pengecualian B37 fail-closed.
+
+Angka **86 file** pada bagian metodologi lama di bawah merupakan **snapshot awal 8 Oktober**, bukan total terbaru. Jangan memperbarui klaim performa AI hanya karena jumlah file bertambah.
+
 ## 1. Dasar bukti dan rumusan tugas
 
 - Dataset B32–B35 memiliki **86 file akuisisi**, **23 kombinasi roast–origin**, dan **4 batch**. Setiap siklus hanya memiliki sekitar 5 titik collecting; lima siklus dalam satu file merupakan pengukuran berulang, bukan lima spesimen independen.

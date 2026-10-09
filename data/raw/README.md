@@ -18,6 +18,16 @@ yang dapat diperiksa otomatis (nama file + SHA256) berada di
 Ekstraktor kandidat MQ3 yang ada saat ini memang membatasi input pada B32–B35.
 Pipeline yang kelak membaca batch lain **wajib** menerapkan pengecualian ini.
 
+## Audit provenance snapshot B32–B35 (9 Oktober 2026)
+
+`scripts/stage2_dataset_audit.py` menghasilkan `data/analysis/stage2/file_manifest.csv`
+ber-hash SHA256, matriks sample_id–batch, serta indikator kualitas dan perubahan
+baseline tanpa menulis ulang raw. Pada mesin pengukuran saat audit terdapat 87
+file B32–B35 dan dua file B37 bench. **87 file B32–B35 adalah kandidat
+berlabel belum terverifikasi, bukan data training yang otomatis diizinkan.**
+Perlu konfirmasi identitas spesimen kopi, semantik TEM/MUK/CAW, sesi/tanggal
+akuisisi, dan riwayat pemanasan. Lihat `docs/reports/2026-10-09_TAHAP2_PROVENANCE_KUALITAS_DATASET.md`.
+
 ## Kontrak akuisisi aktif mulai B32
 
 Acuan konfigurasi akuisisi yang digunakan saat ini dimulai dari B32:

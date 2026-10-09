@@ -1,0 +1,60 @@
+{
+  "status": "AUDIT_ONLY_NOT_ML_APPROVAL",
+  "unit_of_observation": "one CSV acquisition (5 correlated cycles)",
+  "physical_specimen_identity_verified": false,
+  "calendar_session_identity_verified": false,
+  "files_all_B32plus": 89,
+  "files_B32_B35": 87,
+  "B32_B35_canonical_valid": 87,
+  "B32_B35_training_candidates_not_approved": 87,
+  "bench_excluded": [
+    "L-MING_B37.csv",
+    "M-MING_B37.csv"
+  ],
+  "bench_exclusions_not_present_in_checkout": [],
+  "files_by_batch": {
+    "B32": 19,
+    "B33": 20,
+    "B34": 22,
+    "B35": 26,
+    "B37": 2
+  },
+  "coffee_roast_counts": {
+    "dark": 28,
+    "light": 31,
+    "medium": 28
+  },
+  "coffee_sample_combinations": 23,
+  "coffee_missing_sample_batch_cells": 9,
+  "coffee_repeated_sample_batch_cells": 4,
+  "same_sample_multiple_origin_strings": [],
+  "identical_csv_hash_duplicates": [],
+  "phase_rows_exploratory": 4450,
+  "median_recovery_proxy_by_channel": {
+    "adc_mq135": 0.0013698630136986301,
+    "adc_mq3": 0.00034614053305642093,
+    "adc_mq8": 0.07225186063360337,
+    "adc_tgs2600": 0.00034458993797381116,
+    "adc_tgs2602": 0.052801604099365046,
+    "adc_tgs2611": 0.000867195242814668,
+    "adc_tgs2620": 0.0743498817966903,
+    "adc_tgs813": 0.06727209221096751,
+    "adc_tgs816": 0.04620786516853933,
+    "adc_tgs822": 0.22415520539211223
+  },
+  "paired_B32_B35_comparisons": 180,
+  "median_abs_baseline_shift_B35_vs_B32_by_channel": {
+    "adc_mq135": 0.007061911079737233,
+    "adc_mq3": 0.0070860698237124094,
+    "adc_mq8": 0.012162176965432361,
+    "adc_tgs2600": 0.0017344253156049896,
+    "adc_tgs2602": 0.04061322689022197,
+    "adc_tgs2611": 0.06270304778390175,
+    "adc_tgs2620": 0.11565510389359221,
+    "adc_tgs813": 0.050360007108248325,
+    "adc_tgs816": 0.03783984681302621,
+    "adc_tgs822": 0.01980350885734567
+  },
+  "review_only_outlier_flags": 33,
+  "warning": "Drift/recovery/carryover proxies explorative, confounded by unknown physical specimen/day/order and sensor conditioning; no causality claim and no automatic exclusion."
+}

@@ -62,3 +62,7 @@ Pengguna menyetujui Tingkat B **terbatas pada pengoperasian Nextion dan akuisisi
 **Hasil:** B04 jalur penerimaan/simpan CSV PASS untuk dua sesi; B03/B05 **belum lulus menyeluruh** karena collecting pada salah satu run menghasilkan 6 sampel di dua siklus serta belum ada bukti waktu dan posisi valve fisik. B06 baru didukung laporan operator tentang penggunaan Nextion, belum rekaman semua halaman/event. Izin ini **bukan** persetujuan untuk memulai fault injection, flash, power-cycle, atau uji aktuator manual dari jarak jauh.
 
 **Penting:** untuk bench udara bersih berikutnya, hindari penggunaan label kopi pada CSV. Bila UI masih mewajibkan pilihan kopi, catat perbedaan medium aktual di manifest provenance dan tetap kecualikan dari dataset AI.
+
+### Konfirmasi lanjutan operator
+
+Operator selanjutnya mengonfirmasi **pompa dan valve berpindah mengikuti urutan nominal 25 detik purging + 5 detik collecting** dan **Nextion mencapai halaman selesai tanpa error**. Ini menaikkan status B03 (gerakan dan urutan) serta B06 (alur normal UI) menjadi **PASS berdasarkan kesaksian operator**, selaras dengan log serial dan CSV, tetapi **bukan pengukuran latensi/tegangan koil atau timestamp perpindahan valve oleh instrumen**. B05 untuk M-MING tetap **FAIL terhadap target sampel ketat (152 vs 150)**; B07 fail-safe/fault injection dan identitas firmware ter-flash masih terbuka. Tidak ada pengujian tambahan yang dijalankan oleh agen atas dasar konfirmasi tersebut.

@@ -89,6 +89,8 @@ python scripts/test_feature_pipeline.py
 python scripts/test_stage0_contract.py
 python scripts/test_stage1_firmware_contract.py
 python scripts/test_bench_stage1_passive_qa.py
+python scripts/test_stage2_dataset_audit.py
+python scripts/test_stage2_plot_provenance.py
 python -m compileall -q scripts
 ```
 

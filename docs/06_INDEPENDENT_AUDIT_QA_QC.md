@@ -101,3 +101,13 @@ Perbaikan offline: penonaktifan `#pin_scan`, pengamanan perintah valve manual di
 Tes baru `python scripts/test_stage1_firmware_contract.py` memverifikasi struktur kode serta simulasi waktu ideal 1 Hz; **tidak mengukur timing fisik**. Bukti lengkap, status QA, dan daftar risiko tersisa: `docs/reports/2026-10-09_TAHAP1_FIRMWARE_AKUISISI_QA.md`.
 
 Status Tahap 1 tetap **SEBAGIAN** sampai wiring, valve, sensor, UART, Nextion TFT dan ketepatan fase telah diverifikasi pada bench dengan SOP. Hasil QA offline tidak berarti sistem fisik siap beroperasi.
+
+## Addendum Tahap 2 — provenance dan audit dataset (9 Oktober 2026)
+
+Operator mengonfirmasi pompa/valve berpindah mengikuti fase nominal 25/5 detik dan layar Nextion sampai halaman selesai tanpa error. Ini merupakan **observasi operator**, bukan pengukuran dengan instrumen. Penyimpangan dua collecting pada `M-MING_B37.csv` dan uji negatif/fail-safe tetap menjadi temuan terbuka Tahap 1.
+
+Inventaris baru: **89 CSV B32+** (87 kandidat B32–B35, dua B37 udara bersih) dan pengecualian bench ber-SHA256. Dua pengujian B37 valid menurut validator canonical, tetapi **tidak mewakili kopi sesuai label UI** dan tidak boleh masuk training/evaluasi kopi.
+
+Audit `scripts/stage2_dataset_audit.py` menghasilkan manifest SHA256, 23 kode sampel, distribusi 31 light/28 medium/28 dark, **9 sel kode–batch kosong**, **4 sel dengan file berulang**, 180 pasangan baseline B32/B35 (18 kode × 10 kanal), dan **33 flag file–kanal** sebagai antrian review. Nilai perubahan baseline hanya proxy eksploratori; identitas spesimen, waktu pengukuran dan label TEM/MUK/CAW belum terverifikasi.
+
+Tes negatif `scripts/test_stage2_dataset_audit.py` dan `scripts/test_stage2_plot_provenance.py` harus **PASS** sebelum promosi perbaikan. Generator grafik sekarang mengecualikan data bench udara bersih yang tercatat manifest dan menahan batch B36+ tanpa audit. **Status akhir:** ketersediaan alat audit dan struktur data PASS; metodologi label independen untuk training/validasi model **P0 TERHAMBAT**. Laporan detail `docs/reports/2026-10-09_TAHAP2_PROVENANCE_KUALITAS_DATASET.md`.

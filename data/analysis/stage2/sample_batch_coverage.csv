@@ -1,0 +1,24 @@
+sample_id,roast_level,origin,B32_file_count,B33_file_count,B34_file_count,B35_file_count,total_files,batch_coverage,multiple_files_in_one_batch
+D-CAT,dark,Arabika Catuji Mekarwangi,1,1,1,2,5,4,True
+D-GAW,dark,Arabika Gayo Wine,1,1,1,1,4,4,False
+D-GRB,dark,Arabika Redbourbon Gayo Aceh Natural,1,1,1,1,4,4,False
+D-MING,dark,Arabika Sumatra Utara,1,1,1,1,4,4,False
+D-RAT,dark,Arabika Ratawali Aceh,0,1,1,1,3,3,False
+D-TEM,dark,Arabika Temanggung Mukidi,1,1,1,1,4,4,False
+D-TOR,dark,Arabika Toraja Washed,1,1,1,1,4,4,False
+L-CAT,light,Arabika Catuji Mekarwangi,1,1,1,1,4,4,False
+L-CAW,light,CAW,0,1,1,1,3,3,False
+L-GAW,light,Arabika Gayo Wine,1,1,1,1,4,4,False
+L-GAY,light,Arabika Gayo Aceh,0,0,1,1,2,2,False
+L-GRB,light,Arabika Redbourbon Gayo Aceh Natural,1,1,1,2,5,4,True
+L-MING,light,Arabika Sumatra Utara,2,1,1,1,5,4,True
+L-TEM,light,Arabika Temanggung,1,1,1,1,4,4,False
+L-TOR,light,Arabika Toraja Washed,1,1,1,1,4,4,False
+M-CAT,medium,Arabika Catuji Mekarwangi,1,1,1,1,4,4,False
+M-CAW,medium,CAW,0,0,0,1,1,1,False
+M-GAW,medium,Arabika Gayo Wine,1,1,1,1,4,4,False
+M-GRB,medium,Arabika Redbourbon Gayo Aceh Natural,1,1,1,1,4,4,False
+M-MING,medium,Arabika Sumatra Utara,1,1,1,1,4,4,False
+M-MUK,medium,Arabika Temanggung Mukidi,0,0,1,2,3,2,True
+M-TEM,medium,Arabika Temanggung,1,1,1,1,4,4,False
+M-TOR,medium,Arabika Toraja Washed,1,1,1,1,4,4,False

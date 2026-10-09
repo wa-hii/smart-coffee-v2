@@ -18,8 +18,8 @@ Dokumen bukti dasar: **00_CURRENT_STATE.md**, **02_KONTRAK_SISTEM_DAN_KEPUTUSAN_
 | Tahap | Status saat audit | Prioritas | Dependensi utama | Perangkat fisik diperlukan? |
 |---|---|---|---|---|
 | 0. Penutupan kondisi aktual dan metodologi | **AUDIT OFFLINE SELESAI; keputusan label/PCB diteruskan sebagai blocker tahap terkait** | P0 | Tidak ada | Tidak |
-| 1. Mutu firmware, sensor, Nextion, dan akuisisi | **OFFLINE PASS + 1 RUN BENCH PASIF PASS; AKTUATOR/GUI FISIK BELUM DIVERIFIKASI** | P0 | 0 | Ya, untuk verifikasi final |
-| 2. Inventaris dan kualitas dataset | SEBAGIAN | P0 | 0–1 | Tidak untuk data lama; ya untuk sampel baru |
+| 1. Mutu firmware, sensor, Nextion, dan akuisisi | **OFFLINE PASS + NORMAL FLOW OPERATOR PASS; NEGATIVE/QUANTITATIVE BENCH TERBUKA** | P0 | 0 | Ya, untuk verifikasi final |
+| 2. Inventaris dan kualitas dataset | **AUDIT REPRODUKSIBEL SELESAI; PROVENANCE LABEL/SPESIMEN P0 TERHAMBAT** | P0 | 0–1 | Tidak untuk data lama; ya untuk sampel baru |
 | 3. Preprocessing dan fitur yang dapat direproduksi | KANDIDAT SEBAGIAN | P0 | 2 | Tidak |
 | 4. Penelitian model baseline dan challenger | DIRENCANAKAN | P1 | 3 | Tidak |
 | 5. Generalisasi lintas batch, drift dan unknown | DIRENCANAKAN | P0 | 3–4 | Ya untuk pengujian prospektif |
@@ -67,6 +67,10 @@ Status **SEBAGIAN** berarti sebagian kode atau bukti telah tersedia, tetapi krit
 - **Risiko:** perubahan state machine dapat mengubah semantik dataset lama. Lakukan simulasi lalu bench test terkontrol; jangan refactor timing tanpa bukti.
 
 ## Tahap 2 — Inventaris, provenance, dan evaluasi kualitas dataset
+
+**Audit dataset 9 Oktober 2026:** skrip `scripts/stage2_dataset_audit.py` beserta tes negatif menghasilkan manifest SHA256, QC per file dan per fase, matriks `sample_id×batch`, proxy purging/carryover, pasangan baseline B32–B35, dan flag anomali untuk review. Snapshot: **89 file B32+** dengan **87 kandidat B32–B35 valid secara struktur** dan dua file B37 berstatus **excluded_bench_clean_air**. Ada **9 sel kombinasi kode–batch kosong, 4 sel dengan file berulang, 33 flag file–kanal untuk review**, serta metadata spesimen/hari/urutan sesi yang belum ada. Sumber: `docs/reports/2026-10-09_TAHAP2_PROVENANCE_KUALITAS_DATASET.md` dan `data/analysis/stage2/`.
+
+**Keputusan:** mesin audit dan dokumentasi provenance selesai; **kelayakan ilmiah label serta independensi spesimen masih P0 TERHAMBAT**. Tidak ada relabel otomatis, raw tidak disentuh, dataset bench udara bersih tidak dimasukkan ke data kopi. Artefak fitur kandidat 86 observasi yang lama belum otomatis diperbarui ke 87; hanya lanjut Tahap 3 sebagai riset **kandidat**, bukan training/deployment yang diklaim valid.
 
 - **Tujuan, status, prioritas:** menentukan unit sampel independen yang benar serta kelayakan dataset; **SEBAGIAN, P0**. Inventaris awal 86 file dan validator selesai, penilaian ilmiah masih berjalan.
 - **Dependensi dan desain:** skema MQ3 aktif dari Tahap 1; MQ9 historis dipisahkan; inventaris raw yang ada dapat diproses offline.

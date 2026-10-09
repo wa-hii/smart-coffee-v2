@@ -2,6 +2,16 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 9 Oktober 2026 — Tahap 2: provenance dan kualitas data
+
+**Status:** perangkat audit snapshot dan QA reproduksibel selesai; verifikasi label/origin serta identitas spesimen tetap P0 terbuka.
+
+- Catat konfirmasi operator bahwa valve/pompa berpindah mengikuti 25/5 detik dan Nextion mencapai halaman selesai tanpa error (bukti observasi, belum pengukuran instrumen). Uji negatif Tahap 1 tetap terbuka.
+- Tambahkan skrip `stage2_dataset_audit.py` beserta tes negatif untuk manifest SHA256, kualitas CSV, label dan cohort, kelengkapan kelas, perubahan baseline purge, proxy drift, serta flag outlier eksploratori.
+- Audit **89 CSV B32+**: 87 kandidat belum disetujui untuk ML dari B32–B35 dan 2 file udara bersih B37 dikecualikan. Terdapat 9 sel kode–batch kosong, 4 sel berulang dan 33 flag file–kanal untuk review (bukan 33 file rusak).
+- Perkuat generator plot agar mengabaikan bench B37 berdasarkan hash serta menahan batch baru B36+ sampai provenance direview; data mentah dan grafik eksisting tidak dihapus.
+- Buat keluaran `data/analysis/stage2/` dan laporan `docs/reports/2026-10-09_TAHAP2_PROVENANCE_KUALITAS_DATASET.md`. Tidak dilakukan training model atau operasi alat.
+
 ## 9 Oktober 2026 — Hasil bench Nextion B37 dengan udara bersih
 
 - Operator menyampaikan selang menggunakan udara bersih selama batch B37; dua file final `L-MING_B37.csv` dan `M-MING_B37.csv` ditemukan dari log listener COM5.

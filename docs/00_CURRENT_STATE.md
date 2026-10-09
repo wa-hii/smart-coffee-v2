@@ -74,6 +74,15 @@
 - **Keputusan data:** kedua file B37 diberi status **BENCH_ONLY / NOT ELIGIBLE FOR COFFEE TRAINING** melalui `data/analysis/bench_only_exclusions.csv` dan laporan `docs/reports/2026-10-09_TAHAP1_BENCH_B37_UDARA_BERSIH.md`. Label L-MING/M-MING berasal dari UI dan **tidak** mendeskripsikan medium udara bersih. CSV asli tidak diubah.
 - Status Tingkat B yang terbukti: operator menjalankan sesi dari Nextion, serial host menerima sampai COMPLETE, dan file final valid secara struktur. Identitas firmware dan gerakan valve/pompa serta semua uji gagal belum dibuktikan.
 
+**Addendum konfirmasi operator:** operator telah mengonfirmasi perpindahan pompa/valve mengikuti fase nominal 25/5 detik dan layar Nextion sampai halaman selesai tanpa error. Ini merupakan **observasi fungsi utama oleh operator**, bukan timestamp perpindahan valve yang direkam instrumen. Masalah collecting tambahan pada M-MING B37, versi firmware ter-flash, dan uji fail-safe masih terbuka.
+
+### Tahap 2 — Audit dataset dan provenance
+
+- `scripts/stage2_dataset_audit.py` menghasilkan enam artefak QC di `data/analysis/stage2/` berikut manifest SHA256 untuk seluruh **89 CSV B32+** pada mesin ini. **87 kandidat MQ3 B32–B35** valid secara struktur dan **dua B37 bench udara bersih dikecualikan**.
+- Matriks 23 kode kopi × B32–B35 memiliki **9 sel kosong** dan **4 sel file berulang**. Terdapat **33 flag respons relatif file–kanal untuk review**, tanpa pembuangan data otomatis. Proxy perubahan purging dan baseline antarbatch masih tercampur faktor spesimen/hari/warm-up.
+- P0 sebelum AI: label origin TEM/MUK/CAW dan `physical_specimen_id`, waktu kalender, urutan pengambilan serta identitas firmware belum dapat dibuktikan dari CSV. Status training kandidat **belum disetujui**.
+- Skrip grafik `plot_sensor_pattern.py` diperkuat agar **tidak memasukkan bench B37 sebagai kopi** atau batch baru yang belum direview ke grafik per origin. Laporan: `docs/reports/2026-10-09_TAHAP2_PROVENANCE_KUALITAS_DATASET.md`.
+
 ## 5. Batas pemeriksaan dan keputusan
 
 Yang dilakukan: kompilasi offline, pengujian parser/validator, pengecekan kontrak HMI, dan analisis berkas CSV yang tersedia. Tidak ada akses COM5, restart listener, penulisan EEPROM, kalibrasi, penggerakan pompa, flashing, training model, maupun deployment Raspberry Pi.

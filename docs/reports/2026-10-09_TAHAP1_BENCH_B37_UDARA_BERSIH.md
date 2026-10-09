@@ -66,3 +66,7 @@ Ekstraktor `scripts/extract_b32_features.py` saat ini secara eksplisit hanya mem
 **Tindak lanjut terprioritas:** (1) dokumentasikan firmware/HMI versi aktual dan kesesuaian wiring; (2) ukur perpindahan valve dan timing 25/5 detik dengan stopwatch/video atau pengukur sinyal saat uji terkontrol; (3) telusuri dua sampel ekstra collecting pada M-MING dengan log fase dan `TaskScheduler`; (4) konfirmasi respon pause/cancel/fail-safe jika SOP berizin; (5) ubah prosedur dan identitas pengambilan data bench sehingga tidak memakai label kopi palsu.
 
 Tidak dilakukan perubahan fisik/firmware pada sesi validasi ini.
+
+### Addendum — konfirmasi operator sebelum Tahap 2
+
+Operator menyatakan **pompa/valve berpindah mengikuti durasi 25 s purging + 5 s collecting** serta **Nextion berjalan sampai halaman selesai tanpa error**. B03 dan B06 memiliki **bukti observasi operator untuk fungsi utama normal**; pengukuran durasi dengan logic analyzer atau pengukuran valve independen belum tersedia, dan masalah **152 frame M-MING** tetap harus ditelusuri. Status B07 (fail-safe/negative cases) tetap NOT RUN. Tidak ada klaim seluruh Tahap 1 sudah hardware-certified. Pemeriksaan berikutnya berupa audit data read-only Tahap 2 tanpa membuat sampel fisik baru.
