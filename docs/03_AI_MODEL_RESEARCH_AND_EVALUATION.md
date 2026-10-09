@@ -1,5 +1,20 @@
 # Penelitian dan Evaluasi Model AI — 8 Oktober 2026
 
+## Addendum terbaru — gerbang unknown Tahap 5 (9 Oktober 2026)
+
+Analisis offline `results/stage5_validation_v1/` memakai dua
+konfigurasi yang sebelumnya dibandingkan pada LOBO Tahap 4.
+Keduanya hanya **45/83 prediksi roast benar** pada snapshot kandidat
+dan **memprediksi light roast pada seluruh 5 udara bersih valid**.
+Tidak satu pun udara bersih terabstain pada confidence threshold 0,6.
+Karena itu **tidak ada threshold confidence siap produksi, model
+unknown siap pakai, atau klaim deteksi udara bersih yang aman**.
+Pooled OOF macro-F1 dan rerata macro-F1 per fold adalah ukuran
+berbeda; jangan mencampurnya. Bootstrap 4 cluster sangat terbatas.
+Kontrak pengambilan data prospektif dan validasi unknown kopi
+belum terpenuhi. Laporan:
+`docs/reports/2026-10-09_TAHAP5_GENERALISASI_UNKNOWN_QA.md`.
+
 ## Addendum terbaru — koreksi CAW dan benchmark Tahap 4 (9 Oktober 2026)
 
 **Konfirmasi operator: CAW dan seluruh batch B37 adalah udara bersih.**

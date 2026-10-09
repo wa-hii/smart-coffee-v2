@@ -22,7 +22,7 @@ Dokumen bukti dasar: **00_CURRENT_STATE.md**, **02_KONTRAK_SISTEM_DAN_KEPUTUSAN_
 | 2. Inventaris dan kualitas dataset | **AUDIT REPRODUKSIBEL SELESAI; PROVENANCE LABEL/SPESIMEN P0 TERHAMBAT** | P0 | 0–1 | Tidak untuk data lama; ya untuk sampel baru |
 | 3. Preprocessing dan fitur yang dapat direproduksi | **PIPELINE OFFLINE PASS; FITUR KANDIDAT, METODOLOGI ML BELUM VALID** | P0 | 2 | Tidak |
 | 4. Penelitian model baseline dan challenger | **BENCHMARK LOBO OFFLINE SELESAI; MODEL BELUM TERVALIDASI** | P1 | 3 | Tidak |
-| 5. Generalisasi lintas batch, drift dan unknown | DIRENCANAKAN | P0 | 3–4 | Ya untuk pengujian prospektif |
+| 5. Generalisasi lintas batch, drift dan unknown | **DIAGNOSTIK OFFLINE PASS; UNKNOWN NO-GO, PROSPEKTIF TERBUKA** | P0 | 3–4 | Ya untuk pengujian prospektif |
 | 6. Pemilihan model dan kontrak artefak | TERHAMBAT OLEH 5 | P1 | 5 | Ya untuk benchmark perangkat |
 | 7. Persiapan integrasi Raspberry Pi–ATmega | SEBAGIAN (DESAIN) | P1 | 1, 6 | Ya untuk integrasi |
 | 8. Simulasi E2E penuh secara offline | DIRENCANAKAN | P1 | 6–7 | Tidak |
@@ -126,6 +126,27 @@ terverifikasi dan uji prospektif belum tersedia (Tahap 5).
 - **Risiko:** variasi kelas dan sampel sangat terbatas; gunakan regularisasi, hyperparameter sederhana, serta laporkan ketidakpastian.
 
 ## Tahap 5 — Evaluasi lintas batch, drift, dan penolakan unknown
+
+**Implementasi 9 Oktober 2026:** `scripts/stage5_validation.py`
+mengevaluasi dua pembanding Tahap 4 pada 83 observasi kopi kandidat
+melalui 4 fold LOBO, dengan probabilitas OOF, metrik per kelas,
+kurva risk–coverage threshold a priori, bootstrap empat batch,
+simulasi gain ADC dan uji lima data udara bersih valid.
+Artefak `results/stage5_validation_v1/`, regresi
+`scripts/test_stage5_validation.py`, laporan lengkap
+`docs/reports/2026-10-09_TAHAP5_GENERALISASI_UNKNOWN_QA.md`.
+
+**Temuan P0:** baik RF expanded82 maupun LDA response10
+**memprediksi light roast pada 5/5 udara bersih**, dan **tidak
+menolak satu pun** pada ambang confidence 0,6.
+Keduanya salah pada **38/83** observasi OOF kopi kandidat.
+Pada ambang 0,8 RF menerima 9 observasi (3 salah), LDA
+menerima 20 (6 salah). Confidence **belum dikalibrasi**; threshold
+eksploratori tidak boleh dijadikan keputusan produksi.
+Identitas spesimen dan batch prospektif, unknown origin kopi, serta
+detektor kopi-vs-udara-bersih **belum diuji**. **Tahap 5
+engineering diagnostik PASS; gerbang ilmiah/release NO-GO**.
+Tahap 6 dan deployment tetap tertahan.
 
 - **Tujuan, status, prioritas:** membuktikan generalisasi pada pengambilan data baru; **DIRENCANAKAN, P0 sebagai syarat rilis AI**.
 - **Dependensi dan desain:** Tahap 2–4, target serta ambang dipastikan sebelum evaluasi; validasi Leave-One-Batch-Out (LOBO) awal dan pengujian spesimen/hari baru secara prospektif.

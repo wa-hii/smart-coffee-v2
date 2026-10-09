@@ -2,6 +2,19 @@
 
 ## Pembaruan terbaru — koreksi CAW dan Tahap 4 (9 Oktober 2026)
 
+### Tahap 5 — penilaian unknown (9 Oktober)
+
+Analisis offline tambahan di `results/stage5_validation_v1/`:
+RF82 dan LDA10 masing-masing memiliki **45/83 benar**, **38/83
+salah** pada prediksi out-of-fold kopi kandidat. Keduanya memprediksi
+**light roast pada lima dari lima uji udara bersih yang lolos QA**;
+ambang 0,6 tidak menolak satu pun. Pada confidence 0,8,
+RF menerima 9 sampel dengan 3 salah; LDA 20 dengan 6 salah.
+**Status unknown NO-GO**; jangan gunakan model roast-only untuk
+menyatakan medium terdeteksi kopi. Bootstrap hanya 4 cluster,
+simulasi gain bukan tes fisik. Detail:
+`docs/reports/2026-10-09_TAHAP5_GENERALISASI_UNKNOWN_QA.md`.
+
 Operator mengonfirmasi **CAW dan seluruh batch B37 adalah udara bersih**.
 Empat CAW B33–B35 dan dua CSV B37 kini dinyatakan bukan kopi,
 dikecualikan berdasarkan nama serta SHA256, tanpa mengubah data asli.

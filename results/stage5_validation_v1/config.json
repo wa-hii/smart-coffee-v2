@@ -1,0 +1,40 @@
+{
+  "id": "stage5.validation.exploratory.v1",
+  "seed": 20261009,
+  "comparators_posthoc_from_stage4": [
+    [
+      "random_forest",
+      "expanded82"
+    ],
+    [
+      "lda_shrinkage",
+      "response10"
+    ]
+  ],
+  "confidence_thresholds_prespecified": [
+    0.0,
+    0.5,
+    0.6,
+    0.7,
+    0.8,
+    0.9
+  ],
+  "feature_gain_perturbations": [
+    0.9,
+    0.95,
+    1.05,
+    1.1
+  ],
+  "snapshot_sha256": "0611c901a745b615415b18d28a7ca8b034de08abc4a50db8660ec74783e1c537",
+  "candidate_features_sha256": "365f95d081e463edb6e692179a14f22837cd4c338b0d813a1984fc41e7feabfe",
+  "stage2_manifest_sha256": "da9b6fe1df2ac2887feddf6c87ac39afd7b0878512bcdd0d9c888d40d8e00374",
+  "clean_air_exclusions_sha256": "1d87a3481f95a63b68d466f345bea72c2d3fa9fcfadc682edb2f49b01724e01d",
+  "labels_order": [
+    "dark",
+    "light",
+    "medium"
+  ],
+  "no_threshold_optimization": true,
+  "calibration_fitted": false,
+  "final_model_fitted_or_saved": false
+}

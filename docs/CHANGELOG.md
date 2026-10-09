@@ -2,6 +2,30 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 9 Oktober 2026 — Tahap 5: risiko model, drift sintetik dan unknown
+
+- Mengembangkan `scripts/stage5_validation.py` beserta uji
+  `scripts/test_stage5_validation.py`, menggunakan input SHA256
+  snapshot Stage2/3 versi terkoreksi dan **83 kandidat kopi**.
+- Membandingkan RF82 dan LDA10 pada 4-fold LOBO dengan prediksi
+  out-of-fold, risk–coverage a priori, metrik per kelas, dan
+  bootstrap empat batch secara deskriptif; **tidak melakukan
+  tuning threshold atau menyimpan model akhir**.
+- **P0:** kedua model memprediksi *light roast* terhadap **5/5
+  sampel udara bersih valid**, 0/5 ditolak pada ambang 0,6.
+  Kedua model salah pada 38/83 file kopi OOF. Ketepatan
+  confidence dan kemampuan deteksi unknown **tidak tervalidasi**.
+- Simulasi pergeseran gain ADC ±5%/±10% memperlihatkan
+  RF berubah prediksi pada 8–17 file, sedangkan LDA response10
+  tetap dalam asumsi transformasi sintetik (bukan data fisik).
+- Keluaran `results/stage5_validation_v1/`, laporan
+  `docs/reports/2026-10-09_TAHAP5_GENERALISASI_UNKNOWN_QA.md`.
+  Tahap 5 engineering offline selesai tetapi **NO-GO
+  validasi prospektif, unknown, dan promosi model**.
+- QA regresi Stage 0–5, PlatformIO dua environment, Nextion 12
+  halaman/23 event, dan validator struktur 89/89 CSV **PASS**;
+  tes tersebut bukan bukti kelayakan inferensi produksi.
+
 ## 9 Oktober 2026 — Tahap 4: CAW udara bersih dan benchmark LOBO
 
 - Operator mengonfirmasi **kode CAW dan seluruh batch B37 = udara bersih**.

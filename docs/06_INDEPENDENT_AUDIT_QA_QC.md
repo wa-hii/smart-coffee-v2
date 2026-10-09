@@ -114,6 +114,17 @@ Tes negatif `scripts/test_stage2_dataset_audit.py` dan `scripts/test_stage2_plot
 
 ## Addendum Tahap 3 — QA pipeline fitur (9 Oktober 2026)
 
+**Addendum Tahap 5 (9 Oktober):** audit pengujian unknown dan
+ketahanan disimpan di
+`docs/reports/2026-10-09_TAHAP5_GENERALISASI_UNKNOWN_QA.md`.
+Pada 83 file kandidat kopi, RF82/LDA10 menghasilkan masing-masing
+45 benar dan 38 salah pada OOF; pada 5 file udara bersih valid
+**semuanya tetap diprediksi sebagai light roast**, termasuk
+tanpa ada yang ditolak pada threshold 0,6. Threshold
+confidence tidak terkalibrasi, simulasi gain bukan drift fisik,
+dan 4 batch bukan set prospektif. **NO-GO unknown/deployment**.
+Tes baru `python scripts/test_stage5_validation.py`.
+
 **Addendum lebih baru (9 Oktober): CAW dan B37 merupakan udara bersih.**
 Snapshot `stage2/`, `stage3_v1/` serta statistik di bagian-bagian
 sebelumnya dipertahankan sebagai bukti historis. Untuk benchmark kopi

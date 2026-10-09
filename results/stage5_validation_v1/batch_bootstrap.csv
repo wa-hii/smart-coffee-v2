@@ -1,0 +1,3 @@
+model,group,pooled_oof_macro_f1,batch_bootstrap_macro_f1_p025,batch_bootstrap_macro_f1_p975,batch_bootstrap_balanced_p025,batch_bootstrap_balanced_p975,unique_batches,batch_resamples,interpretation
+lda_shrinkage,response10,0.538926681784,0.475128205128,0.544869459624,0.529982363316,0.561904761905,4,256,DESCRIPTIVE_ONLY_4_CLUSTERS_LABELS_UNVERIFIED
+random_forest,expanded82,0.511775164407,0.419434147214,0.616071428571,0.444444444444,0.647435897436,4,256,DESCRIPTIVE_ONLY_4_CLUSTERS_LABELS_UNVERIFIED

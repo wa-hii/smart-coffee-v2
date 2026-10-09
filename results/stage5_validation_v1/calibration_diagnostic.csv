@@ -1,0 +1,13 @@
+model,group,conf_bin_low,conf_bin_high,files,mean_uncalibrated_confidence,observed_accuracy_unverified_label
+lda_shrinkage,response10,0,0.5,13,0.453978711391,0.538461538462
+lda_shrinkage,response10,0.5,0.6,22,0.553706387605,0.545454545455
+lda_shrinkage,response10,0.6,0.7,14,0.645373401991,0.428571428571
+lda_shrinkage,response10,0.7,0.8,14,0.753244034854,0.428571428571
+lda_shrinkage,response10,0.8,0.9,8,0.859996507611,0.5
+lda_shrinkage,response10,0.9,1,12,0.948225829987,0.833333333333
+random_forest,expanded82,0,0.5,29,0.444306239737,0.586206896552
+random_forest,expanded82,0.5,0.6,18,0.547476851852,0.388888888889
+random_forest,expanded82,0.6,0.7,15,0.656216269841,0.6
+random_forest,expanded82,0.7,0.8,12,0.759878472222,0.5
+random_forest,expanded82,0.8,0.9,8,0.84,0.625
+random_forest,expanded82,0.9,1,1,0.9025,1

@@ -1,5 +1,13 @@
 # Smart Coffee E-Nose v2
 
+**Update Tahap 5 (9 Oktober 2026):** risiko dan unknown dievaluasi
+di `results/stage5_validation_v1/`. Kedua model roast-only
+yang ditinjau masih **mengklasifikasikan 5/5 udara bersih sebagai
+light roast**, dengan confidence yang tidak dikalibrasi.
+**Jangan aktifkan AI_TEST roast atau unknown di perangkat**
+berdasarkan model kandidat ini. Detail:
+`docs/reports/2026-10-09_TAHAP5_GENERALISASI_UNKNOWN_QA.md`.
+
 **Update dataset dan benchmark 9 Oktober 2026:** operator mengonfirmasi
 **kode CAW dan batch B37 adalah udara bersih**, bukan origin kopi. Gunakan
 `data/analysis/stage2_v2/` dan `data/processed/stage3_v2/` untuk 83

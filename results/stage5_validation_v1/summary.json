@@ -1,0 +1,20 @@
+{
+  "status": "EXPLORATORY_STAGE5_NO_GO_PROSPECTIVE_UNAVAILABLE",
+  "coffee_candidate_files": 83,
+  "oof_predictions": 166,
+  "clean_air_known_files": 6,
+  "clean_air_strict_valid": 5,
+  "clean_air_feature_hold": [
+    "L-CAW_B34.csv"
+  ],
+  "sample_codes": 21,
+  "codes_in_multiple_batches": 21,
+  "repeated_code_batch_cells": 4,
+  "physical_specimen_ids_verified": false,
+  "roast_labels_verified": false,
+  "confidence_calibrated": false,
+  "unknown_coffee_tested": false,
+  "prospective_external_batch_tested": false,
+  "models_promoted": 0,
+  "warning": "Risk/coverage uses held-out folds but prespecified thresholds were not calibrated. Comparators chosen after inspecting Stage4 LOBO; no unbiased final estimate. Clean air is NOT an unknown coffee class; only four batch clusters."
+}
