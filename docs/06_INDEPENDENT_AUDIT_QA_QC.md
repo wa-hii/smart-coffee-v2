@@ -114,6 +114,23 @@ Tes negatif `scripts/test_stage2_dataset_audit.py` dan `scripts/test_stage2_plot
 
 ## Addendum Tahap 3 — QA pipeline fitur (9 Oktober 2026)
 
+**Addendum 11 Oktober 2026 — tahap 7 pada Raspberry
+Pi nyata:** SSH Tailscale dengan `StrictHostKeyChecking=yes`
+berhasil, teridentifikasi Pi 5 Model B Rev 1.1/
+Debian 13/Python 3.13.5. Venv `~/smart-coffee-stage7/.venv`
+memuat hanya `pyserial==3.5` sebagai dependency tambahan.
+Replay real `D-GAW_B33.csv` dijalankan **di Pi**:
+SHA256 input cocok dengan Windows, **151 sampel
+COMPLETE_QA, AI_TEST=N/A**, `hardware_serial_opened=false`,
+`actuator_commands_sent=0`. Test bridge, runner,
+preflight **PASS pada Pi**, regresi Stage0–7 dan
+build PlatformIO dua environment **PASS** pada Windows;
+validator raw 89/89 PASS. **ATmega belum tersambung,
+tidak ada port serial fisik dibuka ataupun handler
+hasil Pi→Nextion diuji.** Bukti:
+`docs/reports/2026-10-11_TAHAP7_PI_VENV_OFFLINE_REPLAY.md`
+dan `results/stage7_pi_remote_v1/`.
+
 **Addendum Tahap 7 — 10 Oktober 2026:** ATmega
 tidak terhubung COM5, Pi dinyalakan untuk akses remote,
 tetapi endpoint SSH/identitas Pi belum ada sehingga

@@ -2,6 +2,30 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 11 Oktober 2026 — Tahap 7: venv dan replay CSV asli langsung di Pi
+
+- SSH Tailscale ke `enose-v3@enose-pi5` berhasil;
+  Raspberry Pi 5 Model B Rev 1.1, Debian 13,
+  Python 3.13.5 dan preflight read-only terverifikasi.
+- Membuat `~/smart-coffee-stage7/.venv` di Pi
+  dan memasang **pyserial==3.5** hanya ke venv;
+  tidak mengubah Python global/layanan.
+- Menambah `scripts/stage7_pi_adapter.py` (mode
+  replay-csv/replay-jsonl dan serial-readonly
+  yang dilindungi izin eksplisit), regresi
+  `scripts/test_stage7_pi_adapter.py`,
+  serta `scripts/requirements-stage7-pi.txt`.
+- Mentransfer satu CSV asli dan source + ringkasan
+  gate melalui SSH/SCP; hash SHA256 CSV cocok
+  antara host dan Pi. Regresi bridge/adapter/
+  preflight **PASS di Pi**, replay
+  `D-GAW_B33.csv` **151 sampel, COMPLETE_QA,
+  AI_TEST=N/A**, tanpa serial fisik.
+- Menambah laporan dan bukti
+  `docs/reports/2026-10-11_TAHAP7_PI_VENV_OFFLINE_REPLAY.md`
+  dan `results/stage7_pi_remote_v1/`.
+  ATmega/Nextion/aktuator/COM5 tetap tidak disentuh.
+
 ## 10 Oktober 2026 — Tahap 7: adapter Pi dan mock protokol aman
 
 - Berdasarkan konfirmasi operator, ATmega tidak dikoneksikan ke

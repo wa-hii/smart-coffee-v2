@@ -1,5 +1,15 @@
 # Smart Coffee E-Nose v2
 
+**Update 11 Oktober 2026 — Raspberry Pi 5 langsung:**
+SSH Tailscale ke `enose-v3@enose-pi5` berhasil.
+Venv `~/smart-coffee-stage7/.venv` dan adapter
+`scripts/stage7_pi_adapter.py` telah disiapkan
+langsung di Pi. Replay CSV nyata
+`D-GAW_B33.csv` **PASS (151 sampel, AI=N/A)**,
+tanpa menghubungkan ATmega atau membuka
+port serial. Dokumentasi:
+`docs/reports/2026-10-11_TAHAP7_PI_VENV_OFFLINE_REPLAY.md`.
+
 **Tahap 7 (10 Oktober 2026):** ATmega belum dihubungkan
 ke COM5; Pi 5 dinyalakan untuk remote, tetapi identitas
 SSH belum tersedia untuk verifikasi. Adapter **mock

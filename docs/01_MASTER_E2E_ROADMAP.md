@@ -24,7 +24,7 @@ Dokumen bukti dasar: **00_CURRENT_STATE.md**, **02_KONTRAK_SISTEM_DAN_KEPUTUSAN_
 | 4. Penelitian model baseline dan challenger | **BENCHMARK LOBO OFFLINE SELESAI; MODEL BELUM TERVALIDASI** | P1 | 3 | Tidak |
 | 5. Generalisasi lintas batch, drift dan unknown | **DIAGNOSTIK OFFLINE PASS + DATASET ILMIAH DIAUDIT; UNKNOWN NO-GO** | P0 | 3–4 | Ya untuk pengujian prospektif |
 | 6. Pemilihan model dan kontrak artefak | **GERBANG NO-GO OFFLINE SELESAI; PROMOSI TERHAMBAT** | P1 | 5 | Ya untuk benchmark perangkat |
-| 7. Persiapan integrasi Raspberry Pi–ATmega | **ADAPTER/QA MOCK PASS; SSH PI & SERIAL FISIK BELUM TERUJI** | P1 | 1, 6 | Ya untuk integrasi |
+| 7. Persiapan integrasi Raspberry Pi–ATmega | **SSH PI + VENV + REPLAY ASLI PASS; SERIAL FISIK BELUM TERUJI** | P1 | 1, 6 | Ya untuk integrasi |
 | 8. Simulasi E2E penuh secara offline | DIRENCANAKAN | P1 | 6–7 | Tidak |
 | 9. Integrasi dan validasi hardware | MENUNGGU PERSETUJUAN | P1 | 8 | Ya |
 | 10. Validasi prospektif dan promosi model final | TERHAMBAT | P0 (gerbang rilis) | 5, 9 | Ya |
@@ -198,6 +198,29 @@ acceptance gate dan evaluasi perangkat.
 - **Risiko:** header model_rf.h historis bisa tidak sesuai MQ3/62 fitur. Jangan otomatis mengaktifkan TinyML ATmega.
 
 ## Tahap 7 — Persiapan integrasi Raspberry Pi 5 dan ATmega
+
+**11 Oktober 2026 — hasil nyata via SSH:** setelah pengguna
+memberikan akun `enose-v3@enose-pi5`, SSH Tailscale
+berhasil dengan host-key checking aktif. Pi
+terverifikasi **Raspberry Pi 5 Model B Rev 1.1,
+Debian 13, Python 3.13.5, aarch64**, dengan daya
+`throttled=0x0` pada saat preflight.
+Di home user telah disiapkan lingkungan
+`~/smart-coffee-stage7/.venv` dengan **pyserial==3.5**
+dan runner `scripts/stage7_pi_adapter.py`.
+Pengujian regresi adapter/bridge/preflight langsung
+di Pi **PASS**; replay CSV real `D-GAW_B33.csv`
+**COMPLETE_QA, 151 sampel, hasil AI_TEST=N/A**.
+Hash SHA256 CSV cocok di Windows dan Pi.
+Tidak ada port serial dibuka, instalasi global,
+systemd service, flashing, atau kontrol aktuator.
+
+Runner serial read-only disiapkan **tetapi diblokir
+tanpa opt-in hardware terpisah**. Karena ATmega belum
+terhubung, komunikasi Pi↔ATmega dan Pi→Nextion
+**NOT TESTED**, bukan PASS. Bukti:
+`docs/reports/2026-10-11_TAHAP7_PI_VENV_OFFLINE_REPLAY.md`
+dan `results/stage7_pi_remote_v1/`.
 
 **10 Oktober 2026 — kondisi operator:** ATmega2560 **tidak terhubung
 ke COM5**, Raspberry Pi 5 **dinyalakan untuk remote**. Akses SSH Pi

@@ -363,7 +363,7 @@ def replay_csv(file: Path, *, session_factory: Callable[[], str] | None = None
         "source_sha256": source_sha256,
         "input_type": "historical_real_csv_replayed_as_ai_test_no_labels",
         "bridge": result,
-        "note": "Mock only: not sent to Pi, MCU, or Nextion",
+        "note": "Offline replay only: no serial transport opened; not sent to MCU or Nextion",
     }
 
 

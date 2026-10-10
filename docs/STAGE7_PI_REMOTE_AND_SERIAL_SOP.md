@@ -6,6 +6,18 @@ jarak jauh. **Hostname/IP, SSH user dan otorisasi session belum
 tersedia dalam repo**, sehingga koneksi SSH live **belum diverifikasi**.
 Belum ada kabel USB/UART antara Pi dan ATmega yang diuji pada sesi ini.
 
+**Pembaruan hasil aktual 11 Oktober:** SSH
+`enose-v3@enose-pi5` melalui Tailscale **BERHASIL**
+dengan host key checking aktif. Identitas Pi 5
+Rev 1.1, Debian 13, Python 3.13.5 diverifikasi.
+Venv di `~/smart-coffee-stage7/.venv` dibuat
+dan PySerial 3.5 diinstal hanya di dalamnya.
+Replay `D-GAW_B33.csv` dilakukan **langsung pada
+Pi** secara offline (151 sampel, `COMPLETE_QA`,
+`AI_TEST=N/A`); port serial fisik tidak dibuka.
+Detail dan bukti:
+`docs/reports/2026-10-11_TAHAP7_PI_VENV_OFFLINE_REPLAY.md`.
+
 ## 1. Pilihan transport dan wiring yang boleh dilakukan kemudian
 
 | Pilihan | Keterangan dan risiko |
@@ -117,3 +129,32 @@ Gerbang rilis keseluruhan tetap NO-GO.**
    dengan default N/A dan tanpa kontrol aktuator oleh Pi.
 5. Laksanakan simulasi E2E Tahap 8 terlebih dahulu; Tahap 9
    hardware tetap butuh izin bench yang terpisah.
+
+## 6. Runner Raspberry Pi yang sudah tersedia
+
+Perintah pada Pi setelah SSH:
+
+```bash
+cd ~/smart-coffee-stage7
+.venv/bin/python scripts/test_stage7_pi_adapter.py
+.venv/bin/python scripts/stage7_pi_adapter.py replay-csv \
+  --input data/raw/D-GAW_B33.csv \
+  --output results/pi_stage7/replay_d_gaw_b33_new.json
+```
+
+Program `stage7_pi_adapter.py` menggunakan mode
+`replay-csv` atau `replay-jsonl` secara offline,
+serta menyiapkan `serial-readonly` untuk *bench
+terpisah yang belum disetujui saat ini*. Mode serial
+menuntut opt-in khusus dan path USB serial yang
+dibatasi, tetapi pembukaan USB masih berisiko reset
+ATmega. **Jangan jalankan mode serial** hanya karena
+software-nya sudah terpasang. Program mengembalikan
+exit code 0 pada replay `COMPLETE_QA`, exit code 2
+pada kualitas yang tidak lulus. Hasil `N/A`
+berarti tidak ada inferensi model yang disetujui.
+
+Semua proses replay satu kali berhenti otomatis.
+`Ctrl+C` dapat menghentikan proses interaktif,
+tidak perlu `systemctl stop` karena tidak ada
+service yang dibuat.

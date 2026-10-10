@@ -1,5 +1,26 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## Status terbaru Tahap 7 — SSH dan replay nyata di Pi (11 Oktober)
+
+SSH `enose-v3@enose-pi5` melalui Tailscale
+berhasil; Pi 5 Rev 1.1/Debian 13/Python 3.13.5
+terverifikasi. Venv terisolasi
+`~/smart-coffee-stage7/.venv` disiapkan hanya
+dengan `pyserial==3.5`. Runner
+`scripts/stage7_pi_adapter.py` diuji langsung
+pada Pi bersama regresi bridge dan preflight:
+**PASS**. Replay data asli
+`D-GAW_B33.csv` menghasilkan 151 sampel,
+`COMPLETE_QA`, hasil AI `N/A`,
+tanpa membuka serial atau mengirim perintah
+aktuator. SHA256 data asli host dan Pi sama.
+
+**ATmega tidak tersambung**, tidak ada port
+`ttyACM/ttyUSB` dan tidak ada proses/service
+adapter yang menetap. Status model Tahap 6
+tetap NO-GO. Detail:
+`docs/reports/2026-10-11_TAHAP7_PI_VENV_OFFLINE_REPLAY.md`.
+
 ## Addendum Tahap 7 (10 Oktober 2026)
 
 Operator menyatakan ATmega **tidak dikoneksikan ke COM5**,

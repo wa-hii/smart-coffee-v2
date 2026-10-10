@@ -1,0 +1,3 @@
+# Small isolated Pi 5 runtime; no pandas/sklearn and no model artifacts.
+# Python stdlib handles CSV replay; pyserial is only for future bench-approved RX.
+pyserial==3.5
