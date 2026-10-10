@@ -1,5 +1,27 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## Addendum Tahap 7 (10 Oktober 2026)
+
+Operator menyatakan ATmega **tidak dikoneksikan ke COM5**,
+sedangkan Raspberry Pi 5 sudah menyala agar bisa diremote.
+Belum ada alamat dan username SSH Pi yang dapat digunakan,
+sehingga **status remote Pi belum terverifikasi**.
+Tidak ada perangkat serial/USB Pi–ATmega yang diuji
+dan tidak ada akses COM5, flashing atau perubahan GPIO.
+
+Adapter host `scripts/stage7_bridge.py` plus regresi
+`scripts/test_stage7_bridge.py` menyiapkan sesi dan
+parser legacy read-only, penjaga envelope v1
+serta ACK/NACK simulasi, replay CSV asli tanpa label
+dan output AI_TEST **N/A**; tidak dapat mengirim hasil
+ke firmware lama. `scripts/stage7_pi_preflight.py`
+menyediakan inventaris read-only ketika target SSH
+tersedia. Transport USB 115200 diprioritaskan sebagai
+kandidat, UART1 GPIO memerlukan level shifter dan
+verifikasi PCB (Pi5 debug UART berbeda).
+SOP `docs/STAGE7_PI_REMOTE_AND_SERIAL_SOP.md`,
+laporan `docs/reports/2026-10-10_TAHAP7_PI_INTEGRATION_PREP.md`.
+
 ## Addendum 10 Oktober 2026 — dataset asli dan gerbang Tahap 6
 
 Unduhan Zenodo DOI `10.5281/zenodo.15425922` CoffeePow-4

@@ -1,5 +1,13 @@
 # Smart Coffee E-Nose v2
 
+**Tahap 7 (10 Oktober 2026):** ATmega belum dihubungkan
+ke COM5; Pi 5 dinyalakan untuk remote, tetapi identitas
+SSH belum tersedia untuk verifikasi. Adapter **mock
+read-only** untuk USB Serial ATmega 115200 selesai
+disiapkan; hasil AI_TEST tetap **N/A** dan tidak dikirim
+ke MCU karena model belum tervalidasi. Rujukan
+`docs/STAGE7_PI_REMOTE_AND_SERIAL_SOP.md`.
+
 **Update 10 Oktober 2026 — dataset ilmiah nyata dan Tahap 6:**
 dataset CoffeePow-4 dan Aroma-7 dari *Results in Engineering*
 2025 telah diunduh dari Zenodo, diverifikasi dengan

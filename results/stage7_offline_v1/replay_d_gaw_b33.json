@@ -1,0 +1,24 @@
+{
+  "source_file_name": "D-GAW_B33.csv",
+  "source_sha256": "d5e690f538a3967e2d07ded64903d284a348c1988bcc331a380dd50b0a8be819",
+  "input_type": "historical_real_csv_replayed_as_ai_test_no_labels",
+  "bridge": {
+    "host_protocol": "legacy_adapter_v1",
+    "host_seq": 2,
+    "type": "SESSION_FINAL",
+    "session_id": "3ead5262f9c8413788bb25130b864579",
+    "mode": "ai_test",
+    "status": "N/A",
+    "quality": "COMPLETE_QA",
+    "reason": "five_cycles_checked_no_approved_model",
+    "sensor_samples": 151,
+    "terminal": true,
+    "host_only": true,
+    "sent_to_atmega": false,
+    "actuator_commands_sent": 0,
+    "model_invoked": false,
+    "nominal_150_samples": false
+  },
+  "note": "Mock only: not sent to Pi, MCU, or Nextion",
+  "release_gate": "NO_GO_PENDING_LOCAL_VALIDATION"
+}

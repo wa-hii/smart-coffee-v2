@@ -114,6 +114,23 @@ Tes negatif `scripts/test_stage2_dataset_audit.py` dan `scripts/test_stage2_plot
 
 ## Addendum Tahap 3 — QA pipeline fitur (9 Oktober 2026)
 
+**Addendum Tahap 7 — 10 Oktober 2026:** ATmega
+tidak terhubung COM5, Pi dinyalakan untuk akses remote,
+tetapi endpoint SSH/identitas Pi belum ada sehingga
+**tidak ada verifikasi remote atau serial fisik**.
+`scripts/stage7_bridge.py` membangun adapter
+legacy JSON host-only dan penjaga envelope v1
+ACK/NACK simulasi. Uji negatif data malformed,
+duplikat, stale/timeout, pause, fase/indeks,
+restart dan AI_TEST tanpa label tersedia di
+`scripts/test_stage7_bridge.py`.
+`scripts/stage7_pi_preflight.py` hanya inventaris
+read-only yang dapat dijalankan sesudah SSH target tersedia.
+Semua hasil AI_TEST **N/A** dan status
+`sent_to_atmega=false`; belum ada handler hasil
+Pi→Nextion/firmware-v1. Laporan
+`docs/reports/2026-10-10_TAHAP7_PI_INTEGRATION_PREP.md`.
+
 **Addendum 10 Oktober — riset dataset ilmiah dan Tahap 6:**
 dua dataset sumber nyata Zenodo `10.5281/zenodo.15425922`
 diunduh serta lulus MD5 resmi dan SHA256, berasal dari

@@ -24,7 +24,7 @@ Dokumen bukti dasar: **00_CURRENT_STATE.md**, **02_KONTRAK_SISTEM_DAN_KEPUTUSAN_
 | 4. Penelitian model baseline dan challenger | **BENCHMARK LOBO OFFLINE SELESAI; MODEL BELUM TERVALIDASI** | P1 | 3 | Tidak |
 | 5. Generalisasi lintas batch, drift dan unknown | **DIAGNOSTIK OFFLINE PASS + DATASET ILMIAH DIAUDIT; UNKNOWN NO-GO** | P0 | 3–4 | Ya untuk pengujian prospektif |
 | 6. Pemilihan model dan kontrak artefak | **GERBANG NO-GO OFFLINE SELESAI; PROMOSI TERHAMBAT** | P1 | 5 | Ya untuk benchmark perangkat |
-| 7. Persiapan integrasi Raspberry Pi–ATmega | SEBAGIAN (DESAIN) | P1 | 1, 6 | Ya untuk integrasi |
+| 7. Persiapan integrasi Raspberry Pi–ATmega | **ADAPTER/QA MOCK PASS; SSH PI & SERIAL FISIK BELUM TERUJI** | P1 | 1, 6 | Ya untuk integrasi |
 | 8. Simulasi E2E penuh secara offline | DIRENCANAKAN | P1 | 6–7 | Tidak |
 | 9. Integrasi dan validasi hardware | MENUNGGU PERSETUJUAN | P1 | 8 | Ya |
 | 10. Validasi prospektif dan promosi model final | TERHAMBAT | P0 (gerbang rilis) | 5, 9 | Ya |
@@ -198,6 +198,35 @@ acceptance gate dan evaluasi perangkat.
 - **Risiko:** header model_rf.h historis bisa tidak sesuai MQ3/62 fitur. Jangan otomatis mengaktifkan TinyML ATmega.
 
 ## Tahap 7 — Persiapan integrasi Raspberry Pi 5 dan ATmega
+
+**10 Oktober 2026 — kondisi operator:** ATmega2560 **tidak terhubung
+ke COM5**, Raspberry Pi 5 **dinyalakan untuk remote**. Akses SSH Pi
+belum dapat diverifikasi karena alamat/akun SSH tidak diketahui;
+tidak ada pembukaan serial, flashing, wiring atau intervensi
+hardware pada sesi ini. **USB `Serial` 115200 dipilih sebagai
+kandidat pertama**, sebab dipakai firmware produksi; UART
+`Serial1` alternatif bila PCB dan level-shifter 5→3,3 V
+terverifikasi. **Pi 5 memiliki primary/debug UART dedicated
+secara default; GPIO14/15 bukan selalu `/dev/serial0`.**
+
+**Software offline Tahap 7 dibuat:** `scripts/stage7_bridge.py`
+parser/read-only legacy JSON 115200, session ID host,
+duplikat/replay/sensor invalid/fase/timestamp/complete
+fail-closed, tepat satu hasil terminal/sesi dan status
+`AI_TEST=N/A` sesuai Tahap 6. `V1SequenceGuard`
+menyiapkan envelope NDJSON versi 1 plus ACK/NACK
+**mock saja**. `scripts/stage7_pi_preflight.py` read-only
+disiapkan untuk SSH setelah target tersedia, bukan klaim
+Pi sudah diakses. Laporan:
+`docs/reports/2026-10-10_TAHAP7_PI_INTEGRATION_PREP.md`;
+SOP `docs/STAGE7_PI_REMOTE_AND_SERIAL_SOP.md`.
+
+**Status:** rekayasa adapter dan mock offline dapat lulus,
+tetapi **Tahap 7 integrasi fisik tetap belum selesai**
+hingga koneksi remote Pi dan USB/UART diuji sesuai izin,
+firmware-v1 diimplementasikan dan handler Pi→Nextion
+dikonfirmasi. Tahap 8 offline saja yang bisa menyusul,
+model inferensi tetap tidak dipromosikan.
 
 - **Tujuan, status, prioritas:** menyediakan kontrak komunikasi dua arah yang dapat diandalkan; **SEBAGIAN (DESAIN), P1**.
 - **Dependensi dan desain:** Tahap 1 dan 6. ATmega tetap mengendalikan aktuator/timing; host hanya bertanggung jawab atas validasi, penyimpanan, dan AI.

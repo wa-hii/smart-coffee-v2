@@ -2,6 +2,27 @@
 
 **Status: rancangan teknis, belum diterapkan pada perangkat fisik.** Audit Tahap 0 pada 9 Oktober 2026 mencatat opsi UART GPIO terpisah sebagai alternatif yang sedang dipertimbangkan; belum ada perubahan protokol komunikasi, kabel atau deployment. Lihat `02_KONTRAK_SISTEM_DAN_KEPUTUSAN_TAHAP0.md`.
 
+### Addendum Tahap 7 (10 Oktober 2026)
+
+Operator mengonfirmasi **ATmega tidak terhubung ke COM5** dan
+**Raspberry Pi telah dinyalakan untuk remote**, tetapi alamat/akun
+SSH belum ada untuk membuktikan akses Pi secara langsung.
+Jalur awal yang direkomendasikan adalah **USB Serial 115200 dari
+ATmega ke Pi** (di Linux cari `/dev/serial/by-id/*`);
+tidak bergantung COM5 Windows. Alternatif `Serial1` TTL
+tetap menunggu pemeriksaan skematik PCB dan level shifter
+5→3,3 V. **Dokumentasi resmi Raspberry Pi 5 menempatkan
+primary UART pada header debug dedicated secara default**,
+bukan mengasumsikan GPIO14/15 sudah aktif. Rujukan:
+https://www.raspberrypi.com/documentation/computers/configuration.html
+
+Adapter `scripts/stage7_bridge.py` menguji parser legacy,
+rekonstruksi sesi/fase/indeks, simulasi ACK/NACK v1,
+dan fail-closed tanpa serial port aktual; output AI_TEST
+tetap N/A. **Session ID/msg seq/ACK-NACK dari MCU
+dan Pi→Nextion belum tersedia.** SOP SSH read-only:
+`docs/STAGE7_PI_REMOTE_AND_SERIAL_SOP.md`.
+
 ## 1. Arsitektur saat ini dan target
 
 **Arsitektur saat ini:** Sepuluh kanal sensor gas → empat ADS1115 → ATmega2560. Sensor SHT30 menggunakan **bus I2C langsung**, bukan melewati ADS1115. ATmega mengendalikan pompa, valve, dan Nextion melalui Serial2 @ 9600 baud; Serial USB @ 115200 baud mengirim event serta pengukuran JSON ke komputer. Opsi inferensi TinyML lokal tidak aktif secara bawaan; hasil origin/confidence berstatus N/A.
@@ -53,7 +74,13 @@ Nama dan field di atas adalah **usulan desain**, belum merupakan pesan yang bena
 | **USB Serial** | **Sudah aktif** untuk komputer/laptop melalui `Serial` @ 115200. Bisa menjadi jalur host Pi jika perangkat USB dan kepemilikan port memungkinkan. Tidak sama dengan UART GPIO langsung. |
 | **UART khusus ke Pi** | **Belum diterapkan.** Kandidat `Serial1` ATmega: TX1 D18/PD3 dan RX1 D19/PD2; Nextion tetap `Serial2`. Ke GPIO Raspberry Pi 5 diperlukan pengubah level logika 5 V↔3,3 V dan GND bersama. Periksa skematik PCB, sinyal pin yang sudah terpakai, dan SOP sebelum wiring. |
 
-**Risiko keselamatan:** perintah debug firmware `#pin_scan;` saat ini mencakup D19/RX1 dan D20/SDA, sehingga tidak boleh digunakan saat UART Pi atau bus I2C terhubung tanpa mitigasi/SOP. Skema dan pilihan akhir transport ditutup pada Tahap 7, **bukan keputusan final audit Tahap 0**.
+**Risiko keselamatan:** perintah debug firmware `#pin_scan;`
+pernah berpotensi mengakses D19/RX1 dan D20/SDA; pada kode
+Tahap 1 sekarang telah **dinonaktifkan** (menghasilkan
+`PIN_SCAN_DISABLED`), tetap jangan memanggilnya sebagai
+prosedur operasional. UART GPIO harus melewati persetujuan
+skematik/tegangan, dan keputusan USB-first Tahap 7 masih
+perlu verifikasi fisik.
 
 ## 4. Skenario QA dan kriteria penerimaan
 

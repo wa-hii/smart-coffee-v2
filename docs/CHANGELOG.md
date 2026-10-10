@@ -2,6 +2,32 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 10 Oktober 2026 — Tahap 7: adapter Pi dan mock protokol aman
+
+- Berdasarkan konfirmasi operator, ATmega tidak dikoneksikan ke
+  COM5 dan Pi 5 sudah dinyalakan untuk remote. Tanpa identitas
+  SSH valid, **tidak mengklaim Pi telah diakses**, USB/UART
+  fisik belum dapat diuji.
+- Memprioritaskan USB Serial 115200 untuk integrasi pertama.
+  Serial1 GPIO memerlukan bukti skematik/level shifter
+  dan konfigurasi UART Pi 5; debug UART utama default
+  berada pada header khusus.
+- Menambah `scripts/stage7_bridge.py`: validator
+  JSON-per-line legacy, session ID lokal, kontrol urutan
+  fase/indeks/uptime, fail-closed disconnect/duplikasi,
+  keputusan AI_TEST N/A tanpa model. Envelope v1 dan
+  ACK/NACK baru **simulasi**, belum aktif di firmware.
+- Menambah `scripts/stage7_pi_preflight.py` read-only
+  dan tes `test_stage7_bridge.py`,
+  `test_stage7_pi_preflight.py`, replay CSV asli
+  `results/stage7_offline_v1/` tanpa mengubah raw.
+- SOP `docs/STAGE7_PI_REMOTE_AND_SERIAL_SOP.md` dan
+  laporan `docs/reports/2026-10-10_TAHAP7_PI_INTEGRATION_PREP.md`.
+  Firmware, HMI, USB/COM5, EEPROM dan aktuator tidak diubah.
+- QA regresi Stage 0–7, CSV umum 89/89, kontrak HMI
+  12 halaman/23 event, build PlatformIO 2/2 **PASS**.
+  Klien SSH Windows tersedia; remote Pi dan serial
+  hardware tetap **NOT TESTED**.
 ## 10 Oktober 2026 — Dataset ilmiah riil dan gerbang Tahap 6
 
 - Meneliti dataset publik kopi E-Nose yang berkaitan
