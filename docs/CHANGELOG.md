@@ -2,6 +2,27 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 11 Oktober 2026 — SOP bench USB ATmega → Raspberry Pi
+
+- Membuat `docs/STAGE7_USB_ATMEGA_PI_BENCH_SOP.md`
+  dengan G0 pengecekan PCB/sumber daya/VBUS,
+  G1 pemasangan kabel, G2 pembacaan serial
+  **115200 read-only** dan auto-reset DTR,
+  G3 opsional satu siklus pengujian Nextion
+  **5 × (25s purging + 5s collecting)**.
+- Perintah enumerasi dan pemilik port disusun
+  agar **tidak otomatis membuka** tty,
+  beserta kriteria PASS/FAIL/INCONCLUSIVE,
+  formulir operator, penghentian/rollback
+  dan larangan flashing/USB bypass/aktuator
+  tanpa izin tambahan.
+- `stage7_pi_adapter.py` menerapkan
+  POSIX exclusive advisory dan batas panjang
+  pembacaan USB; regresi stub PySerial memeriksa
+  DTR/RTS nonaktif, batas buffer, dan
+  **tidak pernah menulis ke MCU**.
+- **SOP PREPARED, hardware NOT RUN**.
+  Laporan `docs/reports/2026-10-11_TAHAP7_USB_BENCH_SOP_QA.md`.
 ## 11 Oktober 2026 — Tahap 7: venv dan replay CSV asli langsung di Pi
 
 - SSH Tailscale ke `enose-v3@enose-pi5` berhasil;

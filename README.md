@@ -1,5 +1,14 @@
 # Smart Coffee E-Nose v2
 
+**SOP bench USB Tahap 7 (11 Oktober 2026):**
+`docs/STAGE7_USB_ATMEGA_PI_BENCH_SOP.md`.
+G0 cek daya/backfeed, G1 pemasangan kabel,
+G2 izin serial read-only 115200 beserta
+auto-reset DTR, G3 opsional izin menjalankan
+satu sesi lima siklus lewat Nextion.
+**Belum ada pengujian fisik/port terbuka**;
+berbeda dari SSH dan replay Pi yang sudah PASS.
+
 **Update 11 Oktober 2026 — Raspberry Pi 5 langsung:**
 SSH Tailscale ke `enose-v3@enose-pi5` berhasil.
 Venv `~/smart-coffee-stage7/.venv` dan adapter

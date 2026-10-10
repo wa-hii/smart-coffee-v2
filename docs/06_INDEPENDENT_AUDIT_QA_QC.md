@@ -114,6 +114,19 @@ Tes negatif `scripts/test_stage2_dataset_audit.py` dan `scripts/test_stage2_plot
 
 ## Addendum Tahap 3 — QA pipeline fitur (9 Oktober 2026)
 
+**Addendum SOP bench USB 11 Oktober 2026:**
+`docs/STAGE7_USB_ATMEGA_PI_BENCH_SOP.md`
+memberi gerbang G0–G3 untuk bahaya VBUS/
+backfeed, auto-reset DTR/RTS, satu pemilik
+tty, fase pengambilan data, rollback, dan
+kriteria validasi frame per fase. Adapter Pi
+dibatasi baca `MAX_LINE_BYTES+1` dan
+`exclusive=True` Linux. Pengujian
+mock memvalidasi no-write, DTR/RTS
+False serta penutupan port; **tidak**
+ada akses serial nyata. Rekap:
+`docs/reports/2026-10-11_TAHAP7_USB_BENCH_SOP_QA.md`.
+
 **Addendum 11 Oktober 2026 — tahap 7 pada Raspberry
 Pi nyata:** SSH Tailscale dengan `StrictHostKeyChecking=yes`
 berhasil, teridentifikasi Pi 5 Model B Rev 1.1/

@@ -199,6 +199,22 @@ acceptance gate dan evaluasi perangkat.
 
 ## Tahap 7 — Persiapan integrasi Raspberry Pi 5 dan ATmega
 
+**11 Oktober 2026 — SOP bench USB v1.0 disiapkan
+(BELUM DIEKSEKUSI):** `docs/STAGE7_USB_ATMEGA_PI_BENCH_SOP.md`
+mendefinisikan gerbang G0 (cek sumber daya/
+potensi 5 V USB backfeed dan keselamatan pompa/valve),
+G1 (izin menghubungkan kabel), G2 (izin membuka
+serial read-only dengan risiko DTR/auto-reset),
+dan G3 opsional (izin terpisah satu sesi 5 × 25/5
+detik melalui Nextion). Ada perintah preflight
+read-only, identifikasi by-id/VID/PID/owner,
+uji payload 115200, kriteria PASS/FAIL/INCONCLUSIVE
+dan rollback. Adapter dibatasi ukuran pembacaan
+dan memakai POSIX `exclusive` advisory lock;
+tes port mock memastikan **tidak ada `write()`**.
+**Kondisi perangkat tidak berubah; port fisik
+belum dibuka dan semua G0–G3 masih NOT RUN.**
+
 **11 Oktober 2026 — hasil nyata via SSH:** setelah pengguna
 memberikan akun `enose-v3@enose-pi5`, SSH Tailscale
 berhasil dengan host-key checking aktif. Pi

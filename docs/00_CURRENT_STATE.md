@@ -1,5 +1,19 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## SOP USB bench siap review — 11 Oktober 2026
+
+`docs/STAGE7_USB_ATMEGA_PI_BENCH_SOP.md`
+memisahkan pemeriksaan catu dan VBUS USB (G0),
+izin pemasangan kabel (G1), izin membuka serial
+read-only (G2), serta izin menggerakkan aktuator
+melalui satu sesi Nextion (G3). **Tidak ada
+yang dieksekusi**. Adapter serial Pi sekarang
+menggunakan buffer serial berukuran terbatas
+dan advisory exclusive lock Linux, diuji
+menggunakan stub serial tanpa port fisik.
+Tahap 7 software/SSH/replay masih PASS,
+USB live **NOT TESTED**, model AI **NO-GO**.
+
 ## Status terbaru Tahap 7 — SSH dan replay nyata di Pi (11 Oktober)
 
 SSH `enose-v3@enose-pi5` melalui Tailscale

@@ -24,6 +24,7 @@ from typing import Iterable
 
 from stage6_release_gate import evaluate as stage6_decision
 from stage7_bridge import (
+    MAX_LINE_BYTES,
     LegacySessionBridge,
     replay_csv,
 )
@@ -159,8 +160,13 @@ def serial_readonly(port: str, acknowledgment: str, baud: int,
         raise RuntimeError("pyserial_missing_in_venv") from err
     # Keep DTR/RTS low before opening, but USB auto-reset behavior is
     # board dependent; this is NOT an assurance of a reset-free open.
-    port_obj = serial.Serial(port=None, baudrate=baud, timeout=1,
-                             rtscts=False, dsrdtr=False)
+    # Linux/Pi: attempt POSIX advisory exclusive lock. This helps avoid
+    # another cooperating pyserial owner, but cannot replace fuser/lsof
+    # preflight, physical supervision, or DTR/RTS auto-reset testing.
+    port_obj = serial.Serial(
+        port=None, baudrate=baud, timeout=1,
+        rtscts=False, dsrdtr=False, exclusive=True,
+    )
     port_obj.dtr = False
     port_obj.rts = False
     try:
@@ -169,7 +175,9 @@ def serial_readonly(port: str, acknowledgment: str, baud: int,
 
         def incoming():
             while True:
-                yield port_obj.readline()
+                # Hard bound prevents a stream without newlines from
+                # growing an unbounded receive buffer in a live bench.
+                yield port_obj.read_until(b"\n", MAX_LINE_BYTES + 1)
 
         result = receive_lines(incoming(), max_seconds=duration)
         return {"mode": "serial-readonly", "hardware_serial_opened": True,

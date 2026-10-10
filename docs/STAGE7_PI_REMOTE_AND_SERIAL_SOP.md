@@ -1,5 +1,15 @@
 # SOP Tahap 7 — Remote Raspberry Pi 5 dan komunikasi ke ATmega (AMAN)
 
+**SOP bench USB yang lebih spesifik (v1.0, 11 Oktober 2026):**
+`docs/STAGE7_USB_ATMEGA_PI_BENCH_SOP.md`.
+Dokumen tersebut mewajibkan **empat gerbang terpisah**:
+G0 skematik daya/backfeed; G1 izin kabel data; G2
+izin membuka serial read-only dan risiko auto-reset;
+G3 izin satu sesi 25/5 detik melalui Nextion.
+**Seluruh gerbang fisik masih NOT RUN.**
+Jangan menjalankan baris `serial-readonly`
+sebelum operator mengizinkannya secara spesifik.
+
 **Kondisi operator saat mulai Tahap 7:** ATmega2560 **tidak tersambung
 ke COM5**; Raspberry Pi 5 **telah dinyalakan** agar bisa diakses
 jarak jauh. **Hostname/IP, SSH user dan otorisasi session belum

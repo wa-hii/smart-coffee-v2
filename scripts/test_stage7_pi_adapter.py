@@ -4,12 +4,17 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import sys
 from tempfile import TemporaryDirectory
+from types import SimpleNamespace
+from unittest.mock import patch
 
 from stage7_pi_adapter import (
     LIVE_OPT_IN, main, receive_lines, replay_real_csv, save_report,
+    serial_readonly,
     validate_live_args,
 )
+from stage7_bridge import MAX_LINE_BYTES
 
 
 def must_fail(callback, exception, fragment):
@@ -81,6 +86,47 @@ def main_test():
             "--acknowledgment", LIVE_OPT_IN,
             "--output", str(dest),
         ]), FileExistsError, "output_already_exists")
+
+        # Mock the *library* entirely: confirms read-only API contract
+        # without opening a real tty or making a training-data fixture.
+        observations = {}
+
+        class StubPort:
+            def __init__(self, **options):
+                observations["config"] = options
+                observations["opened"] = False
+                self.port = None
+                self.dtr = True
+                self.rts = True
+                self.frames = iter([start + b"\n", b"not json\n"])
+
+            def open(self):
+                observations["dtr_at_open"] = self.dtr
+                observations["rts_at_open"] = self.rts
+                observations["port_at_open"] = self.port
+                observations["opened"] = True
+
+            def read_until(self, expected, size):
+                observations["read_bound"] = size
+                return next(self.frames)
+
+            def write(self, unused):
+                raise AssertionError("USB bench read-only mode must never write")
+
+            def close(self):
+                observations["closed"] = True
+
+        with patch.dict(sys.modules, {"serial": SimpleNamespace(Serial=StubPort)}):
+            result = serial_readonly(
+                "/dev/ttyACM0", LIVE_OPT_IN, 115200, 20
+            )
+        assert result["hardware_serial_opened"] is True  # simulated only
+        assert result["final"]["quality"] == "FAIL_CLOSED"
+        assert observations["opened"] and observations["closed"]
+        assert observations["config"]["exclusive"] is True
+        assert observations["dtr_at_open"] is False
+        assert observations["rts_at_open"] is False
+        assert observations["read_bound"] == MAX_LINE_BYTES + 1
     print("STAGE7_PI_ADAPTER_REGRESSION_PASS")
 
 
