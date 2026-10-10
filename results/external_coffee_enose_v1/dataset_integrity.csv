@@ -1,0 +1,3 @@
+dataset,doi,sha256,publisher_md5_verified,rows_raw,complete_sequences,sample_steps_per_sequence,discarded_from_analysis_incomplete_tail_rows,file,class_counts_json
+CoffeePow-4,10.5281/zenodo.15425922,34f5e8a4875375ff5f7d802f0e958b3cdcf1c273dbecae1051589f79bea99bd4,81d373ba934046490862e3964ca77392,35830,3583,10,0,CoffeePow-4.csv,"{""0"": 880, ""1"": 1010, ""2"": 974, ""3"": 719}"
+Aroma-7,10.5281/zenodo.15425922,4c1195ccdacd33e8f04593186786623a3a8fb6a5a78ad6b77224b1f4066d98aa,94562d5bb44d7ee7d28100dd00367975,47504,4750,10,4,Aroma-7.csv,"{""0"": 880, ""1"": 1010, ""2"": 974, ""3"": 719, ""4"": 372, ""5"": 431, ""6"": 364}"

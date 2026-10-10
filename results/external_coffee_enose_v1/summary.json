@@ -1,0 +1,120 @@
+{
+  "status": "REAL_EXTERNAL_DATA_VERIFIED_BENCHMARK_EXPLORATORY_ONLY",
+  "zenodo_doi": "10.5281/zenodo.15425922",
+  "paper_doi": "10.1016/j.rineng.2025.106309",
+  "datasets": [
+    {
+      "dataset": "CoffeePow-4",
+      "doi": "10.5281/zenodo.15425922",
+      "sha256": "34f5e8a4875375ff5f7d802f0e958b3cdcf1c273dbecae1051589f79bea99bd4",
+      "publisher_md5_verified": "81d373ba934046490862e3964ca77392",
+      "rows_raw": 35830,
+      "complete_sequences": 3583,
+      "sample_steps_per_sequence": 10,
+      "discarded_from_analysis_incomplete_tail_rows": 0,
+      "class_counts": {
+        "0": 880,
+        "1": 1010,
+        "2": 974,
+        "3": 719
+      },
+      "file": "CoffeePow-4.csv"
+    },
+    {
+      "dataset": "Aroma-7",
+      "doi": "10.5281/zenodo.15425922",
+      "sha256": "4c1195ccdacd33e8f04593186786623a3a8fb6a5a78ad6b77224b1f4066d98aa",
+      "publisher_md5_verified": "94562d5bb44d7ee7d28100dd00367975",
+      "rows_raw": 47504,
+      "complete_sequences": 4750,
+      "sample_steps_per_sequence": 10,
+      "discarded_from_analysis_incomplete_tail_rows": 4,
+      "class_counts": {
+        "0": 880,
+        "1": 1010,
+        "2": 974,
+        "3": 719,
+        "4": 372,
+        "5": 431,
+        "6": 364
+      },
+      "file": "Aroma-7.csv"
+    }
+  ],
+  "coffee_pow4_included_identically_in_aroma7": true,
+  "aroma7_partial_tail_preserved_raw_but_held": 4,
+  "sensor_protocol": "BME688 10-step heater cycle resistance; NOT MCU MQ/TGS 1Hz purging/collecting",
+  "label_mapping": "index interpretation inferred from author's published README class order; not a roast label",
+  "session_ids_provided": false,
+  "physical_specimen_independent_holdout": false,
+  "scaling_training_only": true,
+  "external_data_added_to_local_roast_training": false,
+  "local_model_approval": "NO_GO",
+  "evaluation_rows": 40,
+  "non_dummy_binary_tail_comparisons": [
+    {
+      "dataset": "Aroma-7",
+      "target": "noncoffee_0_4_5_6_vs_coffee123_assumed_author_order",
+      "model": "svm_rbf",
+      "macro_f1": 1.0,
+      "balanced_accuracy": 1.0,
+      "accuracy": 1.0
+    },
+    {
+      "dataset": "Aroma-7",
+      "target": "noncoffee_0_4_5_6_vs_coffee123_assumed_author_order",
+      "model": "random_forest",
+      "macro_f1": 0.9522912358348058,
+      "balanced_accuracy": 0.9584103512014788,
+      "accuracy": 0.9526813880126183
+    },
+    {
+      "dataset": "Aroma-7",
+      "target": "noncoffee_0_4_5_6_vs_coffee123_assumed_author_order",
+      "model": "logistic",
+      "macro_f1": 0.898796305067026,
+      "balanced_accuracy": 0.8890243902439025,
+      "accuracy": 0.9043112513144059
+    },
+    {
+      "dataset": "Aroma-7",
+      "target": "noncoffee_0_4_5_6_vs_coffee123_assumed_author_order",
+      "model": "lda_shrinkage",
+      "macro_f1": 0.8976309040193198,
+      "balanced_accuracy": 0.8878048780487805,
+      "accuracy": 0.9032597266035752
+    },
+    {
+      "dataset": "CoffeePow-4",
+      "target": "air0_vs_coffee123_assumed_author_order",
+      "model": "logistic",
+      "macro_f1": 0.8832209518225349,
+      "balanced_accuracy": 0.84375,
+      "accuracy": 0.9232914923291492
+    },
+    {
+      "dataset": "CoffeePow-4",
+      "target": "air0_vs_coffee123_assumed_author_order",
+      "model": "lda_shrinkage",
+      "macro_f1": 0.8832209518225349,
+      "balanced_accuracy": 0.84375,
+      "accuracy": 0.9232914923291492
+    },
+    {
+      "dataset": "CoffeePow-4",
+      "target": "air0_vs_coffee123_assumed_author_order",
+      "model": "svm_rbf",
+      "macro_f1": 0.875921947726459,
+      "balanced_accuracy": 0.8352272727272727,
+      "accuracy": 0.9191073919107392
+    },
+    {
+      "dataset": "CoffeePow-4",
+      "target": "air0_vs_coffee123_assumed_author_order",
+      "model": "random_forest",
+      "macro_f1": 0.8659840917114909,
+      "balanced_accuracy": 0.8702056377079482,
+      "accuracy": 0.899581589958159
+    }
+  ]
+}

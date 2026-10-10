@@ -1,5 +1,15 @@
 # Smart Coffee E-Nose v2
 
+**Update 10 Oktober 2026 — dataset ilmiah nyata dan Tahap 6:**
+dataset CoffeePow-4 dan Aroma-7 dari *Results in Engineering*
+2025 telah diunduh dari Zenodo, diverifikasi dengan
+checksum MD5 resmi dan SHA256, serta diuji pada benchmark
+terpisah. **Jangan menggabungkan BME688 10 heater steps
+dengan 10 ADC MQ/TGS untuk klasifikasi roast/origin.**
+Laporan `docs/reports/2026-10-10_RISET_DATASET_EKSTERNAL_DAN_TAHAP6.md`.
+Tahap 6 baru memiliki gerbang fail-closed **AI_TEST=N/A**,
+belum model siap pakai.
+
 **Update Tahap 5 (9 Oktober 2026):** risiko dan unknown dievaluasi
 di `results/stage5_validation_v1/`. Kedua model roast-only
 yang ditinjau masih **mengklasifikasikan 5/5 udara bersih sebagai

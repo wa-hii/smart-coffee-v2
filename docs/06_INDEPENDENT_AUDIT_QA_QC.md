@@ -114,6 +114,25 @@ Tes negatif `scripts/test_stage2_dataset_audit.py` dan `scripts/test_stage2_plot
 
 ## Addendum Tahap 3 — QA pipeline fitur (9 Oktober 2026)
 
+**Addendum 10 Oktober — riset dataset ilmiah dan Tahap 6:**
+dua dataset sumber nyata Zenodo `10.5281/zenodo.15425922`
+diunduh serta lulus MD5 resmi dan SHA256, berasal dari
+artikel peer-reviewed *Results in Engineering* 2025.
+CoffeePow-4 3.583 rangkaian merupakan bagian identik Aroma-7
+4.750 rangkaian; empat pembacaan sisanya tidak lengkap.
+Dataset BME688 tidak kompatibel langsung dengan skema
+10 kanal ADC MQ/TGS (roasting dan origin), maka **tidak
+menambah dataset lokal 83 kandidat atau model final**.
+Benchmark RF empat kelas CoffeePow-4 macro-F1 0,906 acak
+versus 0,501 split akhir urutan per kelas, **bukan bukti
+generalisasi sensor lokal**. Sumber paling mirip (9 MOS,
+enam sensor cocok) tersedia pada permintaan penulis,
+belum ada file mentah publik yang sah untuk digabung.
+Gerbang `scripts/stage6_release_gate.py` memastikan
+`model_promotion_allowed=false`, AI_TEST N/A.
+Tes regresi dan laporan:
+`docs/reports/2026-10-10_RISET_DATASET_EKSTERNAL_DAN_TAHAP6.md`.
+
 **Addendum Tahap 5 (9 Oktober):** audit pengujian unknown dan
 ketahanan disimpan di
 `docs/reports/2026-10-09_TAHAP5_GENERALISASI_UNKNOWN_QA.md`.

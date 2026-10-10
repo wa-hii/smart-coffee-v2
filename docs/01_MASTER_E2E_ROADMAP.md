@@ -1,6 +1,6 @@
 # PETA JALAN INDUK PENELITIAN DAN IMPLEMENTASI AI E2E SMART COFFEE E-NOSE
 
-**Dokumen acuan utama versi 1.2 — audit Tahap 0 dan penguatan offline Tahap 1 tanggal 9 Oktober 2026.** Ruang lingkup: Smart Coffee E-Nose v2 / RoastSense dengan ATmega2560, Nextion, komputer host dan Raspberry Pi 5. Pengembangan dilakukan dengan menjaga kestabilan akuisisi yang telah berjalan. **Jangan otomatis mengerjakan semua tahap berikutnya.**
+**Dokumen acuan utama versi 1.3 — pembaruan dataset nyata dan gerbang Tahap 6 tanggal 10 Oktober 2026.** Ruang lingkup: Smart Coffee E-Nose v2 / RoastSense dengan ATmega2560, Nextion, komputer host dan Raspberry Pi 5. Pengembangan dilakukan dengan menjaga kestabilan akuisisi yang telah berjalan. **Jangan otomatis mengerjakan semua tahap berikutnya.**
 
 Dokumen bukti dasar: **00_CURRENT_STATE.md**, **02_KONTRAK_SISTEM_DAN_KEPUTUSAN_TAHAP0.md**, dan **06_INDEPENDENT_AUDIT_QA_QC.md**. Keputusan tentang model dan protokol lanjutan dijabarkan pada dokumen **03** dan **04**.
 
@@ -22,8 +22,8 @@ Dokumen bukti dasar: **00_CURRENT_STATE.md**, **02_KONTRAK_SISTEM_DAN_KEPUTUSAN_
 | 2. Inventaris dan kualitas dataset | **AUDIT REPRODUKSIBEL SELESAI; PROVENANCE LABEL/SPESIMEN P0 TERHAMBAT** | P0 | 0–1 | Tidak untuk data lama; ya untuk sampel baru |
 | 3. Preprocessing dan fitur yang dapat direproduksi | **PIPELINE OFFLINE PASS; FITUR KANDIDAT, METODOLOGI ML BELUM VALID** | P0 | 2 | Tidak |
 | 4. Penelitian model baseline dan challenger | **BENCHMARK LOBO OFFLINE SELESAI; MODEL BELUM TERVALIDASI** | P1 | 3 | Tidak |
-| 5. Generalisasi lintas batch, drift dan unknown | **DIAGNOSTIK OFFLINE PASS; UNKNOWN NO-GO, PROSPEKTIF TERBUKA** | P0 | 3–4 | Ya untuk pengujian prospektif |
-| 6. Pemilihan model dan kontrak artefak | TERHAMBAT OLEH 5 | P1 | 5 | Ya untuk benchmark perangkat |
+| 5. Generalisasi lintas batch, drift dan unknown | **DIAGNOSTIK OFFLINE PASS + DATASET ILMIAH DIAUDIT; UNKNOWN NO-GO** | P0 | 3–4 | Ya untuk pengujian prospektif |
+| 6. Pemilihan model dan kontrak artefak | **GERBANG NO-GO OFFLINE SELESAI; PROMOSI TERHAMBAT** | P1 | 5 | Ya untuk benchmark perangkat |
 | 7. Persiapan integrasi Raspberry Pi–ATmega | SEBAGIAN (DESAIN) | P1 | 1, 6 | Ya untuk integrasi |
 | 8. Simulasi E2E penuh secara offline | DIRENCANAKAN | P1 | 6–7 | Tidak |
 | 9. Integrasi dan validasi hardware | MENUNGGU PERSETUJUAN | P1 | 8 | Ya |
@@ -127,6 +127,23 @@ terverifikasi dan uji prospektif belum tersedia (Tahap 5).
 
 ## Tahap 5 — Evaluasi lintas batch, drift, dan penolakan unknown
 
+**10 Oktober 2026 — riset dataset dari jurnal:** dua CSV asli
+CoffeePow-4/Aroma-7 dari *Results in Engineering* 2025
+(`10.1016/j.rineng.2025.106309`), Zenodo
+`10.5281/zenodo.15425922` diunduh dan lolos MD5 resmi.
+3.583 rangkaian CoffeePow-4 terkandung identik dalam
+4.750 rangkaian lengkap Aroma-7; ada empat pembacaan tambahan
+yang tidak lengkap dan ditahan. Benchmark eksternal
+40 kombinasi memisahkan split acak dan 20% urutan akhir:
+RF empat kelas CoffeePow-4 macro-F1 **0,906 vs 0,501**.
+BME688/heater-step dan label kopi produk/udara **tidak setara
+dengan ADC MQ/TGS, tiga roasting dan origin alat kita**;
+data luar tidak digabung dengan 83 kandidat kopi lokal.
+Dataset coffee 9 MOS 2023 (enam tipe sensor sama) dan
+TGS roasting 2024 **data on request**; dataset Colombian
+58 file tercatat namun API unduh **HTTP 403**.
+Laporan `docs/reports/2026-10-10_RISET_DATASET_EKSTERNAL_DAN_TAHAP6.md`.
+
 **Implementasi 9 Oktober 2026:** `scripts/stage5_validation.py`
 mengevaluasi dua pembanding Tahap 4 pada 83 observasi kopi kandidat
 melalui 4 fold LOBO, dengan probabilitas OOF, metrik per kelas,
@@ -158,6 +175,18 @@ Tahap 6 dan deployment tetap tertahan.
 - **Risiko:** empat batch dan ketimpangan kombinasi kelas dapat menghasilkan metrik tidak stabil. Penutupan tahap membutuhkan data tambahan yang independen.
 
 ## Tahap 6 — Pemilihan model dan kontrak artefak inferensi
+
+**10 Oktober — pelaksanaan parsial yang aman:** skrip
+`scripts/stage6_release_gate.py` memvalidasi status
+Tahap 5 dan provenance evaluasi eksternal, lalu menghasilkan
+`results/stage6_release_gate_v1/decision.json` dengan
+`model_promotion_allowed=false` dan `AI_TEST=N/A`.
+Tes regresi `scripts/test_stage6_release_gate.py`
+menolak manipulasi status validasi/transfer dataset.
+**Tidak ada model final/artefak inferensi dipromosikan**;
+penutupan Tahap 6 menunggu data prospektif E-Nose lokal,
+ground truth roast/spesimen, coffee-vs-air, kalibrasi,
+acceptance gate dan evaluasi perangkat.
 
 - **Tujuan, status, prioritas:** memilih pipeline yang telah dibekukan dan kompatibel dengan perangkat; **TERHAMBAT oleh Tahap 5, P1**.
 - **Dependensi dan desain:** model hanya dipromosikan setelah generalisasi, kalibrasi, dan validasi prospektif; seluruh model memiliki identitas/hash dan model card.

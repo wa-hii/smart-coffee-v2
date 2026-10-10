@@ -20,6 +20,10 @@ logs/
 data/raw/.incoming/
 data/raw/incomplete/
 
+# Published research inputs are downloaded by DOI and hash-verified locally.
+# Never mix these physical BME688 CSVs into our ATmega MQ/TGS raw directory.
+data/external/zenodo_15425922/*.csv
+
 # Local Nextion compiler/QA artifacts
 nextion/NX4827T043_011/build/
 nextion/NX4827T043_011/project/RoastSense_UI_FIX_QA.HMI

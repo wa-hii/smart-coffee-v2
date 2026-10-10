@@ -1,5 +1,24 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## Addendum 10 Oktober 2026 — dataset asli dan gerbang Tahap 6
+
+Unduhan Zenodo DOI `10.5281/zenodo.15425922` CoffeePow-4
+dan Aroma-7 **lulus MD5 penerbit dan SHA256**. Jumlah
+rangkaian lengkap adalah **3.583** dan **4.750**;
+seluruh CoffeePow-4 terkandung identik di Aroma-7
+(tidak independen), sementara empat pembacaan terakhir
+Aroma-7 tidak membentuk rangkaian lengkap dan ditahan.
+Benchmark RF CoffeePow-4 empat kelas mendapat macro-F1
+**0,906 split acak** vs **0,501 split urutan akhir
+per kelas**; ini *bukan* hasil pada alat lokal.
+Data BME688 tidak menambah 83 sampel kopi MQ/TGS kita.
+
+Gerbang `scripts/stage6_release_gate.py` menghasilkan
+`model_promotion_allowed=false`, AI_TEST `N/A`.
+Tahap 5 ilmiah tetap **NO-GO**, Tahap 6 **hanya
+persiapan gerbang offline**, belum model final/deployment.
+Lihat `docs/reports/2026-10-10_RISET_DATASET_EKSTERNAL_DAN_TAHAP6.md`.
+
 ## Pembaruan terbaru — koreksi CAW dan Tahap 4 (9 Oktober 2026)
 
 ### Tahap 5 — penilaian unknown (9 Oktober)

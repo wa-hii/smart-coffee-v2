@@ -2,6 +2,31 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 10 Oktober 2026 — Dataset ilmiah riil dan gerbang Tahap 6
+
+- Meneliti dataset publik kopi E-Nose yang berkaitan
+  dengan artikel peer-reviewed, terutama CoffeePow-4,
+  Aroma-7, Colombian Coffee (58 pengukuran), dan
+  riset sembilan sensor MOS kopi 2023.
+- Mengunduh CoffeePow-4/Aroma-7 asli dari Zenodo
+  (MD5 publisher dan SHA256 **PASS**), menemukan
+  3.583/4.750 rangkaian lengkap, 4 pembacaan tail
+  tak lengkap pada Aroma-7, serta overlap data
+  CoffeePow-4 secara **identik** di Aroma-7.
+- Menambah downloader hash-verified, benchmark
+  40 kombinasi (2 dataset × 2 target × 2 split × 5 model),
+  tes regresi, dan hasil `results/external_coffee_enose_v1/`.
+  RF 4-kelas CoffeePow-4 macro-F1 0,906 random
+  vs 0,501 tail; **bukan** skor perangkat lokal.
+- Dataset Colombian Mendeley terverifikasi metadata
+  tetapi **HTTP 403** saat unduh melalui API; data
+  9 MOS paling mirip hardware **on request**.
+- Tahap 6 hanya implementasi gerbang fail-closed
+  `stage6_release_gate.py` dan regresinya;
+  `model_promotion_allowed=false`, AI_TEST N/A.
+  Tidak ada model final, flashing, pengubahan
+  firmware/Nextion/COM5 atau penggabungan data luar ke lokal.
+- Laporan `docs/reports/2026-10-10_RISET_DATASET_EKSTERNAL_DAN_TAHAP6.md`.
 ## 9 Oktober 2026 — Tahap 5: risiko model, drift sintetik dan unknown
 
 - Mengembangkan `scripts/stage5_validation.py` beserta uji

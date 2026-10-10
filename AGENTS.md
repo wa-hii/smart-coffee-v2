@@ -94,6 +94,8 @@ python scripts/test_stage2_plot_provenance.py
 python scripts/test_stage3_feature_pipeline.py
 python scripts/test_stage4_model_benchmark.py
 python scripts/test_stage5_validation.py
+python scripts/test_external_coffee_enose.py
+python scripts/test_stage6_release_gate.py
 python -m compileall -q scripts
 ```
 

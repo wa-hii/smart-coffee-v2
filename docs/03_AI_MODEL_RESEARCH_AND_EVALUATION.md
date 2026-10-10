@@ -1,5 +1,31 @@
 # Penelitian dan Evaluasi Model AI — 8 Oktober 2026
 
+## Addendum 10 Oktober — data riset eksternal dan batas Tahap 6
+
+CoffeePow-4 (3.583 rangkaian) dan Aroma-7 (4.750 rangkaian
+lengkap) dari Stefanone et al. (2025), *Results in Engineering*
+27, 106309 (`10.1016/j.rineng.2025.106309`),
+telah diunduh dengan hash MD5 penerbit yang cocok dan
+dievaluasi **secara terpisah**. CoffeePow-4 identik dengan
+bagian awal Aroma-7, bukan sumber independen kedua.
+CSV satu kolom gas resistance/sepuluh heater steps;
+**bukan sepuluh kanal MQ/TGS**. Label produk/udara/krim
+tidak sepadan dengan roast dan origin.
+
+Random Forest 4 kelas CoffeePow-4 memperoleh macro-F1
+`0,906` split acak versus `0,501` pada
+holdout urutan 20% akhir per kelas. Kedua metode
+belum membuktikan sesi/hari/spesimen independen.
+Data 9 MOS kopi 2023 memiliki **enam sensor sama**
+tetapi data tersedia berdasarkan permintaan.
+
+Tahap 6: gerbang **NO-GO**, bukan pemilihan model final.
+Sebelum coffee-vs-air lokal, unknown kopi,
+roast label fisik dan tes prospektif lolos,
+`AI_TEST` harus berstatus `N/A`.
+Laporan lengkap
+`docs/reports/2026-10-10_RISET_DATASET_EKSTERNAL_DAN_TAHAP6.md`.
+
 ## Addendum terbaru — gerbang unknown Tahap 5 (9 Oktober 2026)
 
 Analisis offline `results/stage5_validation_v1/` memakai dua

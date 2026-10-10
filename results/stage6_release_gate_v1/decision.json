@@ -1,0 +1,21 @@
+{
+  "status": "NO_GO_PENDING_LOCAL_VALIDATION",
+  "model_promotion_allowed": false,
+  "runtime_ai_test_result": "N/A",
+  "runtime_reason": "Model belum tervalidasi; tidak boleh memaksa prediksi kopi",
+  "sensor_contract": "10 MQ/TGS ADC+SHT30, five 25s/5s cycles",
+  "external_sensor_contract": "BME688 gas resistance at 10 heater steps",
+  "external_transfer_training_allowed": false,
+  "local_stage5_summary_sha256": "9b0a158bd77fbeae6b82718e7e1c6a41a120caafb0add40a52802fa42810b4fe",
+  "external_evaluation_summary_sha256": "8b9a2227c32f4cf567545cd6e6e3f31cafdd4373261b106494304c3f002e69bf",
+  "unresolved_requirements": [
+    "Physical specimen_id, origin and roast label independently audited",
+    "Separate prospective local-device coffee and ambient-air sessions",
+    "Coffee presence vs air vs other VOC defined and tested on real hardware",
+    "Unknown-origin coffee blind prospective trials",
+    "Threshold pre-specified on calibration set, final sealed holdout",
+    "Calibration, uncertainty, drift/warm-up and safety validated",
+    "Independent QA plus operator sign-off for Raspberry Pi deployment"
+  ],
+  "warning": "High external BME688 dataset metrics are NOT transfer evidence to the 10-channel ADC E-Nose."
+}
