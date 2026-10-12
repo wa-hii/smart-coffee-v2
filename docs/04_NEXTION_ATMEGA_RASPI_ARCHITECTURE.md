@@ -1,5 +1,18 @@
 # Rancangan Integrasi Nextion–ATmega2560–Raspberry Pi 5
 
+**Konfigurasi fisik operator 12 Oktober 2026:**
+**USB board ATmega → USB Raspberry Pi**,
+bukan kabel TTL/GPIO. Ft232R sebagai
+USB-serial `ttyUSB0` tampak di Pi;
+belum dilakukan pembacaan payload.
+**ATmega Serial/UART0 115200 mengeluarkan
+data, Serial1 belum digunakan, Serial2
+9600 disediakan untuk Nextion**.
+Tak perlu mengubah Serial1 atau Nextion
+untuk menggunakan jalur USB yang ada.
+Konfirmasi keselamatan VBUS/backfeed dan
+risiko reset sebelum membuka port.
+
 **Status: rancangan teknis, belum diterapkan pada perangkat fisik.** Audit Tahap 0 pada 9 Oktober 2026 mencatat opsi UART GPIO terpisah sebagai alternatif yang sedang dipertimbangkan; belum ada perubahan protokol komunikasi, kabel atau deployment. Lihat `02_KONTRAK_SISTEM_DAN_KEPUTUSAN_TAHAP0.md`.
 
 ### Addendum Tahap 7 (10 Oktober 2026)

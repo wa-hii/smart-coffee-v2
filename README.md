@@ -1,5 +1,18 @@
 # Smart Coffee E-Nose v2
 
+**Konfirmasi perangkat 12 Oktober 2026:**
+ATmega terhubung **USB langsung ke
+Raspberry Pi**, bukan via GPIO Pi.
+USB bridge FT232R dilihat sebagai
+`/dev/ttyUSB0`. Data firmware tersedia
+di `Serial`/UART0 115200, **Nextion
+memakai Serial2 9600**, Serial1 tidak aktif.
+SOP utama:
+`docs/STAGE7_USB_ATMEGA_PI_BENCH_SOP.md`.
+Kabel sudah terpasang; audit VBUS,
+auto-reset dan safety G0 tetap
+diperlukan **sebelum membuka port**.
+
 **UART Pi–ATmega (12 Oktober 2026):** ada
 FT232R USB-to-UART `/dev/ttyUSB0`
 dan native GPIO UART0 `/dev/ttyAMA0`

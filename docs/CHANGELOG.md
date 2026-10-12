@@ -2,6 +2,29 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 12 Oktober 2026 — Klarifikasi USB langsung ATmega → Pi
+
+- Operator menegaskan koneksi **kabel USB langsung
+  dari board ATmega ke USB Raspberry Pi**,
+  bukan GPIO14/15 atau FT232 TTL kabel eksternal.
+  USB FT232R `ttyUSB0` terenumerasi secara
+  pasif dan konsisten sebagai bridge USB-serial,
+  tetapi pencocokan board dan daya USB
+  belum ada bukti fisik.
+- Mengonfirmasi UART0/Serial 115200 untuk
+  host, Serial2 9600 untuk Nextion,
+  Serial1 belum aktif. Membetulkan satu
+  dokumen wiring historis TQFP-100
+  dari pin kemasan 8/9 yang salah menjadi
+  PH0/RXD2 12 dan PH1/TXD2 13.
+- Mengarahkan SOP ke jalur USB langsung,
+  mempertegas gerbang G0 VBUS/backfeed
+  belum PASS, G1 kabel terpasang menurut
+  operator, G2/G3 NOT RUN.
+  Tidak ada port serial dibuka/flash/
+  kontrol aktuator selama pemeriksaan.
+- Menambah regresi static contract
+  `scripts/test_stage7_usb_contract.py`.
 ## 12 Oktober 2026 — Konfirmasi jalur FT232 dan G0 safety hold
 
 - Operator menetapkan **FT232 USB-to-TTL**

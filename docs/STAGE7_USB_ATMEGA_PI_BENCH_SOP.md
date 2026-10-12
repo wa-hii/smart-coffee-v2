@@ -1,8 +1,61 @@
 # SOP Bench Tahap 7 — USB ATmega2560 ↔ Raspberry Pi 5 (115200 baud)
 
+## Addendum 12 Oktober 2026 — kabel USB langsung sudah terpasang
+
+**Konfirmasi operator:** port USB pada perangkat ATmega2560
+tersambung dengan **kabel USB langsung ke Raspberry Pi 5**.
+Tidak ada kabel TTL dari GPIO14/GPIO15 Pi, dan bukan
+dongle FT232R eksternal dengan empat kabel TX/RX/VCC/GND.
+Jadi SOP **USB ini yang berlaku**, bukan langkah
+penyesuaian tegangan GPIO TTL pada SOP UART alternatif.
+
+**Bukti enumerasi read-only terbaru dari Pi:** driver ftdi_sio
+untuk FTDI FT232R, USB VID:PID 0403:6001;
+port Linux /dev/ttyUSB0, path stabil:
+
+    /dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A10KMM3S-if00-port0
+
+Pemilik port tidak ditemukan pada pemeriksaan fuser,
+serial-getty tidak aktif, Pi throttled=0x0.
+Kombinasi ini **konsisten** dengan antarmuka USB-serial
+yang dipakai. Namun, hanya operator/foto/skema board
+yang dapat mengaitkan chip FT232R ini dengan PCB ATmega
+secara definitif. Tidak ada port yang dibuka, belum ada
+frame UART yang diterima atau diverifikasi.
+
+**G0 MASIH BELUM LULUS:** sambungan USB membawa VBUS 5 V
+dan bisa berinteraksi dengan PSU board, sensor, pompa,
+atau valve. Konfirmasi jenis PCB USB-serial, jalur daya
+dan kemungkinan backfeed harus dilakukan **sebelum**
+uji port. **G1 status: kabel dinyatakan sudah dipasang
+oleh operator**, bukan izin retroaktif bahwa skema
+dayanya aman. **G2 dan G3 BELUM DIIZINKAN.**
+Jika ada panas berlebih, restart, bunyi/gerakan
+aktuator tak diharapkan, atau kelainan daya,
+operator fisik harus menghentikan pengujian
+sesuai SOP perangkat.
+
+Untuk USB standar, D+/D- ditangani antarmuka USB
+di perangkat, **bukan** oleh pin GPIO UART 3,3 V Pi.
+Tidak perlu menghubungkan RX1/TX1 dan tidak
+perlu menambahkan level shifter pada kabel USB.
+Kontrak firmware yang diperiksa: Serial (UART0)
+115200 untuk host; Serial1 (D18/D19) belum dipakai;
+Serial2 (D16/D17) untuk Nextion 9600.
+Jika firmware yang terpasang berbeda dari source
+repo, verifikasi perlu dilakukan kemudian melalui
+bukti aktual, bukan asumsi.
+
+**Titik lanjut:** setelah G0 diperiksa operator,
+mintakan **izin baru G2** untuk membuka hanya
+port USB yang benar pada mode baca-saja.
+Jangan menjalankan contoh perintah di Fase C/G3
+sebelum izin eksplisit tersebut.
+
 **Versi:** v1.0 · 11 Oktober 2026
 
-**Status:** SIAP DIREVIEW OPERATOR — **BELUM DIEKSEKUSI SECARA FISIK**
+**Status:** USB sudah terpasang menurut operator dan telah
+terenumerasi read-only pada Pi; **uji serial fisik belum dijalankan**.
 **Sasaran:** hanya memverifikasi enumerasi USB dan penerimaan *serial read-only*,
 diikuti satu sesi akuisisi Nextion **hanya jika diberi izin khusus terpisah**.
 Ini bukan SOP kalibrasi, firmware upload, model AI, ataupun uji E2E penuh.
@@ -19,7 +72,7 @@ Ini bukan SOP kalibrasi, firmware upload, model AI, ataupun uji E2E penuh.
 | Akuisisi | 5 siklus × 25 detik purging + 5 detik collecting, nominal sekitar 150 frame |
 | Penanggung jawab aktuator | Firmware ATmega, **bukan** software di Pi |
 | Model AI | Tahap 6 **NO-GO**, keluaran `AI_TEST=N/A` |
-| Status awal yang diketahui | ATmega **belum disambungkan** ke USB Pi; port ttyACM/ttyUSB belum ditemukan |
+| Status awal (historis, 11 Oktober) | ATmega belum disambungkan ke USB Pi; saat itu belum ditemukan port ttyACM/ttyUSB |
 | Bukti software | Replay CSV nyata `D-GAW_B33.csv`: 151 frame, `COMPLETE_QA` dalam toleransi, tanpa hardware link |
 
 **Referensi teknis:**

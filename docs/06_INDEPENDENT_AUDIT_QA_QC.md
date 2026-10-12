@@ -114,6 +114,21 @@ Tes negatif `scripts/test_stage2_dataset_audit.py` dan `scripts/test_stage2_plot
 
 ## Addendum Tahap 3 — QA pipeline fitur (9 Oktober 2026)
 
+**Klarifikasi USB operator 12 Oktober:**
+ATmega disambungkan USB langsung ke Pi,
+FT232R terenumerasi sebagai ttyUSB0;
+GPIO Pi bukan jalur yang digunakan.
+Source `Serial` 115200 untuk USB host,
+`Serial2` 9600 untuk Nextion,
+`Serial1` kosong. Regresi baru
+`scripts/test_stage7_usb_contract.py` PASS;
+HMI 12 halaman/23 event dan dua
+PlatformIO build PASS.
+**G0 jalur daya/VBUS/backfeed belum
+dibuktikan, G2/G3 NOT RUN**. Port
+tetap tidak dibuka dan source firmware
+tidak di-flash.
+
 **Addendum UART 12 Oktober 2026:** akses Pi
 via Tailscale SSH berhasil sesudah
 autentikasi ulang. Ditemukan

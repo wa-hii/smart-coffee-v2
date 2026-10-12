@@ -199,6 +199,26 @@ acceptance gate dan evaluasi perangkat.
 
 ## Tahap 7 — Persiapan integrasi Raspberry Pi 5 dan ATmega
 
+**Koreksi konfigurasi operator 12 Oktober 2026:**
+Perangkat **ATmega USB langsung ke USB Raspberry Pi**;
+**tidak menggunakan pin GPIO Pi, kabel TTL FT232
+eksternal, atau Serial1 ATmega**. FT232R terenumerasi
+di `/dev/ttyUSB0` (by-id stabil) sebagai calon
+USB bridge di board, tetapi identitas board
+dan jalur catu VBUS belum diverifikasi dari
+foto/skema. Firmware source mengirimkan data
+ke **Serial/UART0 115200**, sedangkan Nextion
+di **Serial2 9600**, Serial1 belum dipakai.
+G1 kabel terpasang menurut operator;
+**G0 power/backfeed belum lulus; G2 pembukaan
+port dan G3 akuisisi belum disetujui**.
+Tidak ada serial port opened, frame diterima,
+flashing atau perintah aktuator.
+SOP aktif:
+`docs/STAGE7_USB_ATMEGA_PI_BENCH_SOP.md`.
+SOP TTL/GPIO hanya referensi alternatif,
+bukan jalur yang sedang digunakan.
+
 **12 Oktober 2026 — operator memasang koneksi UART
 dan Pi berhasil diaudit read-only:** ditemukan FTDI
 FT232R `0403:6001` di `/dev/ttyUSB0` dengan

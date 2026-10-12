@@ -1,5 +1,16 @@
 # SOP Tahap 7 — UART ATmega2560 ↔ Raspberry Pi 5 (GPIO atau FT232)
 
+**Klarifikasi operator 12 Oktober 2026:** perangkat
+ATmega **menggunakan kabel USB langsung ke port USB
+Raspberry Pi, bukan TTL/GPIO maupun kabel TX/RX
+eksternal dari FT232R**. Karenanya SOP ini
+**bukan jalur eksekusi untuk konfigurasi saat ini**;
+gunakan `docs/STAGE7_USB_ATMEGA_PI_BENCH_SOP.md`.
+Chip FT232R yang terlihat pada Pi adalah identitas
+antarmuka USB-serial, bukan instruksi menghubungkan
+pin UART melalui GPIO. Review daya USB VBUS dan
+auto-reset tetap wajib. Tidak ada live UART test.
+
 **Tanggal:** 12 Oktober 2026. **Status:** pemetaan perangkat **PASS
 read-only**; komunikasi fisik dan payload UART **BELUM TERVERIFIKASI**.
 Dokumen ini menggantikan asumsi USB langsung dalam

@@ -1,5 +1,29 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## Transport USB yang sebenarnya — 12 Oktober 2026
+
+Operator menegaskan kabel **USB port ATmega
+langsung ke port USB Raspberry Pi**;
+tidak menggunakan GPIO maupun kabel TX/RX
+TTL eksternal. Pi mendeteksi FT232R sebagai
+`/dev/ttyUSB0`, by-id
+`usb-FTDI_FT232R_USB_UART_A10KMM3S-if00-port0`.
+Source firmware: `Serial`/UART0 115200
+untuk data host; `Serial2` (Mega RX2 D17/
+TX2 D16) 9600 untuk Nextion; `Serial1`
+kosong. FT232R yang terdeteksi dapat
+merupakan jembatan serial board,
+namun pencocokan PCB/skematik belum
+terverifikasi.
+
+**G1 kabel terpasang (pernyataan operator),
+G0 keselamatan VBUS/power belum disetujui,
+G2 membuka serial dan G3 akuisisi NOT RUN.**
+Tidak perlu level shifter GPIO Pi untuk
+kabel USB standar; risiko backfeed 5 V
+dan reset DTR tetap perlu diaudit.
+SOP aktif `docs/STAGE7_USB_ATMEGA_PI_BENCH_SOP.md`.
+
 ## Gerbang G0 FT232 → ATmega — 12 Oktober 2026
 
 Operator menegaskan jalur USB Pi → FT232 USB-to-TTL;

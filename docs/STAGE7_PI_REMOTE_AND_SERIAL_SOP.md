@@ -1,5 +1,16 @@
 # SOP Tahap 7 — Remote Raspberry Pi 5 dan komunikasi ke ATmega (AMAN)
 
+**Konfirmasi final transport 12 Oktober 2026:**
+operator menghubungkan **USB perangkat ATmega
+langsung ke port USB Raspberry Pi**,
+**bukan** Pi GPIO14/15 atau kabel TTL TX/RX eksternal.
+Pi melihat FT232R `/dev/ttyUSB0`; ini calon
+USB-serial board untuk komunikasi host.
+SOP yang berlaku saat ini:
+`docs/STAGE7_USB_ATMEGA_PI_BENCH_SOP.md`.
+Persetujuan G0 daya/VBUS/backfeed belum ada;
+G2 pembukaan port dan G3 akuisisi tetap **NOT RUN**.
+
 **Pembaruan penting UART fisik 12 Oktober 2026:**
 Operator menyatakan Pi sekarang terhubung ke
 UART ATmega. Pemeriksaan menemukan **dua

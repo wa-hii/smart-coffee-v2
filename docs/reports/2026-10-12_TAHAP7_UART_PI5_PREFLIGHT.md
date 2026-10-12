@@ -1,5 +1,49 @@
 # Tahap 7 — Verifikasi topologi UART Raspberry Pi 5 (read-only)
 
+## Rekonsiliasi klarifikasi wiring operator (12 Oktober 2026)
+
+Operator selanjutnya memperjelas koneksi sebenarnya:
+**USB port ATmega ↔ kabel USB ↔ USB port Pi 5**.
+Tidak ada GPIO Pi atau TTL RX/TX eksternal yang
+digunakan. Oleh karena itu jalur native
+`ttyAMA0` yang ditemukan sebelumnya **tidak
+digunakan** untuk komunikasi host saat ini.
+FT232R `ttyUSB0` kemungkinan besar menjadi
+USB-serial bridge papan ATmega yang terkoneksi;
+identitas PCB fisik tetap perlu dikaitkan
+melalui foto/skematik operator. Tidak ada alasan
+mengubah Serial1 atau mengalihkan Nextion Serial2.
+
+**Status G0 daya USB VBUS/backfeed: BELUM
+TERVERIFIKASI**. Kabel sudah terpasang menurut
+operator, tetapi ini tidak menggantikan
+persetujuan keselamatan kelistrikan.
+**Port serial tidak dibuka**. G2/G3 tidak
+dijalankan. SOP relevan kini
+`docs/STAGE7_USB_ATMEGA_PI_BENCH_SOP.md`,
+bukan SOP TTL/GPIO.
+
+**QA setelah koreksi jalur USB:**
+`python scripts/test_stage7_usb_contract.py`
+PASS untuk Serial UART0 115200,
+Nextion Serial2 9600, Serial1 tidak aktif,
+dan larangan membuka tty tanpa izin.
+`test_stage0_contract.py`,
+`test_stage1_firmware_contract.py`,
+`test_stage7_uart_preflight.py`,
+`test_stage7_bridge.py` dan
+`test_stage7_pi_adapter.py` PASS.
+Verifier HMI **12 halaman/23 event PASS**,
+PlatformIO mega2560/nextion_test **2/2 SUCCESS**,
+`compileall` dan `git diff --check` PASS.
+Nomor pin TQFP-100 USART2 dalam
+`nextion/NX4827T043_011/ATMEGA2560_USART2_WIRING.txt`
+juga dikoreksi menjadi PH0/RXD2 pin 12,
+PH1/TXD2 pin 13; perlu verifikasi
+skematik PCB jika dipakai untuk kerja fisik.
+Tidak ada live serial test, flash,
+ataupun perintah aktuator.
+
 **Tanggal:** 12 Oktober 2026.
 
 **Konteks:** pengguna menyatakan Pi sudah
@@ -78,6 +122,15 @@ ada pembukaan ttyUSB0, loopback UART,
 frame read, flash, perubahan config, atau
 aksi aktuator. Checklist bukti G0:
 `docs/STAGE7_UART_ATMEGA_PI5_SOP.md`.
+
+**Penyempurnaan berdasarkan penjelasan USB langsung:**
+referensi SOP G0 yang berlaku sekarang adalah
+`docs/STAGE7_USB_ATMEGA_PI_BENCH_SOP.md`.
+Pilihan USART ATmega sebagai koneksi host
+**Serial/UART0 (source firmware)** sudah
+ditemukan; tidak diperlukan pin Serial1.
+Sambungan fisik di dalam USB-serial PCB
+dan jalur daya masih memerlukan bukti.
 
 | Gerbang | Hasil |
 |---|---|

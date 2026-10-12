@@ -1,8 +1,11 @@
-# IMPORTANT — ATmega2560 physical MCU pins 8/9
+# IMPORTANT — ATmega2560 USART2 package pin vs header pin
 
-The PCB connection is to the ATmega2560 package pins:
-- physical MCU pin 8 = PH0 / RXD2
-- physical MCU pin 9 = PH1 / TXD2
+For an ATmega2560 TQFP-100 package, the datasheet pin mapping is:
+- physical MCU pin 12 = PH0 / RXD2
+- physical MCU pin 13 = PH1 / TXD2
+
+The actual custom-PCB routing and MCU package MUST still be confirmed
+against the schematic; do not infer physical wires from this file.
 
 These signals belong to USART2, therefore Arduino/PlatformIO must use `Serial2`.
 
@@ -15,5 +18,18 @@ Equivalent Arduino Mega 2560 board-header pins are:
 The current `.HMI` project is configured at 9600 baud, so the ATmega firmware must use the same
 rate unless the HMI project is explicitly changed and recompiled.
 
-Do not confuse physical ATmega2560 package pins 8/9 with Arduino digital pins D8/D9. Arduino D8/D9
+Do not confuse physical ATmega2560 TQFP package pins 12/13 with Arduino digital pins D8/D9. Arduino D8/D9
 are PH5/PH6 and are not the RXD2/TXD2 pair.
+
+Stage 7 update (12 Oct 2026):
+- Data to Raspberry Pi via the ATmega board's USB connector uses the
+  Serial UART0 / 115200 baud stream on current source firmware.
+- Serial1 (Arduino Mega D18 TX1, D19 RX1) is not used in current source.
+- Serial2 is reserved for Nextion HMI at 9600 baud.
+- Serial3 is not in use in the current source.
+- Raspberry Pi GPIO14/15 and external TTL level shifting are NOT part of
+  the operator-confirmed direct USB-cable connection.
+
+Sources: Microchip ATmega2560 datasheet (TQFP-100 pinout) and
+Arduino Mega 2560 board pinout. Verification of installed firmware
+and board wiring is a separate physical SOP gate.

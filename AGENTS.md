@@ -100,6 +100,7 @@ python scripts/test_stage7_bridge.py
 python scripts/test_stage7_pi_preflight.py
 python scripts/test_stage7_pi_adapter.py
 python scripts/test_stage7_uart_preflight.py
+python scripts/test_stage7_usb_contract.py
 python -m compileall -q scripts
 ```
 
