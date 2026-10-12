@@ -114,6 +114,22 @@ Tes negatif `scripts/test_stage2_dataset_audit.py` dan `scripts/test_stage2_plot
 
 ## Addendum Tahap 3 — QA pipeline fitur (9 Oktober 2026)
 
+**12 Oktober — UART testbed Mega/PIO dan Pi 5:**
+board Arduino Mega 2560 CH340 COM6
+berhasil di-flash sketch isolasi
+(signature 0x1e9801, flash verified);
+USB debug menyatakan heartbeat berjalan.
+Pi `ttyAMA0` UART0 9600 aktif,
+namun 20 s RX menghasilkan 0 frame,
+dan diagnostic PING Pi→Mega
+tanpa ACK. Ini **FAIL/INCONCLUSIVE**
+hardware UART, bukan kesalahan
+protokol USB serial atau bukti
+model/PCB custom. Regresi parser
+offline PASS. Evidence laporan:
+`bench/mega_pi_uart/evidence/`
+dan `bench/mega_pi_uart/reports/2026-10-12_BENCH_TEST.md`.
+
 **12 Oktober — riset USB Pi + Tahap 8:**
 dokumen Raspberry Pi melarang back-powering
 host dan menjelaskan current limit

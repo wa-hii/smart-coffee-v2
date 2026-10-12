@@ -1,5 +1,24 @@
 # Smart Coffee E-Nose v2
 
+**UART TESTBED Mega 2560 ↔ Raspberry Pi 5 (12 Oktober 2026):**
+proyek eksperimen terpisah `bench/mega_pi_uart/`
+mencakup firmware PlatformIO untuk board
+Arduino Mega, penerima Python Pi,
+uji protokol dan evidence hardware.
+Upload firmware **PASS ke CH340 COM6**
+(signature ATmega2560 0x1e9801, verify sukses),
+heartbeat USB laptop **PASS**;
+uji penerimaan Pi GPIO15 /dev/ttyAMA0
+9600 baud 20 detik **0 frame**, uji
+PING Pi→Mega **0 ACK**. UART fisik
+**BELUM BERHASIL**; perlu cek wiring
+HV/LV/GND dan D18/D19 Mega ke
+GPIO15/14 Pi. Lihat
+`bench/mega_pi_uart/reports/2026-10-12_BENCH_TEST.md`.
+Firmware Smart Coffee PCB custom,
+Nextion, data mentah, model AI
+**tidak diubah oleh testbed ini**.
+
 **Riset USB dan E2E offline (12 Oktober 2026):**
 Pi 5 menerima perangkat USB self-powered
 yang sesuai standar; FT232R telah

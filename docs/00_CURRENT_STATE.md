@@ -1,5 +1,36 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## UART testbed terpisah Mega↔Pi, 12 Oktober 2026
+
+Testbed **Arduino Mega 2560 board sementara**
+(bukan PCB custom target Smart Coffee)
+sekarang punya proyek mandiri
+`bench/mega_pi_uart/`, firmware
+`Serial1` 9600 pada Mega D18/D19
+dan Python Pi `/dev/ttyAMA0`
+GPIO14/15. Firmware berhasil
+di-upload COM6 CH340 ke chip
+ATmega2560 (signature 0x1e9801),
+USB debug heartbeat 1–19 terbaca
+dari Mega. Namun RX Pi 20 detik
+**0 frame** dan satu PING diagnostik
+Pi menghasilkan **0 PING ACK** pada
+debug Mega. Pi sudah UART0 ALT aktif,
+getty inactive, port bebas dan power
+`throttled=0x0`.
+
+**Kondisi UART testbed: BLOCKED hardware
+level converter/wiring/pinout belum
+diverifikasi operator dengan foto
+atau tegangan.** Tidak boleh klaim
+E2E hardware PASS; jangan memindah
+jumper dalam keadaan menyala.
+Laporan dan data asli:
+`bench/mega_pi_uart/reports/2026-10-12_BENCH_TEST.md`,
+`bench/mega_pi_uart/evidence/`.
+Pekerjaan Smart Coffee firmware PCB custom
+tetap pada status yang terpisah.
+
 ## Keputusan riset USB dan E2E offline — 12 Oktober 2026
 
 Dokumentasi resmi Raspberry Pi membolehkan

@@ -1,0 +1,25 @@
+{
+  "status": "FAIL_OR_INCONCLUSIVE",
+  "port": "/dev/ttyAMA0",
+  "baud": 9600,
+  "duration_limit_s": 20,
+  "physical_test": true,
+  "model_invoked": false,
+  "actuator_commands": 0,
+  "firmware_flash_performed": false,
+  "ping_requested": false,
+  "ping_sent": false,
+  "metrics": {
+    "heartbeats": 0,
+    "pong_valid": 0,
+    "malformed": 0,
+    "missing_sequence": 0,
+    "duplicate_or_out_of_order": 0,
+    "uptime_errors": 0,
+    "unexpected_frames": 0,
+    "pong_nonce_mismatch": 0
+  },
+  "records": [],
+  "pass_rx": false,
+  "pass_bidirectional": false
+}

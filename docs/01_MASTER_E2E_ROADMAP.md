@@ -199,6 +199,25 @@ acceptance gate dan evaluasi perangkat.
 
 ## Tahap 7 — Persiapan integrasi Raspberry Pi 5 dan ATmega
 
+**12 Oktober — percobaan hardware UART testbed
+khusus:** repo `bench/mega_pi_uart/`
+dipisah dari firmware PCB custom. Arduino
+Mega 2560 diprogram lewat CH340 COM6:
+avrdude signature 0x1e9801, verifikasi
+flash PASS; heartbeat USB laptop PASS.
+Pi UART0 pada GPIO14/15 terverifikasi
+`/dev/ttyAMA0`, overlay benar dan
+getty nonaktif, tetapi RX-only 20 detik
+**0 frame**, dan ping diagnostik Pi
+**0 ACK** di Mega USB debug. Status
+testbed UART hardware **BLOCKED
+WIRING/LEVEL CONVERTER**, bukan PASS.
+SOP isolasi & checklist operator:
+`bench/mega_pi_uart/reports/2026-10-12_BENCH_TEST.md`.
+Tidak ada perubahan ke PCB custom,
+firmware/Nextion Smart Coffee,
+model AI atau pengendali aktuator.
+
 **Koreksi konfigurasi operator 12 Oktober 2026:**
 Perangkat **ATmega USB langsung ke USB Raspberry Pi**;
 **tidak menggunakan pin GPIO Pi, kabel TTL FT232

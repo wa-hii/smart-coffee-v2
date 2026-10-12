@@ -2,6 +2,37 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 12 Oktober 2026 — UART testbed Mega 2560 ↔ Pi 5, diagnosis hardware
+
+- Menambah proyek bench terisolasi
+  `bench/mega_pi_uart/`: `platformio.ini`
+  Mega, firmware heartbeat USB 115200/
+  Serial1 GPIO 9600, parser Python
+  Pi dengan timeout, limit frame, nonce
+  PING allowlist, validasi seq/uptime,
+  unit tests dan SOP.
+- Upload sketch baru **HANYA ke Mega
+  testbed COM6 CH340**, signature
+  0x1e9801 tervalidasi dan flash
+  **3212 bytes verified**; USB debug
+  Mega mengirim HEARTBEAT 1–19.
+- Pi SSH: `ttyAMA0` GPIO14/15
+  UART aktif, serial-getty nonaktif.
+  Pengujian RX 20s mendapatkan **0
+  frame**. Pi diagnostic PING satu
+  kali (bukan perintah aktuator)
+  tidak mendapatkan PONG, dan
+  Mega debug **tidak menerima PING**.
+- **UART E2E testbed belum PASS**.
+  Perlindungan 5 V→3,3 V dan
+  sambungan level converter harus
+  diperiksa secara fisik sebelum
+  uji lanjut. Firmware utama
+  PCB custom, konfigurasi lokal
+  `platformio.ini` root, CSV/AI
+  tidak diubah.
+- Bukti JSON pada `bench/mega_pi_uart/evidence/`,
+  laporan `bench/mega_pi_uart/reports/2026-10-12_BENCH_TEST.md`.
 ## 12 Oktober 2026 — Riset keamanan USB dan E2E offline Tahap 8
 
 - Meneliti sumber resmi Raspberry Pi (batas
