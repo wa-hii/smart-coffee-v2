@@ -114,6 +114,28 @@ Tes negatif `scripts/test_stage2_dataset_audit.py` dan `scripts/test_stage2_plot
 
 ## Addendum Tahap 3 — QA pipeline fitur (9 Oktober 2026)
 
+**12 Oktober — riset USB Pi + Tahap 8:**
+dokumen Raspberry Pi melarang back-powering
+host dan menjelaskan current limit
+600 mA/1,6 A; FT232R mendukung
+desain self-powered dengan syarat
+yang harus dipenuhi PCB. Karena
+jalur VBUS custom FT232R/ATmega
+belum diketahui, **G0 tidak lulus**
+walau FT232R terdeteksi, Pi
+`usb_max_current_enable=1` dan
+`throttled=0x0`.
+`scripts/test_stage8_offline_e2e.py`
+menguji 11 skenario dengan input
+CSV pengukuran asli, termasuk dua
+aliran positif dan 9 fault negatif
+semuanya fail-closed. Pengujian pada
+Windows dan Pi **PASS**, evidence
+JSON identik. UI pResult masih mock
+dan AI N/A. **Bukan bukti E2E
+fisik atau kualitas klasifikasi kopi.**
+Laporan `docs/reports/2026-10-12_RISET_USB_PI5_DAN_E2E_TAHAP8.md`.
+
 **Klarifikasi USB operator 12 Oktober:**
 ATmega disambungkan USB langsung ke Pi,
 FT232R terenumerasi sebagai ttyUSB0;

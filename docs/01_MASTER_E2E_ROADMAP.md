@@ -25,7 +25,7 @@ Dokumen bukti dasar: **00_CURRENT_STATE.md**, **02_KONTRAK_SISTEM_DAN_KEPUTUSAN_
 | 5. Generalisasi lintas batch, drift dan unknown | **DIAGNOSTIK OFFLINE PASS + DATASET ILMIAH DIAUDIT; UNKNOWN NO-GO** | P0 | 3–4 | Ya untuk pengujian prospektif |
 | 6. Pemilihan model dan kontrak artefak | **GERBANG NO-GO OFFLINE SELESAI; PROMOSI TERHAMBAT** | P1 | 5 | Ya untuk benchmark perangkat |
 | 7. Persiapan integrasi Raspberry Pi–ATmega | **SSH PI + VENV + REPLAY ASLI PASS; SERIAL FISIK BELUM TERUJI** | P1 | 1, 6 | Ya untuk integrasi |
-| 8. Simulasi E2E penuh secara offline | DIRENCANAKAN | P1 | 6–7 | Tidak |
+| 8. Simulasi E2E penuh secara offline | **MOCK KONTRAK E2E 11/11 PASS DI WINDOWS & PI; MODEL NYATA TETAP NO-GO** | P1 | 6–7 | Tidak |
 | 9. Integrasi dan validasi hardware | MENUNGGU PERSETUJUAN | P1 | 8 | Ya |
 | 10. Validasi prospektif dan promosi model final | TERHAMBAT | P0 (gerbang rilis) | 5, 9 | Ya |
 
@@ -319,6 +319,39 @@ model inferensi tetap tidak dipromosikan.
 - **Risiko:** pembaruan protokol dapat mengganggu listener produksi. Siapkan kompatibilitas dua versi, uji mock dahulu, dan pengujian fisik hanya dengan izin.
 
 ## Tahap 8 — Simulasi E2E lengkap tanpa hardware
+
+**12 Oktober 2026 — hasil:** `scripts/stage8_offline_e2e.py`
+memakai rekaman ATmega asli `D-GAW_B33.csv` dengan
+151 frame sensor dan hash SHA256 sumber terverifikasi.
+Alur mock Nextion → firmware-shaped frames →
+validator stateful Pi Tahap7 → release gate Tahap6
+→ pResult mock N/A, serta autosave labeled-data
+yang memverifikasi **151/151 baris dalam memori
+tanpa menulis raw**, berhasil.
+**11/11 skenario kontrak PASS**, meliputi
+9 fault injections yang semuanya berakhir
+FAIL_CLOSED/N/A. Skrip dan output
+dijalankan langsung **di Raspberry Pi dan Windows**
+dengan hasil JSON identik.
+Ini hanya **software/protocol mock**:
+firmware sesungguhnya, Nextion, port USB,
+aktuator dan model inferensi tidak dijalankan.
+Paket bukti dan riset keselamatan:
+`docs/reports/2026-10-12_RISET_USB_PI5_DAN_E2E_TAHAP8.md`
+dan `results/stage8_offline_e2e_v1/`.
+
+**Riset keamanan USB:** standar Raspberry Pi
+memungkinkan periferal USB berdaya sendiri
+dan FT232R mempunyai desain self-powered
+yang sesuai; tetapi PCB custom ATmega yang
+terpasang punya **PSU eksternal terpisah
+dan jalur VBUS/backfeed belum dibuktikan**.
+Pi `usb_max_current_enable=1`,
+`throttled=0x0`, FT232R terdeteksi;
+semuanya indikator baik **tanpa membuktikan
+isolasi VBUS**. G0 belum PASS, G2/G3
+NOT RUN. Tahap 9–10 **TIDAK BOLEH
+dianggap selesai**.
 
 - **Tujuan, status, prioritas:** membuktikan alur tombol hingga hasil secara software; **DIRENCANAKAN, P1**.
 - **Dependensi dan desain:** Tahap 6–7; mock event Nextion, trace ATmega, validator, ekstraktor fitur, model, dan hasil/galat.

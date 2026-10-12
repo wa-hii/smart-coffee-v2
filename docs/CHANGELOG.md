@@ -2,6 +2,33 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 12 Oktober 2026 — Riset keamanan USB dan E2E offline Tahap 8
+
+- Meneliti sumber resmi Raspberry Pi (batas
+  USB dan larangan back-powering) dan FTDI
+  FT232R (skema self-powered); port USB Pi
+  normal bagi perangkat USB compliant.
+  PCB ATmega custom dengan PSU berbeda
+  **belum dibuktikan proteksi VBUS/backfeed**,
+  sehingga G0 belum PASS, G2/G3 NOT RUN.
+- SSH read-only Pi: `usb_max_current_enable=1`,
+  `throttled=0x0`, FT232R `ttyUSB0`
+  dan tidak terlihat overcurrent dalam
+  potongan kernel log yang difilter.
+  Tidak ada serial port opened.
+- Menambah `scripts/stage8_offline_e2e.py`,
+  regresi `scripts/test_stage8_offline_e2e.py`,
+  dan bukti `results/stage8_offline_e2e_v1/`.
+  **11/11 kontrak mock E2E PASS** di Windows
+  dan langsung pada Pi: 151 frame nyata,
+  151/151 projection autosave in-memory,
+  9 negative FAIL_CLOSED, keputusan AI N/A.
+  Bukti Pi identik dengan output Windows;
+  tidak ada raw edited, firmware flashing,
+  Nextion nyata/aktuator atau model diaktifkan.
+- **Tahap 8 mock selesai; Tahap 9 fisik dan
+  Tahap 10 rilis AI tetap NO-GO**.
+  Laporan `docs/reports/2026-10-12_RISET_USB_PI5_DAN_E2E_TAHAP8.md`.
 ## 12 Oktober 2026 — Catu daya ATmega dan Pi terpisah
 
 - Operator menegaskan USB ATmega↔Pi tetap

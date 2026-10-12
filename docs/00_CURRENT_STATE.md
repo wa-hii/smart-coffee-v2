@@ -1,5 +1,33 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## Keputusan riset USB dan E2E offline — 12 Oktober 2026
+
+Dokumentasi resmi Raspberry Pi membolehkan
+periferal USB dengan daya sendiri (arus
+USB total Pi 5 600 mA/1,6 A bergantung
+PSU), dan FT232R mendukung konfigurasi
+self-powered. **Namun, desain USB VBUS
+PCB custom ATmega dengan adaptor eksternal
+belum diverifikasi untuk reverse-current/
+backfeed.** SSH read-only menemukan
+FT232R `ttyUSB0`, `usb_max_current_enable=1`,
+`throttled=0x0`, tanpa error overcurrent
+di potongan log yang difilter; bukti ini
+tidak cukup untuk meluluskan G0.
+**Tidak membuka port USB serial.**
+
+Tahap 8 **OFFLINE MOCK PASS 11/11** pada
+Windows dan Raspberry Pi, input data riil
+`D-GAW_B33.csv` (151 frame):
+dua jalur positif dan sembilan fault
+FAIL_CLOSED; autosave labeled-data diuji
+151/151 hanya di memori. Hasil AI tetap
+`N/A`, mock Nextion **bukan UI nyata**,
+tidak ada model/aktuator dipanggil.
+Tahap 9 hardware dan 10 AI rilis
+**NO-GO / NOT TESTED**. Laporan
+`docs/reports/2026-10-12_RISET_USB_PI5_DAN_E2E_TAHAP8.md`.
+
 ## Addendum daya ATmega dan Pi (12 Oktober 2026)
 
 Operator memastikan **Raspberry Pi 5 memakai adaptor

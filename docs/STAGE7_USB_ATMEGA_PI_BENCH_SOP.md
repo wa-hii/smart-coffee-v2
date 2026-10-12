@@ -1,5 +1,22 @@
 # SOP Bench Tahap 7 — USB ATmega2560 ↔ Raspberry Pi 5 (115200 baud)
 
+**Hasil riset sumber resmi 12 Oktober:**
+USB Pi 5 dapat dipakai untuk perangkat
+USB self-powered yang benar; Raspberry
+Pi melarang back-powering ke upstream
+dan FT232R menyediakan skema self-powered
+yang harus ditiru sesuai datasheet.
+Diagnostik read-only: Pi `throttled=0x0`,
+`usb_max_current_enable=1`, FT232R
+terenumerasi, tidak terlihat error
+overcurrent dalam log yang difilter.
+**Belum ada pemeriksaan rangkaian
+VBUS di PCB custom**, sehingga **G0
+tetap BLOCKED, G2/G3 NOT RUN**.
+Tahap 8 software telah PASS pada
+11 mock skenario: lihat
+`docs/reports/2026-10-12_RISET_USB_PI5_DAN_E2E_TAHAP8.md`.
+
 ## Addendum 12 Oktober 2026 — dua adaptor daya terpisah
 
 **Konfirmasi operator terbaru:** Raspberry Pi 5 ditenagai

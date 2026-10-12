@@ -101,6 +101,7 @@ python scripts/test_stage7_pi_preflight.py
 python scripts/test_stage7_pi_adapter.py
 python scripts/test_stage7_uart_preflight.py
 python scripts/test_stage7_usb_contract.py
+python scripts/test_stage8_offline_e2e.py
 python -m compileall -q scripts
 ```
 

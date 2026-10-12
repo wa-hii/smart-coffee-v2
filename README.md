@@ -1,5 +1,22 @@
 # Smart Coffee E-Nose v2
 
+**Riset USB dan E2E offline (12 Oktober 2026):**
+Pi 5 menerima perangkat USB self-powered
+yang sesuai standar; FT232R telah
+terenumerasi. **Keamanan VBUS/backfeed
+PCB custom ATmega dengan PSU berbeda
+belum bisa dinyatakan PASS**.
+Tahap 8 mock E2E dari 151 sampel
+sensor asli **11/11 kasus PASS**
+di Windows dan Pi; 9 kasus negatif
+fail-closed, AI_TEST tetap N/A,
+autosave 151/151 diverifikasi di
+memori tanpa menulis raw.
+Port serial fisik belum dibuka,
+Nextion/aktuator/model belum
+diaktifkan. Laporan:
+`docs/reports/2026-10-12_RISET_USB_PI5_DAN_E2E_TAHAP8.md`.
+
 **Konfirmasi perangkat 12 Oktober 2026:**
 ATmega terhubung **USB langsung ke
 Raspberry Pi**, bukan via GPIO Pi.
