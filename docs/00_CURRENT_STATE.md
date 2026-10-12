@@ -1,5 +1,22 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## Addendum daya ATmega dan Pi (12 Oktober 2026)
+
+Operator memastikan **Raspberry Pi 5 memakai adaptor
+daya sendiri, ATmega2560 memakai adaptor eksternal
+yang berbeda**, serta komunikasi USB langsung
+ATmega→Pi. Rangkaian VBUS FT232R, pemilihan daya
+USB/eksternal, board custom vs Mega resmi, jalur
+adaptor (DC jack/VIN atau 5 V langsung), dan
+backfeed **belum diverifikasi**. Status:
+**G0 PARTIAL/BLOCKED**, G1 USB telah dipasang
+menurut operator, **G2 serial RX dan G3
+akuisisi NOT AUTHORIZED/NOT RUN**.
+SOP dan checklist:
+`docs/STAGE7_USB_ATMEGA_PI_BENCH_SOP.md`.
+Tidak ada pembukaan serial, perintah MCU,
+atau modifikasi power pada langkah ini.
+
 ## Transport USB yang sebenarnya — 12 Oktober 2026
 
 Operator menegaskan kabel **USB port ATmega

@@ -1,5 +1,56 @@
 # SOP Bench Tahap 7 — USB ATmega2560 ↔ Raspberry Pi 5 (115200 baud)
 
+## Addendum 12 Oktober 2026 — dua adaptor daya terpisah
+
+**Konfirmasi operator terbaru:** Raspberry Pi 5 ditenagai
+**adaptor Pi sendiri**, sedangkan board ATmega2560 ditenagai
+**adaptor eksternal yang berbeda**. Kabel USB board ATmega
+tetap terhubung langsung ke port USB Pi untuk data serial.
+Ini **bukan** bukti bahwa VBUS USB 5 V pada board ATmega
+telah diisolasi dari rail daya eksternal.
+
+**Keputusan keselamatan: G0 PARTIAL / BELUM PASS; G1 kabel
+sudah terpasang menurut operator; G2/G3 TIDAK DIJALANKAN.**
+Jangan membuka port serial hanya berdasarkan fakta kedua
+adaptor berbeda. Jangan mencabut atau memasang ulang
+kabel dan suplai ketika aktuator/proses akuisisi aktif;
+penghentian/pemeriksaan rangkaian harus diawasi operator
+fisik sesuai SOP hardware.
+
+**Untuk menutup G0, operator/hardprog harus membuktikan:**
+
+1. **Jenis PCB:** Arduino Mega 2560 Rev3 resmi atau
+   board custom (sertakan foto bagian USB/FT232R dan
+   bagian masukan adaptor atau skematik).
+2. **Jalur adaptor ATmega:** jack DC/VIN melalui rangkaian
+   regulator/pemilihan catu, atau rail 5 V langsung;
+   catat tegangan nominal yang tertulis pada adaptor
+   serta sambungan GND dan suplai heater/pompa/valve.
+3. **Daya USB VBUS dan proteksi:** pastikan melalui
+   skematik/review hardware bahwa daya eksternal tidak
+   mengalir balik ke VBUS port USB Pi dan USB Pi tidak
+   memberi daya tak terencana ke beban aktuator/sensor.
+   Jika perlu pengukuran multimeter, lakukan hanya
+   oleh operator hardware dengan prosedur isolasi
+   daya yang aman; **jangan men-short atau memutus
+   jalur 5 V sebagai solusi coba-coba**.
+4. **Perilaku fisik:** tidak ada panas abnormal,
+   reset/perubahan halaman Nextion, gerakan
+   pompa/valve tidak diharapkan, atau indikasi
+   undervoltage akibat konfigurasi dua catu.
+
+Arduino Mega 2560 Rev3 resmi memiliki pemilihan sumber
+daya USB/eksternal secara otomatis dan polyfuse USB,
+tetapi **implementasinya tidak bisa diasumsikan ada
+pada PCB custom FT232R**. Datasheet FT232R menyediakan
+rangkaian yang berbeda untuk `bus-powered` dan
+`self-powered`; pilihan PCB sesungguhnya harus
+diverifikasi sebelum menguji port.
+
+Sumber primer:
+- https://store.arduino.cc/products/arduino-mega-2560-rev3
+- https://ftdichip.com/wp-content/uploads/2020/08/DS_FT232R.pdf
+
 ## Addendum 12 Oktober 2026 — kabel USB langsung sudah terpasang
 
 **Konfirmasi operator:** port USB pada perangkat ATmega2560

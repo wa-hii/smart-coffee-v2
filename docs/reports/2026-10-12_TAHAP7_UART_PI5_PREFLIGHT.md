@@ -1,5 +1,24 @@
 # Tahap 7 — Verifikasi topologi UART Raspberry Pi 5 (read-only)
 
+### Addendum konfigurasi catu daya aktual
+
+Operator mengonfirmasi **ATmega memakai adaptor
+daya eksternal terpisah dari adaptor Raspberry
+Pi**, sambil tetap tersambung USB langsung
+untuk komunikasi. Informasi ini mengonfirmasi
+dua catu, **bukan** isolasi USB VBUS,
+ketiadaan backfeed, maupun aman-tidaknya
+mode reset DTR pada papan custom FT232R.
+Belum ada skematik/foto power PCB yang
+memastikan sumber 5 V ATmega berasal dari
+jack DC/VIN atau masukan langsung rail 5 V.
+
+**G0 tetap PARTIAL/BLOCKED; G2/G3 NOT RUN**.
+Audit jalur suplai/USB dan pengamatan fisik
+menjadi prasyarat uji serial read-only.
+Rincian checklist operator di
+`docs/STAGE7_USB_ATMEGA_PI_BENCH_SOP.md`.
+
 ## Rekonsiliasi klarifikasi wiring operator (12 Oktober 2026)
 
 Operator selanjutnya memperjelas koneksi sebenarnya:

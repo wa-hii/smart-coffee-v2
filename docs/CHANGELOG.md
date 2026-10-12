@@ -2,6 +2,23 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 12 Oktober 2026 — Catu daya ATmega dan Pi terpisah
+
+- Operator menegaskan USB ATmega↔Pi tetap
+  terhubung, sementara ATmega dan Pi masing-
+  masing memakai adaptor daya sendiri.
+- Menambahkan pemeriksaan G0 terkait
+  jenis board/USB FT232R, jalur adaptor
+  eksternal, pemilihan VBUS/backfeed,
+  catu aktuator/sensor, dan dampak reset.
+  Arduino Mega Rev3 mempunyai pemilihan
+  sumber otomatis, tetapi tidak boleh
+  diasumsikan pada PCB custom.
+- **G0 partial/belum PASS, G2/G3 tetap
+  tidak dijalankan**. Tidak ada pembukaan
+  port serial, flashing, atau pengendalian
+  aktuator.
+
 ## 12 Oktober 2026 — Klarifikasi USB langsung ATmega → Pi
 
 - Operator menegaskan koneksi **kabel USB langsung
