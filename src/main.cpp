@@ -20,9 +20,12 @@
 #include "TaskScheduler.h"
 #include "actuator.h"
 #include "inference.h"
+#include "nextion_transport.h"
 #include "sensor.h"
 #include <Arduino.h>
 #include <Wire.h>
+#include <stdio.h>
+#include <string.h>
 
 // ─── Konfigurasi Akuisisi
 // ─────────────────────────────────────────────────────
@@ -33,17 +36,19 @@
 // ─── Feature Flags
 // ────────────────────────────────────────────────────────────
 #ifndef IS_CALIBRATING_GAS_SENSOR
-#define IS_CALIBRATING_GAS_SENSOR 1 // 1 = kalibrasi ulang, 0 = pakai EEPROM
+#define IS_CALIBRATING_GAS_SENSOR 0 // 1 hanya untuk prosedur kalibrasi terawasi
 #endif
 
 // ─── Task Scheduler Intervals
 // ─────────────────────────────────────────────────
 #define TASK_INTERVAL_MS_ADS 1000   // 1 sampel/detik
 #define TASK_INTERVAL_MS_SERIAL 100 // polling Serial 10×/detik
+#define NEXTION_BAUD 9600UL         // harus sama dengan baud project HMI aktif
 
 // ─── State Machine
 // ────────────────────────────────────────────────────────────
-enum class AcqState { IDLE, COLLECTING, PURGING, COMPLETE };
+enum class AcqState { IDLE, COLLECTING, PURGING, PAUSED, COMPLETE };
+enum class AcquisitionMode { NONE, LABELED_DATA, AI_TEST };
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  Global Objects
@@ -52,11 +57,15 @@ SensorArray sensors;
 Actuator actuator;
 Inference inference;
 Scheduler scheduler;
+NextionTransport nextion(Serial2);
 
 // ─── State Akuisisi
 // ───────────────────────────────────────────────────────────
 AcqState acqState = AcqState::IDLE;
+AcqState acqStateBeforePause = AcqState::IDLE;
+AcquisitionMode acqMode = AcquisitionMode::NONE;
 unsigned long acqPhaseStartMs = 0;
+unsigned long acqPausedElapsedMs = 0;
 uint32_t acqCycle = 0;        // siklus aktif (1-based)
 uint32_t acqSampleIdx = 0;    // indeks sampel dalam fase ini
 uint32_t acqTotalSamples = 0; // total sampel keseluruhan
@@ -71,7 +80,7 @@ int cmdBufIdx = 0;
 void adsCallback();
 void serialCallback();
 void processCommand(const char *cmd);
-void startAcquisition();
+void startAcquisition(AcquisitionMode mode = AcquisitionMode::LABELED_DATA);
 void stopAcquisition();
 void processAcquisitionState();
 void setActuators();
@@ -80,6 +89,26 @@ void printAcquisitionSummary();
 void doInference();
 void printWelcome();
 void scanI2C();
+void handleNextionEvent(const char *event);
+void showNextionPage(const char *pageName);
+void updateNextionTakePage();
+void updateNextionTestPage();
+void updateNextionHistoryPage();
+void updateNextionSettingsPage();
+void updateNextionTestRunPage();
+void updateNextionTestRunStatus();
+void updateNextionCalibrationPage();
+void updateNextionRunStatus();
+void updateNextionSensorSnapshot();
+void updateNextionInferenceResult();
+void buildTakeFilename(char *buffer, size_t size, bool withExtension = true);
+void pauseAcquisition();
+void resumeAcquisition();
+void sendNextionAlert(const char *title, const char *message,
+                      const char *action);
+void addUiHistory(const char *entry);
+void exportUiHistory();
+void resetUiSettings();
 
 // ─── TaskScheduler Tasks
 // ──────────────────────────────────────────────────────
@@ -89,6 +118,34 @@ Task taskSerial(TASK_INTERVAL_MS_SERIAL, TASK_FOREVER, &serialCallback);
 // ─── Status sensor
 // ────────────────────────────────────────────────────────────
 bool sensorsReady = false;
+bool calibrationReady = false;
+bool nextionHomeSent = false;
+uint32_t nextionBootMs = 0;
+char nextionPageName[16] = "pSplash";
+uint8_t roastSelection = 0;
+uint8_t originSelection = 0;
+uint16_t batchNumber = 10;
+uint8_t nextionSensorIndex = 0;
+uint16_t testSequence = 1;
+
+static constexpr uint16_t NEXTION_STATUS_GREEN = 13867; // RGB565(52,199,94)
+static constexpr uint16_t NEXTION_STATUS_RED = 63943;   // RGB565(255,56,60)
+static constexpr uint8_t UI_HISTORY_CAPACITY = 4;
+static constexpr uint8_t UI_HISTORY_TEXT_CAPACITY = 54;
+char uiHistory[UI_HISTORY_CAPACITY][UI_HISTORY_TEXT_CAPACITY] = {};
+uint8_t uiHistoryCount = 0;
+
+static const char *const ROAST_OPTIONS[] = {"LIGHT", "MEDIUM", "DARK"};
+static const char *const ORIGIN_OPTIONS[] = {"MING", "MAN", "RAT", "GAY",
+                                             "MER",  "TEM", "CAT", "GAW",
+                                             "TIM",  "BAR", "MUK", "CAW"};
+static constexpr uint8_t ROAST_OPTION_COUNT =
+    sizeof(ROAST_OPTIONS) / sizeof(ROAST_OPTIONS[0]);
+static constexpr uint8_t ORIGIN_OPTION_COUNT =
+    sizeof(ORIGIN_OPTIONS) / sizeof(ORIGIN_OPTIONS[0]);
+static const char *const SENSOR_UI_NAMES[NUM_SENSORS] = {
+    "TGS822",  "MQ135",   "MQ3", "TGS2611", "TGS2620",
+    "TGS2600", "TGS2602", "MQ8", "TGS813",  "TGS816"};
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  scanI2C() — Scan semua alamat I2C, cetak device yang ditemukan
@@ -127,6 +184,15 @@ void scanI2C() {
 // ═══════════════════════════════════════════════════════════════════════════════
 void setup() {
   Serial.begin(115200);
+  nextion.begin(NEXTION_BAUD);
+  // We use our own ASCII EVT:* protocol. Suppress command ACK/error packets so
+  // binary Nextion return frames never share the event stream.
+  nextion.command("bkcmd=0");
+  nextionBootMs = millis();
+
+  Serial.println(F("{\"nextion\":{\"port\":\"Serial2\",\"baud\":9600,\"mcu_"
+                   "rx\":\"PH0/RXD2 pin 8\",\"mcu_tx\":\"PH1/TXD2 pin "
+                   "9\",\"mega_header_rx\":17,\"mega_header_tx\":16}}"));
 
   actuator.begin();
 
@@ -137,16 +203,20 @@ void setup() {
   sensorsReady = sensors.begin();
   if (!sensorsReady) {
     Serial.println(F("{\"warn\":\"Sensor init gagal. Periksa wiring "
-                     "(SDA=pin35, SCL=pin34).\"}"));
+                     "(SDA=pin20, SCL=pin21).\"}"));
     Serial.println(F("{\"warn\":\"Kirim #scan; untuk scan ulang I2C bus.\"}"));
   }
 
 #if IS_CALIBRATING_GAS_SENSOR
-  if (sensorsReady) {
+  if (sensorsReady && sensors.allAdcAvailable()) {
     sensors.calibrate();
+    calibrationReady = sensors.loadCalibration();
   }
 #else
-  if (sensorsReady && !sensors.loadCalibration()) {
+  if (sensorsReady) {
+    calibrationReady = sensors.loadCalibration();
+  }
+  if (sensorsReady && !calibrationReady) {
     Serial.println(F("{\"warn\":\"Kalibrasi belum ada. Set "
                      "IS_CALIBRATING_GAS_SENSOR=1.\"}"));
   }
@@ -192,7 +262,8 @@ void printWelcome() {
 //  ACQUISITION STATE MACHINE
 // ═══════════════════════════════════════════════════════════════════════════════
 
-void startAcquisition() {
+void startAcquisition(AcquisitionMode mode) {
+  acqMode = mode;
   acqCycle = 1;
   acqSampleIdx = 0;
   acqTotalSamples = 0;
@@ -203,7 +274,10 @@ void startAcquisition() {
   setActuators();
 
   // Event: ACQ_START
-  Serial.print(F("{\"event\":\"ACQ_START\",\"phase\":\"purging\",\"cycle\":1"));
+  Serial.print(F("{\"event\":\"ACQ_START\",\"mode\":\""));
+  Serial.print(mode == AcquisitionMode::AI_TEST ? F("ai_test")
+                                                : F("labeled_data"));
+  Serial.print(F("\",\"phase\":\"purging\",\"cycle\":1"));
   Serial.print(F(",\"cycles_total\":"));
   Serial.print(ACQ_REPETITIONS);
   Serial.print(F(",\"collect_s\":"));
@@ -220,12 +294,42 @@ void stopAcquisition() {
   acqState = AcqState::IDLE;
   acqCycle = 0;
   acqSampleIdx = 0;
+  acqStateBeforePause = AcqState::IDLE;
+  acqPausedElapsedMs = 0;
+  acqMode = AcquisitionMode::NONE;
   setActuators();
   Serial.println(F("{\"event\":\"ACQ_STOP\",\"phase\":\"idle\"}"));
 }
 
+void pauseAcquisition() {
+  if (acqState != AcqState::COLLECTING && acqState != AcqState::PURGING) {
+    return;
+  }
+  acqStateBeforePause = acqState;
+  acqPausedElapsedMs = millis() - acqPhaseStartMs;
+  acqState = AcqState::PAUSED;
+  setActuators();
+  Serial.println(F("{\"event\":\"ACQ_PAUSE\",\"phase\":\"paused\"}"));
+}
+
+void resumeAcquisition() {
+  if (acqState != AcqState::PAUSED ||
+      (acqStateBeforePause != AcqState::PURGING &&
+       acqStateBeforePause != AcqState::COLLECTING)) {
+    return;
+  }
+  acqState = acqStateBeforePause;
+  acqPhaseStartMs = millis() - acqPausedElapsedMs;
+  acqPausedElapsedMs = 0;
+  setActuators();
+  Serial.print(F("{\"event\":\"ACQ_RESUME\",\"phase\":\""));
+  Serial.print(acqStateName());
+  Serial.println(F("\"}"));
+}
+
 void processAcquisitionState() {
-  if (acqState == AcqState::IDLE || acqState == AcqState::COMPLETE)
+  if (acqState == AcqState::IDLE || acqState == AcqState::PAUSED ||
+      acqState == AcqState::COMPLETE)
     return;
 
   unsigned long elapsedMs = millis() - acqPhaseStartMs;
@@ -261,12 +365,44 @@ void processAcquisitionState() {
         Serial.print(F(",\"phase\":\"purging\"}"));
         Serial.println();
       } else {
-        // Semua 10 siklus (Purging + Collecting) selesai -> COMPLETE
+        // Semua siklus (Purging + Collecting) selesai -> COMPLETE.
         acqState = AcqState::COMPLETE;
         setActuators();
         printAcquisitionSummary();
-        doInference();
+        if (acqMode == AcquisitionMode::AI_TEST) {
+          if (strcmp(nextionPageName, "pTestRun") == 0) {
+            nextion.progress("jAI", 100);
+            nextion.text("tStep1", "DONE");
+            nextion.text("tStep2", "DONE");
+            nextion.text("tStep3", "DONE");
+            nextion.text("tStep4", "RUNNING");
+            nextion.text("tEta", "EST. REMAINING 00:00");
+          }
+          doInference();
+          showNextionPage("pResult");
+          updateNextionInferenceResult();
+          char history[UI_HISTORY_TEXT_CAPACITY] = {};
+          snprintf(history, sizeof(history), "T-%04u  %s  LOCAL", testSequence,
+                   inference.predictLabel());
+          addUiHistory(history);
+          ++testSequence;
+        } else {
+          showNextionPage("pDataDone");
+          char filename[40] = {};
+          char completed[32] = {};
+          char history[UI_HISTORY_TEXT_CAPACITY] = {};
+          buildTakeFilename(filename, sizeof(filename), true);
+          snprintf(completed, sizeof(completed), "%u/%u CYCLES COMPLETE",
+                   ACQ_REPETITIONS, ACQ_REPETITIONS);
+          nextion.text("tFile", filename);
+          nextion.text("tDone", completed);
+          snprintf(history, sizeof(history), "%s  %u CYCLES", filename,
+                   ACQ_REPETITIONS);
+          addUiHistory(history);
+        }
         acqState = AcqState::IDLE;
+        acqStateBeforePause = AcqState::IDLE;
+        acqMode = AcquisitionMode::NONE;
       }
     }
   }
@@ -280,6 +416,7 @@ void setActuators() {
   case AcqState::PURGING:
     actuator.setPurging();
     break;
+  case AcqState::PAUSED:
   default: // IDLE / COMPLETE
     actuator.stop();
     break;
@@ -294,6 +431,8 @@ const char *acqStateName() {
     return "purging";
   case AcqState::COMPLETE:
     return "complete";
+  case AcqState::PAUSED:
+    return "paused";
   default:
     return "idle";
   }
@@ -311,11 +450,480 @@ void printAcquisitionSummary() {
 
 void doInference() { inference.printResult(); }
 
+void showNextionPage(const char *pageName) {
+  if (pageName == nullptr) {
+    return;
+  }
+  nextion.page(pageName);
+  delay(200); // beri Nextion waktu load halaman sebelum update komponen (9600
+              // baud)
+  if (strcmp(pageName, "pSplash") != 0) {
+    nextionHomeSent = true;
+  }
+  strncpy(nextionPageName, pageName, sizeof(nextionPageName) - 1);
+  nextionPageName[sizeof(nextionPageName) - 1] = '\0';
+  if (strcmp(pageName, "pDataRun") == 0) {
+    nextionSensorIndex = 0;
+  } else if (strcmp(pageName, "pTake") == 0) {
+    updateNextionTakePage();
+  } else if (strcmp(pageName, "pTest") == 0) {
+    updateNextionTestPage();
+  } else if (strcmp(pageName, "pHistory") == 0) {
+    updateNextionHistoryPage();
+  } else if (strcmp(pageName, "pSettings") == 0) {
+    updateNextionSettingsPage();
+  } else if (strcmp(pageName, "pTestRun") == 0) {
+    updateNextionTestRunPage();
+  } else if (strcmp(pageName, "pCal") == 0) {
+    updateNextionCalibrationPage();
+  } else if (strcmp(pageName, "pResult") == 0) {
+    updateNextionInferenceResult();
+  }
+}
+
+void updateNextionTakePage() {
+  char batch[12] = {};
+  char cycles[12] = {};
+  char filename[40] = {};
+  snprintf(batch, sizeof(batch), "B%02u", batchNumber);
+  snprintf(cycles, sizeof(cycles), "%u", ACQ_REPETITIONS);
+  buildTakeFilename(filename, sizeof(filename), true);
+  nextion.text("tRoast", ROAST_OPTIONS[roastSelection]);
+  nextion.text("tOrigin", ORIGIN_OPTIONS[originSelection]);
+  nextion.text("tBatch", batch);
+  nextion.text("tCycles", cycles);
+  nextion.text("tFile", filename);
+
+  const bool ready = ROAST_OPTIONS[roastSelection][0] != '\0' &&
+                     ORIGIN_OPTIONS[originSelection][0] != '\0' &&
+                     batchNumber > 0 && ACQ_REPETITIONS > 0 &&
+                     filename[0] != '\0';
+
+  nextion.text("tStat",
+               ready ? "Siap untuk pengambilan data" : "Data belum lengkap");
+  nextion.textColor("tStat", ready ? NEXTION_STATUS_GREEN : NEXTION_STATUS_RED);
+  nextion.touch("mStart", ready);
+}
+
+void buildTakeFilename(char *buffer, size_t size, bool withExtension) {
+  if (buffer == nullptr || size == 0) {
+    return;
+  }
+  const char roastCode =
+      roastSelection == 0 ? 'L' : (roastSelection == 1 ? 'M' : 'D');
+  snprintf(buffer, size, withExtension ? "%c-%s_B%02u.csv" : "%c-%s_B%02u",
+           roastCode, ORIGIN_OPTIONS[originSelection], batchNumber);
+}
+
+void updateNextionTestPage() {
+  const bool arrayReady = sensorsReady && sensors.allAdcAvailable();
+  char testId[24] = {};
+  snprintf(testId, sizeof(testId), "AUTO - T%04u", testSequence);
+  nextion.text("tTestId", testId);
+  nextion.text("tMode", "LOCAL INFERENCE");
+  nextion.text("tAtmega", arrayReady ? "READY" : "ERROR");
+  nextion.text("tPi", "LOCAL READY");
+  nextion.text("tSensors", arrayReady ? "10/10 SENSOR" : "ADC ERROR");
+}
+
+void updateNextionHistoryPage() {
+  static const char *const fields[UI_HISTORY_CAPACITY] = {"tH0", "tH1", "tH2",
+                                                          "tH3"};
+  for (uint8_t i = 0; i < UI_HISTORY_CAPACITY; ++i) {
+    nextion.text(fields[i], i < uiHistoryCount ? uiHistory[i] : "-");
+  }
+}
+
+void updateNextionSettingsPage() {
+  char duration[24] = {};
+  snprintf(duration, sizeof(duration), "%us / %us", ACQ_PURGE_SECONDS,
+           ACQ_COLLECTION_SECONDS);
+  nextion.text("tWifi", "N/A");
+  nextion.text("tDuration", duration);
+  nextion.text("tBright", "80 %");
+  nextion.text("tLang", "EN / ID");
+  nextion.text("tDevId", "ATMEGA2560");
+  nextion.text("tFw", "v1.10");
+}
+
+void updateNextionTestRunPage() {
+  char testId[24] = {};
+  snprintf(testId, sizeof(testId), "TEST T-%04u", testSequence);
+  nextion.text("tTestId", testId);
+  nextion.text("tPi", "LOCAL");
+  nextion.progress("jAI", 0);
+  nextion.text("tStep1", "RUNNING");
+  nextion.text("tStep2", "WAIT");
+  nextion.text("tStep3", "WAIT");
+  nextion.text("tStep4", "LOCAL");
+  nextion.text("tEta", "EST. REMAINING --:--");
+}
+
+void updateNextionTestRunStatus() {
+  if (strcmp(nextionPageName, "pTestRun") != 0 ||
+      acqMode != AcquisitionMode::AI_TEST) {
+    return;
+  }
+
+  const uint32_t phaseElapsedMs = acqState == AcqState::PAUSED
+                                      ? acqPausedElapsedMs
+                                      : millis() - acqPhaseStartMs;
+  const uint32_t phaseElapsed = phaseElapsedMs / 1000UL;
+  const uint32_t cycleSeconds = ACQ_PURGE_SECONDS + ACQ_COLLECTION_SECONDS;
+  const uint32_t completedCycles = acqCycle > 0 ? acqCycle - 1 : 0;
+  uint32_t currentCycleElapsed = 0;
+
+  AcqState effectiveState =
+      acqState == AcqState::PAUSED ? acqStateBeforePause : acqState;
+  if (effectiveState == AcqState::PURGING) {
+    currentCycleElapsed =
+        phaseElapsed < ACQ_PURGE_SECONDS ? phaseElapsed : ACQ_PURGE_SECONDS;
+  } else if (effectiveState == AcqState::COLLECTING) {
+    const uint32_t collectElapsed = phaseElapsed < ACQ_COLLECTION_SECONDS
+                                        ? phaseElapsed
+                                        : ACQ_COLLECTION_SECONDS;
+    currentCycleElapsed = ACQ_PURGE_SECONDS + collectElapsed;
+  }
+
+  const uint32_t totalSeconds = cycleSeconds * ACQ_REPETITIONS;
+  uint32_t doneSeconds = completedCycles * cycleSeconds + currentCycleElapsed;
+  if (doneSeconds > totalSeconds) {
+    doneSeconds = totalSeconds;
+  }
+  const uint32_t remaining = totalSeconds - doneSeconds;
+  const uint8_t percent =
+      totalSeconds == 0
+          ? 0
+          : static_cast<uint8_t>((doneSeconds * 100UL) / totalSeconds);
+
+  nextion.progress("jAI", percent);
+  if (acqState == AcqState::PAUSED) {
+    nextion.text("tStep1", "PAUSED");
+    nextion.text("tStep2", "PAUSED");
+  } else if (effectiveState == AcqState::PURGING) {
+    nextion.text("tStep1", "RUNNING");
+    nextion.text("tStep2", "WAIT");
+  } else if (effectiveState == AcqState::COLLECTING) {
+    nextion.text("tStep1", "DONE");
+    nextion.text("tStep2", "RUNNING");
+  }
+  nextion.text("tStep3", "WAIT");
+  nextion.text("tStep4", "LOCAL");
+
+  char eta[28] = {};
+  snprintf(eta, sizeof(eta), "EST. REMAINING %02lu:%02lu",
+           static_cast<unsigned long>(remaining / 60UL),
+           static_cast<unsigned long>(remaining % 60UL));
+  nextion.text("tEta", eta);
+}
+
+void updateNextionCalibrationPage() {
+  const bool arrayReady = sensorsReady && sensors.allAdcAvailable();
+  nextion.text("tSensors", arrayReady ? "10/10 OK" : "ADC ERROR");
+  nextion.text("tPump", "STOPPED");
+  nextion.text("tChamber", arrayReady ? "READY" : "CHECK ADC");
+  nextion.text("tBase", calibrationReady ? "Stable" : "NOT SET");
+}
+
+void addUiHistory(const char *entry) {
+  if (entry == nullptr || entry[0] == '\0') {
+    return;
+  }
+  for (int8_t i = UI_HISTORY_CAPACITY - 1; i > 0; --i) {
+    strncpy(uiHistory[i], uiHistory[i - 1], UI_HISTORY_TEXT_CAPACITY - 1);
+    uiHistory[i][UI_HISTORY_TEXT_CAPACITY - 1] = '\0';
+  }
+  strncpy(uiHistory[0], entry, UI_HISTORY_TEXT_CAPACITY - 1);
+  uiHistory[0][UI_HISTORY_TEXT_CAPACITY - 1] = '\0';
+  if (uiHistoryCount < UI_HISTORY_CAPACITY) {
+    ++uiHistoryCount;
+  }
+}
+
+void exportUiHistory() {
+  Serial.println(F("{\"event\":\"HISTORY_EXPORT_BEGIN\"}"));
+  for (uint8_t i = 0; i < uiHistoryCount; ++i) {
+    Serial.print(F("{\"history_index\":"));
+    Serial.print(i);
+    Serial.print(F(",\"value\":\""));
+    Serial.print(uiHistory[i]);
+    Serial.println(F("\"}"));
+  }
+  Serial.println(F("{\"event\":\"HISTORY_EXPORT_END\"}"));
+}
+
+void resetUiSettings() {
+  roastSelection = 0;
+  originSelection = 0;
+  batchNumber = 10;
+  nextion.command("dim=80");
+}
+
+void sendNextionAlert(const char *title, const char *message,
+                      const char *action) {
+  showNextionPage("pAlert");
+  nextion.text("tAlert", title);
+  nextion.text("tMsg", message);
+  nextion.text("tAction", action);
+}
+
+void updateNextionRunStatus() {
+  if (strcmp(nextionPageName, "pDataRun") != 0) {
+    return;
+  }
+
+  char text[32] = {};
+  const uint32_t cycle = acqCycle == 0 ? 1 : acqCycle;
+  const AcqState effectiveState =
+      acqState == AcqState::PAUSED ? acqStateBeforePause : acqState;
+  const uint32_t totalSeconds = effectiveState == AcqState::PURGING
+                                    ? ACQ_PURGE_SECONDS
+                                    : ACQ_COLLECTION_SECONDS;
+  const uint32_t elapsedSeconds =
+      (acqState == AcqState::PAUSED ? acqPausedElapsedMs
+                                    : millis() - acqPhaseStartMs) /
+      1000UL;
+  const uint32_t remaining =
+      elapsedSeconds < totalSeconds ? totalSeconds - elapsedSeconds : 0;
+  const uint32_t cycleSeconds = ACQ_PURGE_SECONDS + ACQ_COLLECTION_SECONDS;
+  const uint32_t completedCycles = cycle > 0 ? cycle - 1 : 0;
+  uint32_t currentCycleSeconds = 0;
+  if (effectiveState == AcqState::PURGING) {
+    currentCycleSeconds =
+        elapsedSeconds < ACQ_PURGE_SECONDS ? elapsedSeconds : ACQ_PURGE_SECONDS;
+  } else if (effectiveState == AcqState::COLLECTING) {
+    const uint32_t collectSeconds = elapsedSeconds < ACQ_COLLECTION_SECONDS
+                                        ? elapsedSeconds
+                                        : ACQ_COLLECTION_SECONDS;
+    currentCycleSeconds = ACQ_PURGE_SECONDS + collectSeconds;
+  }
+  const uint32_t totalRunSeconds = cycleSeconds * ACQ_REPETITIONS;
+  const uint32_t completedRunSeconds =
+      completedCycles * cycleSeconds + currentCycleSeconds;
+  const uint8_t cyclePercent =
+      totalRunSeconds == 0
+          ? 0
+          : static_cast<uint8_t>((completedRunSeconds * 100UL) /
+                                 totalRunSeconds);
+
+  buildTakeFilename(text, sizeof(text), false);
+  nextion.text("tSample", text);
+  snprintf(text, sizeof(text), "CYCLE %lu / %u", (unsigned long)cycle,
+           ACQ_REPETITIONS);
+  nextion.text("tCycle", text);
+  nextion.progress("jCycle", cyclePercent > 100 ? 100 : cyclePercent);
+  nextion.text("tPhase", acqStateName());
+  snprintf(text, sizeof(text), "%02lu:%02lu", (unsigned long)(remaining / 60),
+           (unsigned long)(remaining % 60));
+  nextion.text("tRemain", text);
+  if (sensors.environmentValid()) {
+    snprintf(text, sizeof(text), "%.1f C",
+             static_cast<double>(sensors.getTemperatureC()));
+    nextion.text("tTemp", text);
+    snprintf(text, sizeof(text), "%.1f %%RH",
+             static_cast<double>(sensors.getHumidityRh()));
+    nextion.text("tHum", text);
+  } else {
+    nextion.text("tTemp", "N/A");
+    nextion.text("tHum", "N/A");
+  }
+  updateNextionSensorSnapshot();
+}
+
+void updateNextionSensorSnapshot() {
+  if (strcmp(nextionPageName, "pDataRun") != 0) {
+    return;
+  }
+  if (!sensorsReady) {
+    nextion.text("pDataRun.tSensors", "ADC ERROR");
+    return;
+  }
+
+  const uint8_t index = nextionSensorIndex;
+  char text[24] = {};
+  if (sensors.adcAvailable(index)) {
+    snprintf(text, sizeof(text), "%s:%u", SENSOR_UI_NAMES[index],
+             sensors.getAdc(index));
+  } else {
+    snprintf(text, sizeof(text), "%s:N/A", SENSOR_UI_NAMES[index]);
+  }
+  nextion.text("tSensors", text);
+  nextionSensorIndex = (index + 1) % NUM_SENSORS;
+}
+
+void updateNextionInferenceResult() {
+  const char *label = inference.predictLabel();
+  const bool resultReady = label != nullptr && strcmp(label, "N/A") != 0;
+  const char *displayLabel = label;
+  if (resultReady) {
+    if (strcmp(label, "light") == 0) {
+      displayLabel = "LIGHT";
+    } else if (strcmp(label, "medium") == 0) {
+      displayLabel = "MEDIUM";
+    } else if (strcmp(label, "dark") == 0) {
+      displayLabel = "DARK";
+    }
+  }
+
+  nextion.text("tRoast", resultReady ? displayLabel : "N/A");
+  nextion.text("tRConf", "N/A");
+  nextion.text("tOrigin", "N/A");
+  nextion.text("tOConf", "N/A");
+  nextion.progress("jLight", 0);
+  nextion.progress("jMedium", 0);
+  nextion.progress("jDark", 0);
+}
+
+void handleNextionEvent(const char *event) {
+  if (event == nullptr || strncmp(event, "EVT:", 4) != 0) {
+    return;
+  }
+
+  Serial.print(F("{\"nextion_event\":\""));
+  Serial.print(event);
+  Serial.println(F("\"}"));
+
+  if (strcmp(event, "EVT:HOME") == 0) {
+    if (acqState != AcqState::IDLE) {
+      stopAcquisition();
+    }
+    showNextionPage("pHome");
+  } else if (strcmp(event, "EVT:TAKE_OPEN") == 0) {
+    showNextionPage("pTake");
+  } else if (strcmp(event, "EVT:TEST_START") == 0) {
+    showNextionPage("pTest");
+  } else if (strcmp(event, "EVT:HISTORY") == 0) {
+    showNextionPage("pHistory");
+  } else if (strcmp(event, "EVT:SETTINGS") == 0) {
+    showNextionPage("pSettings");
+  } else if (strcmp(event, "EVT:ROAST_NEXT") == 0) {
+    roastSelection = (roastSelection + 1) % ROAST_OPTION_COUNT;
+    updateNextionTakePage();
+  } else if (strcmp(event, "EVT:ROAST_PREV") == 0) {
+    roastSelection =
+        roastSelection == 0 ? ROAST_OPTION_COUNT - 1 : roastSelection - 1;
+    updateNextionTakePage();
+  } else if (strcmp(event, "EVT:ORIGIN_NEXT") == 0) {
+    originSelection = (originSelection + 1) % ORIGIN_OPTION_COUNT;
+    updateNextionTakePage();
+  } else if (strcmp(event, "EVT:ORIGIN_PREV") == 0) {
+    originSelection =
+        originSelection == 0 ? ORIGIN_OPTION_COUNT - 1 : originSelection - 1;
+    updateNextionTakePage();
+  } else if (strcmp(event, "EVT:BATCH_INC") == 0) {
+    if (batchNumber < 9999) {
+      ++batchNumber;
+    }
+    updateNextionTakePage();
+  } else if (strcmp(event, "EVT:BATCH_DEC") == 0) {
+    if (batchNumber > 1) {
+      --batchNumber;
+    }
+    updateNextionTakePage();
+  } else if (strcmp(event, "EVT:DATA_START") == 0) {
+    if (acqState == AcqState::PAUSED) {
+      resumeAcquisition();
+    } else if (acqState == AcqState::IDLE && sensorsReady &&
+               sensors.allAdcAvailable()) {
+      startAcquisition();
+      showNextionPage("pDataRun");
+    } else if (!sensorsReady || !sensors.allAdcAvailable()) {
+      sendNextionAlert("Sensor error", "ADC belum siap",
+                       "Periksa I2C lalu retry");
+    } else {
+      sendNextionAlert("Acquisition aktif", "Run sedang berjalan",
+                       "Gunakan pause/cancel");
+    }
+  } else if (strcmp(event, "EVT:DATA_PAUSE") == 0) {
+    if (acqState == AcqState::PAUSED) {
+      resumeAcquisition();
+    } else {
+      pauseAcquisition();
+    }
+    updateNextionRunStatus();
+  } else if (strcmp(event, "EVT:DATA_CANCEL") == 0) {
+    stopAcquisition();
+    showNextionPage("pHome");
+  } else if (strcmp(event, "EVT:NEW_BATCH") == 0) {
+    if (batchNumber < 9999) {
+      ++batchNumber;
+    }
+    showNextionPage("pTake");
+  } else if (strcmp(event, "EVT:CAL_START") == 0) {
+    if (strcmp(nextionPageName, "pCal") != 0) {
+      showNextionPage("pCal");
+    } else if (!sensorsReady || !sensors.allAdcAvailable()) {
+      sendNextionAlert("Calibration error", "ADC belum siap",
+                       "Periksa I2C lalu retry");
+    } else if (acqState != AcqState::IDLE) {
+      sendNextionAlert("Calibration busy", "Akuisisi sedang berjalan",
+                       "Cancel run lebih dulu");
+    } else {
+      actuator.stop();
+      nextion.text("tBase", "RUNNING");
+      sensors.calibrate();
+      calibrationReady = sensors.loadCalibration();
+      updateNextionCalibrationPage();
+      Serial.print(F("{\"event\":\"CALIBRATION_COMPLETE\",\"ok\":"));
+      Serial.print(calibrationReady ? F("true") : F("false"));
+      Serial.println(F("}"));
+    }
+  } else if (strcmp(event, "EVT:AI_START") == 0) {
+    if (!sensorsReady || !sensors.allAdcAvailable()) {
+      sendNextionAlert("Sensor error", "ADC belum siap",
+                       "Periksa I2C lalu retry");
+    } else if (acqState != AcqState::IDLE) {
+      sendNextionAlert("Acquisition aktif", "Run sedang berjalan",
+                       "Cancel run lebih dulu");
+    } else {
+      startAcquisition(AcquisitionMode::AI_TEST);
+      showNextionPage("pTestRun");
+      updateNextionTestRunStatus();
+    }
+  } else if (strcmp(event, "EVT:AI_CANCEL") == 0) {
+    if (acqState != AcqState::IDLE) {
+      stopAcquisition();
+    }
+    showNextionPage("pHome");
+  } else if (strcmp(event, "EVT:RESULT_SAVE") == 0) {
+    Serial.print(F("{\"event\":\"RESULT_EXPORT\",\"roast\":\""));
+    Serial.print(inference.predictLabel());
+    Serial.println(F("\",\"origin\":null,\"confidence\":null}"));
+    sendNextionAlert("Result exported", "Hasil dikirim ke Serial USB",
+                     "History RAM tetap tersimpan");
+  } else if (strcmp(event, "EVT:HISTORY_CLEAR") == 0 ||
+             strcmp(event, "EVT:HISTORY_EXPORT") == 0) {
+    exportUiHistory();
+    updateNextionHistoryPage();
+  } else if (strcmp(event, "EVT:RESET") == 0) {
+    resetUiSettings();
+    updateNextionSettingsPage();
+    Serial.println(F("{\"event\":\"UI_SETTINGS_RESET\"}"));
+  } else if (strcmp(event, "EVT:RETRY") == 0) {
+    showNextionPage("pHome");
+  } else if (strcmp(event, "EVT:EXIT") == 0) {
+    stopAcquisition();
+    sendNextionAlert("System active", "Power off dilakukan manual",
+                     "Hardware tetap aman");
+  } else {
+    Serial.print(F("{\"warn\":\"Unknown Nextion event\",\"event\":\""));
+    Serial.print(event);
+    Serial.println(F("\"}"));
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 //  SERIAL COMMAND PARSING
 // ═══════════════════════════════════════════════════════════════════════════════
 
 void serialCallback() {
+  nextion.poll(handleNextionEvent);
+
+  if (!nextionHomeSent && millis() - nextionBootMs >= 3000UL) {
+    showNextionPage("pHome");
+    nextionHomeSent = true;
+  }
+
   while (Serial.available()) {
     char c = (char)Serial.read();
 
@@ -507,4 +1115,8 @@ void adsCallback() {
 
   // 3. Kirim JSON sensor data
   sensors.printJsonData(acqStateName(), acqCycle, acqSampleIdx);
+
+  // 4. Refresh the HMI from the latest bounded snapshot.
+  updateNextionRunStatus();
+  updateNextionTestRunStatus();
 }
