@@ -1,5 +1,17 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## Gerbang G0 FT232 → ATmega — 12 Oktober 2026
+
+Operator menegaskan jalur USB Pi → FT232 USB-to-TTL;
+`/dev/ttyUSB0` terdeteksi tetapi USART ATmega
+dan logika sambungan langsung **belum diketahui**.
+Tidak ada skematik atau foto wiring yang cukup
+dalam repo untuk memvalidasi VCCIO, TX/RX, GND,
+dan risiko daya balik. **G0 BLOCKED,
+G2/G3 NOT AUTHORIZED; tidak membuka ttyUSB0**.
+Checklist lanjutan pada
+`docs/STAGE7_UART_ATMEGA_PI5_SOP.md`.
+
 ## Temuan UART Pi terbaru — 12 Oktober 2026
 
 Pi 5 `enose-pi5` diakses dengan SSH

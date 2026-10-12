@@ -119,6 +119,73 @@ tegangan TTL; G2/G3 **TIDAK DIJALANKAN**.
 Konfirmasi bahwa kabel sudah terpasang tidak sama
 dengan validasi pin maupun izin G2.
 
+### Addendum G0 — konfirmasi operator 12 Oktober 2026
+
+Operator kini telah memastikan **jalur A: USB Pi → FT232R
+USB-to-TTL**. Port FT232R di Pi sudah terenumerasi
+(`ttyUSB0`, by-id), tetapi **port UART tujuan di
+ATmega belum diketahui dan level tegangan sambungan
+langsung belum diverifikasi**.
+
+Dengan demikian: **jalur A terpilih, G0 BLOCKED, G1
+fisik sudah terpasang menurut operator tetapi aspek
+keamanannya belum tervalidasi, G2/G3 NOT AUTHORIZED**.
+Keberadaan FT232R di bus USB **tidak mengungkap tegangan
+VCCIO pada pin TX/RX modul FT232R**. Label `3V3/5V`
+pada header atau jumper tertentu dapat merujuk pada
+tegangan suplai, bukan selalu level logika data; identifikasi
+modul/skematik yang tepat sebelum mengasumsikannya.
+
+**Checklist wajib diselesaikan operator hardware sebelum
+meminta izin G2:**
+
+1. Foto jelas **kedua sisi FT232R** (tulisan pin
+   `TXD/RXD/GND/VCC/3V3/5V`, jumper/solder bridge)
+   dan koneksi FT232R ke header/PCB ATmega. Jangan
+   memindah kabel selagi daya aktif.
+2. Verifikasi dengan skematik/continuity **dalam keadaan
+   semua sumber daya dimatikan secara aman**: FT232R
+   RXD menerima TX dari USART ATmega yang mana
+   (`TX0 D1` / `TX1 D18` / USART lain); FT232R
+   TXD menuju RX yang sesuai, atau justru tidak
+   digunakan; dan sambungan GND bersama.
+3. Konfirmasi **tegangan logika MCU dan FT232R VCCIO**,
+   sumber daya FT232R/ATmega, serta apakah VCC/VBUS
+   FT232R terhubung ke rail 5 V board atau
+   dapat memberi daya balik. Jika pengukuran
+   tegangan perlu dilakukan saat aktif, hanya
+   teknisi yang berwenang dengan alat ukur/probe
+   aman; jangan mencoba-coba pada pin hidup.
+4. Periksa tidak ada konflik dengan USB-serial
+   on-board lain dan jalur Nextion USART2.
+   Firmware repo hanya menerbitkan data di
+   `Serial` / USART0 115200; USART1 belum
+   dipakai untuk output. Jika terkoneksi ke
+   USART1, masalahnya bukan baud semata.
+5. Operator hardware catat `G0 PASS` **hanya**
+   setelah pinout, level TTL, ground dan
+   suplai/backfeed semuanya terverifikasi.
+   Jika satu butir belum jelas, catat `BLOCKED`.
+
+**Saat ini: STOP di G0.** Pemeriksaan
+`udevadm`, `lsusb`, `fuser`, atau pemeriksaan
+port lainnya bersifat read-only dan tidak
+menggantikan bukti fisik. **Jangan menjalankan
+`stage7_pi_adapter.py serial-readonly`, membuka
+`/dev/ttyUSB0`, mengaktifkan Nextion,
+atau flash firmware dulu.**
+
+| Evidence G0 yang perlu dilampirkan | Status |
+|---|---|
+| Foto sisi depan/belakang FT232R + label pin | BELUM |
+| Foto sambungan FT232R ke PCB ATmega | BELUM |
+| Identitas UART ATmega (USART0/1/2/3) | BELUM |
+| Tabel TX→RX dan ground terverifikasi | BELUM |
+| FT232R VCCIO / level UART dan MCU VCC | BELUM |
+| Risiko VBUS/backfeed terhadap PSU sensor/aktuator | BELUM |
+| Kesesuaian pin dengan output `Serial` firmware | BELUM |
+| Persetujuan operator hardware untuk G2 | BELUM |
+
 ## 5. Kandidat tes pasif setelah izin G2 (JANGAN JALANKAN SEKARANG)
 
 Untuk **FT232 USB-to-TTL yang terbukti tersambung

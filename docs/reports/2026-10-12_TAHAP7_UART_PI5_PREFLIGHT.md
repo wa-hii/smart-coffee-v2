@@ -57,13 +57,35 @@ dibuktikan.
 
 ## Keputusan
 
+### Pembaruan berdasarkan konfirmasi operator
+
+Operator mengidentifikasi **jalur FT232 USB-to-TTL
+(`/dev/ttyUSB0`)** sebagai sambungan saat ini.
+Jenis USART ATmega di ujung kabel dan level
+tegangan sambungan langsung **belum diketahui**.
+Sehingga ketidakpastian *jalur FT232 vs GPIO*
+sekarang **terjawab: FT232**, tetapi bukti
+elektrik dan link payload masih terbuka.
+Dokumentasi repo tidak memuat skematik PCB
+ATmega/FT232 yang cukup untuk menyelesaikan
+audit pin dan VCCIO dari jarak jauh.
+
+**G0: BLOCKED (butuh inspeksi operator fisik).**
+**G1: kabel dinyatakan telah terpasang oleh
+operator, namun belum terverifikasi aman.**
+**G2/G3: NOT AUTHORIZED/NOT RUN.** Tidak
+ada pembukaan ttyUSB0, loopback UART,
+frame read, flash, perubahan config, atau
+aksi aktuator. Checklist bukti G0:
+`docs/STAGE7_UART_ATMEGA_PI5_SOP.md`.
+
 | Gerbang | Hasil |
 |---|---|
 | SSH / topologi port / config Pi | **PASS read-only** |
 | FT232R driver dan by-id | **PASS enumerasi** |
 | GPIO14/15 ALT UART | **PASS pinmux read-only** |
 | Wiring UART ATmega dan tegangan | **UNVERIFIED** |
-| Pilihan jalur FT232 vs native GPIO | **UNRESOLVED** |
+| Pilihan jalur FT232 vs native GPIO | **FT232 dikonfirmasi operator** |
 | Serial payload, baud pada kabel | **NOT TESTED** |
 | Output Serial1 firmware | **NOT IMPLEMENTED dalam repo** |
 | UART→Nextion, kontrol aktuator | **NOT TESTED / NO ACTION** |

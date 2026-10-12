@@ -2,6 +2,22 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 12 Oktober 2026 — Konfirmasi jalur FT232 dan G0 safety hold
+
+- Operator menetapkan **FT232 USB-to-TTL**
+  (`ttyUSB0`) sebagai jalur Pi–ATmega,
+  namun tidak mengetahui USART MCU dan
+  belum memverifikasi level tegangan TTL
+  sambungan langsung.
+- Audit repo tidak menemukan skematik PCB
+  yang cukup untuk membuktikan TX/RX,
+  ground, VCCIO, atau VBUS/backfeed.
+- SOP UART diberi checklist foto, pemeriksaan
+  pin dengan daya mati, identitas VCCIO,
+  dan izin G2 terpisah. **G0 BLOCKED**;
+  tidak membuka serial, menjalankan
+  model, atau menggerakkan aktuator.
+
 ## 12 Oktober 2026 — Verifikasi topologi UART Pi (tanpa port open)
 
 - Operator menyatakan telah memasang koneksi
