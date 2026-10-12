@@ -4,6 +4,21 @@
 
 ### Addendum Tahap 7 (10 Oktober 2026)
 
+**Status UART aktual 12 Oktober 2026:**
+read-only SSH menemukan
+FT232R `/dev/ttyUSB0` + GPIO UART0
+`/dev/ttyAMA0` (GPIO14/15 TXD0/RXD0).
+Pada sistem ini `/dev/serial0`
+menunjuk ttyAMA10 (debug Pi).
+Keduanya belum membuktikan link fisik
+ke ATmega. Kode firmware repo belum
+memiliki `Serial1.begin()`; sehingga
+menghubungkan ke D18/D19 saja belum
+menyalurkan JSON dari `Serial` 115200.
+Jangan menghubungkan TX 5 V langsung
+ke RX 3,3 V Pi. Laporan
+`docs/reports/2026-10-12_TAHAP7_UART_PI5_PREFLIGHT.md`.
+
 Operator mengonfirmasi **ATmega tidak terhubung ke COM5** dan
 **Raspberry Pi telah dinyalakan untuk remote**, tetapi alamat/akun
 SSH belum ada untuk membuktikan akses Pi secara langsung.

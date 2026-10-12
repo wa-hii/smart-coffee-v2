@@ -199,6 +199,28 @@ acceptance gate dan evaluasi perangkat.
 
 ## Tahap 7 — Persiapan integrasi Raspberry Pi 5 dan ATmega
 
+**12 Oktober 2026 — operator memasang koneksi UART
+dan Pi berhasil diaudit read-only:** ditemukan FTDI
+FT232R `0403:6001` di `/dev/ttyUSB0` dengan
+path by-id, dan native Pi UART0 `/dev/ttyAMA0`
+aktif pada GPIO14 TXD0/GPIO15 RXD0.
+Alias `/dev/serial0` mengarah ke ttyAMA10
+(debug Pi 5), **bukan** GPIO14/15.
+Tidak ada serial-getty terkait, tidak terlihat
+proses pemilik tty saat pemeriksaan, dan
+`throttled=0x0`. **Belum diketahui jalur
+yang benar-benar menuju ATmega maupun level
+tegangan TTL.** Firmware repo mengirim JSON
+`Serial` 115200 tetapi tidak menjalankan
+`Serial1` TX; apabila kabel masuk ke
+UART1 D18/D19, tidak ada data yang
+dijamin keluar. Tidak ada port dibuka/
+perintah dikirim. SOP `docs/STAGE7_UART_ATMEGA_PI5_SOP.md`;
+laporan `docs/reports/2026-10-12_TAHAP7_UART_PI5_PREFLIGHT.md`,
+skrip `scripts/stage7_uart_preflight.py`.
+**Gerbang komunikasi fisik tetap tertahan pada
+konfirmasi kabel, tegangan dan izin uji read-only.**
+
 **11 Oktober 2026 — SOP bench USB v1.0 disiapkan
 (BELUM DIEKSEKUSI):** `docs/STAGE7_USB_ATMEGA_PI_BENCH_SOP.md`
 mendefinisikan gerbang G0 (cek sumber daya/

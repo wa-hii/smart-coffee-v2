@@ -1,5 +1,19 @@
 # SOP Tahap 7 — Remote Raspberry Pi 5 dan komunikasi ke ATmega (AMAN)
 
+**Pembaruan penting UART fisik 12 Oktober 2026:**
+Operator menyatakan Pi sekarang terhubung ke
+UART ATmega. Pemeriksaan menemukan **dua
+jalur potensial**: FT232R USB-to-UART
+`/dev/ttyUSB0` dan native UART GPIO
+`/dev/ttyAMA0` di GPIO14/15.
+Tidak ada bukti payload serial atau
+penyesuaian level tegangan saat ini;
+firmware repo belum mengaktifkan
+`Serial1`. SOP terbaru untuk ini:
+`docs/STAGE7_UART_ATMEGA_PI5_SOP.md`.
+SOP USB sebelumnya **tidak otomatis
+berlaku untuk UART TTL pada GPIO**.
+
 **SOP bench USB yang lebih spesifik (v1.0, 11 Oktober 2026):**
 `docs/STAGE7_USB_ATMEGA_PI_BENCH_SOP.md`.
 Dokumen tersebut mewajibkan **empat gerbang terpisah**:

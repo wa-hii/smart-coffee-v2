@@ -114,6 +114,23 @@ Tes negatif `scripts/test_stage2_dataset_audit.py` dan `scripts/test_stage2_plot
 
 ## Addendum Tahap 3 — QA pipeline fitur (9 Oktober 2026)
 
+**Addendum UART 12 Oktober 2026:** akses Pi
+via Tailscale SSH berhasil sesudah
+autentikasi ulang. Ditemukan
+FT232R `ttyUSB0`, native
+`ttyAMA0` pada GPIO14/15, serta
+`serial0 -> ttyAMA10` (debug).
+`scripts/stage7_uart_preflight.py` dan
+`test_stage7_uart_preflight.py`
+melakukan inspeksi GPIO mode `get`
+dan enumerasi perangkat tanpa membuka
+serial, `set`, atau mengirim data.
+**Tidak ada bukti link ATmega atau
+konfirmasi level tegangan**; UART
+fisik ditahan sampai review operator.
+Laporan:
+`docs/reports/2026-10-12_TAHAP7_UART_PI5_PREFLIGHT.md`.
+
 **Addendum SOP bench USB 11 Oktober 2026:**
 `docs/STAGE7_USB_ATMEGA_PI_BENCH_SOP.md`
 memberi gerbang G0–G3 untuk bahaya VBUS/

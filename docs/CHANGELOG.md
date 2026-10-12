@@ -2,6 +2,28 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 12 Oktober 2026 — Verifikasi topologi UART Pi (tanpa port open)
+
+- Operator menyatakan telah memasang koneksi
+  UART ATmega2560 ke Pi. SSH Tailscale
+  berhasil setelah autentikasi ulang.
+- Audit Pi read-only: FT232R USB-to-TTL
+  `ttyUSB0`, GPIO UART0 `ttyAMA0`,
+  pinmux GPIO14 TXD0/GPIO15 RXD0,
+  `serial0 -> ttyAMA10` debug.
+- Source firmware menulis ke `Serial`
+  115200, bukan `Serial1` D18/D19;
+  pemetaan kabel dan level tegangan
+  belum diketahui. **Tidak ada port
+  dibuka, flashing atau aktuator yang
+  dikendalikan.**
+- Menambah skrip dan regresi
+  `stage7_uart_preflight.py`,
+  `test_stage7_uart_preflight.py`
+  serta SOP/report khusus UART.
+  Gerbang fisik tetap **NO-GO**
+  sampai wiring/voltage dan izin tes
+  read-only dikonfirmasi.
 ## 11 Oktober 2026 — SOP bench USB ATmega → Raspberry Pi
 
 - Membuat `docs/STAGE7_USB_ATMEGA_PI_BENCH_SOP.md`

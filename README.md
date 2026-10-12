@@ -1,5 +1,17 @@
 # Smart Coffee E-Nose v2
 
+**UART Pi–ATmega (12 Oktober 2026):** ada
+FT232R USB-to-UART `/dev/ttyUSB0`
+dan native GPIO UART0 `/dev/ttyAMA0`
+di Pi 5. `/dev/serial0` justru
+mengarah debug ttyAMA10 pada konfigurasi
+ini. Koneksi UART ke ATmega dan
+level shifter **belum diverifikasi**,
+serta firmware belum mengeluarkan data
+di `Serial1`. Baca
+`docs/STAGE7_UART_ATMEGA_PI5_SOP.md`
+sebelum membuka serial.
+
 **SOP bench USB Tahap 7 (11 Oktober 2026):**
 `docs/STAGE7_USB_ATMEGA_PI_BENCH_SOP.md`.
 G0 cek daya/backfeed, G1 pemasangan kabel,

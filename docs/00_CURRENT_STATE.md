@@ -1,5 +1,23 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## Temuan UART Pi terbaru — 12 Oktober 2026
+
+Pi 5 `enose-pi5` diakses dengan SSH
+read-only. Ada FT232R USB-to-UART
+`/dev/ttyUSB0` dan native GPIO14/15
+UART0 `/dev/ttyAMA0` yang aktif;
+`/dev/serial0 -> ttyAMA10` merupakan
+debug UART Pi 5. Board FT232 terenumerasi,
+tetapi koneksi kabel TTL ke ATmega
+**belum terbukti**. Firmware aktif repo
+masih mengirim ke ATmega `Serial` 115200,
+bukan `Serial1` D18/D19. Tegangan
+UART/level-shifter dan pemetaan pin
+harus diverifikasi bersama operator.
+**Port belum dibuka**, tidak ada
+flash/servo/valve/Nextion command.
+Detail `docs/reports/2026-10-12_TAHAP7_UART_PI5_PREFLIGHT.md`.
+
 ## SOP USB bench siap review — 11 Oktober 2026
 
 `docs/STAGE7_USB_ATMEGA_PI_BENCH_SOP.md`
