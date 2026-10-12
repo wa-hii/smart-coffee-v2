@@ -1,0 +1,14 @@
+{
+  "status": "CAPTURE_ONLY_NO_VALIDATION",
+  "port": "/dev/ttyAMA0",
+  "baud": 9600,
+  "rx_only": true,
+  "max_duration_s": 8,
+  "limit_bytes": 256,
+  "read_calls": 21,
+  "total_bytes": 256,
+  "hex": "7b 22 74 79 70 65 22 3a 22 68 65 61 72 74 62 65 61 74 22 2c 22 70 72 6f 74 6f 22 3a 31 2c 22 73 65 71 22 3a 31 35 30 39 2c 22 75 70 74 69 6d 65 5f 6d 73 22 3a 31 35 30 39 30 30 30 7d 0d 0a 7b 22 74 79 70 65 22 3a 22 68 65 61 72 74 62 65 61 74 22 2c 22 70 72 6f 74 6f 22 3a 31 2c 22 73 65 71 22 3a 31 35 31 30 2c 22 75 70 74 69 6d 65 5f 6d 73 22 3a 31 35 31 30 30 30 30 7d 0d 0a 7b 22 74 79 70 65 22 3a 22 68 65 61 72 74 62 65 61 74 22 2c 22 70 72 6f 74 6f 22 3a 31 2c 22 73 65 71 22 3a 31 35 31 31 2c 22 75 70 74 69 6d 65 5f 6d 73 22 3a 31 35 31 31 30 30 30 7d 0d 0a 7b 22 74 79 70 65 22 3a 22 68 65 61 72 74 62 65 61 74 22 2c 22 70 72 6f 74 6f 22 3a 31 2c 22 73 65 71 22 3a 31 35 31 32 2c 22 75 70 74 69 6d 65 5f 6d 73 22 3a 31 35 31 32 30 30 30 7d 0d 0a 7b 22 74 79",
+  "ascii_visible": "{\"type\":\"heartbeat\",\"proto\":1,\"seq\":1509,\"uptime_ms\":1509000}\\r\\n{\"type\":\"heartbeat\",\"proto\":1,\"seq\":1510,\"uptime_ms\":1510000}\\r\\n{\"type\":\"heartbeat\",\"proto\":1,\"seq\":1511,\"uptime_ms\":1511000}\\r\\n{\"type\":\"heartbeat\",\"proto\":1,\"seq\":1512,\"uptime_ms\":1512000}\\r\\n{\"ty",
+  "newline_count": 4,
+  "uart_tx_bytes": 0
+}

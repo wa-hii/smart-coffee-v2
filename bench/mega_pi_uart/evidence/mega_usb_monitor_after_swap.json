@@ -1,0 +1,14 @@
+{
+  "mode": "USB_DEBUG_READ_ONLY",
+  "port": "COM6",
+  "duration_s": 30,
+  "heartbeat_lines": 29,
+  "ping_ack_lines": 1,
+  "selected_lines": [
+    "MEGA_PI_UART_BENCH_V1 READY",
+    "HEARTBEAT 1",
+    "HEARTBEAT 2",
+    "HEARTBEAT 3",
+    "PING ACK"
+  ]
+}

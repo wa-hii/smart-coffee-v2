@@ -6,7 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).parent))
-from uart_bench import Validator, bench, ping_request
+from uart_bench import LineFramer, Validator, bench, ping_request
 
 
 def wire(type_, **fields):
@@ -14,6 +14,27 @@ def wire(type_, **fields):
 
 
 def main():
+    # UART bytes often arrive in fragments separated by serial read timeouts.
+    # We must parse only newline-terminated complete frames.
+    framer = LineFramer()
+    first = wire("heartbeat", seq=1, uptime_ms=1000)
+    second = wire("heartbeat", seq=2, uptime_ms=2000)
+    assert framer.feed(b"partial_power_on" + first) == []
+    assert framer.synced is True
+    assert framer.feed(second[:4]) == []
+    assert framer.feed(second[4:18]) == []
+    assert framer.feed(second[18:]) == [second]
+    assert framer.pending == bytearray()
+    assert framer.overlong_frames == 0
+    third = wire("heartbeat", seq=3, uptime_ms=3000)
+    assert framer.feed(third.replace(b"\n", b"\r\n")) == [
+        third.replace(b"\n", b"\r\n")
+    ]
+    assert framer.feed(b"x" * (MAX_FRAME_TEST := 280) + b"\n") == []
+    assert MAX_FRAME_TEST > 256 and framer.overlong_frames == 1
+    assert framer.feed(wire("pong", nonce="AF12")) == [
+        wire("pong", nonce="AF12")
+    ]
     c = Validator()
     for i in range(1, 7):
         c.feed(wire("heartbeat", seq=i, uptime_ms=i * 1000))

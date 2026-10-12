@@ -1,0 +1,170 @@
+{
+  "status": "PASS_BIDIRECTIONAL",
+  "port": "/dev/ttyAMA0",
+  "baud": 9600,
+  "duration_limit_s": 30,
+  "physical_test": true,
+  "model_invoked": false,
+  "actuator_commands": 0,
+  "firmware_flash_performed": false,
+  "ping_requested": true,
+  "ping_sent": true,
+  "metrics": {
+    "heartbeats": 28,
+    "pong_valid": 1,
+    "malformed": 0,
+    "missing_sequence": 0,
+    "duplicate_or_out_of_order": 0,
+    "uptime_errors": 0,
+    "unexpected_frames": 0,
+    "pong_nonce_mismatch": 0
+  },
+  "records": [
+    {
+      "type": "heartbeat",
+      "seq": 105,
+      "uptime_ms": 105000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 106,
+      "uptime_ms": 106000
+    },
+    {
+      "type": "pong",
+      "nonce_ok": true
+    },
+    {
+      "type": "heartbeat",
+      "seq": 107,
+      "uptime_ms": 107000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 108,
+      "uptime_ms": 108000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 109,
+      "uptime_ms": 109000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 110,
+      "uptime_ms": 110000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 111,
+      "uptime_ms": 111000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 112,
+      "uptime_ms": 112000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 113,
+      "uptime_ms": 113000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 114,
+      "uptime_ms": 114000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 115,
+      "uptime_ms": 115000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 116,
+      "uptime_ms": 116000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 117,
+      "uptime_ms": 117000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 118,
+      "uptime_ms": 118000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 119,
+      "uptime_ms": 119000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 120,
+      "uptime_ms": 120000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 121,
+      "uptime_ms": 121000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 122,
+      "uptime_ms": 122000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 123,
+      "uptime_ms": 123000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 124,
+      "uptime_ms": 124000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 125,
+      "uptime_ms": 125000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 126,
+      "uptime_ms": 126000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 127,
+      "uptime_ms": 127000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 128,
+      "uptime_ms": 128000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 129,
+      "uptime_ms": 129000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 130,
+      "uptime_ms": 130000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 131,
+      "uptime_ms": 131000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 132,
+      "uptime_ms": 132000
+    }
+  ],
+  "pass_rx": true,
+  "pass_bidirectional": true
+}

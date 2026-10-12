@@ -1,0 +1,55 @@
+{
+  "status": "PASS_BIDIRECTIONAL",
+  "port": "/dev/ttyAMA0",
+  "baud": 9600,
+  "duration_limit_s": 18,
+  "physical_test": true,
+  "model_invoked": false,
+  "actuator_commands": 0,
+  "firmware_flash_performed": false,
+  "ping_requested": true,
+  "ping_sent": true,
+  "metrics": {
+    "heartbeats": 5,
+    "pong_valid": 1,
+    "malformed": 0,
+    "missing_sequence": 0,
+    "duplicate_or_out_of_order": 0,
+    "uptime_errors": 0,
+    "unexpected_frames": 0,
+    "pong_nonce_mismatch": 0
+  },
+  "records": [
+    {
+      "type": "heartbeat",
+      "seq": 17,
+      "uptime_ms": 17000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 18,
+      "uptime_ms": 18000
+    },
+    {
+      "type": "pong",
+      "nonce_ok": true
+    },
+    {
+      "type": "heartbeat",
+      "seq": 19,
+      "uptime_ms": 19000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 20,
+      "uptime_ms": 20000
+    },
+    {
+      "type": "heartbeat",
+      "seq": 21,
+      "uptime_ms": 21000
+    }
+  ],
+  "pass_rx": true,
+  "pass_bidirectional": true
+}

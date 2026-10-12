@@ -1,5 +1,21 @@
 # Smart Coffee E-Nose v2
 
+**UPDATE UART testbed Mega↔Pi (12 Oktober 2026):**
+Setelah perbaikan wiring HV1→D18 TX1,
+HV2→D19 RX1 dan bug parser timeout,
+**komunikasi dua arah 9600 baud berhasil
+di hardware nyata**. Pi 5 `ttyAMA0`
+menerima 5 heartbeat dan 1 PONG
+tanpa error; tes stabilitas 30 s
+**28 heartbeat berurutan, 1 PONG,
+0 malformed/gap/duplikasi**.
+USB debug Mega COM6 mencatat 1
+`PING ACK`. Firmware Smart Coffee
+PCB custom, Nextion, AI dan
+test 115200 pada GPIO UART **belum
+divalidasi dari bukti ini**.
+Laporan `bench/mega_pi_uart/reports/2026-10-12_BENCH_TEST.md`.
+
 **UART TESTBED Mega 2560 ↔ Raspberry Pi 5 (12 Oktober 2026):**
 proyek eksperimen terpisah `bench/mega_pi_uart/`
 mencakup firmware PlatformIO untuk board

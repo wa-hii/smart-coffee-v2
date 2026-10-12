@@ -1,5 +1,20 @@
 # Arduino Mega 2560 ↔ Raspberry Pi 5 UART — BENCH TERISOLASI
 
+**HASIL TESTBED 12 Oktober 2026: UART full-duplex
+9600 baud pada hardware nyata PASS.**
+Setelah operator menukar HV1→Mega D18 TX1
+dan HV2→Mega D19 RX1, perbaikan parser
+UART menghilangkan false-malformed akibat
+timeout parsial; uji 30 s menangkap
+28 heartbeat berurutan, 1 PONG,
+0 malformed/gap/duplikasi.
+USB Mega COM6 saat tes duplex mencatat
+`PING ACK`. Detail QA:
+`reports/2026-10-12_BENCH_TEST.md`.
+Status ini hanya berlaku untuk
+**Arduino Mega testbed ↔ Raspberry Pi 5**,
+**bukan PCB custom atau AI produksi**.
+
 **Tujuan:** uji UART testbed Arduino Mega 2560 melalui
 level converter dua tegangan, tanpa firmware Smart Coffee PCB final.
 **Status awal:** tes software & build saja; hasil bench fisik
@@ -70,6 +85,14 @@ Tes dua arah, setelah RX terbukti dan wiring Pi TX→Mega RX aman:
 ```bash
 python3 bench/mega_pi_uart/pi/uart_bench.py --port /dev/ttyAMA0 \
   --baud 9600 --duration 20 --ping --output /tmp/mega_uart_bidir_01.json
+```
+
+Setelah berhasil, cek kestabilan selama durasi penuh:
+
+```bash
+python3 bench/mega_pi_uart/pi/uart_bench.py --port /dev/ttyAMA0 \
+  --baud 9600 --duration 30 --ping --full-duration \
+  --output /tmp/mega_uart_stability_01.json
 ```
 
 Program membuka UART secara eksklusif dan menutupnya sesudah

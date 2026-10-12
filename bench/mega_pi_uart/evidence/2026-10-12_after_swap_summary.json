@@ -1,0 +1,83 @@
+{
+  "experiment": "mega2560_serial1_to_pi5_gpio_uart0_after_rewiring",
+  "date": "2026-10-12",
+  "software_contract": {
+    "mega_port": "Serial1",
+    "mega_tx": "D18",
+    "mega_rx": "D19",
+    "pi_port": "/dev/ttyAMA0",
+    "pi_rx": "GPIO15 physical pin 10",
+    "pi_tx": "GPIO14 physical pin 8",
+    "baud": 9600,
+    "framing": "8N1"
+  },
+  "historical_failures": {
+    "after_swap_pre_framer": {
+      "rx_20s": "FAIL_OR_INCONCLUSIVE: 0 valid, 40 malformed",
+      "rx_repeat_20s": "FAIL_OR_INCONCLUSIVE: 0 valid, 39 malformed",
+      "reason": "Timeout 0.5 s split 1 Hz JSON lines before newline"
+    },
+    "duplex_first_after_framer": {
+      "status": "FAIL_OR_INCONCLUSIVE",
+      "heartbeats": 19,
+      "ping_sent": true,
+      "pongs": 0,
+      "reason": "No PONG in this run; subsequent synchronized USB-debug run PASS"
+    }
+  },
+  "positive_results": {
+    "raw_capture": {
+      "repo_evidence": "uart_raw_after_swap_capture.json",
+      "remote_original_sha256": "bebccc9988fc60911df14a16015ceee67d6a223e01d97542b068c12457cd7d05",
+      "captured_bytes": 256,
+      "content": "Readable JSON heartbeat seq 1509, 1510, 1511 and part of 1512",
+      "uart_tx_bytes": 0
+    },
+    "rx_only": {
+      "repo_evidence": "uart_rx_after_swap_pass.json",
+      "remote_original_sha256": "9c033b397931ff633f5768cfe7f34e8adedc918ba34853ad3f41cab9752e2911",
+      "status": "PASS_RX_ONLY",
+      "heartbeats": 5,
+      "malformed": 0,
+      "missing_sequence": 0,
+      "duplicate_or_out_of_order": 0
+    },
+    "bidirectional": {
+      "repo_evidence": "uart_duplex_after_swap_pass.json",
+      "remote_original_sha256": "2042333392990627d67027797c9993bfaef976ec01d930c3e981773f283ecea2",
+      "status": "PASS_BIDIRECTIONAL",
+      "heartbeats": 5,
+      "pong_valid": 1,
+      "malformed": 0,
+      "missing_sequence": 0
+    },
+    "laptop_usb_monitor": {
+      "repo_evidence": "mega_usb_monitor_after_swap.json",
+      "heartbeat_lines": 29,
+      "ping_ack_lines": 1
+    },
+    "stability_30s": {
+      "repo_evidence": "uart_stability_30s_pass.json",
+      "remote_original_sha256": "6c98042a8ba02f5be1e5f091055c33eaf387f56443ef36dc65e766381d4dc923",
+      "status": "PASS_BIDIRECTIONAL",
+      "heartbeats": 28,
+      "sequence_first": 105,
+      "sequence_last": 132,
+      "pong_valid": 1,
+      "malformed": 0,
+      "missing_sequence": 0,
+      "duplicate_or_out_of_order": 0,
+      "uptime_errors": 0
+    }
+  },
+  "original_pi_result_directory": "/home/enose-v3/mega_uart_bench/results",
+  "result_scope": "Arduino Mega 2560 testbed physical UART E2E only",
+  "not_claimed": [
+    "Measured voltage or level translator waveform",
+    "115200 baud stability",
+    "Smart Coffee custom PCB integration",
+    "Nextion communication",
+    "Actual gas sensor data",
+    "Production AI validation"
+  ]
+}

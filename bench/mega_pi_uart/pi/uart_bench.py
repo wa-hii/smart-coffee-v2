@@ -17,6 +17,46 @@ MAX_FRAME = 256
 PORT_DEFAULT = "/dev/ttyAMA0"  # Pi 5 configured GPIO14/15 uart0-pi5.
 
 
+class LineFramer:
+    """Incremental bounded line framing across arbitrary UART read timeouts.
+
+    A 0.5s pySerial timeout does NOT mean the 1Hz message is malformed.
+    UART connects mid-stream, so discard the initial potentially partial
+    line until the first newline. No unbounded accumulation on malformed
+    streams. Subsequent full frames, including CRLF, are passed through.
+    """
+
+    def __init__(self):
+        self.synced = False
+        self.overflow = False
+        self.pending = bytearray()
+        self.overlong_frames = 0
+
+    def feed(self, chunk: bytes) -> list[bytes]:
+        frames: list[bytes] = []
+        for byte in chunk:
+            if not self.synced:
+                if byte == 10:
+                    self.synced = True
+                continue
+            if self.overflow:
+                if byte == 10:
+                    self.overflow = False
+                continue
+            if len(self.pending) >= MAX_FRAME:
+                self.pending.clear()
+                self.overflow = True
+                self.overlong_frames += 1
+                if byte == 10:
+                    self.overflow = False
+                continue
+            self.pending.append(byte)
+            if byte == 10:
+                frames.append(bytes(self.pending))
+                self.pending.clear()
+        return frames
+
+
 def ping_request(nonce: str) -> bytes:
     """The sole allow-listed UART transmission from Pi to bench Mega."""
     if re.fullmatch(r"[0-9A-F]{1,16}", nonce) is None:
@@ -109,7 +149,7 @@ class Validator:
 
 
 def bench(port: str, baud: int, seconds: int, ping: bool,
-          probe_tx: bool = False):
+          probe_tx: bool = False, full_duration: bool = False):
     # This is a bench-specific CLI: never open the production USB device.
     if port != PORT_DEFAULT:
         raise ValueError("only_pi5_gpio_uart0_allowed_not_usb_serial")
@@ -127,6 +167,7 @@ def bench(port: str, baud: int, seconds: int, ping: bool,
         raise RuntimeError("pyserial_missing") from err
     nonce = secrets.token_hex(4).upper() if ping else None
     checker = Validator(nonce)
+    framer = LineFramer()
     serial_port = serial.Serial(
         port=None, baudrate=baud, timeout=0.5,
         rtscts=False, dsrdtr=False, xonxoff=False, exclusive=True,
@@ -140,9 +181,9 @@ def bench(port: str, baud: int, seconds: int, ping: bool,
         started = time.monotonic()
         end = time.monotonic() + seconds
         while time.monotonic() < end:
-            raw = serial_port.read_until(b"\n", MAX_FRAME + 1)
-            if raw:
-                checker.feed(raw)
+            chunk = serial_port.read(64)
+            for frame in framer.feed(chunk):
+                checker.feed(frame)
             # No TX during RX-only phase. In bidirectional test, exactly
             # one bounded benign application-level probe (PING) is allowed.
             # Explicitly requested diagnostic only: send one benign PING
@@ -153,10 +194,12 @@ def bench(port: str, baud: int, seconds: int, ping: bool,
                 serial_port.write(ping_request(nonce))
                 serial_port.flush()
                 ping_sent = True
-            if checker.heartbeat >= 5 and (not ping or checker.pongs >= 1):
+            if (not full_duration and checker.heartbeat >= 5
+                    and (not ping or checker.pongs >= 1)):
                 break
     finally:
         serial_port.close()
+    checker.malformed += framer.overlong_frames
     return checker.result(ping_requested=ping, ping_sent=ping_sent,
                           seconds=seconds, port=port, baud=baud)
 
@@ -170,6 +213,8 @@ def main(argv=None) -> int:
                         help="After 2 verified RX heartbeats send ONLY PING,<nonce>")
     parser.add_argument("--probe-tx", action="store_true",
                         help="Diagnostic: one PING even when RX has no frames; requires --ping")
+    parser.add_argument("--full-duration", action="store_true",
+                        help="Keep receiving until specified duration for stability QA")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)
     # Fail before UART open on an existing/untrusted output.
@@ -179,7 +224,8 @@ def main(argv=None) -> int:
     if str(dest).startswith("/dev/") or str(dest).startswith("/boot/"):
         raise ValueError("output_location_forbidden")
     result = bench(args.port, args.baud, args.duration,
-                   args.ping, probe_tx=args.probe_tx)
+                   args.ping, probe_tx=args.probe_tx,
+                   full_duration=args.full_duration)
     dest.parent.mkdir(parents=True, exist_ok=True)
     with dest.open("x", encoding="utf-8") as stream:
         json.dump(result, stream, indent=2, ensure_ascii=False)

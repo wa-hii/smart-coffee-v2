@@ -1,5 +1,31 @@
 # Evidence UART bench — Mega 2560 testbed ↔ Pi 5
 
+## Bukti terbaru setelah jumper ditukar dan parser diperbaiki
+
+**E2E UART hardware testbed berhasil pada 9600 baud**:
+`uart_rx_run04.json` di Pi berstatus
+`PASS_RX_ONLY` (5 heartbeat, semua error 0),
+`uart_duplex_run02.json` berstatus
+`PASS_BIDIRECTIONAL` (5 heartbeat, 1 PONG),
+dan `uart_stability_run01.json` berstatus
+`PASS_BIDIRECTIONAL` selama 30 s (28 heartbeat,
+1 PONG, 0 frame rusak/gap/duplikat).
+
+`mega_usb_monitor_after_swap.json` dari
+USB laptop COM6 melaporkan 29 heartbeat
+dan **1 PING ACK** saat Pi melakukan
+uji duplex. Ini membuktikan Pi TX
+memang mencapai Mega RX1.
+Manifes checksum file evidence pada Pi
+berada di `2026-10-12_after_swap_summary.json`.
+
+Riset akar masalah: parser lama memotong
+pesan tiap timeout 0,5 s sedangkan Mega
+mengirim setiap 1 s. Setelah diganti
+`LineFramer` incremental bounded,
+false-malformed hilang. Hasil tes awal
+di bawah **bukan status akhir**.
+
 **12 Oktober 2026, hardware fisik sudah diakses.**
 Output JSON Pi diperoleh melalui SSH; tidak menggunakan
 simulasi untuk menggantikan hasil fisik.

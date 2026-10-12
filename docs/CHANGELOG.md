@@ -2,6 +2,35 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 12 Oktober 2026 — UART hardware testbed E2E PASS
+
+- Pengguna memperbaiki wiring
+  `HV1→Mega TX1 D18` dan
+  `HV2→Mega RX1 D19`.
+- Raw UART pada GPIO15 Pi sekarang
+  menerima heartbeat JSON valid;
+  ditemukan bug parser read_until
+  yang menyalahkan potongan frame
+  akibat timeout 0,5s untuk
+  trafik Arduino periodik 1s.
+- Mengganti receiver dengan
+  incremental bounded LineFramer
+  dan test fragmentasi/CRLF/oversize.
+  **RX-only PASS** 5 frame/0 error.
+- **PING/PONG E2E PASS**: Pi
+  5 heartbeat + 1 PONG, USB Mega
+  COM6 1 PING ACK. Uji 30s
+  28 heartbeat/1 PONG/0 error.
+- Menambah raw passive diagnostic,
+  monitor USB laptop, ringkasan
+  checksum evidence dan laporan
+  post-rewiring.
+- Hanya **Mega 2560 testbed
+  dan Pi UART GPIO**; produksi
+  Smart Coffee/PCB custom,
+  Nextion, 115200 GPIO, AI
+  belum dinyatakan PASS.
+
 ## 12 Oktober 2026 — UART testbed Mega 2560 ↔ Pi 5, diagnosis hardware
 
 - Menambah proyek bench terisolasi

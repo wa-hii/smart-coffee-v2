@@ -199,6 +199,27 @@ acceptance gate dan evaluasi perangkat.
 
 ## Tahap 7 — Persiapan integrasi Raspberry Pi 5 dan ATmega
 
+**UPDATE 12 Oktober — testbed UART fisik PASS:**
+setelah wiring D18 TX1↔HV1/LV1↔RX Pi
+dan D19 RX1↔HV2/LV2↔TX Pi
+diperbaiki operator, ditemukan
+bug parser yang memotong frame
+setiap timeout serial 0,5s pada
+heartbeat 1Hz. Setelah perbaikan
+`LineFramer`, Pi menerima 5
+heartbeat dengan 0 error dan
+duplex PING/PONG 1/1 PASS;
+USB laptop Mega membuktikan
+1 `PING ACK`. Stabilitas
+30s: **28 heartbeat valid,
+1 PONG, 0 error/sequence gap**.
+**Batas:** testbed Arduino Mega
+dan Pi lewat level converter
+9600 baud, **bukan** kelulusan
+Tahap 9 integrasi PCB custom
+Smart Coffee atau validasi model.
+Laporan `bench/mega_pi_uart/reports/2026-10-12_BENCH_TEST.md`.
+
 **12 Oktober — percobaan hardware UART testbed
 khusus:** repo `bench/mega_pi_uart/`
 dipisah dari firmware PCB custom. Arduino

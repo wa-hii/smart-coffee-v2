@@ -114,6 +114,29 @@ Tes negatif `scripts/test_stage2_dataset_audit.py` dan `scripts/test_stage2_plot
 
 ## Addendum Tahap 3 — QA pipeline fitur (9 Oktober 2026)
 
+**12 Oktober — UART testbed hardware PASS
+setelah wiring+software fix:**
+operator menukar jumper HV1 ke
+D18 Mega TX1 dan HV2 ke D19 RX1.
+Raw-byte capture membuktikan
+heartbeat ASCII valid di Pi,
+memisahkan kegagalan parser
+dari kegagalan hardware.
+Bug `read_until` timeout 0,5s
+memotong pesan 1Hz, diperbaiki
+menjadi `LineFramer` bounded
+yang menunggu newline.
+Unit test fragmentasi/CRLF/
+overlong PASS Windows+Pi.
+Pi RX-only PASS 5 heartbeat,
+duplex 5 heartbeat/1 PONG
+PASS, USB COM6 Mega
+`PING ACK` 1, stabilitas
+30s PASS 28 heartbeat/1 PONG
+tanpa gap/error. **Tidak
+berlaku untuk validasi PCB
+custom/model produksi**.
+
 **12 Oktober — UART testbed Mega/PIO dan Pi 5:**
 board Arduino Mega 2560 CH340 COM6
 berhasil di-flash sketch isolasi

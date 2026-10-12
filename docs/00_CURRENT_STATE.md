@@ -1,5 +1,33 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## UART testbed Mega↔Pi SUKSES — 12 Oktober 2026
+
+Koreksi laporan sebelumnya: setelah operator
+menukar HV1→Mega D18 **TX1** dan
+HV2→Mega D19 **RX1**, UART RX Pi mulai
+menerima byte mentah valid. Validator
+awalnya salah mendeteksi ~40 frame
+rusak per 20s karena membaca baris
+parsial pada timeout 0,5s sedangkan
+heartbeat hanya 1 Hz. Parser diperbaiki
+menjadi buffer incremental bounded
+hingga newline.
+
+**PASS_RX_ONLY** 5 heartbeat berurutan
+0 error; **PASS_BIDIRECTIONAL** 5
+heartbeat dan 1 PONG nonce benar,
+diverifikasi bersamaan dengan USB
+debug Mega **1 PING ACK**. Uji
+stabilitas duplex 30 s
+**PASS 28 heartbeat, 1 PONG,
+0 malformed/gap/duplikasi**.
+Semua uji ini **hardware testbed
+Arduino Mega 2560 + level converter +
+GPIO UART0 Pi** pada 9600 baud,
+bukan firmware PCB custom/Nextion
+atau model AI Smart Coffee. Bukti
+`bench/mega_pi_uart/reports/2026-10-12_BENCH_TEST.md`.
+
 ## UART testbed terpisah Mega↔Pi, 12 Oktober 2026
 
 Testbed **Arduino Mega 2560 board sementara**

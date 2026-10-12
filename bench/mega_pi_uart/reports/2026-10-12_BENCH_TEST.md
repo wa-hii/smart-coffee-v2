@@ -1,9 +1,116 @@
 # Laporan UART Hardware Bench Arduino Mega 2560 → Raspberry Pi 5
 
+## Addendum: DIAGNOSIS SELESAI — 12 Oktober 2026
+
+**Hasil akhir testbed UART fisik: PASS_BIDIRECTIONAL,
+9600 baud, 8N1**. Status awal FAIL/INCONCLUSIVE
+di bawah adalah **riwayat pemeriksaan sebelum
+penukaran jumper dan perbaikan parser**, bukan
+status terakhir.
+
+### 1. Koreksi wiring operator
+
+Operator melaporkan sebelum perbaikan
+`HV1→Mega D19`, `HV2→Mega D18`.
+Kontrak resmi ATmega2560 Arduino Mega menggunakan
+`D18=TX1` dan `D19=RX1`. Operator menukar jumper
+menjadi:
+
+| Jalur | Koneksi yang bekerja pada testbed |
+|---|---|
+| Mega D18 **TX1** → Pi RX | D18 → HV1 ↔ LV1 → GPIO15 Pi, pin fisik 10 |
+| Pi TX → Mega D19 **RX1** | GPIO14 Pi, pin fisik 8 → LV2 ↔ HV2 → D19 |
+| Tegangan | HV 5 V Mega, LV 3,3 V Pi; GND bersama sesuai instruksi operator |
+
+**Catatan QA:** tidak ada alat ukur atau foto skema
+yang diverifikasi independen; klaim jalur
+tegangan aman secara elektrik tidak otomatis
+dibuktikan hanya oleh keberhasilan komunikasi.
+
+### 2. Bug software ditemukan dan diperbaiki
+
+Pengujian awal setelah jumper ditukar menunjukkan
+**40 frame malformed dalam 20 detik** meskipun
+UART aktif. `uart_raw_diagnostic.py` kemudian
+membaca 256 byte RX pada Pi yang berisi
+JSON heartbeat ASCII utuh dengan pemisah
+`\r\n`, urutan naik `seq=1509, 1510, 1511`.
+Ini mengonfirmasi UART receive **fisik sudah
+berjalan pada 9600 baud**.
+
+Akar penyebab *false negative* pengujian adalah
+validator lama memanggil pySerial
+`read_until(b"\n")` dengan **timeout 0,5 s**
+sementara heartbeat dikirim tiap **1 s**.
+Setiap periode kosong dapat mengembalikan
+potongan baris yang tidak berakhir newline;
+program lama salah menghitungnya sebagai
+frame rusak (bukan menunggu pesan lengkap).
+
+Perbaikan `pi/uart_bench.py`: gunakan
+`LineFramer` yang membaca chunk pendek,
+**menumpuk byte hingga newline**, membatasi
+memori per frame 256 byte, mengabaikan
+baris parsial awal ketika port mulai dibuka,
+dan menangani overlong frame tanpa
+memecahnya jadi banyak JSON error.
+`pi/test_uart_bench.py` sekarang menguji
+fragmentasi satu byte/berlapis, CRLF,
+overlong recovery, dan nonce allowlist.
+Semua regresi offline lulus di Windows
+dan Raspberry Pi.
+
+### 3. Hasil nyata setelah perbaikan
+
+| Pengujian | Hasil Pi / bukti |
+|---|---|
+| Raw UART setelah kabel ditukar | **256 byte** cuplikan heartbeat ASCII 9600 valid |
+| RX-only dengan parser baru | **PASS_RX_ONLY**: 5 heartbeat, 0 malformed, 0 gap, 0 duplicate, 0 timestamp error |
+| Duplex pertama setelah parser | RX 19/19 baik, `PING` terkirim, belum ada PONG (riwayat gagal) |
+| Duplex saat debug USB laptop berjalan bersamaan | **PASS_BIDIRECTIONAL**: RX 5 heartbeat, 1 PONG dengan nonce benar, 0 error |
+| Monitor USB Mega COM6 bersamaan | **29 heartbeat, 1 PING ACK**, memverifikasi Pi→Mega benar-benar masuk `Serial1` |
+| Stabilitas duplex selama 30 detik | **PASS_BIDIRECTIONAL**: **28 heartbeat**, 1 PONG, 0 malformed/gap/duplicate/uptime errors |
+| Aktuator/pompa/valve, EEPROM, kalibrasi, model AI | **TIDAK DIJALANKAN**; firmware bench tidak memiliki perintah tersebut |
+
+Pada 30 detik, pembaca membuka UART ketika
+Mega sudah mengirim; protokol sync membuang
+fragmen pesan pertama sampai newline,
+sehingga jumlah 28 tidak otomatis berarti
+2 paket hilang. **Tidak ada gap** dalam
+sequence heartbeat yang tercatat
+(seq 105 s.d. 132).
+
+Evidence lengkap tetap ada pada Pi:
+`/home/enose-v3/mega_uart_bench/results/`.
+Ringkasan serta checksum SHA256 dari hasil
+Pi disimpan dalam
+`bench/mega_pi_uart/evidence/2026-10-12_after_swap_summary.json`.
+Monitor USB laptop:
+`bench/mega_pi_uart/evidence/mega_usb_monitor_after_swap.json`.
+
+### Keputusan akhir
+
+- **PASS hardware testbed:** komunikasi UART
+  full-duplex Arduino Mega D18/D19 ↔ Pi GPIO14/15
+  melalui level converter, **9600 8N1**.
+- **PASS software:** framing robust, validasi
+  seq/time, nonce PING/PONG, bounded buffering.
+- **Belum diuji:** 115200 baud pada level
+  converter ini, data sensor A0, kualitas
+  power/gelombang secara elektrikal,
+  PCB custom Smart Coffee, Nextion, AI
+  prospektif dan E2E produksi.
+- **Tidak perlu** flash ulang Mega, mengubah
+  `config.txt`, atau mengganti
+  `/dev/serial0`. Untuk GPIO14/15
+  Pi 5 ini tetap `/dev/ttyAMA0`.
+
+---
+
 **Tanggal:** 12 Oktober 2026.
-**Status:** Arduino firmware upload dan USB debug **PASS**,
+**Status saat tes pertama (historis):** Arduino firmware upload dan USB debug **PASS**,
 Raspberry Pi UART GPIO **FAIL/INCONCLUSIVE — 0 frame**.
-**End-to-end dua arah: BELUM BERHASIL.**
+**End-to-end dua arah pada tes pertama: BELUM BERHASIL.**
 
 ## 1. Ruang lingkup
 
