@@ -1,5 +1,22 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## Konfirmasi pasca-G2 — 13 Oktober 2026
+
+Operator menyatakan **"alat tetap normal
+seperti biasanya"** setelah uji USB
+read-only 12 detik pada PCB custom.
+Ini **observasi operasional yang positif**,
+namun tidak membuktikan tidak ada
+auto-reset MCU sesaat. USB transport
+G2 **PASS**, classifier/JSON
+**PARTIAL**, data sampel belum
+terbaca karena sistem IDLE.
+**G3 yang dapat menggerakkan
+pompa/valve belum dijalankan dan
+memerlukan persetujuan terpisah**.
+Bukti dan interpretasi:
+`docs/reports/2026-10-13_TAHAP7_G2_USB_LIVE_RESULT.md`.
+
 ## HASIL G2 LIVE USB PCB custom — 13 Oktober 2026
 
 Operator menyatakan alat menyala namun **IDLE**

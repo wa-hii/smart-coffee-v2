@@ -2,6 +2,20 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 13 Oktober 2026 — Observasi alat setelah G2
+
+- Operator mengonfirmasi **perangkat tetap
+  normal seperti biasanya** sesudah
+  pembacaan USB FT232R 12 detik.
+- Tidak dilaporkan perilaku perangkat
+  abnormal. Ini bukan bukti independen
+  bahwa auto-reset MCU tidak terjadi.
+- Status tetap: G2 USB RX **PASS**,
+  validasi payload **PARTIAL**;
+  G3 Nextion/pompa/valve **NOT RUN**.
+  Hasil observasi ditambahkan pada
+  laporan G2 tanpa membuka port lagi.
+
 ## 13 Oktober 2026 — G2 live USB PCB custom berhasil menerima bytes
 
 - Berdasarkan persetujuan eksplisit operator,

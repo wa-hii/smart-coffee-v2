@@ -6,6 +6,27 @@
 **Kesimpulan:** **USB SERIAL PHYSICAL TRANSPORT PASS (RX)**;
 **JSON/session-level E2E belum PASS**; G3 dan inferensi AI **NOT RUN**.
 
+## Konfirmasi operator setelah uji G2 (13 Oktober 2026)
+
+Sesudah tes G2 selesai, operator yang mengamati alat
+menyatakan **"alat tetap normal seperti biasanya"**.
+Ini adalah **bukti observasi operator bahwa tidak ada
+gangguan fungsi yang terlihat**, bukan pengukuran
+reset-pin, uptime, status internal ATmega atau
+arus balik USB. Tidak ada gejala abnormal yang
+dilaporkan operator selama atau setelah probe.
+
+**Interpretasi terkini:** G2 USB transport
+**PASS**, observasi operasional setelah tes
+**NORMAL menurut operator**, kemungkinan
+auto-reset DTR **belum dapat disangkal ataupun
+dipastikan**. Status classifier saat live
+`SERIAL_DATA_INCONCLUSIVE` tetap dipertahankan
+karena ada pesan plain-text/non-JSON yang belum
+diidentifikasi per baris dan **0 frame sampel**.
+Kondisi normal tidak otomatis memberi izin
+G3 akuisisi dengan pompa/valve.
+
 ## 1. Izin dan pengamanan aktual
 
 Pembuat PCB telah menyatakan desain PCB aman (attestation operator,
