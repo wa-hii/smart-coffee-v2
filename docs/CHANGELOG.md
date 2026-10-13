@@ -2,6 +2,20 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 13 Oktober 2026 19:47 WIB — Reboot Pi tertahan autentikasi
+
+- Operator memberikan izin reboot Pi.
+  Sebelum percobaan, tidak ada proses
+  akuisisi serial aktif; FT232R belum
+  terdeteksi, power Pi `0x0`.
+- `sudo -n -v` membutuhkan password;
+  `systemctl --no-ask-password reboot`
+  gagal karena butuh autentikasi interaktif.
+- **Pi belum reboot**; tidak dilakukan
+  bypass, reset USB, serial open, atau
+  perubahan firmware. Tindak lanjut
+  `sudo reboot` oleh operator secara lokal.
+
 ## 13 Oktober 2026 19:41 WIB — Cek ulang setelah restart operator
 
 - Pemeriksaan pasif FT232R pada Pi

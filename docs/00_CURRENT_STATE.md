@@ -1,5 +1,26 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## Reboot Raspberry Pi diminta operator — 13 Oktober 19:47 WIB, BLOCKED
+
+Operator mengizinkan restart **Raspberry Pi 5**
+untuk mencoba pemulihan enumerasi FT232R.
+Preflight SSH `enose-pi5`: tidak ada
+listener/akuisisi serial aktif, FT232R
+belum terlihat di `lsusb` atau `ttyUSB*`,
+`get_throttled=0x0`, uptime Pi masih
+berasal dari boot `14:24 WIB`.
+`sudo -n -v` ditolak (`a password is
+required`), lalu `systemctl --no-ask-password
+reboot` ditolak (`Interactive authentication
+required`). **Tidak ada reboot aktual**,
+tidak ada percobaan melewati autentikasi
+atau mengubah sudo/polkit.
+Operator perlu menjalankan `sudo reboot`
+sendiri dari terminal Pi dengan autentikasi
+setempat. Setelah Pi menyala, ulangi
+**enumerasi USB pasif**, tanpa membuka
+UART/AI TEST.
+
 ## Setelah restart operator — cek USB pasif 19:41 WIB
 
 SSH Pi berhasil, tetapi FT232R `0403:6001`
