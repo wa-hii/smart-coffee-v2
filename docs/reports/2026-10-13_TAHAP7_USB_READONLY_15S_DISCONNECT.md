@@ -6,6 +6,55 @@ USB FT232R → Raspberry Pi 5.
 **Hasil:** **BLOCKED / USB DISCONNECTED**; tidak ada
 pembacaan JSON atau perubahan firmware/aktuator.
 
+## Addendum — konfirmasi fisik dan enumerasi pasif ulang (19:33 WIB)
+
+Pengguna mengonfirmasi bahwa **PCB custom dan LCD
+Nextion masih menyala normal**, serta **kabel USB
+masih terpasang pada kedua ujungnya**. Ini
+merupakan observasi operator atas alat; **belum
+menjamin bahwa jalur D+/D−, VBUS, GND, atau
+power internal FT232R bekerja normal**.
+
+SSH ke `enose-pi5` berhasil, lalu diperiksa
+`lsusb`, `lsusb -t`, `/dev/serial/by-id`,
+`/dev/ttyUSB*`, `/sys/bus/usb/devices/3-1`,
+`vcgencmd get_throttled`, dan catatan kernel.
+**Tidak ada port serial yang dibuka**.
+
+Hasil:
+- Keempat USB root hub Pi tetap terlihat
+  pada Bus 001–004.
+- `lsusb -d 0403:6001` **kosong**;
+  **tidak ada FT232R**, port `ttyUSB0`,
+  device by-id maupun node sysfs `3-1`.
+- Catatan kernel terakhir untuk FT232R
+  tetap **19:24:44 WIB: USB disconnect**;
+  tidak ada bukti enumerasi ulang sesudahnya.
+- `throttled=0x0`, tidak ada
+  proses listener G3 yang masih berjalan.
+
+**Diagnostik terkini:** karena PCB dan Nextion
+hidup tetapi bridge USB tidak terenumerasi,
+prioritaskan pemeriksaan fisik kabel USB-B/A,
+konektor, VBUS/ground dan suplai FT232R
+oleh penanggung jawab hardware dengan
+prosedur daya aman. Jangan menyimpulkan
+firmware/baud/parser sebagai penyebab
+untuk kegagalan enumerasi; serial parsing
+baru relevan sesudah USB terlihat lagi.
+
+**Tindakan selanjutnya:** hentikan sesi
+akuisisi, matikan daya secara tertib
+sesuai SOP lokal sebelum pemeriksaan
+kabel/konektor; dokumentasikan hasil
+inspeksi. Jangan mencabut kabel atau
+mengukur PCB saat masih bertegangan
+tanpa prosedur/proteksi yang sesuai.
+Setelah kondisi fisik dinyatakan aman
+dan sambungan dipulihkan operator,
+lakukan **enumerasi pasif** dahulu.
+Tidak ada izin auto-retry membuka port.
+
 ## Scope dan izin
 
 Operator mengizinkan satu pembacaan **USB read-only

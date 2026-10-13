@@ -2,6 +2,25 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 13 Oktober 2026 19:33 WIB — FT232R belum muncul kembali
+
+- Operator menegaskan PCB custom dan
+  Nextion menyala normal, kabel USB
+  terpasang kedua ujungnya.
+- Pi masih aktif, root hub USB
+  muncul, tetapi FT232R `0403:6001`
+  **hilang** dari `lsusb`,
+  `/dev/ttyUSB0` dan sysfs.
+  Tidak ada enumerasi ulang sesudah
+  disconnect `19:24:44`.
+- Ini pemeriksaan **pasif saja**,
+  tanpa pembukaan port, reset driver,
+  aktusi alat, flashing, atau
+  percobaan ulang.
+- Tindak lanjut dialihkan ke
+  inspeksi fisik USB/power
+  sebelum membuka serial lagi.
+
 ## 13 Oktober 2026 19:24 WIB — USB FT232R disconnect saat uji 15s
 
 - Satu pembacaan read-only 15s mendapat izin

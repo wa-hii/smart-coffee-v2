@@ -1,5 +1,24 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## Pasca USB disconnect: konfirmasi operator & Pi (19:33 WIB)
+
+Operator mengonfirmasi **PCB custom dan
+Nextion tetap menyala normal**, kabel
+USB tetap terpasang pada kedua sisi.
+Pemeriksaan **pasif** SSH Pi: USB
+root hub normal tetapi FT232R
+`0403:6001` `A10KMM3S` **tidak
+terenumerasi**, `/dev/ttyUSB0` dan
+sysfs `3-1` tidak ada, kernel
+terakhir mencatat disconnect
+**19:24:44 WIB**, `throttled=0x0`.
+Tidak ada serial open/retry.
+**STOP uji G3/serial** sampai
+inspeksi kabel, konektor, jalur
+USB dan daya FT232R sesuai SOP.
+Rujukan:
+`docs/reports/2026-10-13_TAHAP7_USB_READONLY_15S_DISCONNECT.md`.
+
 ## USB 15s read-only 13 Oktober malam — BLOCKED/DISCONNECTED
 
 Operator mengizinkan pembacaan hanya 15s
