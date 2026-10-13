@@ -1,5 +1,34 @@
 # USB read-only 15 detik — FT232R disconnect pada saat open
 
+## Addendum pemulihan — reboot Raspberry Pi 19:49 WIB
+
+Setelah restart PCB custom tidak memulihkan USB,
+operator melakukan reboot Raspberry Pi 5 secara
+langsung (reboot via SSH sebelumnya tertahan
+autentikasi admin). SSH kembali tersedia.
+Hasil pemeriksaan pasif pukul **19:50:11 WIB**:
+
+- Waktu boot Pi: **19:49:19 WIB**.
+- `lsusb -d 0403:6001`: FT232 Serial
+  terdeteksi pada Bus 003 Device 002.
+- Log kernel: pada **19:49:22** FT232R
+  `A10KMM3S` ditemukan dan `ftdi_sio`
+  menghubungkannya kembali ke `ttyUSB0`.
+- By-id `usb-FTDI_FT232R_USB_UART_A10KMM3S-if00-port0`
+  menunjuk `../../ttyUSB0`; `fuser`
+  tidak menunjukkan proses pemilik port.
+- Getty dan ModemManager inactive;
+  `get_throttled=0x0`.
+
+**Keputusan:** enumerasi USB **RESTORED/PASS**.
+Ini *bukan* verifikasi bahwa serial dapat dibuka
+stabil, bukan validasi isi 189 JSON dari G3 Run02,
+dan bukan bukti penyebab awal disconnect.
+Tidak ada port open/START/akuisisi pada pemeriksaan
+ini. Langkah berikutnya perlu izin pembacaan
+serial read-only baru dengan operator mengawasi
+alat yang IDLE.
+
 **Tanggal/waktu:** 13 Oktober 2026, sekitar 19.24 WIB.
 **Perangkat:** Smart Coffee E-Nose PCB custom ATmega2560,
 USB FT232R → Raspberry Pi 5.

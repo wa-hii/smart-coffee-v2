@@ -2,6 +2,21 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 13 Oktober 2026 19:50 WIB — Enumerasi FT232R pulih setelah reboot Pi
+
+- Operator melakukan reboot Raspberry Pi:
+  boot baru terbukti pada **19:49:19 WIB**.
+- FT232R `0403:6001` / `A10KMM3S`
+  kembali terlihat di `lsusb` dan
+  `/dev/ttyUSB0` (by-id terverifikasi);
+  driver `ftdi_sio` aktif.
+- Port bebas, getty/ModemManager inactive,
+  Pi `throttled=0x0`; pemeriksaan
+  **pasif tanpa membuka serial**.
+- Penyebab disconnect sebelumnya belum
+  pasti. Pembacaan JSON dan G3 fisik
+  masih menunggu izin pengujian baru.
+
 ## 13 Oktober 2026 19:47 WIB — Reboot Pi tertahan autentikasi
 
 - Operator memberikan izin reboot Pi.

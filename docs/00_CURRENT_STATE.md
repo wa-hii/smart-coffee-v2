@@ -1,5 +1,28 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## Setelah reboot Raspberry Pi oleh operator — 13 Oktober 19:50 WIB
+
+Operator memberi tahu Raspberry Pi kembali menyala.
+SSH ke `enose-pi5` berhasil; `uptime -s` menunjukkan
+**boot baru pada 19:49:19 WIB**. FT232R
+`0403:6001`, serial `A10KMM3S`, **berhasil
+terenumerasi kembali** pada 19:49:22:
+`/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A10KMM3S-if00-port0`
+→ `/dev/ttyUSB0`. Driver `ftdi_sio` aktif,
+`fuser` tidak mendeteksi pemilik port,
+`serial-getty` dan `ModemManager` inactive,
+Pi `throttled=0x0`.
+
+**Status USB enumeration RESTORED (PASS pasif).**
+Belum ada pembukaan port serial atau JSON yang
+diverifikasi setelah reboot; USB transport,
+hardware G3, dan kesesuaian firmware dengan
+kontrak sensor masih memerlukan pengujian
+terpisah. Reboot menyelesaikan gejala hilangnya
+enumerasi, tetapi tidak membuktikan akar masalah.
+Jangan lakukan auto-open atau auto-G3 tanpa
+persetujuan tambahan.
+
 ## Reboot Raspberry Pi diminta operator — 13 Oktober 19:47 WIB, BLOCKED
 
 Operator mengizinkan restart **Raspberry Pi 5**
