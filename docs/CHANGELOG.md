@@ -1,5 +1,26 @@
 # Catatan perubahan proyek
 
+## 14 Oktober 2026 — Integrasi Tahap 8, gerbang pasif Tahap 9
+
+- Implementasi `stage8_transport_integration.py` + uji:
+  15 skenario arus byte UART simulasi dari ADC CSV asli,
+  termasuk fragmentasi, timeout kosong, boot noise, idle,
+  start label leakage, fault integrity, dan disconnect.
+  Hasil Windows/Pi 2 COMPLETE, 10 FAIL_CLOSED, 3 NOT_STARTED.
+- Fix Pi listener: START berulang ketika sesi aktif
+  langsung abort `duplicate_start_while_active`, maksimal
+  satu final pada satu capture; ditambah uji regresi.
+- Implementasi `stage9_passive_readiness.py` + uji
+  identitas FT232R by-id, udev VID/PID/serial/driver,
+  pemilik port, dan Pi throttle, tanpa membuka serial.
+- Firmware PlatformIO kedua environment SUCCESS, Nextion
+  HMI 12 halaman/23 event PASS; QA Stage0/1/6/7/8/9
+  software offline Windows dan Pi PASS.
+- Laporan: `docs/reports/2026-10-14_TAHAP8_9_TRANSPORT_E2E_AND_PASSIVE_HARDWARE_GATE.md`.
+- **G3 fisik tetap INCONCLUSIVE, VBUS/backfeed belum dibuktikan,
+  promosi AI tetap NO-GO.** Tidak ada GPIO/flash/aktuasi.
+
+
 ## 14 Oktober 2026 05:34–05:37 WIB — QA remote unattended
 
 - User remote, tidak berada di dekat alat: tidak menjalankan

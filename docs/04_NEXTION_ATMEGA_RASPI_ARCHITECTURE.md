@@ -1,5 +1,20 @@
 # Rancangan Integrasi Nextion–ATmega2560–Raspberry Pi 5
 
+**14 Oktober — integrasi host offline teruji:**
+`stage8_transport_integration.py` membangun UART bytes
+**simulasi** dari ADC CSV nyata, termasuk boot noise, frame
+`idle`, dan `nextion_event=EVT:AI_START` yang disintesis.
+Urutan fisik Nextion→ATmega **tidak** dibuktikan dari simulasi.
+Pi adapter menggabungkan/menolak stream fragmentasi,
+dan menolak `ACQ_START` kedua ketika capture aktif agar
+tidak mencampur dua sesi. Transport Pi → MCU tetap
+TX=0; Nextion pResult hasil AI tetap N/A karena rilis
+model belum disetujui. `stage9_passive_readiness.py`
+mengecek udev FT232R/driver/port/throttle tanpa membuka
+perangkat, **bukan** inspeksi tegangan/wiring/backfeed.
+Status dan prosedur lanjut:
+`docs/reports/2026-10-14_TAHAP8_9_TRANSPORT_E2E_AND_PASSIVE_HARDWARE_GATE.md`.
+
 **Fingerprint runtime 13 Oktober 20:49 WIB:** pada capture
 IDLE 8 detik, 7/7 JSON berbentuk sensor memiliki `phase=idle`.
 Ini cocok dengan `adsCallback()` pada **source sebelum commit

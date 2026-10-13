@@ -2,6 +2,20 @@
 
 **Dokumen acuan utama versi 1.3 — pembaruan dataset nyata dan gerbang Tahap 6 tanggal 10 Oktober 2026.** Ruang lingkup: Smart Coffee E-Nose v2 / RoastSense dengan ATmega2560, Nextion, komputer host dan Raspberry Pi 5. Pengembangan dilakukan dengan menjaga kestabilan akuisisi yang telah berjalan. **Jangan otomatis mengerjakan semua tahap berikutnya.**
 
+**Milestone 14 Oktober 2026 — lanjut tahap aman saat remote:**
+Tahap 8 kini meliputi **integrasi transport penuh secara
+offline**: CSV ADC asli B33 → byte UART simulasi terfragmentasi
+→ parser serial Pi → validator lima siklus → Stage6 gate N/A,
+dengan 15 skenario (2 PASS, 10 FAIL_CLOSED, 3 NOT_STARTED).
+Listener menolak START kedua saat sesi aktif secara
+fail-closed. Tahap 9 **passive readiness only** memvalidasi
+identitas FT232R, driver, port bebas, dan Pi throttling;
+**bukan G0 listrik atau G3 lima siklus hardware**.
+Software transport QA terverifikasi Windows dan Pi;
+Tahap 9 fisik terhalang ketiadaan operator onsite dan
+ketidakpastian firmware terpasang. Laporan:
+`docs/reports/2026-10-14_TAHAP8_9_TRANSPORT_E2E_AND_PASSIVE_HARDWARE_GATE.md`.
+
 **Keputusan remote 14 Oktober 2026:** Tidak ada operator di
 dekat PCB/Nextion; G3 yang menggerakkan pompa/valve tidak boleh
 di-trigger via USB/remote. Preflight Pi/FT232R non-invasif

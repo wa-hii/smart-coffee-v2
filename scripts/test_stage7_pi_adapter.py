@@ -205,6 +205,20 @@ def main_test():
     assert bad_start["diagnostics"]["acq_start_contract_outcomes"] == {
         "bad_start_contract": 1,
     }
+    duplicate_starts = receive_serial_chunks([
+        json.dumps(clean_start).encode() + b"\n",
+        json.dumps(clean_start).encode() + b"\n",
+        json.dumps(clean_start).encode() + b"\n",
+    ], monotonic=lambda: 1)
+    assert duplicate_starts["final"]["quality"] == "FAIL_CLOSED"
+    assert duplicate_starts["final"]["reason"] == "duplicate_start_while_active"
+    assert duplicate_starts["terminal_event_count"] == 1
+    assert duplicate_starts["diagnostics"]["acq_start_contract_outcomes"] == {
+        "accepted": 1, "duplicate_start_while_active": 1,
+    }
+    assert duplicate_starts["diagnostics"]["wire_events_seen"] == {
+        "ACQ_START": 2,
+    }
 
     framer = SerialLineFramer()
     assert framer.feed(b"x" * (MAX_LINE_BYTES + 50) + b"\n") == []

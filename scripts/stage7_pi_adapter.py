@@ -219,7 +219,16 @@ def receive_serial_chunks(chunks: Iterable[bytes], *,
                             other_json_shapes[sig] += 1
                         else:
                             other_json_shapes_untracked += 1
-                bridge_events = tracker.feed(line)
+                # A physical Pi listener is SINGLE-SESSION. The underlying
+                # bridge supports successive legacy sessions, but a second
+                # START during one active capture must fail closed rather
+                # than silently preempt and possibly accept a later run.
+                if event == "ACQ_START" and tracker.active is not None:
+                    tracker.abort("duplicate_start_while_active")
+                    bridge_events = [{"type": "DISCARDED",
+                                      "reason": "duplicate_start_while_active"}]
+                else:
+                    bridge_events = tracker.feed(line)
                 if isinstance(event, str) and event == "ACQ_START":
                     if any(item.get("type") == "SESSION_STARTED"
                            for item in bridge_events):
@@ -230,6 +239,9 @@ def receive_serial_chunks(chunks: Iterable[bytes], *,
                     elif any(item.get("reason") == "bad_start_contract"
                              for item in bridge_events):
                         start_contract_outcomes["bad_start_contract"] += 1
+                    elif any(item.get("reason") == "duplicate_start_while_active"
+                             for item in bridge_events):
+                        start_contract_outcomes["duplicate_start_while_active"] += 1
                     else:
                         start_contract_outcomes["other_rejection"] += 1
                 if tracker.last_final is not None and tracker.active is None:

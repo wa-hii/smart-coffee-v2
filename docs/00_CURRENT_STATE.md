@@ -1,5 +1,25 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## Milestone Tahap 8+9 — integrasi software byte-stream + preflight hardware pasif
+
+14 Oktober 2026: jalur **sintetis** UART byte stream dari
+CSV asli B33 → `SerialLineFramer` Pi → `LegacySessionBridge`
+→ Stage6 gate diuji end-to-end menggunakan 15 fault/success
+cases. **2 COMPLETE_QA, 10 FAIL_CLOSED, 3 NOT_STARTED**;
+output AI semua N/A, nol byte dikirim ke MCU dan nol aktuasi.
+Reader Pi kini menghentikan `ACQ_START` kedua ketika sesi
+pertama masih aktif dengan satu `SESSION_FINAL FAIL_CLOSED`.
+QA Windows dan Pi PASS; checksum kode matched.
+
+Stage9 *hardware identity passive* di Pi lewat udev/sysfs:
+FT232R `A10KMM3S`, VID:PID `0403:6001`, driver `ftdi_sio`,
+symlink by-id → `/dev/ttyUSB0`, port character device,
+fuser no visible owner, `throttled=0x0`: **PASS IDENTITY ONLY**.
+Tidak ada serial open, reset, flash, perintah Nextion,
+EEPROM, pompa/valve, sampel fisik baru, atau validasi power
+VBUS/backfeed. G3 hardware tetap **INCONCLUSIVE**, AI NO-GO.
+Laporan: `docs/reports/2026-10-14_TAHAP8_9_TRANSPORT_E2E_AND_PASSIVE_HARDWARE_GATE.md`.
+
 ## Remote unattended QA — 14 Oktober 2026 sekitar 05:34–05:37 WIB
 
 User mengonfirmasi **Pi dan PCB custom menyala tetapi tidak ada

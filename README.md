@@ -1,5 +1,19 @@
 # Smart Coffee E-Nose v2
 
+**14 Oktober 2026 — milestone Tahap 8/9 remote-only:**
+integrasi transport baru `scripts/stage8_transport_integration.py`
+menjalankan **15 skenario UART-fragmentation → parser Pi →
+validator lima siklus** berbasis `D-GAW_B33.csv` (ADC nyata;
+frame UART disimulasikan, bukan capture hardware). Hasil:
+2 `COMPLETE_QA`, 10 `FAIL_CLOSED`, 3 `NOT_STARTED`, semuanya
+AI `N/A`. Bug sesi START duplikat pada *listener Pi*
+diperbaiki menjadi fail-closed dengan satu final.
+`scripts/stage9_passive_readiness.py` mengonfirmasi FT232R
+`A10KMM3S`/driver `ftdi_sio`/port bebas/throttle normal di
+Pi **tanpa membuka tty**. Hardware G3 dan isolasi USB-VBUS
+tetap belum diverifikasi; AI tetap NO-GO. Report lengkap:
+`docs/reports/2026-10-14_TAHAP8_9_TRANSPORT_E2E_AND_PASSIVE_HARDWARE_GATE.md`.
+
 **14 Oktober 2026 — QA remote tanpa operator di dekat alat:**
 Raspberry Pi dan FT232R terdeteksi sehat pada preflight
 non-invasif; regresi offline Windows–Pi PASS. Replay pada Pi
