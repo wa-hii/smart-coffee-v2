@@ -6,6 +6,33 @@ USB FT232R → Raspberry Pi 5.
 **Hasil:** **BLOCKED / USB DISCONNECTED**; tidak ada
 pembacaan JSON atau perubahan firmware/aktuator.
 
+## Addendum — pemeriksaan ulang setelah operator menyatakan restart (19:41 WIB)
+
+Operator menyampaikan **"sudah di restart, jalankan ulang"**.
+Pemeriksaan pasif melalui SSH Pi dilakukan tanpa
+membuka `/dev/ttyUSB*`, tanpa reset host/hub, dan
+tanpa mengirim byte UART.
+
+- Waktu cek Pi **2026-10-13 19:41:32 +07:00**.
+- `lsusb -d 0403:6001`: **kosong**.
+- `lsusb -t`: hanya root hub USB pada Bus 001–004,
+  **tidak ada FT232R**.
+- `/dev/serial/by-id` dan `/dev/ttyUSB*`:
+  **tidak ada**.
+- Log kernel yang relevan berakhir pada **USB
+  disconnect 19:24:44**, tidak menunjukkan
+  enumerasi FT232R berikutnya.
+- `vcgencmd get_throttled`: `throttled=0x0`.
+- `uptime -s` menunjukkan **14:24:00 WIB**,
+  jadi Raspberry Pi **tidak terlihat reboot**
+  setelah kehilangan FT232R. Bagian mana yang
+  di-restart operator belum dikonfirmasi.
+
+**Keputusan:** USB transport tetap **BLOCKED**,
+tidak ada pembacaan serial 15s baru atau G3 ulang.
+Verifikasi fisik kabel USB dan jalur daya FT232R
+masih diperlukan sebelum mencoba serial lagi.
+
 ## Addendum — konfirmasi fisik dan enumerasi pasif ulang (19:33 WIB)
 
 Pengguna mengonfirmasi bahwa **PCB custom dan LCD

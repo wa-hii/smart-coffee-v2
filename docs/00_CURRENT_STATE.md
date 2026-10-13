@@ -1,5 +1,20 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## Setelah restart operator — cek USB pasif 19:41 WIB
+
+SSH Pi berhasil, tetapi FT232R `0403:6001`
+**tetap hilang** dari `lsusb`;
+`/dev/ttyUSB0`/by-id tidak tersedia.
+USB root hub normal, `throttled=0x0`,
+log kernel berakhir pada disconnect
+`19:24:44` tanpa enumerasi berikutnya.
+Pi `uptime -s=14:24:00` sehingga tidak
+terlihat reboot setelah disconnect;
+jenis perangkat yang di-restart oleh
+operator belum dikonfirmasi.
+Tidak dilakukan serial open atau
+restart USB host. Status **BLOCKED**.
+
 ## Pasca USB disconnect: konfirmasi operator & Pi (19:33 WIB)
 
 Operator mengonfirmasi **PCB custom dan

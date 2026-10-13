@@ -2,6 +2,20 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 13 Oktober 2026 19:41 WIB — Cek ulang setelah restart operator
+
+- Pemeriksaan pasif FT232R pada Pi
+  dilakukan setelah operator melaporkan
+  restart; **FT232R belum kembali**
+  di `lsusb`, tidak ada `ttyUSB0`.
+- Pi menunjukkan boot time `14:24`
+  dan log kernel berakhir di USB
+  disconnect `19:24:44`; Pi belum
+  tampak di-restart sejak kejadian.
+- Tidak ada percobaan serial open
+  atau reset USB. Status tetap BLOCKED,
+  perlu inspeksi kabel/jalur FT232R.
+
 ## 13 Oktober 2026 19:33 WIB — FT232R belum muncul kembali
 
 - Operator menegaskan PCB custom dan
