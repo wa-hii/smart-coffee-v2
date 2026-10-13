@@ -2,6 +2,26 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 13 Oktober 2026 — Probe G2 USB PCB custom disiapkan
+
+- Pembuat PCB menyatakan desain daya aman
+  (attestation, tidak menggantikan
+  pengukuran independen VBUS/backfeed).
+- FT232R `A10KMM3S` by-id USB Pi
+  terkonfirmasi, port/getty siap
+  untuk uji G2 setelah kontrol
+  keselamatan operasional terpenuhi.
+- Menambah `scripts/stage7_usb_readonly_probe.py`
+  dan `scripts/test_stage7_usb_readonly_probe.py`
+  dengan opt-in G2 + IDLE + onsite,
+  framing incremental, bounded
+  read dan output evidence nonraw,
+  tanpa serial write/aktuator/model.
+  QA Windows + Pi **PASS**,
+  skrip sudah ada di lingkungan Pi.
+- **Port live belum dibuka**.
+  G3 Nextion/aktuator tidak dijalankan;
+  SOP dan laporan diperbarui.
 ## 13 Oktober 2026 — G0 foto USB PCB custom
 
 - Audit foto Pi USB-A/USB-C dan PCB custom

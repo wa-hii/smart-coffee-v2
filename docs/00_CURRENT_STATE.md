@@ -1,5 +1,30 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## Progres G2 USB PCB custom — 13 Oktober 2026
+
+Pembuat PCB menyatakan **rangkaian custom aman**;
+dicatat sebagai attestation operator (belum ada
+ukur independen untuk VBUS/backfeed).
+FT232R `0403:6001` `A10KMM3S` masih
+terenumerasi di `/dev/ttyUSB0` pada Pi,
+port tidak terlihat digunakan, getty
+dan ModemManager inactive, throttled 0x0.
+Source firmware `Serial` host 115200,
+`Serial2` Nextion 9600, `actuator.begin()`
+memanggil stop() jika source ini yang
+terpasang di device; deployed firmware
+belum diverifikasi.
+Probe `scripts/stage7_usb_readonly_probe.py`
+berhasil lolos tes Windows+Pi,
+telah dideploy ke Pi dengan batas
+12–30s, parser newline incremental,
+hash metadata dan no-serial-write.
+**G2 live NOT RUN** sampai alat
+IDLE, ada pengawas onsite,
+dan persetujuan G2/reset.
+**G3 NOT RUN, AI NO-GO**.
+Laporan `docs/reports/2026-10-13_TAHAP7_G2_USB_PROBE_READY.md`.
+
 ## Audit foto USB PCB custom pada Pi — 13 Oktober 2026
 
 Foto operator memverifikasi panel **PCB custom** dengan

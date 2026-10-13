@@ -1,5 +1,26 @@
 # SOP Bench Tahap 7 — USB ATmega2560 ↔ Raspberry Pi 5 (115200 baud)
 
+## Konfirmasi pembuat PCB dan persiapan G2 — 13 Oktober 2026
+
+Pembuat PCB/operator menyatakan bahwa PCB custom
+**sudah aman** dan meminta pekerjaan berlanjut.
+Pernyataan ini dicatat sebagai **attestation operator**,
+bukan pengukuran independen VBUS/backfeed.
+Jangan mengklaim verifikasi kelistrikan berdasarkan
+USB descriptor atau pernyataan tanpa pengukuran.
+
+Sebagai tindak lanjut, probe `scripts/stage7_usb_readonly_probe.py`
+telah dibuat dan disalin ke Pi. Tes offline/pySerial
+mock **PASS** di Windows dan Pi; probe memiliki tiga
+gate eksplisit: persetujuan G2, konfirmasi alat
+**IDLE**, dan pengawasan **orang di lokasi**.
+Tanpa ketiganya, probe menolak membuka USB tty.
+Ini diperlukan karena DTR saat `open()` bisa me-reset
+MCU custom, walaupun tidak ada byte TX dikirim.
+**G2 LIVE NOT RUN**, G3 dan operasi aktuator tetap
+**NOT RUN**. Perintah dan bukti:
+`docs/reports/2026-10-13_TAHAP7_G2_USB_PROBE_READY.md`.
+
 ## Update G0 foto PCB custom dan descriptor USB — 13 Oktober 2026
 
 Operator mengirim foto Pi 5 (USB-A dengan kabel data,
