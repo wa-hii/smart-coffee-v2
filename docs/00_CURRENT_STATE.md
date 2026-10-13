@@ -1,5 +1,31 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## G3 Nextion PCB custom — 13 Oktober 2026, INCONCLUSIVE
+
+Operator mengizinkan **satu sesi G3** via
+Nextion, pengguna diminta menekan
+START AI TEST setelah listener aktif.
+Listener Pi FT232R 115200 berjalan
+maksimal 180s dan selesai dengan
+`final.quality=NOT_STARTED`,
+`reason=no_completed_session`;
+ada **304 nonempty serial read chunks**
+tetapi **tidak ditemukan event ACQ_START
+valid atau terminal akuisisi**. Ini
+**bukan 304 sampel sensor**.
+Port ditutup tanpa perintah Pi;
+get_throttled sesudah tes `0x0`.
+Tidak ada bukti sesi lima siklus
+diselesaikan. **Jangan menganggap
+G3/E2E PASS**. Perlu konfirmasi
+apakah START ditekan di Nextion
+dan apakah alat benar-benar
+menjalankan lima siklus sebelum
+merancang retry.
+Evidence asli ada di Pi;
+laporan:
+`docs/reports/2026-10-13_TAHAP7_G3_NEXTION_RUN01_INCONCLUSIVE.md`.
+
 ## Konfirmasi pasca-G2 — 13 Oktober 2026
 
 Operator menyatakan **"alat tetap normal

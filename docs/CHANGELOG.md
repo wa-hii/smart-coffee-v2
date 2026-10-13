@@ -2,6 +2,27 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 13 Oktober 2026 — G3 Nextion pertama, belum terverifikasi
+
+- G3 listener USB fisik FT232R pada Pi
+  berjalan 180s, setelah izin satu
+  sesi melalui Nextion; operator
+  diminta START AI TEST via LCD.
+- Terdapat **304 nonempty read chunks**,
+  namun `ACQ_START` valid tidak terdeteksi;
+  `final.quality=NOT_STARTED`,
+  `terminal_event_count=0`,
+  `final.status=N/A`.
+  **Tidak ada klaim sampel valid,
+  lima siklus complete atau E2E PASS**.
+- Port ditutup, Pi throttle `0x0`,
+  raw CSV/firmware/aktuator tidak
+  dimodifikasi/diperintah dari Pi.
+  Minta konfirmasi operator mengenai
+  START dan perilaku LCD sebelum
+  uji ulang. Laporan:
+  `docs/reports/2026-10-13_TAHAP7_G3_NEXTION_RUN01_INCONCLUSIVE.md`.
+
 ## 13 Oktober 2026 — Observasi alat setelah G2
 
 - Operator mengonfirmasi **perangkat tetap
