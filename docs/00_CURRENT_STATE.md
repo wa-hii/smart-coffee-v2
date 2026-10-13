@@ -1,5 +1,33 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## G3 USB Run02 langsung pada Pi — 13 Oktober 2026
+
+Listener `stage7_pi_adapter.py` versi
+reassembly baru telah diverifikasi
+SHA256 identik Windows/Pi; semua
+regresi offline PASS di kedua host.
+G3 satu kali ulang dijalankan di
+Pi dengan port FT232R 115200 selama
+180s. **52.224 byte / 303 chunk /
+203 baris lengkap** diterima; ada
+**189 JSON valid**, 14 non-JSON,
+tetapi **0 event START/COMPLETE,
+0 sampel cocok skema, terminal 0**.
+Validator tetap `NOT_STARTED/N/A`,
+exit 2; port sesudah uji tertutup
+dan power `throttled=0x0`.
+Jadi bug fragmentation sebelumnya
+sudah diperbaiki, tetapi **belum
+cukup untuk E2E G3 PASS**.
+Perlu konfirmasi apakah START ditekan
+dan lima siklus selesai pada Run02;
+bila ya, diagnosis lanjut harus
+memeriksa struktur field JSON
+firmware aktual, bukan mengklaim
+189 JSON sebagai sampel.
+Laporan:
+`docs/reports/2026-10-13_TAHAP7_G3_NEXTION_RUN02_RESULT.md`.
+
 ## Koreksi G3 dan framing Pi — 13 Oktober 2026
 
 Operator mengonfirmasi **START AI TEST sudah ditekan

@@ -2,6 +2,29 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 13 Oktober 2026 — G3 USB Run02 di Raspberry Pi
+
+- Setelah perbaikan reassembly serial,
+  listener G3 kedua benar-benar
+  berjalan di Pi pada USB FT232R
+  115200 selama 180s (SHA256 source
+  Pi sama dengan Windows; tes
+  offline Pi PASS).
+- Dibaca **52.224 byte, 303 nonempty
+  chunk, 203 baris, 189 JSON valid,
+  14 invalid/non-JSON**; **tidak
+  ditemukan ACQ_START/COMPLETE ataupun
+  sampel sensor sesuai skema**.
+  Hasil `NOT_STARTED`, bukti asli
+  `run02.json` di Pi beserta
+  checksum tercatat pada laporan.
+- Tidak ada uji ulang otomatis,
+  flashing, perintah TX atau
+  perubahan aktuator oleh listener.
+  Menunggu konfirmasi aktivitas
+  Nextion selama G3 Run02 sebelum
+  memperluas diagnosis schema.
+
 ## 13 Oktober 2026 — Bug framing listener G3 diperbaiki
 
 - Operator memastikan START AI TEST
