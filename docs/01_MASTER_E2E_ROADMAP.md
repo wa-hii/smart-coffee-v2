@@ -2,6 +2,22 @@
 
 **Dokumen acuan utama versi 1.3 — pembaruan dataset nyata dan gerbang Tahap 6 tanggal 10 Oktober 2026.** Ruang lingkup: Smart Coffee E-Nose v2 / RoastSense dengan ATmega2560, Nextion, komputer host dan Raspberry Pi 5. Pengembangan dilakukan dengan menjaga kestabilan akuisisi yang telah berjalan. **Jangan otomatis mengerjakan semua tahap berikutnya.**
 
+**Addendum P0 13 Oktober 20:12 WIB:** USB FT232R kembali terenumerasi
+setelah reboot operator pukul 19:49 WIB; pemeriksaan pasif ulang
+20:09 dan 20:12 menemukan by-id/`ttyUSB0`, driver `ftdi_sio`,
+dan tidak ada disconnect baru pada log boot yang diperiksa.
+G2 fisik pernah menerima 4.313 byte (transport RX PASS terbatas),
+tetapi G3 Run02 menerima 189 JSON valid yang **tidak satu pun
+tervalidasi sebagai event/sampel**. Operator melihat lima siklus
+Nextion selesai. **G3 tetap INCONCLUSIVE; jangan menyimpulkan
+USB stabil saat serial open**. Prioritas berurutan:
+(P0) verifikasi enumerasi/power/port pasif dan provenance evidence;
+(P1) setelah izin baru, capture *read-only IDLE* dengan diagnostik
+nama field JSON (tanpa raw nilai) untuk isolasi mismatch;
+(P2) validasi satu G3 fisik hanya setelah risiko disconnect
+dan skema pesan dipahami. Seluruh model tetap NO-GO.
+Rujukan: `docs/reports/2026-10-13_TAHAP7_P0_REAUDIT_POST_REBOOT.md`.
+
 Dokumen bukti dasar: **00_CURRENT_STATE.md**, **02_KONTRAK_SISTEM_DAN_KEPUTUSAN_TAHAP0.md**, dan **06_INDEPENDENT_AUDIT_QA_QC.md**. Keputusan tentang model dan protokol lanjutan dijabarkan pada dokumen **03** dan **04**.
 
 ## A. Prinsip kerja dan batas keselamatan
@@ -24,7 +40,7 @@ Dokumen bukti dasar: **00_CURRENT_STATE.md**, **02_KONTRAK_SISTEM_DAN_KEPUTUSAN_
 | 4. Penelitian model baseline dan challenger | **BENCHMARK LOBO OFFLINE SELESAI; MODEL BELUM TERVALIDASI** | P1 | 3 | Tidak |
 | 5. Generalisasi lintas batch, drift dan unknown | **DIAGNOSTIK OFFLINE PASS + DATASET ILMIAH DIAUDIT; UNKNOWN NO-GO** | P0 | 3–4 | Ya untuk pengujian prospektif |
 | 6. Pemilihan model dan kontrak artefak | **GERBANG NO-GO OFFLINE SELESAI; PROMOSI TERHAMBAT** | P1 | 5 | Ya untuk benchmark perangkat |
-| 7. Persiapan integrasi Raspberry Pi–ATmega | **SSH PI + VENV + REPLAY ASLI PASS; SERIAL FISIK BELUM TERUJI** | P1 | 1, 6 | Ya untuk integrasi |
+| 7. Persiapan integrasi Raspberry Pi–ATmega | **G2 RX USB PASS TERBATAS; ENUMERASI PULIH PASCA-REBOOT; G3 INCONCLUSIVE, STABILITAS SERIAL BELUM TERBUKTI** | P0 keselamatan transport / P1 integrasi | 1, 6 | Ya untuk integrasi |
 | 8. Simulasi E2E penuh secara offline | **MOCK KONTRAK E2E 11/11 PASS DI WINDOWS & PI; MODEL NYATA TETAP NO-GO** | P1 | 6–7 | Tidak |
 | 9. Integrasi dan validasi hardware | MENUNGGU PERSETUJUAN | P1 | 8 | Ya |
 | 10. Validasi prospektif dan promosi model final | TERHAMBAT | P0 (gerbang rilis) | 5, 9 | Ya |

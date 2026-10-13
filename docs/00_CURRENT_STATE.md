@@ -1,5 +1,28 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## Audit independen pasca-reboot — 13 Oktober 20:09–20:12 WIB
+
+Pemeriksaan **baru langsung melalui SSH dengan host key diverifikasi**:
+`uptime -s=2026-10-13 19:49:19`, FT232R `0403:6001` serial
+`A10KMM3S` terenumerasi di Bus 003 Device 002 dan by-id mengarah
+ke `/dev/ttyUSB0`. `ftdi_sio` aktif, `fuser` tidak menemukan
+pemilik port, getty/ModemManager inactive, `throttled=0x0`.
+Pemeriksaan ulang 20:12 WIB tetap menemukan FT232R; tidak ada
+pesan `USB disconnect` pada log kernel boot baru yang diperiksa.
+Ini **PASS enumerasi pasif pada dua titik waktu**, **bukan**
+sertifikasi stabilitas saat port dibuka maupun selama G3.
+
+Checksum `stage7_pi_adapter.py` lokal dan Pi sama:
+`5628304575b3d28d2234106b5f198e8670614b82301174206429df2b`.
+Checksum evidence G3 Run02 Pi masih sama dengan laporan asli:
+`9a6733326df5f941110433dc888bb25dede37a10ec8df7db6070ea461a6dec20`.
+Regresi Stage 7 Bridge/Adapter/USB Probe dan Stage 8 offline
+**PASS Windows dan Pi**; build `mega2560`/`nextion_test`, kontrak
+HMI, Stage 1, Stage 6 juga **PASS offline Windows**.
+**G3 tetap INCONCLUSIVE, AI release NO-GO.** Tidak ada serial
+open, perintah MCU, reboot, flashing atau pengujian fisik baru.
+Laporan: `docs/reports/2026-10-13_TAHAP7_P0_REAUDIT_POST_REBOOT.md`.
+
 ## Setelah reboot Raspberry Pi oleh operator — 13 Oktober 19:50 WIB
 
 Operator memberi tahu Raspberry Pi kembali menyala.

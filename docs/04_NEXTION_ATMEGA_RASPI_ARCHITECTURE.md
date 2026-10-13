@@ -1,5 +1,17 @@
 # Rancangan Integrasi Nextion–ATmega2560–Raspberry Pi 5
 
+**Kondisi aktual 13 Oktober 20:12 WIB:** jalur PCB custom
+ATmega2560 → FT232R USB → Pi 5 pernah menerima 4.313 byte pada
+G2, lalu G3 Run02 menerima 189 JSON yang belum sesuai kontrak.
+Pada uji read-only berikutnya FT232R sempat disconnect saat
+port dibuka, lalu kembali terenumerasi setelah reboot Pi
+oleh operator pukul 19:49 WIB. Pemeriksaan 20:09/20:12 hanya
+memastikan enumerasi; **tidak ada serial open sesudah reboot**.
+Firmware source mengeluarkan event/sampel standar, tetapi
+versi yang terpasang di PCB belum dibandingkan. Integrasi
+Nextion–MCU–Pi secara E2E **belum PASS**. Rincian pada
+`docs/reports/2026-10-13_TAHAP7_P0_REAUDIT_POST_REBOOT.md`.
+
 **Konfigurasi fisik operator 12 Oktober 2026:**
 **USB board ATmega → USB Raspberry Pi**,
 bukan kabel TTL/GPIO. Ft232R sebagai

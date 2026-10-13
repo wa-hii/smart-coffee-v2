@@ -1,5 +1,14 @@
 # Smart Coffee E-Nose v2
 
+**Status terbaru 13 Oktober 20:12 WIB:** reboot Pi yang
+dilakukan operator memulihkan enumerasi FT232R
+`0403:6001 / A10KMM3S` ke `/dev/ttyUSB0`;
+dua cek SSH pasif dan regresi Stage 7/8 offline Windows/Pi PASS.
+Kegagalan G3 Run02 (189 JSON lain, nol event/sampel sesuai skema)
+**belum terpecahkan**. Jangan membuka serial atau mengulang AI TEST
+tanpa persetujuan fisik baru. Detail:
+`docs/reports/2026-10-13_TAHAP7_P0_REAUDIT_POST_REBOOT.md`.
+
 **G3 update 13 Oktober 2026:** operator
 melihat AI TEST lima siklus berjalan di
 Nextion, meski listener Pi lama

@@ -1,5 +1,20 @@
 # Catatan perubahan proyek
 
+## 13 Oktober 2026 20:09–20:12 WIB — Re-audit independen P0 pasca-reboot
+
+- Re-check SSH pasif mengonfirmasi FT232R `A10KMM3S` masih
+  terenumerasi dengan driver `ftdi_sio`; belum ada
+  `USB disconnect` baru pada log boot yang diperiksa.
+- SHA256 adapter pada Windows/Pi identik, bukti G3 Run02 di Pi
+  tetap cocok dengan checksum historis.
+- Tes Stage 7 Bridge/Adapter/USB Probe dan Stage 8 offline
+  PASS di Windows dan Pi. Firmware `mega2560`/`nextion_test`,
+  kontrak HMI, Stage 1 dan Stage 6 PASS offline Windows.
+- Roadmap Tahap 7 dan status arsitektur diperbarui. USB open,
+  stabilitas elektrik, firmware PCB aktual, G3 dan rilis AI
+  **belum tervalidasi**; tidak ada tindakan hardware baru.
+
+
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
 ## 13 Oktober 2026 19:50 WIB — Enumerasi FT232R pulih setelah reboot Pi
