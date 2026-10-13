@@ -41,6 +41,26 @@ SAFE_PORT = re.compile(
 MAX_STREAM_SECONDS = 180
 
 
+def json_key_signature(obj: dict) -> tuple[str, ...]:
+    """Bounded field-name fingerprint only; never copy sensor field values."""
+    paths: list[str] = []
+    for key, value in obj.items():
+        if len(paths) >= 32:
+            break
+        # Use fixed placeholders instead of arbitrary untrusted key text.
+        name = key if re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,39}", key) else "OTHER_KEY"
+        paths.append(name)
+        if isinstance(value, dict):
+            for nested in value:
+                if len(paths) >= 32:
+                    break
+                child = (nested if re.fullmatch(
+                    r"[A-Za-z][A-Za-z0-9_]{0,39}", nested
+                ) else "OTHER_KEY")
+                paths.append(name + "." + child)
+    return tuple(sorted(set(paths)))
+
+
 class SerialLineFramer:
     """Reassemble newline-delimited MCU frames across read() timeouts.
 
@@ -94,6 +114,8 @@ def receive_serial_chunks(chunks: Iterable[bytes], *,
     malformed = 0
     sensors = 0
     other_json = 0
+    other_json_shapes: Counter[tuple[str, ...]] = Counter()
+    other_json_shapes_untracked = 0
     wire_events: Counter[str] = Counter()
     known_events = {
         "ACQ_START", "ACQ_COMPLETE", "ACQ_STOP",
@@ -126,6 +148,11 @@ def receive_serial_chunks(chunks: Iterable[bytes], *,
                         sensors += 1
                     else:
                         other_json += 1
+                        sig = json_key_signature(obj)
+                        if sig in other_json_shapes or len(other_json_shapes) < 8:
+                            other_json_shapes[sig] += 1
+                        else:
+                            other_json_shapes_untracked += 1
                 tracker.feed(line)
                 if tracker.last_final is not None and tracker.active is None:
                     break
@@ -145,6 +172,15 @@ def receive_serial_chunks(chunks: Iterable[bytes], *,
             "malformed_json_lines": malformed,
             "valid_sensor_frames_seen": sensors,
             "other_json_lines": other_json,
+            "other_json_key_signatures": [
+                {"keys": list(keys), "lines": count}
+                for keys, count in sorted(
+                    other_json_shapes.items(),
+                    key=lambda item: (-item[1], item[0]),
+                )
+            ],
+            "other_json_untracked_shape_lines": other_json_shapes_untracked,
+            "json_signature_contents": "field_names_only_no_values",
             "wire_events_seen": dict(wire_events),
             "raw_sensor_values_persisted": False,
             "listener_transmitted_bytes": 0,

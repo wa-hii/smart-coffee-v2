@@ -2,6 +2,26 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 13 Oktober 2026 malam — Konfirmasi G3 Run02 dan diagnostik skema JSON
+
+- Operator mengonfirmasi START AI TEST
+  ditekan dan kelima siklus Nextion
+  berjalan sampai selesai **pada Run02**.
+  Ketidaksesuaian pembacaan Pi masih
+  belum terdiagnosis dari agregat lama.
+- Menambah diagnostik `other_json_key_signatures`
+  pada parser Pi untuk menangkap hanya
+  key path JSON dan frekuensinya,
+  dibatasi 8 skema/32 nama key; tidak
+  menyimpan nilai sensor atau raw payload.
+  Regresi offline/no-values **PASS
+  Windows dan Pi**, skrip telah
+  dideploy ke Pi dengan checksum.
+- Tidak menjalankan ulang G3, USB port,
+  flashing firmware, operasi aktuator,
+  atau perubahan dataset/model.
+  Pembacaan lanjut memerlukan izin baru.
+
 ## 13 Oktober 2026 — G3 USB Run02 di Raspberry Pi
 
 - Setelah perbaikan reassembly serial,

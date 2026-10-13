@@ -1,5 +1,34 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## Update diagnosis G3 Run02 — 13 Oktober 2026 malam
+
+Operator **sudah menekan START AI TEST** dan
+**melihat lima siklus sampai selesai** pada
+Nextion selama Run02. Oleh karena itu
+hipotesis START tidak ditekan tidak lagi
+menjadi penjelasan untuk `NOT_STARTED`
+host. Run02 tetap menerima 189 JSON valid
+tetapi 0 event/sampel yang sesuai kontrak.
+Source firmware memang mendefinisikan event
+`ACQ_START`/`PHASE_CHANGE`/`ACQ_COMPLETE`
+dan 10 key ADC, tetapi **kesesuaian firmware
+terpasang belum diketahui**; isi 189 JSON
+tidak disimpan di file lama.
+
+Diagnostik metadata `other_json_key_signatures`
+telah ditambahkan ke listener untuk
+**uji berikutnya dengan izin baru**:
+field name/count saja, tanpa sensor values,
+label, perintah MCU atau auto-test.
+Kode baru telah dideploy ke Pi dan
+regresi `test_stage7_pi_adapter.py`
+serta `test_stage7_bridge.py`
+**PASS offline pada Pi**.
+G3 Pi **INCONCLUSIVE**; belum ada
+pengujian hardware ketiga.
+Lihat addendum
+`docs/reports/2026-10-13_TAHAP7_G3_NEXTION_RUN02_RESULT.md`.
+
 ## G3 USB Run02 langsung pada Pi — 13 Oktober 2026
 
 Listener `stage7_pi_adapter.py` versi

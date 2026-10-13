@@ -10,7 +10,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from stage7_pi_adapter import (
-    LIVE_OPT_IN, SerialLineFramer, main, receive_lines,
+    LIVE_OPT_IN, SerialLineFramer, json_key_signature, main, receive_lines,
     receive_serial_chunks, replay_real_csv, save_report,
     serial_readonly,
     validate_live_args,
@@ -91,6 +91,29 @@ def main_test():
     assert recovery["diagnostics"]["listener_transmitted_bytes"] == 0
     assert recovery["diagnostics"]["raw_sensor_values_persisted"] is False
     assert original.read_bytes() == original_hash
+
+    # JSON shape metadata for a later authorized capture:
+    # Only field names appear in reports, not private/sample values.
+    mystery = {
+        "telemetry": {"channel_a": 932, "private_name": "NEVER_RECORD_ME"},
+        "state": "NEVER_RECORD_ME",
+    }
+    signature = json_key_signature(mystery)
+    assert signature == (
+        "state", "telemetry", "telemetry.channel_a",
+        "telemetry.private_name",
+    )
+    diagnostic = receive_serial_chunks(
+        [json.dumps(mystery).encode() + b"\n"] * 3,
+        monotonic=lambda: 1,
+    )["diagnostics"]
+    assert diagnostic["other_json_lines"] == 3
+    assert diagnostic["other_json_key_signatures"] == [
+        {"keys": list(signature), "lines": 3}
+    ]
+    assert "NEVER_RECORD_ME" not in json.dumps(diagnostic)
+    assert diagnostic["json_signature_contents"] == "field_names_only_no_values"
+    assert len(json_key_signature({f"field{i}": i for i in range(100)})) <= 32
 
     framer = SerialLineFramer()
     assert framer.feed(b"x" * (MAX_LINE_BYTES + 50) + b"\n") == []

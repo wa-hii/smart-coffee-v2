@@ -4,6 +4,58 @@
 **Status:** **INCONCLUSIVE / NOT_STARTED menurut validator Pi**,
 bukan keberhasilan lima siklus E2E.
 
+## Addendum konfirmasi operator dan audit kontrak (13 Oktober, malam)
+
+Operator **mengonfirmasi secara eksplisit** bahwa pada
+**Run02** beliau **menekan START AI TEST di LCD Nextion**
+dan **melihat kelima siklus berjalan sampai selesai**.
+Dengan demikian, hipotesis "START tidak ditekan"
+**tidak sesuai dengan observasi operator**. Status
+host tetap `NOT_STARTED` karena bukti elektronik
+tidak mengenali event atau payload sensor.
+Keberhasilan HMI **berdasarkan observasi operator**
+tidak mengubah ketidaklulusan validasi E2E Pi.
+
+Audit `src/main.cpp` dan `src/sensor.cpp`:
+`startAcquisition()` pada **source repo**
+menulis `ACQ_START`, `processAcquisitionState()`
+menulis `PHASE_CHANGE` dan `ACQ_COMPLETE`,
+sementara `printJsonData()` menulis
+`phase`, `cycle`, `sample_idx`, `timestamp`,
+10 key `adc_*`, `temperature_c`, dan
+`humidity_rh`. Jika source ini identik dengan
+firmware yang terpasang dan USB UART yang dipantau,
+event dan frame sensor seharusnya dapat dikenali.
+**Belum ada bukti bahwa firmware terpasang sama
+dengan source checkout.**
+
+File bukti `run02.json` **hanya berisi agregat**,
+sehingga 189 JSON tersebut tidak bisa ditafsirkan
+ulang menjadi event maupun sampel tanpa merekam
+struktur aktual. Klaim bahwa firmware pasti berbeda
+masih berupa **hipotesis**, bukan hasil verifikasi.
+
+Untuk diagnosis berikutnya, `stage7_pi_adapter.py`
+telah ditambah diagnostik **`other_json_key_signatures`**:
+hanya **nama field tingkat atas dan satu tingkat nested**
+serta jumlah kemunculannya, maksimal 8 pola dan 32
+nama per pola. **Nilai ADC, identitas sampel, label
+kopi, dan isi payload mentah tidak disimpan**.
+Regresi privacy/no-values, batas ukuran, framing,
+dan replay telah **PASS offline** di Windows,
+kemudian source dan tesnya **disalin ke Pi
+dan regresi Pi juga PASS**. SHA256 Pi:
+`stage7_pi_adapter.py`:
+`5628304575b3d28d2234106b5f198e8670614b82301174206429df2b`;
+`test_stage7_pi_adapter.py`:
+`a0694d84a30397e9b35ea9e87d480b79b99858619a5e5b6ae64222a04c946dec`.
+Pengujian `test_stage7_bridge.py` di Pi juga PASS
+dan tidak ada pemilik `ttyUSB0` yang terdeteksi
+sesudah deployment. Penambahan ini
+**tidak berlaku surut** ke file Run02 dan
+tidak membuka serial otomatis. Pembacaan baru
+tetap memerlukan izin pengguna.
+
 ## Prosedur yang benar-benar dilaksanakan
 
 Operator meminta ulang satu kali G3 setelah patch framing.
@@ -38,9 +90,9 @@ Port owner selama listener aktif adalah PID `2236`
 proses `stage7_pi_adapter.py`, diverifikasi dengan
 `fuser /dev/ttyUSB0`. Operator diminta **START AI TEST
 satu kali melalui Nextion** saat proses berjalan.
-Belum ada konfirmasi pasca-percobaan ini tentang
-apakah tombol benar-benar ditekan dan bagaimana
-perilaku lima siklus pada **run kedua**.
+Saat laporan pertama dibuat belum ada konfirmasi
+pasca-percobaan; **lihat addendum di atas** untuk
+konfirmasi Run02 yang diterima kemudian.
 
 ## Bukti asli Raspberry Pi
 
@@ -98,10 +150,9 @@ Evidence berbentuk agregat **tidak menyimpan isi
 belum diketahui. Jangan menyimpulkan bahwa
 189 JSON adalah sampel akuisisi sah.
 
-Langkah berikutnya: tanyakan apakah START AI TEST
-benar-benar ditekan selama Run02 dan apakah
-lima siklus terlihat selesai. Bila ya,
-siapkan **diagnostik nama field JSON-only**
+Langkah berikutnya: setelah konfirmasi START
+dan lima siklus selesai dari operator,
+gunakan **diagnostik nama field JSON-only**
 untuk membandingkan firmware aktual dengan
 kontrak host, dengan izin baru sebelum
 membuka USB atau mengulang sesi fisik.
