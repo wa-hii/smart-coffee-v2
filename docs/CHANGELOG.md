@@ -2,6 +2,31 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 13 Oktober 2026 — Bug framing listener G3 diperbaiki
+
+- Operator memastikan START AI TEST
+  ditekan saat listener aktif dan
+  lima siklus terlihat berjalan.
+  G3 host tetap `NOT_STARTED`,
+  jadi asumsi 'START belum ditekan'
+  dikoreksi pada laporan historis.
+- Memperbaiki `stage7_pi_adapter.py`:
+  tambahkan reassembly byte sampai LF
+  (tidak menganggap read timeout
+  sebagai frame penuh), maksimum
+  4096 byte per line, diagnostik
+  jumlah byte/chunk/JSON/event/sampel
+  tanpa menulis raw atau TX ke MCU.
+- Regresi `test_stage7_pi_adapter.py`
+  ditambah kasus potongan START
+  dan replay data sensor asli
+  151 sampel/five-cycle
+  `COMPLETE_QA`: **PASS Windows**.
+- **G3 belum diulang**; Pi runtime
+  versi baru perlu diverifikasi
+  sebelum izin satu sesi ulang.
+  Firmware, CSV raw, aktuator dan
+  AI model tidak diubah.
 ## 13 Oktober 2026 — G3 Nextion pertama, belum terverifikasi
 
 - G3 listener USB fisik FT232R pada Pi

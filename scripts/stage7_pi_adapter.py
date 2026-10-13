@@ -14,6 +14,7 @@ The v1 ACK/NACK envelope remains a simulation, not a firmware feature.
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import hashlib
 import json
 from pathlib import Path
@@ -22,10 +23,13 @@ import sys
 import time
 from typing import Iterable
 
+from acquisition_schema import is_sensor_payload
 from stage6_release_gate import evaluate as stage6_decision
 from stage7_bridge import (
     MAX_LINE_BYTES,
     LegacySessionBridge,
+    decode_line,
+    FrameError,
     replay_csv,
 )
 
@@ -35,6 +39,128 @@ SAFE_PORT = re.compile(
     r"^/dev/(?:serial/by-id/[A-Za-z0-9_.:+-]+|ttyACM[0-9]+|ttyUSB[0-9]+)$"
 )
 MAX_STREAM_SECONDS = 180
+
+
+class SerialLineFramer:
+    """Reassemble newline-delimited MCU frames across read() timeouts.
+
+    Retains the first complete line (which could be ACQ_START);
+    discards an oversized line until its next newline.
+    """
+
+    def __init__(self):
+        self.buffer = bytearray()
+        self.overflow = False
+        self.oversized_lines = 0
+
+    def feed(self, chunk: bytes) -> list[bytes]:
+        if not isinstance(chunk, bytes):
+            raise TypeError("serial_data_must_be_bytes")
+        lines = []
+        for b in chunk:
+            if self.overflow:
+                if b == 10:
+                    self.overflow = False
+                continue
+            if len(self.buffer) >= MAX_LINE_BYTES:
+                self.buffer.clear()
+                self.oversized_lines += 1
+                self.overflow = b != 10
+                continue
+            self.buffer.append(b)
+            if b == 10:
+                lines.append(bytes(self.buffer))
+                self.buffer.clear()
+        return lines
+
+
+def receive_serial_chunks(chunks: Iterable[bytes], *,
+                          max_seconds: int = MAX_STREAM_SECONDS,
+                          monotonic=time.monotonic,
+                          bridge: LegacySessionBridge | None = None) -> dict:
+    """Parse a UART byte stream without treating read timeouts as newlines.
+
+    Diagnostics persist only frame categories/counts, not sensor readings.
+    """
+    if not 1 <= max_seconds <= MAX_STREAM_SECONDS:
+        raise ValueError("max_duration_outside_1_180_seconds")
+    tracker = bridge if bridge is not None else make_bridge()
+    framer = SerialLineFramer()
+    started = monotonic()
+    last_frame = started
+    chunks_seen = 0
+    bytes_seen = 0
+    complete_lines = 0
+    malformed = 0
+    sensors = 0
+    other_json = 0
+    wire_events: Counter[str] = Counter()
+    known_events = {
+        "ACQ_START", "ACQ_COMPLETE", "ACQ_STOP",
+        "PHASE_CHANGE", "ACQ_PAUSE", "ACQ_RESUME", "INFERENCE",
+    }
+    for chunk in chunks:
+        now = monotonic()
+        if now - started >= max_seconds:
+            if tracker.active is not None:
+                tracker.abort("max_runtime_expired")
+            break
+        if not chunk:
+            tracker.timeout_if_idle(elapsed_seconds=now - last_frame)
+        else:
+            chunks_seen += 1
+            bytes_seen += len(chunk)
+            for line in framer.feed(chunk):
+                last_frame = now
+                complete_lines += 1
+                try:
+                    obj = decode_line(line)
+                except FrameError:
+                    malformed += 1
+                else:
+                    event = obj.get("event")
+                    if isinstance(event, str):
+                        wire_events[event if event in known_events
+                                    else "OTHER_EVENT"] += 1
+                    elif is_sensor_payload(obj):
+                        sensors += 1
+                    else:
+                        other_json += 1
+                tracker.feed(line)
+                if tracker.last_final is not None and tracker.active is None:
+                    break
+        if tracker.last_final is not None and tracker.active is None:
+            break
+    if tracker.active is not None:
+        tracker.abort("stream_eof_or_disconnect")
+    return {
+        "transport": "passive_readonly",
+        "input_frames_read": complete_lines,
+        "diagnostics": {
+            "serial_nonempty_chunks": chunks_seen,
+            "serial_bytes_received": bytes_seen,
+            "complete_newline_frames": complete_lines,
+            "partial_tail_bytes_discarded": len(framer.buffer),
+            "oversized_lines_discarded": framer.oversized_lines,
+            "malformed_json_lines": malformed,
+            "valid_sensor_frames_seen": sensors,
+            "other_json_lines": other_json,
+            "wire_events_seen": dict(wire_events),
+            "raw_sensor_values_persisted": False,
+            "listener_transmitted_bytes": 0,
+        },
+        "final": tracker.last_final or {
+            "type": "SESSION_FINAL", "quality": "NOT_STARTED",
+            "status": "N/A", "reason": "no_completed_session",
+            "sent_to_atmega": False,
+            "actuator_commands_sent": 0,
+            "model_invoked": False,
+        },
+        "terminal_event_count": sum(
+            event["type"] == "SESSION_FINAL" for event in tracker.events
+        ),
+        "side_effects": "no_mcu_write_no_actuator_no_model",
+    }
 
 
 def require_no_model_promotion() -> dict:
@@ -179,7 +305,7 @@ def serial_readonly(port: str, acknowledgment: str, baud: int,
                 # growing an unbounded receive buffer in a live bench.
                 yield port_obj.read_until(b"\n", MAX_LINE_BYTES + 1)
 
-        result = receive_lines(incoming(), max_seconds=duration)
+        result = receive_serial_chunks(incoming(), max_seconds=duration)
         return {"mode": "serial-readonly", "hardware_serial_opened": True,
                 "port": port, **result}
     finally:

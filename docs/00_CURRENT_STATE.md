@@ -1,5 +1,29 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## Koreksi G3 dan framing Pi — 13 Oktober 2026
+
+Operator mengonfirmasi **START AI TEST sudah ditekan
+ketika listener Pi aktif dan lima siklus terlihat
+berjalan di LCD Nextion**. Maka hasil lama
+`NOT_STARTED` adalah **gagal deteksi sisi Pi**,
+bukan bukti bahwa fisik akuisisi tidak berjalan.
+File asli G3 (304 nonempty reads, 0 terminal)
+tetap utuh; tidak tersedia rekaman raw per frame
+untuk menghitung sampel sesi tersebut.
+
+Ditemukan bug source: pemanggilan `read_until`
+dengan timeout 1s bisa memecah satu pesan JSON;
+parser lama menganggap potongan tersebut
+pesan lengkap. `SerialLineFramer` dan
+`receive_serial_chunks` kini merakit ulang
+pesan sampai LF dengan batas 4096 byte dan
+diagnostik event/sampel tanpa raw sensor.
+Regresi Windows **PASS** termasuk 151 sampel
+replay asli. **G3 hardware masih INCONCLUSIVE**,
+belum diulang; tidak ada model yang dirilis.
+Laporan:
+`docs/reports/2026-10-13_TAHAP7_G3_UART_RX_FRAMING_FIX.md`.
+
 ## G3 Nextion PCB custom — 13 Oktober 2026, INCONCLUSIVE
 
 Operator mengizinkan **satu sesi G3** via

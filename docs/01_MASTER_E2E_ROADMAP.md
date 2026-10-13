@@ -199,6 +199,23 @@ acceptance gate dan evaluasi perangkat.
 
 ## Tahap 7 — Persiapan integrasi Raspberry Pi 5 dan ATmega
 
+**13 Oktober — koreksi G3:** operator telah
+melakukan START AI TEST dan melihat lima
+siklus fisik pada Nextion; listener USB
+sebelumnya `NOT_STARTED` dengan 304 read
+chunks, karena tidak mendeteksi event
+START. Audit kode menemukan kemungkinan
+false-negative karena `read_until`
+timeout memisah JSON yang diproses tanpa
+reassembly. `SerialLineFramer` host
+telah diperbaiki, dengan regresi
+fragmentasi dan replay 151 sampel
+`COMPLETE_QA` **PASS offline Windows**.
+Status produksi/physical G3 **belum PASS**;
+perlu verifikasi deployment Pi dan
+izin sesi fisik ulang. Laporan
+`docs/reports/2026-10-13_TAHAP7_G3_UART_RX_FRAMING_FIX.md`.
+
 **UPDATE 12 Oktober — testbed UART fisik PASS:**
 setelah wiring D18 TX1↔HV1/LV1↔RX Pi
 dan D19 RX1↔HV2/LV2↔TX Pi

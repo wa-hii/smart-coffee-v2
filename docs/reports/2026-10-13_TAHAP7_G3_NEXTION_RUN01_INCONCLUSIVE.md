@@ -8,6 +8,24 @@ mendeteksi `ACQ_START` yang memenuhi kontrak, tidak
 memvalidasi kelima siklus, dan tidak menemukan terminal
 akuisisi. Tidak ada rilis model AI.
 
+**KOREKSI PASCA-PERCOBAAN (13 Oktober 2026):**
+Operator kemudian mengonfirmasi bahwa
+**START AI TEST benar-benar ditekan saat listener
+aktif dan lima siklus terlihat berjalan di LCD**.
+Dengan demikian, dugaan bahwa operator
+tidak menekan START **tidak lagi digunakan**
+sebagai diagnosis utama. Audit berikutnya
+mereproduksi bug source receiver:
+`read_until` dengan timeout dapat memotong
+JSON sebelum newline; listener lama langsung
+mengirim fragmen ke validator.
+Perbaikan framing host dan pengujian offline
+terdokumentasi pada
+`docs/reports/2026-10-13_TAHAP7_G3_UART_RX_FRAMING_FIX.md`.
+**G3 hardware tetap INCONCLUSIVE** sampai
+ada uji ulang, bukan PASS hanya dari
+konfirmasi operator atau QA offline.
+
 ## 1. Izin dan prosedur
 
 - Operator secara eksplisit menyetujui G3 **satu sesi**

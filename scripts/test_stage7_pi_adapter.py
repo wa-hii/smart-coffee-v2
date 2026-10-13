@@ -10,11 +10,13 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from stage7_pi_adapter import (
-    LIVE_OPT_IN, main, receive_lines, replay_real_csv, save_report,
+    LIVE_OPT_IN, SerialLineFramer, main, receive_lines,
+    receive_serial_chunks, replay_real_csv, save_report,
     serial_readonly,
     validate_live_args,
 )
 from stage7_bridge import MAX_LINE_BYTES
+from stage8_offline_e2e import _firmware_samples, read_real_csv
 
 
 def must_fail(callback, exception, fragment):
@@ -37,6 +39,65 @@ def main_test():
     assert replay["bridge"]["model_invoked"] is False
     assert replay["bridge"]["sensor_samples"] >= 140
     assert original.read_bytes() == original_hash
+
+    # Reproduce G3 failure class: serial read() may cut JSON anywhere,
+    # including inside ACQ_START, without an LF terminator.
+    sample_start = json.dumps({
+        "event": "ACQ_START", "mode": "ai_test",
+        "cycle": 1, "phase": "purging", "cycles_total": 5,
+        "purge_s": 25, "collect_s": 5,
+    }).encode() + b"\n"
+    assert receive_lines([
+        sample_start[:17], sample_start[17:],
+    ])["final"]["quality"] == "NOT_STARTED"
+    parsed = receive_serial_chunks([
+        sample_start[:17], b"", sample_start[17:],
+    ], monotonic=lambda: 1)
+    assert parsed["final"]["quality"] == "FAIL_CLOSED"
+    assert parsed["final"]["reason"] == "stream_eof_or_disconnect"
+    assert parsed["diagnostics"]["wire_events_seen"] == {"ACQ_START": 1}
+
+    # Full mock serial stream reconstructed from ORIGINAL 151-sample
+    # physical CSV; fragmented at varying boundaries and with timeouts.
+    rows, source_hash = read_real_csv(original)
+    assert len([x for x in rows if x["sample_idx"]]) == 151
+    messages = [b"boot plain text\n", sample_start]
+    messages.extend(
+        raw.encode() + b"\n"
+        for _, _, raw in _firmware_samples(rows)
+    )
+    messages.append(json.dumps({
+        "event": "ACQ_COMPLETE", "cycles": 5,
+        "total_samples": 151,
+    }).encode() + b"\n")
+    wire = b"".join(messages)
+    fragmented = []
+    offset = 0
+    while offset < len(wire):
+        take = [1, 3, 11, 7, 29][offset % 5]
+        fragmented.append(wire[offset:offset + take])
+        fragmented.append(b"")  # timeout is not end-of-line
+        offset += take
+    recovery = receive_serial_chunks(
+        fragmented, monotonic=lambda: 1
+    )
+    assert recovery["final"]["quality"] == "COMPLETE_QA"
+    assert recovery["final"]["sensor_samples"] == 151
+    assert recovery["final"]["status"] == "N/A"
+    assert recovery["diagnostics"]["valid_sensor_frames_seen"] == 151
+    assert recovery["diagnostics"]["wire_events_seen"]["ACQ_START"] == 1
+    assert recovery["diagnostics"]["wire_events_seen"]["ACQ_COMPLETE"] == 1
+    assert recovery["diagnostics"]["malformed_json_lines"] == 1  # boot
+    assert recovery["diagnostics"]["listener_transmitted_bytes"] == 0
+    assert recovery["diagnostics"]["raw_sensor_values_persisted"] is False
+    assert original.read_bytes() == original_hash
+
+    framer = SerialLineFramer()
+    assert framer.feed(b"x" * (MAX_LINE_BYTES + 50) + b"\n") == []
+    assert framer.oversized_lines == 1
+    assert framer.feed(b'{"warn":"recover"}\r\n') == [
+        b'{"warn":"recover"}\r\n'
+    ]
 
     must_fail(lambda: validate_live_args("/dev/ttyACM0", "", 115200),
               ValueError, "not_authorized")
@@ -98,7 +159,13 @@ def main_test():
                 self.port = None
                 self.dtr = True
                 self.rts = True
-                self.frames = iter([start + b"\n", b"not json\n"])
+                # Emulate a physical 1 Hz acquisition frame fragmented by
+                # a 1-second timeout; serial calls must NOT be parsed as
+                # individual JSON messages until LF arrives.
+                self.frames = iter([
+                    start[:14], b"", start[14:] + b"\n",
+                    b"not json\n",
+                ])
 
             def open(self):
                 observations["dtr_at_open"] = self.dtr
@@ -122,6 +189,10 @@ def main_test():
             )
         assert result["hardware_serial_opened"] is True  # simulated only
         assert result["final"]["quality"] == "FAIL_CLOSED"
+        assert result["final"]["reason"] == "invalid_json_or_encoding"
+        assert result["diagnostics"]["wire_events_seen"]["ACQ_START"] == 1
+        assert result["diagnostics"]["complete_newline_frames"] == 2
+        assert result["diagnostics"]["malformed_json_lines"] == 1
         assert observations["opened"] and observations["closed"]
         assert observations["config"]["exclusive"] is True
         assert observations["dtr_at_open"] is False

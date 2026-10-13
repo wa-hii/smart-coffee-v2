@@ -1,5 +1,31 @@
 # SOP Bench Tahap 7 — USB ATmega2560 ↔ Raspberry Pi 5 (115200 baud)
 
+## Perbaikan parser G3 — 13 Oktober 2026
+
+Operator mengonfirmasi START melalui LCD dan
+lima siklus telah terlihat berjalan pada
+uji G3 pertama. Kegagalan
+`NOT_STARTED` terjadi pada pendeteksian
+sesi host, bukan bukti Nextion tidak berjalan.
+
+Listener kini menggunakan incremental
+`SerialLineFramer`: timeout `read_until`
+tidak dianggap sebagai akhir JSON;
+baris dirakit sampai LF dengan maksimal
+4096 byte dan event START/COMPLETE serta
+sampel dicatat sebagai agregat, bukan
+raw data sensitif. Regresi offline
+fragmentasi dan data asli **PASS**.
+
+**Jangan gunakan file G3 lama untuk
+menilai jumlah sampel atau lima siklus**;
+304 nonempty reads dapat mencakup
+fragmen serial. Uji ulang setelah
+verifikasi checksum dan uji offline
+di Pi, dengan persetujuan operator baru,
+dan simpan evidence bernama baru.
+Laporan `docs/reports/2026-10-13_TAHAP7_G3_UART_RX_FRAMING_FIX.md`.
+
 ## Update nyata G2 — 13 Oktober 2026
 
 Operator menyetujui live USB RX 12s dengan

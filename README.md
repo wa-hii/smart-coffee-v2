@@ -1,5 +1,19 @@
 # Smart Coffee E-Nose v2
 
+**G3 update 13 Oktober 2026:** operator
+melihat AI TEST lima siklus berjalan di
+Nextion, meski listener Pi lama
+`NOT_STARTED`. Bug fragmentasi pesan
+USB serial pada `read_until` timeout
+telah ditangani via `SerialLineFramer`
+dan `receive_serial_chunks`. Uji
+fragmentasi serta replay 151 sampel
+`COMPLETE_QA` PASS **offline Windows**.
+**G3 hardware belum terverifikasi ulang**;
+tidak ada firmware atau model yang
+dipromosikan. Laporan:
+`docs/reports/2026-10-13_TAHAP7_G3_UART_RX_FRAMING_FIX.md`.
+
 **UPDATE UART testbed Mega↔Pi (12 Oktober 2026):**
 Setelah perbaikan wiring HV1→D18 TX1,
 HV2→D19 RX1 dan bug parser timeout,

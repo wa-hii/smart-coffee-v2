@@ -114,6 +114,23 @@ Tes negatif `scripts/test_stage2_dataset_audit.py` dan `scripts/test_stage2_plot
 
 ## Addendum Tahap 3 — QA pipeline fitur (9 Oktober 2026)
 
+**13 Oktober — QA framing serial PCB custom**:
+G3 lama `NOT_STARTED` ternyata bertentangan
+dengan observasi operator bahwa AI TEST
+memang berjalan lima siklus di Nextion.
+Reproduksi offline menunjukkan
+`read_until` yang dipotong timeout
+dapat membuat `ACQ_START` tidak dikenali
+oleh `receive_lines`. Parser baru
+`receive_serial_chunks` menunggu newline,
+menghitung event dan 151 frame sensor
+replay riil, kemudian berakhir
+`COMPLETE_QA/N/A` di tes Windows.
+**Belum ada bukti Pi hardware G3 PASS**;
+regresi bukan pengganti satu sesi
+prospektif. Laporan
+`docs/reports/2026-10-13_TAHAP7_G3_UART_RX_FRAMING_FIX.md`.
+
 **12 Oktober — UART testbed hardware PASS
 setelah wiring+software fix:**
 operator menukar jumper HV1 ke
