@@ -2,6 +2,30 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 13 Oktober 2026 — G2 live USB PCB custom berhasil menerima bytes
+
+- Berdasarkan persetujuan eksplisit operator,
+  membuka FT232R by-id `A10KMM3S` pada
+  Pi **115200 selama 12s** (bukan simulator).
+  **4.313 byte, 33 baris** direkam dalam
+  evidence JSON pada Pi, checksum SHA256
+  ditulis di laporan.
+- Klasifikasi: 14 other_json,
+  5 i2c_found, 1 i2c_scan_done,
+  13 invalid_json, **0 sensor samples**.
+  Data I2C konsisten dengan startup;
+  invalid mungkin banner plain text
+  `printWelcome()` di source. Status
+  `SERIAL_DATA_INCONCLUSIVE` dari
+  classifier **tidak ditimpa**.
+- Transport RX fisik **PASS**,
+  validasi payload end-to-end belum
+  PASS. Tidak ada perintah TX,
+  operasi aktuator, pengaktifan
+  akuisisi, atau AI model.
+  Pi setelah uji throttling=0x0.
+- Dokumentasi:
+  `docs/reports/2026-10-13_TAHAP7_G2_USB_LIVE_RESULT.md`.
 ## 13 Oktober 2026 — Probe G2 USB PCB custom disiapkan
 
 - Pembuat PCB menyatakan desain daya aman

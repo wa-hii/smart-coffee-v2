@@ -1,5 +1,31 @@
 # SOP Bench Tahap 7 — USB ATmega2560 ↔ Raspberry Pi 5 (115200 baud)
 
+## Update nyata G2 — 13 Oktober 2026
+
+Operator menyetujui live USB RX 12s dengan
+risiko auto-reset; perangkat dinyatakan
+menyala namun tidak sedang akuisisi.
+Prosedur G2 akhirnya **dijalankan**:
+port FT232R by-id `A10KMM3S`
+dibuka 115200, diterima **4.313
+byte dan 33 baris lengkap** (14
+other_json, 5 i2c_found, 1
+i2c_scan_done, 13 invalid_json,
+0 frame sensor). Tidak ada serial
+write/actuator command/model use.
+
+**G2 USB TRANSPORT PASS; payload
+validation PARTIAL**. Baris plain
+text dari `printWelcome()` adalah
+kemungkinan kuat sumber invalid-JSON;
+raw tidak disimpan sehingga klasifikasi
+sebenarnya belum dapat disimpulkan.
+Munculnya I2C scan mendukung aktivitas
+startup, tetapi bukan bukti definitif
+DTR reset. **G3 dan AI release tetap
+NOT RUN/NO-GO**. Lihat laporan
+`docs/reports/2026-10-13_TAHAP7_G2_USB_LIVE_RESULT.md`.
+
 ## Konfirmasi pembuat PCB dan persiapan G2 — 13 Oktober 2026
 
 Pembuat PCB/operator menyatakan bahwa PCB custom

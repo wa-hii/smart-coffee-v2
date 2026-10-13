@@ -1,5 +1,37 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## HASIL G2 LIVE USB PCB custom — 13 Oktober 2026
+
+Operator menyatakan alat menyala namun **IDLE**
+(tidak sedang akuisisi), dan menyetujui
+pembukaan USB FT232R 12s termasuk risiko
+auto-reset. Probe `scripts/stage7_usb_readonly_probe.py`
+**BENAR-BENAR MEMBUKA** by-id `A10KMM3S`
+→ `ttyUSB0` pada **115200** dan menerima
+**4.313 byte / 33 baris**:
+`other_json=14`, `i2c_found=5`,
+`i2c_scan_done=1`, `invalid_json=13`.
+Frame sensor aktif **0**;
+**tidak ada byte/perintah TX dari Pi**,
+operasi aktuator, atau inferensi model
+yang dijalankan oleh probe.
+
+Transport USB physical **PASS**,
+validasi seluruh payload **PARTIAL**.
+13 baris non-JSON diduga setidaknya sebagian
+dari `printWelcome()` yang menulis banner
+plain text, belum terverifikasi baris per
+baris karena evidence hanya hash.
+I2C scan/startup konsisten dengan
+aktivitas inisialisasi/reset, tetapi
+reset oleh DTR tidak terbukti langsung.
+Sampel 0 konsisten dengan source
+`adsCallback()` yang hanya kirim
+sampel ketika state akuisisi aktif.
+G3 dan produksi AI **NOT RUN/NO-GO**.
+Laporan dengan hash evidence:
+`docs/reports/2026-10-13_TAHAP7_G2_USB_LIVE_RESULT.md`.
+
 ## Progres G2 USB PCB custom — 13 Oktober 2026
 
 Pembuat PCB menyatakan **rangkaian custom aman**;
