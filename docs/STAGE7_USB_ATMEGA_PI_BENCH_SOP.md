@@ -1,5 +1,34 @@
 # SOP Bench Tahap 7 — USB ATmega2560 ↔ Raspberry Pi 5 (115200 baud)
 
+## Update G0 foto PCB custom dan descriptor USB — 13 Oktober 2026
+
+Operator mengirim foto Pi 5 (USB-A dengan kabel data,
+USB-C untuk daya, fan) dan panel **PCB custom ATmega2560**
+(USB Type-B, DB9, sakelar, adaptor DC terpisah).
+**Bukan board Arduino Mega testbed yang sebelumnya
+lulus pengujian Serial1↔GPIO Pi.**
+
+Inventaris read-only Pi kembali mengonfirmasi
+FTDI FT232R `0403:6001`, `/dev/ttyUSB0`,
+by-id `usb-FTDI_FT232R_USB_UART_A10KMM3S-if00-port0`.
+Descriptor `bmAttributes=0xa0` mengiklankan
+**Bus Powered**, `MaxPower=90mA` (deklarasi saja).
+Rangkaian fisik VBUS→FT232R, regulator eksternal
+dan MCU **tidak dapat disimpulkan dari foto panel**.
+Satu chip bridge dapat mengambil daya bus meski
+MCU/beban memakai adaptor terpisah; itu bukan
+bukti aman terhadap reverse current/backfeed.
+
+**STATUS G0 PARTIAL / BELUM PASS; G2/G3 TETAP NOT RUN**.
+Perlu skematik atau foto kedua sisi PCB di dalam
+casing, fokus USB bridge, regulator dan konektor DC;
+hardprog memverifikasi jalur 5 V, proteksi reverse
+current serta urutan power-on/off. Jangan membuka
+serial atau menjalankan 5 siklus hingga G0 ditutup
+dan izin G2/G3 diberikan.
+Laporan detail:
+`docs/reports/2026-10-13_AUDIT_FOTO_USB_PCB_CUSTOM_G0.md`.
+
 **Hasil riset sumber resmi 12 Oktober:**
 USB Pi 5 dapat dipakai untuk perangkat
 USB self-powered yang benar; Raspberry

@@ -2,6 +2,26 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 13 Oktober 2026 — G0 foto USB PCB custom
+
+- Audit foto Pi USB-A/USB-C dan PCB custom
+  ATmega2560 (USB Type-B, DB9, sakelar
+  dan adaptor daya terpisah). Jalur
+  VBUS internal belum terlihat/diketahui.
+- Pi USB enumerates FTDI FT232R `0403:6001`
+  `ttyUSB0`; USB descriptor terdeteksi
+  **Bus Powered 90mA** (nilai deklarasi),
+  tanpa bukti electrical power isolation.
+- **G0 partial/blocked**, G2/G3 NOT RUN.
+  Checklist inspeksi PCB sisi dalam,
+  pembagian rail USB/DC dan backfeed
+  serta larangan membuka serial sementara
+  diperjelas dalam SOP dan laporan baru.
+- Tes UART testbed Arduino Mega yang
+  sebelumnya sukses tetap valid sebagai
+  **hasil board terpisah**, bukan klaim
+  verifikasi PCB custom Smart Coffee.
+
 ## 12 Oktober 2026 — UART hardware testbed E2E PASS
 
 - Pengguna memperbaiki wiring

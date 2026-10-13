@@ -1,5 +1,25 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## Audit foto USB PCB custom pada Pi — 13 Oktober 2026
+
+Foto operator memverifikasi panel **PCB custom** dengan
+USB Type-B, DB9, sakelar dan adaptor DC eksternal;
+foto Pi 5 memperlihatkan USB-A data, USB-C power,
+serta fan. SSH read-only Pi: FT232R `0403:6001`
+terdeteksi `ttyUSB0` dengan nomor serial
+`A10KMM3S`, descriptor USB `bmAttributes=0xa0`
+**Bus Powered** dan `MaxPower=90mA`
+(deklarasi bukan konsumsi terukur),
+`throttled=0x0`, getty inactive,
+fuser port kosong saat diperiksa.
+Foto panel tidak menampakkan jalur daya
+VBUS/rail eksternal/chip USB/regulator:
+**G0 partial/belum PASS, G2 & G3 NOT RUN**.
+Eksperimen sukses Arduino Mega Serial1
+↔ Pi GPIO sebelumnya adalah testbed
+berbeda dan tidak memverifikasi PCB custom.
+Lihat `docs/reports/2026-10-13_AUDIT_FOTO_USB_PCB_CUSTOM_G0.md`.
+
 ## UART testbed Mega↔Pi SUKSES — 12 Oktober 2026
 
 Koreksi laporan sebelumnya: setelah operator
