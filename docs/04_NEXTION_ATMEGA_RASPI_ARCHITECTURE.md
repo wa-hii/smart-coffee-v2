@@ -1,5 +1,17 @@
 # Rancangan Integrasi Nextion–ATmega2560–Raspberry Pi 5
 
+**Fingerprint runtime 13 Oktober 20:49 WIB:** pada capture
+IDLE 8 detik, 7/7 JSON berbentuk sensor memiliki `phase=idle`.
+Ini cocok dengan `adsCallback()` pada **source sebelum commit
+`75cb38a`** yang mengirim setiap callback (termasuk IDLE),
+berbeda dari source saat ini yang tidak mengirim JSON sensor
+saat IDLE. Binary firmware terpasang **belum dicocokkan**;
+tidak boleh mengubah jalur hardware atau melonggarkan
+validasi. `EVT:AI_START` (Nextion → MCU) dan `ACQ_START`
+(MCU → Pi) harus diverifikasi terpisah saat G3 yang
+disupervisi. Detail audit:
+`docs/reports/2026-10-13_TAHAP7_P2_RUNTIME_FIRMWARE_DIAGNOSIS.md`.
+
 **Kondisi aktual 13 Oktober 20:12 WIB:** jalur PCB custom
 ATmega2560 → FT232R USB → Pi 5 pernah menerima 4.313 byte pada
 G2, lalu G3 Run02 menerima 189 JSON yang belum sesuai kontrak.

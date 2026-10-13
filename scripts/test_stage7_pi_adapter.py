@@ -12,7 +12,8 @@ from unittest.mock import patch
 from stage7_pi_adapter import (
     LIVE_OPT_IN, SerialLineFramer, json_key_signature, main, receive_lines,
     receive_serial_chunks, replay_real_csv, save_report,
-    sensor_like_rejection_code,
+    sensor_like_rejection_code, sensor_like_phase_category,
+    nextion_event_category,
     serial_readonly,
     validate_live_args,
 )
@@ -136,6 +137,42 @@ def main_test():
         f"invalid_{ADC_COLS[0]}": 1, "invalid_phase": 1,
     }
     assert "SECRET_ADC_VALUE" not in json.dumps(invalid_diag)
+
+    # Legacy firmware before commit 75cb38a emitted idle sensor-shaped
+    # JSON 1Hz. Keep it rejected as a sample; show a bounded phase enum.
+    assert sensor_like_phase_category(idle_frame) == "idle"
+    assert sensor_like_phase_category({**idle_frame, "phase": "DO_NOT_LEAK"}) == (
+        "unknown_or_noncanonical"
+    )
+    assert sensor_like_phase_category({"phase": "idle"}) is None
+    assert nextion_event_category({"nextion_event": "EVT:AI_START"}) == (
+        "EVT:AI_START"
+    )
+    assert nextion_event_category({"nextion_event": "SENSITIVE_UNKNOWN"}) == (
+        "OTHER_NEXTION_EVENT"
+    )
+    categories = receive_serial_chunks([
+        json.dumps(idle_frame).encode() + b"\n",
+        json.dumps({**idle_frame, "phase": "DO_NOT_LEAK"}).encode() + b"\n",
+        b'{"nextion_event":"EVT:AI_START"}\n',
+        b'{"nextion_event":"SENSITIVE_UNKNOWN"}\n',
+    ], monotonic=lambda: 1)["diagnostics"]
+    assert categories["sensor_like_phase_categories"] == {
+        "idle": 1, "unknown_or_noncanonical": 1,
+    }
+    assert categories["nextion_event_categories"] == {
+        "EVT:AI_START": 1, "OTHER_NEXTION_EVENT": 1,
+    }
+    assert "DO_NOT_LEAK" not in json.dumps(categories)
+    assert "SENSITIVE_UNKNOWN" not in json.dumps(categories)
+    valid_active = {**idle_frame, "phase": "purging", "cycle": 1,
+                    "sample_idx": 1}
+    valid_diag = receive_serial_chunks([
+        json.dumps(valid_active).encode() + b"\n",
+    ], monotonic=lambda: 1)["diagnostics"]
+    assert valid_diag["valid_sensor_frames_seen"] == 1
+    assert valid_diag["sensor_like_phase_categories"] == {"purging": 1}
+    assert valid_diag["sensor_like_invalid_frames_by_reason"] == {}
 
     framer = SerialLineFramer()
     assert framer.feed(b"x" * (MAX_LINE_BYTES + 50) + b"\n") == []

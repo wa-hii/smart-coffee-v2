@@ -1,5 +1,22 @@
 # Catatan perubahan proyek
 
+## 13 Oktober 2026 20:42–20:49 WIB — Fingerprint versi firmware runtime
+
+- FT232R `A10KMM3S` read-only 15s: 5.026 byte, 38 baris;
+  14 frame sensor-shaped ditolak karena `invalid_phase`.
+- Perluasan diagnostik host: fase dalam enum tetap dan kategori
+  `nextion_event` allowlist; tidak menyimpan data sensor mentah.
+- Read-only 8s: 3.043 byte, 31 baris, 7/7 sensor-shaped
+  memiliki `phase=idle`; USB tetap terenumerasi, tidak ada
+  perintah aktuator/flash/perubahan EEPROM.
+- Riwayat Git menunjukkan source sebelum `75cb38a` memang
+  mengirim sensor JSON saat IDLE; firmware PCB diduga memakai
+  implementasi sebelum perbaikan. Versi binary masih belum pasti.
+- Regresi Windows–Pi, build firmware/Nextion offline PASS.
+  Tidak ada pengujian lima siklus G3 baru; model tetap NO-GO.
+- Rujukan: `docs/reports/2026-10-13_TAHAP7_P2_RUNTIME_FIRMWARE_DIAGNOSIS.md`.
+
+
 ## 13 Oktober 2026 sekitar 20:20 WIB — Pembacaan USB IDLE 15s
 
 - Dengan izin operator, FT232R 115200 dibuka **satu kali**;

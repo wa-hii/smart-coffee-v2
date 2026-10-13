@@ -1,5 +1,15 @@
 # Smart Coffee E-Nose v2
 
+**13 Oktober 2026 20:49 WIB — diagnosis P2:** firmware yang
+sedang berjalan mengeluarkan JSON dengan `phase=idle` tiap
+sekitar 1 detik; 7/7 frame demikian tertangkap pada tes 8s.
+Ini konsisten dengan source firmware pra-`75cb38a`, bukan
+bukti definitif versi binary di PCB. Reader Stage 7 kini
+mencatat enum fase/Nextion event secara terbatas, tanpa
+raw values; tes Windows/Pi PASS. G3 **masih INCONCLUSIVE**,
+AI **NO-GO**. Jangan flash atau START otomatis. Rincian:
+`docs/reports/2026-10-13_TAHAP7_P2_RUNTIME_FIRMWARE_DIAGNOSIS.md`.
+
 **13 Oktober sekitar 20:20 WIB:** pengujian USB read-only 15 detik
 pasca-reboot **berhasil** menerima 5.026 byte/37 baris tanpa
 disconnect. Ada 14 JSON dengan field sensor lengkap, tetapi

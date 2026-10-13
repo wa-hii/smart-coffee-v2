@@ -1,5 +1,33 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## Audit P2 firmware-runtime fingerprint — 13 Oktober 20:42–20:49 WIB
+
+Dengan instruksi operator untuk melakukan diagnosis/perbaikan terukur,
+dua capture tambahan yang **read-only** berhasil. Pada capture 15s,
+14/14 frame sensor-shaped ditolak sebagai `invalid_phase`; pada
+capture 8s berikutnya, diagnostik enum terbaru memastikan
+**7/7 sensor-shaped berfase `idle`**, 0 event Nextion/akuisisi,
+0 sampel valid. FT232R `A10KMM3S` tetap terenumerasi dan tidak
+ada `USB disconnect` pada log boot baru. Semua capture dilakukan
+tanpa TX ke MCU, START, flash, EEPROM atau aktuator dari Pi.
+
+**Temuan provenance:** `git show 75cb38a^:src/main.cpp` menunjukkan
+`adsCallback()` versi lama mengirim `printJsonData()` **setiap
+callback, termasuk IDLE**. Source sesudah commit `75cb38a`
+(9 Oktober) mengirim frame sensor hanya saat PURGING/COLLECTING.
+Maka stream nyata saat IDLE konsisten dengan firmware pra-perbaikan,
+tetapi **binary terpasang belum diidentifikasi**: kesimpulan versi
+firmware masih hipotesis kuat, bukan verifikasi flash.
+
+Adapter Pi kini menghitung kategori fase fixed-enum dan event
+Nextion fixed-allowlist tanpa merekam nilai sensor atau nama
+event arbitrer. Tes offline Windows dan Pi PASS; checksum adapter
+terpasang cocok. G3 lima siklus **belum diulang**; harus ada
+operator onsite yang memicu START via Nextion, preflight aman,
+dan batas satu sesi dengan evidence baru. **G3 INCONCLUSIVE,
+AI TEST tetap N/A, model NO-GO.** Laporan:
+`docs/reports/2026-10-13_TAHAP7_P2_RUNTIME_FIRMWARE_DIAGNOSIS.md`.
+
 ## USB read-only 15s pasca-reboot — 13 Oktober sekitar 20:20 WIB
 
 Dengan izin operator untuk satu capture IDLE, adapter **benar-benar

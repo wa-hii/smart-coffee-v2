@@ -2,6 +2,23 @@
 
 **Dokumen acuan utama versi 1.3 — pembaruan dataset nyata dan gerbang Tahap 6 tanggal 10 Oktober 2026.** Ruang lingkup: Smart Coffee E-Nose v2 / RoastSense dengan ATmega2560, Nextion, komputer host dan Raspberry Pi 5. Pengembangan dilakukan dengan menjaga kestabilan akuisisi yang telah berjalan. **Jangan otomatis mengerjakan semua tahap berikutnya.**
 
+**Koreksi prioritas 13 Oktober 20:49 WIB:** pengujian read-only
+baru mengidentifikasi 14 frame gagal `invalid_phase`, lalu
+7 frame dengan phase **`idle`** pada 8s selanjutnya. Riwayat
+firmware sebelum `75cb38a` menunjukkan pengiriman sensor IDLE
+1 Hz, sedangkan source terbaru membatasi sensor hanya saat
+akuisisi aktif. Kesamaan versi firmware terpasang **belum
+terbukti**. Dengan demikian **tahan pengujian G3** sampai
+operator onsite siap menjalankan satu START Nextion terawasi,
+dan listener sudah mampu mencatat kategori event `EVT:AI_START`,
+event wire `ACQ_START/ACQ_COMPLETE`, dan fase tanpa menyimpan
+nilai mentah. Jika event hilang/label AI_TEST masih bocor,
+putuskan kompatibilitas atau upgrade firmware melalui backup
+dan SOP flashing yang disetujui. Tidak boleh memaksa G3 PASS
+dengan mengizinkan frame IDLE menjadi data. Status Stage 7
+**PARTIAL**, hardware G3 **INCONCLUSIVE**, model **NO-GO**.
+Detail `docs/reports/2026-10-13_TAHAP7_P2_RUNTIME_FIRMWARE_DIAGNOSIS.md`.
+
 **Addendum P0 13 Oktober 20:12 WIB:** USB FT232R kembali terenumerasi
 setelah reboot operator pukul 19:49 WIB; pemeriksaan pasif ulang
 20:09 dan 20:12 menemukan by-id/`ttyUSB0`, driver `ftdi_sio`,

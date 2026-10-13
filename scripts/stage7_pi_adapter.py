@@ -50,6 +50,13 @@ _SENSOR_REJECTION_CODES = frozenset((
     "invalid phase", "invalid timestamp", "invalid cycle",
     "invalid sample_idx", *(f"invalid {key}" for key in ADC_COLS),
 ))
+_SENSOR_PHASE_CATEGORIES = frozenset((
+    "idle", "paused", "complete", "purging", "collecting",
+))
+_NEXTION_EVENT_CATEGORIES = frozenset((
+    "EVT:AI_START", "EVT:AI_CANCEL", "EVT:HMI_READY",
+    "EVT:HOME", "EVT:TEST_START", "EVT:DATA_START",
+))
 
 
 def sensor_like_rejection_code(obj: dict) -> str | None:
@@ -61,6 +68,26 @@ def sensor_like_rejection_code(obj: dict) -> str | None:
     if prefix in _SENSOR_REJECTION_CODES:
         return prefix.replace(" ", "_")
     return "other_sensor_shape_invalid"
+
+
+def sensor_like_phase_category(obj: dict) -> str | None:
+    """Fixed phase enum only for full-shaped frames (no raw phase leakage)."""
+    if not _SENSOR_SHAPE_KEYS.issubset(obj):
+        return None
+    value = obj.get("phase")
+    if type(value) is str and value in _SENSOR_PHASE_CATEGORIES:
+        return value
+    return "unknown_or_noncanonical"
+
+
+def nextion_event_category(obj: dict) -> str | None:
+    """Diagnose HMI-to-MCU input using only a fixed event allowlist."""
+    if "nextion_event" not in obj:
+        return None
+    value = obj["nextion_event"]
+    if type(value) is str and value in _NEXTION_EVENT_CATEGORIES:
+        return value
+    return "OTHER_NEXTION_EVENT"
 
 
 def json_key_signature(obj: dict) -> tuple[str, ...]:
@@ -138,6 +165,8 @@ def receive_serial_chunks(chunks: Iterable[bytes], *,
     other_json = 0
     other_json_shapes: Counter[tuple[str, ...]] = Counter()
     sensor_like_rejections: Counter[str] = Counter()
+    sensor_like_phase_categories: Counter[str] = Counter()
+    nextion_event_categories: Counter[str] = Counter()
     other_json_shapes_untracked = 0
     wire_events: Counter[str] = Counter()
     known_events = {
@@ -163,6 +192,15 @@ def receive_serial_chunks(chunks: Iterable[bytes], *,
                 except FrameError:
                     malformed += 1
                 else:
+                    # Count every complete-shape sensor phase, including
+                    # valid frames, so active G3 phase evidence is visible.
+                    if not obj.get("event"):
+                        phase_category = sensor_like_phase_category(obj)
+                        if phase_category is not None:
+                            sensor_like_phase_categories[phase_category] += 1
+                    hmi_category = nextion_event_category(obj)
+                    if hmi_category is not None:
+                        nextion_event_categories[hmi_category] += 1
                     event = obj.get("event")
                     if isinstance(event, str):
                         wire_events[event if event in known_events
@@ -208,6 +246,12 @@ def receive_serial_chunks(chunks: Iterable[bytes], *,
             "other_json_untracked_shape_lines": other_json_shapes_untracked,
             "sensor_like_invalid_frames_by_reason": dict(sorted(
                 sensor_like_rejections.items()
+            )),
+            "sensor_like_phase_categories": dict(sorted(
+                sensor_like_phase_categories.items()
+            )),
+            "nextion_event_categories": dict(sorted(
+                nextion_event_categories.items()
             )),
             "json_signature_contents": "field_names_only_no_values",
             "wire_events_seen": dict(wire_events),
