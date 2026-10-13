@@ -2,6 +2,23 @@
 
 Dokumen ini mencatat milestone engineering yang relevan; detail teknis dan risiko tetap berada dalam laporan milestone terkait. Untuk riwayat perubahan terperinci, gunakan `git log` pada branch `wahyu`.
 
+## 13 Oktober 2026 19:24 WIB — USB FT232R disconnect saat uji 15s
+
+- Satu pembacaan read-only 15s mendapat izin
+  pengguna; preflight FT232R dan uji offline PASS.
+- `serial-readonly` gagal saat open dengan
+  `Errno 19`; kernel menunjukkan kegagalan
+  set termios/baud dan **USB disconnect**.
+- Pasca-kegagalan, FT232R tidak lagi terdeteksi
+  `lsusb`, tidak ada `ttyUSB0`, output JSON
+  **tidak dibuat**, dan Pi `throttled=0x0`.
+- Tidak mengirim perintah MCU, tidak mengulang
+  port open atau menjalankan G3. Tahan
+  pengujian hingga pemeriksaan USB/power
+  bersama operator.
+- Bukti dan batas diagnosis:
+  `docs/reports/2026-10-13_TAHAP7_USB_READONLY_15S_DISCONNECT.md`.
+
 ## 13 Oktober 2026 malam — Konfirmasi G3 Run02 dan diagnostik skema JSON
 
 - Operator mengonfirmasi START AI TEST

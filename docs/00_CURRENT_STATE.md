@@ -1,5 +1,28 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## USB 15s read-only 13 Oktober malam — BLOCKED/DISCONNECTED
+
+Operator mengizinkan pembacaan hanya 15s
+untuk memeriksa skema JSON tanpa START.
+Preflight Pi PASS: FT232R `A10KMM3S`/
+`ttyUSB0` hadir, tidak dipakai proses lain,
+script hash tepat, offline regression PASS.
+Saat port dibuka, muncul `SerialException
+Errno 19: No such device`; kernel mencatat
+`usb 3-1: USB disconnect` **19:24:44 WIB**
+dan gagal konfigurasi FTDI.
+Pasca-percobaan USB tidak terenumerasi,
+port sudah hilang, output 15s tidak dibuat,
+dan tidak ada JSON masuk/perintah Pi.
+`get_throttled=0x0` pada Pi; ini
+tidak memverifikasi power PCB.
+**Tidak ada retry otomatis.**
+Status G3 tetap INCONCLUSIVE dan
+pemeriksaan fisik/USB G0 harus
+dilakukan sebelum izin open ulang.
+Laporan:
+`docs/reports/2026-10-13_TAHAP7_USB_READONLY_15S_DISCONNECT.md`.
+
 ## Update diagnosis G3 Run02 — 13 Oktober 2026 malam
 
 Operator **sudah menekan START AI TEST** dan
