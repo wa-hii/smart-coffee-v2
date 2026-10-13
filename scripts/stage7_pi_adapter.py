@@ -23,7 +23,9 @@ import sys
 import time
 from typing import Iterable
 
-from acquisition_schema import is_sensor_payload
+from acquisition_schema import (
+    ADC_COLS, is_sensor_payload, sensor_payload_rejection_reason,
+)
 from stage6_release_gate import evaluate as stage6_decision
 from stage7_bridge import (
     MAX_LINE_BYTES,
@@ -39,6 +41,26 @@ SAFE_PORT = re.compile(
     r"^/dev/(?:serial/by-id/[A-Za-z0-9_.:+-]+|ttyACM[0-9]+|ttyUSB[0-9]+)$"
 )
 MAX_STREAM_SECONDS = 180
+
+# Constant, privacy-safe diagnostic categories. Never persist rejected values.
+_SENSOR_SHAPE_KEYS = frozenset((
+    "phase", "cycle", "sample_idx", "timestamp", *ADC_COLS,
+))
+_SENSOR_REJECTION_CODES = frozenset((
+    "invalid phase", "invalid timestamp", "invalid cycle",
+    "invalid sample_idx", *(f"invalid {key}" for key in ADC_COLS),
+))
+
+
+def sensor_like_rejection_code(obj: dict) -> str | None:
+    """Group a full-shape rejected sensor frame without copying its values."""
+    if not _SENSOR_SHAPE_KEYS.issubset(obj):
+        return None
+    # Reason suffixes may contain raw values, so allow-list only fixed codes.
+    prefix = sensor_payload_rejection_reason(obj).split(":", 1)[0]
+    if prefix in _SENSOR_REJECTION_CODES:
+        return prefix.replace(" ", "_")
+    return "other_sensor_shape_invalid"
 
 
 def json_key_signature(obj: dict) -> tuple[str, ...]:
@@ -115,6 +137,7 @@ def receive_serial_chunks(chunks: Iterable[bytes], *,
     sensors = 0
     other_json = 0
     other_json_shapes: Counter[tuple[str, ...]] = Counter()
+    sensor_like_rejections: Counter[str] = Counter()
     other_json_shapes_untracked = 0
     wire_events: Counter[str] = Counter()
     known_events = {
@@ -148,6 +171,9 @@ def receive_serial_chunks(chunks: Iterable[bytes], *,
                         sensors += 1
                     else:
                         other_json += 1
+                        rejection = sensor_like_rejection_code(obj)
+                        if rejection is not None:
+                            sensor_like_rejections[rejection] += 1
                         sig = json_key_signature(obj)
                         if sig in other_json_shapes or len(other_json_shapes) < 8:
                             other_json_shapes[sig] += 1
@@ -180,6 +206,9 @@ def receive_serial_chunks(chunks: Iterable[bytes], *,
                 )
             ],
             "other_json_untracked_shape_lines": other_json_shapes_untracked,
+            "sensor_like_invalid_frames_by_reason": dict(sorted(
+                sensor_like_rejections.items()
+            )),
             "json_signature_contents": "field_names_only_no_values",
             "wire_events_seen": dict(wire_events),
             "raw_sensor_values_persisted": False,

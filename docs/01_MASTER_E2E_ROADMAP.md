@@ -18,6 +18,18 @@ nama field JSON (tanpa raw nilai) untuk isolasi mismatch;
 dan skema pesan dipahami. Seluruh model tetap NO-GO.
 Rujukan: `docs/reports/2026-10-13_TAHAP7_P0_REAUDIT_POST_REBOOT.md`.
 
+**Addendum P1 13 Oktober 20:20 WIB:** satu pembacaan serial
+read-only 15 detik **berhasil tanpa USB disconnect** (5.026 byte,
+37 baris). Ditemukan 14 JSON *sensor-shaped* dengan 10 `adc_*`
+tetapi 0 sampel valid, 0 event. Source firmware checkout
+tidak mengeluarkan frame sensor saat IDLE, sehingga perbedaan
+perilaku source-vs-hardware menjadi hipotesis utama yang perlu
+dibuktikan, **bukan alasan flashing otomatis**. G3 tetap
+INCONCLUSIVE. Listener diperkuat *offline* untuk meringkas
+alasan penolakan sampel tanpa menyimpan nilai mentah; capture
+historis tidak dapat dihitung ulang. Laporan:
+`docs/reports/2026-10-13_TAHAP7_P1_USB_IDLE_SCHEMA_15S_RESULT.md`.
+
 Dokumen bukti dasar: **00_CURRENT_STATE.md**, **02_KONTRAK_SISTEM_DAN_KEPUTUSAN_TAHAP0.md**, dan **06_INDEPENDENT_AUDIT_QA_QC.md**. Keputusan tentang model dan protokol lanjutan dijabarkan pada dokumen **03** dan **04**.
 
 ## A. Prinsip kerja dan batas keselamatan

@@ -1,5 +1,12 @@
 # Smart Coffee E-Nose v2
 
+**13 Oktober sekitar 20:20 WIB:** pengujian USB read-only 15 detik
+pasca-reboot **berhasil** menerima 5.026 byte/37 baris tanpa
+disconnect. Ada 14 JSON dengan field sensor lengkap, tetapi
+0 sampel valid dalam kondisi IDLE; jangan menganggapnya
+data kopi. G3 tetap INCONCLUSIVE, tidak ada model yang dirilis.
+Laporan: `docs/reports/2026-10-13_TAHAP7_P1_USB_IDLE_SCHEMA_15S_RESULT.md`.
+
 **Status terbaru 13 Oktober 20:12 WIB:** reboot Pi yang
 dilakukan operator memulihkan enumerasi FT232R
 `0403:6001 / A10KMM3S` ke `/dev/ttyUSB0`;

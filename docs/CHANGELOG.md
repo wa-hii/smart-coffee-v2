@@ -1,5 +1,20 @@
 # Catatan perubahan proyek
 
+## 13 Oktober 2026 sekitar 20:20 WIB — Pembacaan USB IDLE 15s
+
+- Dengan izin operator, FT232R 115200 dibuka **satu kali**;
+  menerima 5.026 byte, 37 baris (23 JSON, 14 non-JSON),
+  tanpa USB disconnect. Tidak mengirim perintah MCU.
+- Sebanyak 14 JSON memuat nama field sensor, tetapi 0 lolos
+  validasi sampel aktif; 0 event akuisisi sesuai mode IDLE.
+  Data mentah nilai sensor tidak direkam; status G3 tetap
+  INCONCLUSIVE dan AI `N/A`.
+- Menambah diagnostik host privacy-safe berupa agregat kode
+  alasan penolakan frame sensor-shaped dan uji regresi.
+  Tidak ada tes serial kedua ataupun flashing firmware.
+- Evidence dan diagnosis: `docs/reports/2026-10-13_TAHAP7_P1_USB_IDLE_SCHEMA_15S_RESULT.md`.
+
+
 ## 13 Oktober 2026 20:09–20:12 WIB — Re-audit independen P0 pasca-reboot
 
 - Re-check SSH pasif mengonfirmasi FT232R `A10KMM3S` masih

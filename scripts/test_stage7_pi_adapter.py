@@ -12,10 +12,12 @@ from unittest.mock import patch
 from stage7_pi_adapter import (
     LIVE_OPT_IN, SerialLineFramer, json_key_signature, main, receive_lines,
     receive_serial_chunks, replay_real_csv, save_report,
+    sensor_like_rejection_code,
     serial_readonly,
     validate_live_args,
 )
 from stage7_bridge import MAX_LINE_BYTES
+from acquisition_schema import ADC_COLS
 from stage8_offline_e2e import _firmware_samples, read_real_csv
 
 
@@ -114,6 +116,26 @@ def main_test():
     assert "NEVER_RECORD_ME" not in json.dumps(diagnostic)
     assert diagnostic["json_signature_contents"] == "field_names_only_no_values"
     assert len(json_key_signature({f"field{i}": i for i in range(100)})) <= 32
+
+    # Reproduce 15-second USB diagnosis: full ADC key shape can be present
+    # even though IDLE / index zero makes it an INVALID session sample.
+    idle_frame = {key: 17123 for key in ADC_COLS}
+    idle_frame.update({"phase": "idle", "cycle": 0,
+                       "sample_idx": 0, "timestamp": 10123})
+    assert sensor_like_rejection_code(idle_frame) == "invalid_phase"
+    invalid_adc = {**idle_frame, "phase": "purging", "cycle": 1,
+                   "sample_idx": 1, ADC_COLS[0]: "SECRET_ADC_VALUE"}
+    assert sensor_like_rejection_code(invalid_adc) == f"invalid_{ADC_COLS[0]}"
+    invalid_diag = receive_serial_chunks([
+        json.dumps(idle_frame).encode() + b"\n",
+        json.dumps(invalid_adc).encode() + b"\n",
+    ], monotonic=lambda: 1)["diagnostics"]
+    assert invalid_diag["other_json_lines"] == 2
+    assert invalid_diag["valid_sensor_frames_seen"] == 0
+    assert invalid_diag["sensor_like_invalid_frames_by_reason"] == {
+        f"invalid_{ADC_COLS[0]}": 1, "invalid_phase": 1,
+    }
+    assert "SECRET_ADC_VALUE" not in json.dumps(invalid_diag)
 
     framer = SerialLineFramer()
     assert framer.feed(b"x" * (MAX_LINE_BYTES + 50) + b"\n") == []

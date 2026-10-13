@@ -1,5 +1,30 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## USB read-only 15s pasca-reboot — 13 Oktober sekitar 20:20 WIB
+
+Dengan izin operator untuk satu capture IDLE, adapter **benar-benar
+membuka** FT232R `A10KMM3S` 115200 selama 15 detik. Diterima
+**5.026 byte, 44 chunk, 37 baris**: 23 JSON valid, 14 non-JSON;
+14 JSON memiliki seluruh field `phase/cycle/sample_idx/timestamp`
+dan 10 `adc_*`, tetapi **0** lolos validasi sampel aktif.
+Key signature lain: 5 I2C found, 3 info, 1 scan done; **0 event
+akuisisi**. `NOT_STARTED`/exit 2 adalah status validator saat IDLE,
+**bukan** kegagalan membuka port. Raspberry Pi mengirim 0 byte TX.
+Setelah capture, FT232R tetap terenumerasi, port bebas,
+`throttled=0x0`, log boot tidak menunjukkan USB disconnect baru.
+
+**Temuan kontrak:** source `src/main.cpp::adsCallback()` hanya
+mengirim JSON sensor pada `purging`/`collecting`, bukan IDLE.
+Adanya 14 JSON berbentuk sensor saat operator menyatakan IDLE
+menguatkan kecurigaan perbedaan perilaku firmware terpasang,
+tetapi nilai fase/indeks sengaja tidak direkam dan identitas
+firmware belum terbukti. Jangan menyimpulkan akar masalah pasti.
+Host kini memiliki diagnostik offline `sensor_like_invalid_frames_by_reason`
+berbasis kode alasan statis tanpa nilai ADC; **hasil capture ini
+tidak dapat direklasifikasi dari metadata historis**.
+G3 masih INCONCLUSIVE, AI NO-GO.
+Laporan: `docs/reports/2026-10-13_TAHAP7_P1_USB_IDLE_SCHEMA_15S_RESULT.md`.
+
 ## Audit independen pasca-reboot — 13 Oktober 20:09–20:12 WIB
 
 Pemeriksaan **baru langsung melalui SSH dengan host key diverifikasi**:
