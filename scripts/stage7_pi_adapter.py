@@ -167,6 +167,7 @@ def receive_serial_chunks(chunks: Iterable[bytes], *,
     sensor_like_rejections: Counter[str] = Counter()
     sensor_like_phase_categories: Counter[str] = Counter()
     nextion_event_categories: Counter[str] = Counter()
+    start_contract_outcomes: Counter[str] = Counter()
     other_json_shapes_untracked = 0
     wire_events: Counter[str] = Counter()
     known_events = {
@@ -187,6 +188,7 @@ def receive_serial_chunks(chunks: Iterable[bytes], *,
             for line in framer.feed(chunk):
                 last_frame = now
                 complete_lines += 1
+                event = None  # Never reuse previous event after malformed JSON.
                 try:
                     obj = decode_line(line)
                 except FrameError:
@@ -217,7 +219,19 @@ def receive_serial_chunks(chunks: Iterable[bytes], *,
                             other_json_shapes[sig] += 1
                         else:
                             other_json_shapes_untracked += 1
-                tracker.feed(line)
+                bridge_events = tracker.feed(line)
+                if isinstance(event, str) and event == "ACQ_START":
+                    if any(item.get("type") == "SESSION_STARTED"
+                           for item in bridge_events):
+                        start_contract_outcomes["accepted"] += 1
+                    elif any(item.get("reason") == "ai_test_label_leakage"
+                             for item in bridge_events):
+                        start_contract_outcomes["ai_test_label_leakage"] += 1
+                    elif any(item.get("reason") == "bad_start_contract"
+                             for item in bridge_events):
+                        start_contract_outcomes["bad_start_contract"] += 1
+                    else:
+                        start_contract_outcomes["other_rejection"] += 1
                 if tracker.last_final is not None and tracker.active is None:
                     break
         if tracker.last_final is not None and tracker.active is None:
@@ -252,6 +266,9 @@ def receive_serial_chunks(chunks: Iterable[bytes], *,
             )),
             "nextion_event_categories": dict(sorted(
                 nextion_event_categories.items()
+            )),
+            "acq_start_contract_outcomes": dict(sorted(
+                start_contract_outcomes.items()
             )),
             "json_signature_contents": "field_names_only_no_values",
             "wire_events_seen": dict(wire_events),

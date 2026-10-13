@@ -1,5 +1,16 @@
 # Smart Coffee E-Nose v2
 
+**14 Oktober 2026 — QA remote tanpa operator di dekat alat:**
+Raspberry Pi dan FT232R terdeteksi sehat pada preflight
+non-invasif; regresi offline Windows–Pi PASS. Replay pada Pi
+dari `D-GAW_B33.csv` menghasilkan `COMPLETE_QA`, 151 sampel
+5 siklus (nominal 150 tidak persis), **AI `N/A`**. Listener
+sekarang mencatat alasan `ACQ_START` diterima/ditolak
+(termasuk `ai_test_label_leakage`) tanpa menyimpan label.
+Tidak ada USB serial open, firmware flashing, atau aktuasi
+fisik pada sesi remote ini: G3 live masih **INCONCLUSIVE**.
+Laporan: `docs/reports/2026-10-14_TAHAP7_REMOTE_UNATTENDED_OFFLINE_QA.md`.
+
 **13 Oktober 2026 20:49 WIB — diagnosis P2:** firmware yang
 sedang berjalan mengeluarkan JSON dengan `phase=idle` tiap
 sekitar 1 detik; 7/7 frame demikian tertangkap pada tes 8s.

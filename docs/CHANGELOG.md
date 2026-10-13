@@ -1,5 +1,24 @@
 # Catatan perubahan proyek
 
+## 14 Oktober 2026 05:34–05:37 WIB — QA remote unattended
+
+- User remote, tidak berada di dekat alat: tidak menjalankan
+  perintah yang memicu pompa/valve, serial open (berpotensi
+  auto-reset MCU), flashing, atau reboot.
+- Preflight read-only **tanpa membuka tty**: Pi SSH tersedia,
+  FT232R `A10KMM3S` tetap pada `/dev/ttyUSB0`, tidak ada
+  port owner, `get_throttled=0x0`.
+- Regression suites Windows/Pi untuk Stage1/6/7/8 PASS;
+  replay CSV existing pada Pi COMPLETE_QA 151 sampel,
+  `hardware_serial_opened=false`, AI N/A.
+- Tambah penghitung `acq_start_contract_outcomes`, mengenali
+  penolakan `ai_test_label_leakage` firmware lama,
+  `bad_start_contract`, accepted; hanya enum alasan statis,
+  label kopi tetap tidak direkam. Tes regresi tiga kondisi PASS.
+- G3 fisik masih INCONCLUSIVE. Evidence dan langkah
+  keselamatan di `docs/reports/2026-10-14_TAHAP7_REMOTE_UNATTENDED_OFFLINE_QA.md`.
+
+
 ## 13 Oktober 2026 20:42–20:49 WIB — Fingerprint versi firmware runtime
 
 - FT232R `A10KMM3S` read-only 15s: 5.026 byte, 38 baris;

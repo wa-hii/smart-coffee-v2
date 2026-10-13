@@ -1,5 +1,35 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## Remote unattended QA — 14 Oktober 2026 sekitar 05:34–05:37 WIB
+
+User mengonfirmasi **Pi dan PCB custom menyala tetapi tidak ada
+operator di depan alat**; tidak ada supervisi pompa/valve.
+Maka tidak dijalankan START AI TEST, serial command, flashing,
+GPIO, reboot, atau pembukaan USB/tty yang berisiko auto-reset.
+Preflight non-invasif: Pi via SSH OK, FT232R
+`0403:6001 A10KMM3S` tetap ke `/dev/ttyUSB0`, `fuser`
+kosong, getty/ModemManager inactive, throttling `0x0`,
+tidak ada log kernel disconnect baru yang terlihat.
+
+Offline: regresi Stage1/Stage6/Stage7/Stage8 Windows–Pi
+PASS. CLI `replay-csv` di Pi memakai CSV existing
+`data/raw/D-GAW_B33.csv` (SHA256
+`d5e690f538a3967e2d07ded64903d284a348c1988bcc331a380dd50b0a8be819`)
+memberi **`COMPLETE_QA`, 151 sampel, AI `N/A`**. Nominal 150
+false bukan alasan klaim 150; kriteria setiap fase/siklus
+lolos sehingga replay QA COMPLETE. `hardware_serial_opened=false`
+dan model promotion tetap NO-GO.
+
+Peningkatan listener: agregat `acq_start_contract_outcomes`
+(`accepted`, `ai_test_label_leakage`, `bad_start_contract`,
+`other_rejection`). Test mensimulasikan metadata label
+yang nyata-nyata tercetak pada `AI_TEST` source pra-`75cb38a`
+tanpa menyimpan nilai label. Checksums listener Windows–Pi
+identik. **G3 live INCONCLUSIVE**: perlu supervisi fisik
+dan pembuktian firmware installed; jangan menafsir replay
+sebagai uji hardware. Laporan:
+`docs/reports/2026-10-14_TAHAP7_REMOTE_UNATTENDED_OFFLINE_QA.md`.
+
 ## Audit P2 firmware-runtime fingerprint — 13 Oktober 20:42–20:49 WIB
 
 Dengan instruksi operator untuk melakukan diagnosis/perbaikan terukur,

@@ -2,6 +2,18 @@
 
 **Dokumen acuan utama versi 1.3 — pembaruan dataset nyata dan gerbang Tahap 6 tanggal 10 Oktober 2026.** Ruang lingkup: Smart Coffee E-Nose v2 / RoastSense dengan ATmega2560, Nextion, komputer host dan Raspberry Pi 5. Pengembangan dilakukan dengan menjaga kestabilan akuisisi yang telah berjalan. **Jangan otomatis mengerjakan semua tahap berikutnya.**
 
+**Keputusan remote 14 Oktober 2026:** Tidak ada operator di
+dekat PCB/Nextion; G3 yang menggerakkan pompa/valve tidak boleh
+di-trigger via USB/remote. Preflight Pi/FT232R non-invasif
+PASS; regresi Windows/Pi dan satu `replay-csv` existing
+PASS `COMPLETE_QA` (151 sampel), tetapi tidak sama dengan
+uji G3 fisik. P0 berikutnya adalah konfirmasi firmware yang
+di-flash, lalu **satu G3 terawasi onsite** dengan diagnostik
+host baru `acq_start_contract_outcomes` untuk membedakan
+label leak, kontrak salah, dan START diterima. Jangan
+mengubah gate atau menyamakan replay dengan validasi hardware.
+`docs/reports/2026-10-14_TAHAP7_REMOTE_UNATTENDED_OFFLINE_QA.md`.
+
 **Koreksi prioritas 13 Oktober 20:49 WIB:** pengujian read-only
 baru mengidentifikasi 14 frame gagal `invalid_phase`, lalu
 7 frame dengan phase **`idle`** pada 8s selanjutnya. Riwayat

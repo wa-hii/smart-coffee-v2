@@ -174,6 +174,38 @@ def main_test():
     assert valid_diag["sensor_like_phase_categories"] == {"purging": 1}
     assert valid_diag["sensor_like_invalid_frames_by_reason"] == {}
 
+    # Firmware prior to 75cb38a includes sample_id/roast_label even in
+    # AI_TEST ACQ_START. Reject label leakage, but expose its safe reason
+    # (not the values), to avoid mistakenly treating G3 as no event.
+    clean_start = {
+        "event": "ACQ_START", "mode": "ai_test", "cycle": 1,
+        "phase": "purging", "cycles_total": 5, "purge_s": 25,
+        "collect_s": 5,
+    }
+    legacy_start = {**clean_start, "sample_id": "PRIVATE_LABEL"}
+    leaked = receive_serial_chunks([
+        json.dumps(legacy_start).encode() + b"\n",
+    ], monotonic=lambda: 1)
+    assert leaked["diagnostics"]["wire_events_seen"] == {"ACQ_START": 1}
+    assert leaked["diagnostics"]["acq_start_contract_outcomes"] == {
+        "ai_test_label_leakage": 1,
+    }
+    assert leaked["final"]["quality"] == "NOT_STARTED"
+    assert "PRIVATE_LABEL" not in json.dumps(leaked)
+    compliant = receive_serial_chunks([
+        json.dumps(clean_start).encode() + b"\n",
+    ], monotonic=lambda: 1)
+    assert compliant["diagnostics"]["acq_start_contract_outcomes"] == {
+        "accepted": 1,
+    }
+    assert compliant["final"]["quality"] == "FAIL_CLOSED"
+    bad_start = receive_serial_chunks([
+        json.dumps({**clean_start, "purge_s": 999}).encode() + b"\n",
+    ], monotonic=lambda: 1)
+    assert bad_start["diagnostics"]["acq_start_contract_outcomes"] == {
+        "bad_start_contract": 1,
+    }
+
     framer = SerialLineFramer()
     assert framer.feed(b"x" * (MAX_LINE_BYTES + 50) + b"\n") == []
     assert framer.oversized_lines == 1
