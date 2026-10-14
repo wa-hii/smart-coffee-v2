@@ -74,3 +74,41 @@ identitas binary MCU secara definitif.
   **satu** G3 dengan listener waktu yang memadai dan sinkronisasi
   START lebih cepat; setiap retry memakai evidence file baru.
 - Software RC1 **tidak diubah** pada sesi ini.
+
+## Addendum laporan operator — 16:45 WIB, 14 Oktober 2026
+
+Operator yang menyaksikan langsung di LCD Nextion menegaskan:
+
+> LCD menampilkan kelima siklus selesai hingga halaman
+> `Test Complete - AI Result`, yang memuat bidang Roast Level,
+> Coffee Origin, dan Roast Probability.
+
+Pernyataan ini adalah **bukti observasi HMI oleh operator**
+bahwa lima siklus selesai pada sisi layar. Bukti Pi tetap
+**tidak** merekam `ACQ_COMPLETE` lengkap dalam jendela 180
+detik, dan menolak `ACQ_START` yang mengandung label pada
+`ai_test`. Oleh sebab itu status gabungan tetap
+`HMI_5_CYCLES_OBSERVED_BY_OPERATOR / PI_G3_FAIL_CLOSED`;
+bukan E2E G3 PASS.
+
+Pemeriksaan source software RC1 (tidak membuka perangkat):
+
+- `src/main.cpp` menyatakan `updateNextionInferenceResult()`
+  memperbarui `tRoast`, `tRConf`, `tOrigin`, `tOConf`,
+  serta progress `jLight`, `jMedium`, `jDark`.
+- `src/inference.h` default `USE_ON_DEVICE_INFERENCE=0`;
+  `src/inference.cpp` akan mencetak `INFERENCE.result=N/A`.
+- Pada build RC1, `tRoast` dan `tOrigin` seharusnya `N/A`;
+  confidence `N/A`, dan semua progress 0. Keberadaan
+  label/komponen antarmuka saja **tidak** membuktikan
+  model memprediksi kopi atau menghasilkan probabilitas.
+- Operator belum memberikan nilai roast/origin/confidence
+  aktual yang ditampilkan. Bila ada persentase/probabilitas
+  atau kelas non-`N/A`, sumbernya **belum dapat diautentikasi**
+  tanpa firmware-binary comparison, inspeksi HMI deployed,
+  dan bukti terkontrol; jangan diklaim AI telah tervalidasi.
+
+**Aksi yang ditahan:** jangan flash, mulai siklus lain,
+atau mengubah konfigurasi model hanya berdasarkan observasi
+ini. Konfirmasi nilai aktual di halaman hasil dan identitas
+firmware untuk merencanakan pemulihan kompatibilitas.

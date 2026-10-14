@@ -2,6 +2,15 @@
 
 ## 14 Oktober — G3 nyata pasca-reboot: START terdeteksi, QA gagal tertutup
 
+**Update observasi operator 16:45 WIB:** Nextion menampilkan
+lima siklus selesai dan halaman `Test Complete - AI Result`
+(Roast Level, Coffee Origin, Roast Probability). Ini adalah
+**observasi HMI**, bukan data `ACQ_COMPLETE` yang diterima Pi.
+Pada source RC1, nilai roast/origin/confidence belum tervalidasi
+dan diset `N/A`; grafik probabilitas direset ke 0. Nilai
+aktual LCD belum disebut oleh operator. Status tetap
+**HMI complete (operator) / Pi G3 FAIL_CLOSED / AI NO_GO**.
+
 Operator menekan START AI TEST setelah listener Pi read-only
 benar-benar aktif. Pi menangkap `EVT:AI_START` (1),
 `EVT:TEST_START` (1), `ACQ_START` (1), `PHASE_CHANGE` (6),
