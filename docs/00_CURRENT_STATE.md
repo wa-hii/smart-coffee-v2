@@ -1,5 +1,20 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 14 Oktober — G3 nyata pasca-reboot: START terdeteksi, QA gagal tertutup
+
+Operator menekan START AI TEST setelah listener Pi read-only
+benar-benar aktif. Pi menangkap `EVT:AI_START` (1),
+`EVT:TEST_START` (1), `ACQ_START` (1), `PHASE_CHANGE` (6),
+99 frame sensor valid serta 80 frame `phase=idle` yang
+tidak memenuhi skema. **ACQ_START ditolak `ai_test_label_leakage`**,
+sehingga host melaporkan `NOT_STARTED`; ini *bukan* berarti
+tombol tidak ditekan. Firmware `FW_HELLO` RC1 tidak
+teramati. USB FT232R tetap tersambung, `throttled=0x0`.
+Durasi pendengaran 180 detik tidak menyediakan bukti
+`ACQ_COMPLETE` atau lima siklus lengkap. Keputusan
+`G3_NOT_PASS` dan AI `N/A`. Bukti, SHA256 dan diagnosis:
+`docs/reports/2026-10-14_G3_SUPERVISED_AFTER_REBOOT_START_DETECTED_FIRMWARE_CONTRACT_FAIL.md`.
+
 ## 14 Oktober — P0 software freeze untuk persiapan bench
 
 Enam masalah hasil audit telah diperbaiki dalam **source**
