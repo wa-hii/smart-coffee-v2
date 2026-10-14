@@ -1,0 +1,23 @@
+{
+  "status": "SOURCE_QUALITY_REVIEW_ONLY_NO_RELABEL_NO_DROPPING",
+  "stage2_manifest_sha256": "da9b6fe1df2ac2887feddf6c87ac39afd7b0878512bcdd0d9c888d40d8e00374",
+  "stage3_features_sha256": "365f95d081e463edb6e692179a14f22837cd4c338b0d813a1984fc41e7feabfe",
+  "frozen_files_verified_by_sha256": 89,
+  "coffee_dev_only": 83,
+  "air_excluded": 6,
+  "files_with_any_review_flag": 89,
+  "flags_file_counts": {
+    "KNOWN_AIR_NOT_COFFEE_TRAINING": 6,
+    "ORIGIN_AND_ROAST_LABELS_NOT_INDEPENDENTLY_VERIFIED": 83,
+    "PHYSICAL_SPECIMEN_OR_SESSION_UNVERIFIED": 83,
+    "SAME_UI_CODE_IN_SAME_BATCH_REPEAT_NOT_INDEPENDENT": 8,
+    "SAMPLE_CADENCE_JITTER_REVIEW": 14
+  },
+  "automatic_exclusions": 0,
+  "labels_edited": false,
+  "raw_files_edited": false,
+  "verified_independent_specimen_ids": 0,
+  "new_sealed_blind_test_files": 0,
+  "model_promotion_allowed": false,
+  "caveat": "Cadence 900-1100 ms, zero/saturation and repeated UI codes are pre-review diagnostics, not validated outlier rejection rules; all historical labels remain unverified."
+}

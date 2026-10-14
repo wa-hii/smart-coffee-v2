@@ -1,5 +1,28 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 14 Oktober — Stage11 provenance + split gate + benchmark (offline)
+
+**Audit ulang malam 14 Oktober WIB:** `stage11_quality_review.py` memeriksa
+89 CSV, menandai 8 berkas berulang pada sel kode/batch dan 14
+berkas interval sampling untuk review; tidak ada otomatis
+eksklusi, relabel, atau perubahan raw. Registri blind kini wajib
+UUIDv4 acak; ekspor fitur blind diurutkan berdasarkan ID acak
+untuk mengurangi kebocoran urutan pengambilan.
+**Blind final riil tetap belum tersedia.**
+
+Tanpa mengubah firmware RC2, tidak membuka serial/G3, dataset
+Stage2 canonical 89 CSV dipastikan SHA256 cocok: 83 `DEV_ONLY`
+berlabel fisik belum diverifikasi, 6 clean-air excluded.
+Tidak ada spesimen independen/prospective final test baru.
+Implementasi Stage11 menyediakan registri metadata fisik,
+hash gate, larangan lot/spesimen/sesi/hari lintas partisi,
+ekspor fitur holdout tanpa label/filename dan custodian-only
+blind scoring (future). Benchmark development 4 model dan
+4 batch selesai, tetapi **BUKAN blind**. Actual blinded
+prospective test **BLOCKED**, model **NO-GO/N/A**.
+Laporan: `docs/reports/2026-10-14_STAGE11_DATASET_PROVENANCE_INDEPENDENT_SPLIT_BLIND_PROTOCOL.md`.
+
+
 ## 14 Oktober — Stage10 audit independen kelayakan model (NO-GO)
 
 **G3 tetap PASS, firmware RC2 tidak diubah dan tidak ada

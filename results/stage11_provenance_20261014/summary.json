@@ -1,0 +1,28 @@
+{
+  "status": "HISTORICAL_DEVELOPMENT_ONLY_NOT_INDEPENDENT_BLIND",
+  "frozen_stage2_manifest_sha256": "da9b6fe1df2ac2887feddf6c87ac39afd7b0878512bcdd0d9c888d40d8e00374",
+  "frozen_stage3_features_sha256": "365f95d081e463edb6e692179a14f22837cd4c338b0d813a1984fc41e7feabfe",
+  "frozen_exclusions_sha256": "1d87a3481f95a63b68d466f345bea72c2d3fa9fcfadc682edb2f49b01724e01d",
+  "frozen_file_count": 89,
+  "historical_dev_only": 83,
+  "historical_excluded_clean_air": 6,
+  "historic_hold_for_review": 0,
+  "visible_files_outside_frozen_inventory": [
+    "D-CAT_B24.csv",
+    "D-CAT_B25.csv",
+    "D-GAW_B24.csv",
+    "D-GAW_B25.csv",
+    "D-MING_B25.csv",
+    "D-MING_B26.csv",
+    "D-RAT_B23.csv",
+    "D-RAT_B25.csv",
+    "D-TEM_B25.csv",
+    "L-MING_B25.csv",
+    "L-MING_B26.csv"
+  ],
+  "prospective_test_acquisitions": 0,
+  "independent_specimen_count_verified": 0,
+  "historical_blind_test_eligible": false,
+  "model_promotion_allowed": false,
+  "raw_files_edited": false
+}

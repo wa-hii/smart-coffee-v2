@@ -1,5 +1,31 @@
 # Penelitian dan Evaluasi Model AI — 8 Oktober 2026
 
+## Addendum 14 Oktober — Stage11 provenance & protokol blind independen
+
+**QA tambahan malam 14 Oktober:** dari 89 CSV canonical,
+8 berkas mengulang kombinasi kode UI/batch dan 14 berkas
+memerlukan review interval sampling; tidak ada perubahan data
+mentah atau label. Registry prospective mewajibkan UUIDv4
+untuk blind ID, grouping disjoint berdasarkan lot/spesimen/
+roast batch/sesi/hari dan label final di custodian eksternal.
+Data blind prospektif sungguhan **belum tersedia**.
+
+Snapshot 83 kopi + 6 clean-air exclusion B32+ di-hash ulang;
+seluruh kopi historis berstatus **development-only / label belum
+terverifikasi**, tidak boleh menjadi blind prospective.
+Benchmark empat model dengan LOBO per batch untuk development:
+pooled macro-F1 Dummy 0,237, Logistic 0,495, LDA 0,539,
+RF 0,512; label masih berdasarkan pilihan HMI, bukan label
+fisik independen. Script baru memvalidasi lot, spesimen,
+sesi, hari, review bukti dan partisi; menyediakan fitur
+`blind_id` tanpa filename/label untuk custodian.
+**Tidak ada blind final test baru untuk diukur sekarang**;
+frozen prediction dan vault label baru dapat dibandingkan
+kelak lewat scoring sekali dengan attestation custodian.
+Firmware RC2 dan G3 tidak diubah, AI tetap NO-GO/N/A.
+Laporan `docs/reports/2026-10-14_STAGE11_DATASET_PROVENANCE_INDEPENDENT_SPLIT_BLIND_PROTOCOL.md`.
+
+
 ## Addendum 10 Oktober — data riset eksternal dan batas Tahap 6
 
 CoffeePow-4 (3.583 rangkaian) dan Aroma-7 (4.750 rangkaian

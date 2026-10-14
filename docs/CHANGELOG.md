@@ -1,5 +1,33 @@
 # Catatan perubahan proyek
 
+## 14 Oktober 2026 — Stage11 pemisahan dataset & blind protocol
+
+- Audit ulang source quality: flag review cadence 14 berkas,
+  pengulangan kode UI/batch 8 berkas; tanpa relabel/exclusion.
+- Opaque ID UUIDv4 diwajibkan untuk registry prospective dan
+  blind feature export diurutkan menurut ID tersebut.
+- Scorer yang disiapkan melaporkan recall per kelas dengan
+  abstention sebagai salah, coverage, risk dan Brier multiclass
+  deskriptif; origin final belum diuji.
+- `test_stage11_development_benchmark.py` mengunci integritas
+  grouped out-of-fold comparison. Regresi Stage2–6/10/11 PASS.
+
+- 89 CSV frozen diverifikasi SHA256: 83 dev-only dan enam
+  clean-air excluded, nol spesimen independen terverifikasi.
+- `stage11_provenance_guard.py`: manifest + prospective registry
+  and fail-closed lot/specimen/session/day split.
+- `stage11_prospective_features.py`: keluaran 82 fitur hanya
+  dengan opaque ID pada blind view (tanpa sumber/label).
+- `stage11_development_benchmark.py`: empat comparator LOBO
+  untuk pengembangan saja; hasil bukan blind.
+- `stage11_blind_scoring.py`: scorer future custodian-only,
+  hash freeze, abstention dan label vault terpisah.
+- Test positif/sintetis dan negatif Stage11 PASS; data baru
+  masih tidak ada sehingga real blind test **BLOCKED**.
+- Tidak ada perubahan firmware RC2/G3/model produksi;
+  preserve CSV mentah dan konfigurasi lokal.
+
+
 ## 14 Oktober 2026 — Stage10 audit kelayakan AI, device NO-GO
 
 - Audit offline Stage3–Stage6: 83 akuisisi; 21 kode sampel,
