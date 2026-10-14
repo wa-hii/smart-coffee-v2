@@ -1,5 +1,14 @@
 # PETA JALAN INDUK PENELITIAN DAN IMPLEMENTASI AI E2E SMART COFFEE E-NOSE
 
+**Milestone aktual 14 Oktober 18:23 WIB:** RC2 sudah di-flash
+dan G3 live **PASS untuk integritas akuisisi fisik satu run**.
+Raspberry Pi memvalidasi 150 sampel dari 5 siklus, build marker
+RC2 cocok, `ACQ_COMPLETE` diterima; AI tetap N/A/NO_GO.
+Bukti: `docs/reports/2026-10-14_G3_RC2_PHYSICAL_5_CYCLES_PASS.md`.
+Catatan lama yang menyatakan G3 belum berjalan merujuk kondisi
+sebelum flashing RC2 dan milestone ini.
+
+
 **Addendum RC2 14 Oktober 2026:** enam aksi Home Nextion
 dan kompatibilitas Pi G3 diaudit serta diperbaiki di source.
 Freeze `pre-onsite-software-2026-10-14-rc2` memakai marker

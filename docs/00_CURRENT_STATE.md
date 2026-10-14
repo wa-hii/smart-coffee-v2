@@ -1,5 +1,20 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 14 Oktober 18:23 — G3 RC2 lima siklus fisik QA PASS
+
+**Pembaruan status terbaru (menggantikan G3 NOT RUN lama):**
+setelah RC2 di-flash pada ATmega2560 dan USB kembali ke Pi,
+listener read-only G3 menerima **150/150 sampel** lengkap
+(125 purging, 25 collecting), 1 `EVT:AI_START`, 1 `ACQ_START`
+diterima, 9 `PHASE_CHANGE`, 1 `ACQ_COMPLETE`.
+`FW_HELLO` dan build ID `g3-rc2-20261014` cocok;
+`physical_g3_complete_verified=true`, `COMPLETE_QA`,
+exit code 0. FT232R stabil dan Pi `throttled=0x0`.
+Status **G3 PHYSICAL ACQUISITION PASS untuk satu run**,
+tetapi **AI tetap NO_GO / `N/A`**. Bukti:
+`docs/reports/2026-10-14_G3_RC2_PHYSICAL_5_CYCLES_PASS.md`.
+
+
 ## 14 Oktober 17:28 — Firmware RC2 berhasil DI-FLASH ke PCB COM5
 
 **Pembaruan ini menggantikan status 'RC2 belum flash' di bawah.**

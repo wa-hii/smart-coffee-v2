@@ -1,5 +1,17 @@
 # Catatan perubahan proyek
 
+## 14 Oktober 2026 — RC2 G3 supervised, akuisisi fisik PASS
+
+- Pi menerima 150 sampel valid (125 purging, 25 collecting),
+  `ACQ_START` diterima, 9 perubahan fase dan `ACQ_COMPLETE`.
+- Marker firmware pada `FW_HELLO` dan `ACQ_START` MATCHED,
+  satu `SESSION_FINAL.COMPLETE_QA` dengan status AI `N/A`.
+- FT232R stabil, exit code listener 0, tidak ada perintah MCU.
+- SHA256 bukti dicatat; G3 dinyatakan PASS **hanya untuk integritas
+  akuisisi lima siklus fisik**, bukan evaluasi model.
+- Laporan: `docs/reports/2026-10-14_G3_RC2_PHYSICAL_5_CYCLES_PASS.md`.
+
+
 ## 14 Oktober 2026 — RC2 flash fisik COM5 terverifikasi
 
 - Target FT232R COM5 terdeteksi; `lcd_acquisition_service.py`
