@@ -27,3 +27,7 @@ data/external/zenodo_15425922/*.csv
 # Local Nextion compiler/QA artifacts
 nextion/NX4827T043_011/build/
 nextion/NX4827T043_011/project/RoastSense_UI_FIX_QA.HMI
+
+# Hardware flash/EEPROM readback may contain device-specific state;
+# keep local rollback copies private and never publish via git add .
+results/firmware-backup-*/

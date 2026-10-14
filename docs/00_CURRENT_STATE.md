@@ -1,5 +1,19 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 14 Oktober 17:28 — Firmware RC2 berhasil DI-FLASH ke PCB COM5
+
+**Pembaruan ini menggantikan status 'RC2 belum flash' di bawah.**
+`pio run -e mega2560 -t upload --upload-port COM5` berhasil:
+MCU signature `0x1E9801` dan **34930 bytes of flash verified**.
+Backup flash/EEPROM lama melalui bootloader disimpan **lokal saja**
+di `results/firmware-backup-20261014/`; EEPROM pascaupload
+**4096 bytes verified** cocok backup. Windows listener autosave
+yang sebelumnya mengunci COM5 dihentikan dan belum di-restart.
+**Tetap tertunda:** bukti runtime `FW_HELLO/ACQ_START` RC2,
+pengujian G2/G3 fisik ulang, validasi model dan probabilitas.
+AI Result tetap N/A/NO_GO. Bukti: `docs/reports/2026-10-14_RC2_FLASH_COM5_ATMEGA2560_VERIFIED.md`.
+
+
 ## 14 Oktober — RC2 firmware/menu/host dibekukan (software saja)
 
 Enam tombol utama Nextion diaudit: Start Test, Take Data,

@@ -1,5 +1,18 @@
 # Catatan perubahan proyek
 
+## 14 Oktober 2026 — RC2 flash fisik COM5 terverifikasi
+
+- Target FT232R COM5 terdeteksi; `lcd_acquisition_service.py`
+  PID 11144 yang mengunci port dihentikan tanpa dataset parsial aktif.
+- ATmega2560 signature `0x1E9801` terverifikasi via bootloader.
+- Sebelum flash, firmware/EEPROM lama dibaca ke backup lokal (tidak
+  masuk Git). `pio run -e mega2560 -t upload --upload-port COM5`
+  **SUCCESS, 34930 byte flash verified**.
+- EEPROM setelah flashing cocok backup: **4096 byte verified**.
+- G2/G3 firmware RC2 belum dijalankan; AI tetap N/A/NO_GO.
+- Laporan: `docs/reports/2026-10-14_RC2_FLASH_COM5_ATMEGA2560_VERIFIED.md`.
+
+
 ## 14 Oktober 2026 — RC2 audit menu Home, G3, dan AI N/A
 
 - Audit enam tombol Home: Start Test, Take Data, Settings, History,
