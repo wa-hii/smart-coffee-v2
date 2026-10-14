@@ -1,5 +1,23 @@
 # Catatan perubahan proyek
 
+## 14 Oktober 2026 — Stage10 audit kelayakan AI, device NO-GO
+
+- Audit offline Stage3–Stage6: 83 akuisisi; 21 kode sampel,
+  sembilan label origin; split yang tersedia belum membuktikan
+  kemandirian spesimen atau ground truth yang diaudit.
+- Evaluasi sensitivitas baru (holdout kode/origin), risiko
+  confidence dan 5 sampel udara bersih memperjelas bahwa model
+  belum siap. RF untuk origin benar 21/83, 5/5 udara bersih
+  diprediksi sebagai light jika tanpa unknown gate.
+- Pemeriksaan source: candidate Stage3 82 fitur belum cocok
+  dengan legacy mean/max 20 fitur ATmega; daftar model lama
+  masih mencantumkan MQ9.
+- Implementasi `stage10_model_readiness_audit.py` + tes negatif,
+  hasil immutable di `results/stage10_readiness_20261014_v2`.
+- Tidak ada flashing/port serial/START/G3 ulang; tidak ada
+  model baru yang diekspor. Stage6 NO_GO dan LCD N/A tetap.
+
+
 ## 14 Oktober 2026 — RC2 G3 supervised, akuisisi fisik PASS
 
 - Konfirmasi lanjutan operator: Nextion selesai lima siklus

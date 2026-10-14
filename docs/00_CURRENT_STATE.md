@@ -1,5 +1,20 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 14 Oktober — Stage10 audit independen kelayakan model (NO-GO)
+
+**G3 tetap PASS, firmware RC2 tidak diubah dan tidak ada
+pengujian perangkat pada tahap ini.** Berdasarkan 83 akuisisi
+historis, RF/LDA Roast Level hanya 45/83 benar (54,2%) pada
+LOBO; tes sensitivitas leave-sample-code-out 49,4%/51,8%.
+Origin RF: **21/83 benar (25,3%)**, sembilan origin dan
+sebagian kelas masih minim spesimen. Lima udara bersih
+dipaksakan sebagai light roast oleh model closed-set tanpa
+unknown gate, bahkan dengan confidence tinggi. Probabilitas
+belum terkalibrasi dan fitur kandidat Stage3 82 berbeda dari
+20 fitur lama pada source on-device MCU. **AI NO-GO / N/A**.
+Laporan dan gerbang: `docs/reports/2026-10-14_AI_MODEL_READINESS_INDEPENDENT_AUDIT_STAGE10.md`.
+
+
 ## 14 Oktober 18:23 — G3 RC2 lima siklus fisik QA PASS
 
 **Konfirmasi operator setelah run RC2:** Nextion mencapai

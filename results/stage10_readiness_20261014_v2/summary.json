@@ -1,0 +1,97 @@
+{
+  "status": "NO_GO_NOT_READY_FOR_DEVICE",
+  "model_promotion_allowed": false,
+  "device_inference": "N/A",
+  "scope": "OFFLINE_ONLY_NO_FIRMWARE_NO_SERIAL_NO_G3",
+  "source": {
+    "stage3_snapshot_sha256": "0611c901a745b615415b18d28a7ca8b034de08abc4a50db8660ec74783e1c537",
+    "stage3_features_sha256": "365f95d081e463edb6e692179a14f22837cd4c338b0d813a1984fc41e7feabfe",
+    "stage5_oof_sha256": "04aa2d61f08b0f8d8be99a3f5e353b46e6c3c8895ffe2cf44ffd7d8f7f1b367b",
+    "stage5_summary_sha256": "9b0a158bd77fbeae6b82718e7e1c6a41a120caafb0add40a52802fa42810b4fe",
+    "stage2_manifest_sha256": "da9b6fe1df2ac2887feddf6c87ac39afd7b0878512bcdd0d9c888d40d8e00374",
+    "exclusion_manifest_sha256": "1d87a3481f95a63b68d466f345bea72c2d3fa9fcfadc682edb2f49b01724e01d"
+  },
+  "files_per_acquisition": 1,
+  "correlated_cycles_per_acquisition": 5,
+  "roast_candidate_acquisitions": 83,
+  "roast_counts_unverified": {
+    "dark": 28,
+    "light": 28,
+    "medium": 27
+  },
+  "physical_specimen_ids_verified": false,
+  "origin_labels_independently_verified": false,
+  "roast_labels_independently_verified": false,
+  "specimen_independent_prospective_test": false,
+  "unique_roast_origin_sample_codes": 21,
+  "unique_origin_metadata_labels": 9,
+  "origins_in_only_one_roast_class": 2,
+  "origins_with_fewer_than_5_acquisitions": 2,
+  "origins_missing_one_or_more_batches": 2,
+  "candidate_roast_metrics": {
+    "random_forest": {
+      "feature_group": "expanded82",
+      "n_files": 83,
+      "correct": 45,
+      "wrong": 38,
+      "accuracy_unverified_labels": 0.5421686746987951,
+      "pooled_macro_f1_unverified": 0.5117751644067434,
+      "max_confidence_ece_diagnostic_only": 0.18387837062530124,
+      "mean_max_confidence": 0.594262048192747
+    },
+    "lda_shrinkage": {
+      "feature_group": "response10",
+      "n_files": 83,
+      "correct": 45,
+      "wrong": 38,
+      "accuracy_unverified_labels": 0.5421686746987951,
+      "pooled_macro_f1_unverified": 0.5389266817838246,
+      "max_confidence_ece_diagnostic_only": 0.16730085631946992,
+      "mean_max_confidence": 0.6737661435177108
+    }
+  },
+  "known_clean_air_closed_set_probe": {
+    "random_forest": {
+      "strict_valid_known_air_files": 5,
+      "closed_set_forced_as_coffee": 5,
+      "predicted_as_light": 5,
+      "max_confidence_min": 0.789166666667,
+      "max_confidence_max": 0.9075,
+      "abstained_using_exploratory_0_6": 0
+    },
+    "lda_shrinkage": {
+      "strict_valid_known_air_files": 5,
+      "closed_set_forced_as_coffee": 5,
+      "predicted_as_light": 5,
+      "max_confidence_min": 0.695246175573,
+      "max_confidence_max": 0.96296632198,
+      "abstained_using_exploratory_0_6": 0
+    }
+  },
+  "confidence_calibrated": false,
+  "unknown_coffee_or_other_voc_tested": false,
+  "origin_classifier_approved": false,
+  "source_model_files_production_approved": false,
+  "runtime_feature_parity": {
+    "rc2_ondevice_inference_default_enabled": false,
+    "rc2_legacy_ondevice_sensor_channels": 10,
+    "rc2_legacy_inference_features_mean_plus_max": 20,
+    "candidate_stage3_feature_count": 82,
+    "training_runtime_feature_parity_verified": false,
+    "legacy_model_feature_list_count": 45,
+    "legacy_feature_list_contains_MQ9_not_in_rc2_10_adc": true,
+    "origin_model_in_rc2_runtime": false,
+    "roast_probability_in_rc2_runtime": false,
+    "warning": "Existing legacy artifacts and firmware feature functions are not the same pipeline; no .joblib is loaded or deployed"
+  },
+  "sensitivity_experiments": "Descriptive only; same known files, no sealed prospective dataset",
+  "critical_blockers": [
+    "Specimen identity/collection session/date/lot missing; independent labels unverified",
+    "Roast accuracy and F1 below proposed target; no unbiased final holdout",
+    "Known clean air can be confidently forced into light roast without a real unknown gate",
+    "Probability estimates not calibrated; confidence thresholds not validated",
+    "Origin coverage sparse/unbalanced; origin labels are operator CSV metadata only",
+    "Device parity and model runtime path not tested; must keep AI N/A",
+    "Legacy on-device mean+max 20-feature input differs from 82-feature Stage3 candidates; saved legacy feature list still contains MQ9"
+  ]
+}

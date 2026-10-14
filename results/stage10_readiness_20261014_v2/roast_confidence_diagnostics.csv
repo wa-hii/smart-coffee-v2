@@ -1,0 +1,9 @@
+model,features_group,threshold_descriptive_not_calibrated,accepted_n,correct_n,wrong_n,coverage,accuracy_conditional_unverified,wilson95_lower_descriptive
+random_forest,expanded82,0,83,45,38,1,0.5421686747,0.4355004305
+random_forest,expanded82,0.6,36,21,15,0.4337349398,0.5833333333,0.4220025157
+random_forest,expanded82,0.8,9,6,3,0.1084337349,0.6666666667,0.3542021356
+random_forest,expanded82,0.9,1,1,0,0.01204819277,1,0.2065493144
+lda_shrinkage,response10,0,83,45,38,1,0.5421686747,0.4355004305
+lda_shrinkage,response10,0.6,48,26,22,0.578313253,0.5416666667,0.4029107455
+lda_shrinkage,response10,0.8,20,14,6,0.2409638554,0.7,0.4810271816
+lda_shrinkage,response10,0.9,12,10,2,0.1445783133,0.8333333333,0.5519691377

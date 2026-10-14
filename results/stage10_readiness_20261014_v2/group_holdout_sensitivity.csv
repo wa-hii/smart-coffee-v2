@@ -1,0 +1,9 @@
+experiment,model,feature_group,label_classes,heldout_groups,test_files,correct,accuracy,balanced_accuracy,macro_f1,folds_with_unseen_target_class,interpretation
+leave_sample_code_out,random_forest,expanded82,3,21,83,41,0.4939759036,0.4920634921,0.4910037263,0,SENSITIVITY_ONLY_NO_INDEPENDENT_SPECIMEN
+leave_sample_code_out,lda_shrinkage,response10,3,21,83,43,0.5180722892,0.5171957672,0.5124492234,0,SENSITIVITY_ONLY_NO_INDEPENDENT_SPECIMEN
+leave_sample_code_out,dummy_prior,response10,3,21,83,0,0,0,0,0,SENSITIVITY_ONLY_NO_INDEPENDENT_SPECIMEN
+leave_origin_out,random_forest,expanded82,3,9,83,44,0.5301204819,0.5282186949,0.5247500089,0,SENSITIVITY_ONLY_NO_INDEPENDENT_SPECIMEN
+leave_origin_out,lda_shrinkage,response10,3,9,83,44,0.5301204819,0.5291005291,0.5252603361,0,SENSITIVITY_ONLY_NO_INDEPENDENT_SPECIMEN
+leave_origin_out,dummy_prior,response10,3,9,83,20,0.2409638554,0.2380952381,0.1734997029,0,SENSITIVITY_ONLY_NO_INDEPENDENT_SPECIMEN
+origin_leave_batch_out,random_forest,expanded82,9,4,83,21,0.2530120482,0.1891025641,0.1639343381,0,SENSITIVITY_ONLY_NO_INDEPENDENT_SPECIMEN
+origin_leave_batch_out,dummy_prior,response10,9,4,83,12,0.1445783133,0.1025641026,0.0457957958,0,SENSITIVITY_ONLY_NO_INDEPENDENT_SPECIMEN
