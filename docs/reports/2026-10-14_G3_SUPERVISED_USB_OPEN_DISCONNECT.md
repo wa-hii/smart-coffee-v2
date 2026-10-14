@@ -59,3 +59,35 @@ yang dibuat** karena gagal sebelum sesi aktif.
   G3 hanya dijalankan lagi jika port sehat dan supervisi ada.
 - Frozen software RC1 tag `pre-onsite-software-2026-10-14-rc1`
   tidak diubah; laporan ini merupakan bukti QA hardware tambahan.
+
+## Addendum 16:28–16:29 WIB: replug USB belum memulihkan controller
+
+Operator onsite mengonfirmasi kabel USB telah dilepas dan
+dipasang ulang sekali sesuai instruksi. Pemeriksaan SSH
+read-only setelah tindakan:
+
+- Pi 5 masih hidup, uptime tidak reset (`2026-10-13 19:49:19`),
+  SSH tetap tersedia, `vcgencmd get_throttled=0x0`.
+- `lsusb` hanya menampilkan empat root hub Linux; **tidak ada
+  FT232R 0403:6001**. `/dev/ttyUSB0`, `/dev/serial/by-id`
+  serta node USB `3-1` tidak ditemukan.
+- Kernel mencatat tepat pukul **16:24:01 WIB** sebelum
+  `ftdi_set_termios` gagal:
+
+```text
+xhci-hcd xhci-hcd.1: xHCI host not responding to stop endpoint command
+xhci-hcd xhci-hcd.1: xHCI host controller not responding, assume dead
+xhci-hcd xhci-hcd.1: HC died; cleaning up
+```
+
+- Tidak ada log attach/enumerasi FT232R baru setelah operator
+  melakukan replug USB. Ini menguatkan bahwa kegagalan
+  **USB host controller** menghalangi enumerasi, tetapi
+  **tidak membuktikan** akar sebab fisik/kabel/FT232R/PSU/driver.
+- Keputusan: **JANGAN retry membuka serial atau tekan START**.
+  Pemulihan berikutnya bisa berupa reboot **hanya Raspberry Pi**
+  dalam kondisi PCB idle dan pengawasan onsite, tetapi
+  tindakan reboot menunggu izin spesifik dari operator.
+  Sesudah pemulihan: observasi enumerasi dan kernel,
+  verifikasi `fuser`, `throttled`, dan satu G2 read-only
+  terawasi sebelum satu G3.
