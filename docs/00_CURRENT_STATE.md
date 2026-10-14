@@ -1,5 +1,21 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 14 Oktober — P0 software freeze untuk persiapan bench
+
+Enam masalah hasil audit telah diperbaiki dalam **source**
+dan lolos QA offline Windows; parser/framer Pi yang baru
+telah disinkronkan dan lolos regresi Pi. Validator menolak
+indeks hilang atau urutan fase salah. Data B32+ 88 valid,
+1 historical clean-air known-invalid excluded, 0 unexpected.
+LCD collector memutus sesi lama sebelum mode berbeda dan
+mengkarantina error. Collector manual butuh `--arm-hardware`
+dan mempublikasikan CSV final hanya jika QA lengkap.
+Firmware source menyiapkan `FW_HELLO`, **binary MCU tetap
+belum dikonfirmasi/di-flash**. Freeze: tag
+`pre-onsite-software-2026-10-14-rc1`, manifest pada
+`docs/releases/2026-10-14_pre-onsite-rc1.json`. Test fisik
+G3 tetap INCONCLUSIVE; AI N/A/NO-GO.
+
 ## Milestone Tahap 8+9 — integrasi software byte-stream + preflight hardware pasif
 
 14 Oktober 2026: jalur **sintetis** UART byte stream dari

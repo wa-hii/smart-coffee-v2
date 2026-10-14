@@ -34,6 +34,7 @@ from stage7_bridge import (
     FrameError,
     replay_csv,
 )
+from serial_wire import SerialLineFramer
 
 ROOT = Path(__file__).resolve().parents[1]
 LIVE_OPT_IN = "I_APPROVE_USB_SERIAL_READONLY"
@@ -57,6 +58,11 @@ _NEXTION_EVENT_CATEGORIES = frozenset((
     "EVT:AI_START", "EVT:AI_CANCEL", "EVT:HMI_READY",
     "EVT:HOME", "EVT:TEST_START", "EVT:DATA_START",
 ))
+EXPECTED_FW_HELLO = {
+    "event": "FW_HELLO", "protocol": "legacy-json.v1",
+    "build_id": "p0-freeze-20261014", "adc_channels": 10,
+    "cycles_total": 5, "purge_s": 25, "collect_s": 5,
+}
 
 
 def sensor_like_rejection_code(obj: dict) -> str | None:
@@ -110,39 +116,6 @@ def json_key_signature(obj: dict) -> tuple[str, ...]:
     return tuple(sorted(set(paths)))
 
 
-class SerialLineFramer:
-    """Reassemble newline-delimited MCU frames across read() timeouts.
-
-    Retains the first complete line (which could be ACQ_START);
-    discards an oversized line until its next newline.
-    """
-
-    def __init__(self):
-        self.buffer = bytearray()
-        self.overflow = False
-        self.oversized_lines = 0
-
-    def feed(self, chunk: bytes) -> list[bytes]:
-        if not isinstance(chunk, bytes):
-            raise TypeError("serial_data_must_be_bytes")
-        lines = []
-        for b in chunk:
-            if self.overflow:
-                if b == 10:
-                    self.overflow = False
-                continue
-            if len(self.buffer) >= MAX_LINE_BYTES:
-                self.buffer.clear()
-                self.oversized_lines += 1
-                self.overflow = b != 10
-                continue
-            self.buffer.append(b)
-            if b == 10:
-                lines.append(bytes(self.buffer))
-                self.buffer.clear()
-        return lines
-
-
 def receive_serial_chunks(chunks: Iterable[bytes], *,
                           max_seconds: int = MAX_STREAM_SECONDS,
                           monotonic=time.monotonic,
@@ -168,6 +141,7 @@ def receive_serial_chunks(chunks: Iterable[bytes], *,
     sensor_like_phase_categories: Counter[str] = Counter()
     nextion_event_categories: Counter[str] = Counter()
     start_contract_outcomes: Counter[str] = Counter()
+    firmware_hello = "NOT_OBSERVED"
     other_json_shapes_untracked = 0
     wire_events: Counter[str] = Counter()
     known_events = {
@@ -204,6 +178,11 @@ def receive_serial_chunks(chunks: Iterable[bytes], *,
                     if hmi_category is not None:
                         nextion_event_categories[hmi_category] += 1
                     event = obj.get("event")
+                    if event == "FW_HELLO":
+                        firmware_hello = (
+                            "MATCHED" if obj == EXPECTED_FW_HELLO
+                            else "INCOMPATIBLE"
+                        )
                     if isinstance(event, str):
                         wire_events[event if event in known_events
                                     else "OTHER_EVENT"] += 1
@@ -282,6 +261,8 @@ def receive_serial_chunks(chunks: Iterable[bytes], *,
             "acq_start_contract_outcomes": dict(sorted(
                 start_contract_outcomes.items()
             )),
+            "firmware_hello_status": firmware_hello,
+            "physical_g3_compatibility_verified": firmware_hello == "MATCHED",
             "json_signature_contents": "field_names_only_no_values",
             "wire_events_seen": dict(wire_events),
             "raw_sensor_values_persisted": False,

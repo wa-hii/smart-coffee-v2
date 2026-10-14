@@ -1,5 +1,18 @@
 # Smart Coffee E-Nose v2
 
+**14 Oktober 2026 — P0 pra-onsite software freeze RC1:**
+enam temuan integritas diselesaikan pada source software
+dan diuji offline (gap indeks, urutan fase, cross-mode LCD,
+serial framing, collector manual, dan identitas firmware).
+88/89 CSV B32+ valid; 1 clean-air `L-CAW_B34.csv` memang
+rusak dan dikecualikan berdasarkan SHA256, bukan ditambal.
+Pi listener menggunakan `serial_wire.py` bersama Windows.
+Firmware baru mengirim `FW_HELLO` setelah nanti di-flash,
+tetapi **belum terpasang** pada PCB. Software freeze tag
+`pre-onsite-software-2026-10-14-rc1` hanya berlaku untuk
+source/build offline; AI N/A, G3 live INCONCLUSIVE.
+Laporan: `docs/reports/2026-10-14_P0_6_ISSUES_FIXED_INDEPENDENT_QA_SOFTWARE_FREEZE.md`.
+
 **14 Oktober 2026 — milestone Tahap 8/9 remote-only:**
 integrasi transport baru `scripts/stage8_transport_integration.py`
 menjalankan **15 skenario UART-fragmentation → parser Pi →

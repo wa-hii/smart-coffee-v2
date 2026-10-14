@@ -195,6 +195,10 @@ void scanI2C() {
 // ═══════════════════════════════════════════════════════════════════════════════
 void setup() {
   Serial.begin(115200);
+  // Build identity is a contract marker, NOT proof that this firmware is
+  // installed on a remotely connected custom PCB. Only a supervised live
+  // read of FW_HELLO can confirm the running binary family.
+  Serial.println(F("{\"event\":\"FW_HELLO\",\"protocol\":\"legacy-json.v1\",\"build_id\":\"p0-freeze-20261014\",\"adc_channels\":10,\"cycles_total\":5,\"purge_s\":25,\"collect_s\":5}"));
   nextion.begin(NEXTION_BAUD);
   // We use our own ASCII EVT:* protocol. Suppress command ACK/error packets so
   // binary Nextion return frames never share the event stream.

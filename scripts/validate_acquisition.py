@@ -8,6 +8,7 @@ however, fail validation.
 
 from __future__ import annotations
 
+import hashlib
 import re
 from pathlib import Path
 
@@ -21,6 +22,11 @@ RAW_DIR = ROOT / "data" / "raw"
 EXPECTED_RUNS = [1, 2, 3, 4, 5]
 ROAST_FROM_PREFIX = {"L": "light", "M": "medium", "D": "dark"}
 BATCH_RE = re.compile(r"_B(\d+)(?:_|\.csv$)", re.IGNORECASE)
+KNOWN_HISTORICAL_EXCLUDED_INVALID = {
+    # Clean-air bench CSV, held out of coffee ML. The missing index 8 in
+    # run-1 purging must remain visible, not repaired or silently accepted.
+    "L-CAW_B34.csv": "17b966d271d7487d46456d21f8eb61f21bc3f641a6dcf576b3b8621b73011c88",
+}
 
 
 def classify_rows(df: pd.DataFrame) -> tuple[pd.Series, pd.Series, pd.Series]:
@@ -170,6 +176,31 @@ def validate_file(path: Path) -> list[str]:
                 )
 
         sensor_run = pd.to_numeric(sensor_df["run_id"], errors="coerce")
+        # Count tolerance does not license lost or rearranged frames. Earlier
+        # validators accepted 1,2,4,... and even a phase-2 row before phase-1.
+        # Event-only legacy rows are excluded from the sensor sequence.
+        ordered = sensor_df[["run_id", "phase", "sample_idx"]].copy()
+        ordered["run_id"] = pd.to_numeric(ordered["run_id"], errors="coerce")
+        ordered["sample_idx"] = pd.to_numeric(ordered["sample_idx"], errors="coerce")
+        ordered["phase"] = ordered["phase"].astype(str).str.strip().str.lower()
+        allowed_order = [
+            (run_id, phase)
+            for run_id in EXPECTED_RUNS
+            for phase in ("purging", "collecting")
+        ]
+        transitions = list(zip(ordered["run_id"], ordered["phase"]))
+        distinct_order = [value for i, value in enumerate(transitions)
+                          if i == 0 or value != transitions[i - 1]]
+        if distinct_order != allowed_order:
+            errors.append("urutan fase/siklus tidak sesuai 5x purging→collecting")
+        for (cycle, phase), group in ordered.groupby(
+            ["run_id", "phase"], sort=False,
+        ):
+            observed = group["sample_idx"].to_list()
+            if observed != list(range(1, len(observed) + 1)):
+                errors.append(
+                    f"run {cycle} {phase}: sample_idx tidak kontigu 1..N"
+                )
         for run_id in EXPECTED_RUNS:
             run = sensor_df.loc[sensor_run == run_id]
             if run.empty:
@@ -224,6 +255,7 @@ def main() -> int:
         return 1
 
     failures = 0
+    known_invalid = 0
     print("=" * 78)
     print("VALIDASI RAW ACQUISITION B32+ - MQ3 / 5 RUN")
     print("=" * 78)
@@ -231,6 +263,12 @@ def main() -> int:
         errors = validate_file(path)
         summary = file_summary(path)
         if errors:
+            original_hash = hashlib.sha256(path.read_bytes()).hexdigest()
+            if (KNOWN_HISTORICAL_EXCLUDED_INVALID.get(path.name) == original_hash
+                    and any("sample_idx tidak kontigu" in e for e in errors)):
+                known_invalid += 1
+                print(f"[KNOWN_INVALID_EXCLUDED] {path.name} — {errors}")
+                continue
             failures += 1
             print(f"[FAIL] {path.name}")
             for error in errors:
@@ -245,7 +283,8 @@ def main() -> int:
 
     print("-" * 78)
     print(f"Files checked : {len(files)}")
-    print(f"PASS          : {len(files) - failures}")
+    print(f"PASS          : {len(files) - failures - known_invalid}")
+    print(f"KNOWN_INVALID : {known_invalid} (explicit excluded clean-air evidence)")
     print(f"FAIL          : {failures}")
     return 1 if failures else 0
 

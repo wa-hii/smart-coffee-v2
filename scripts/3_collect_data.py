@@ -33,6 +33,8 @@ import os
 import sys
 import time
 import threading
+import uuid
+from pathlib import Path
 from collections import deque
 from datetime import datetime
 
@@ -49,6 +51,8 @@ from acquisition_schema import (
     sensor_payload_rejection_reason,
     sensor_row_from_payload,
 )
+from serial_wire import serial_json_frames
+from validate_acquisition import validate_file
 
 try:
     matplotlib.use('TkAgg')
@@ -142,6 +146,8 @@ def parse_args():
         help='Ekspektasi jumlah run firmware (default 5)'
     )
     p.add_argument('--no-plot',     action='store_true', help='Matikan GUI grafik real-time')
+    p.add_argument('--arm-hardware', action='store_true',
+                   help='Izin eksplisit untuk membuka port dan mengirim #start;')
     return p.parse_args()
 
 
@@ -213,6 +219,10 @@ class RawDataCollector:
         self.rows = []
         self.acquisition_done = False
         self.stop_requested = False
+        self.complete_received = False
+        self.failure_reason = 'acquisition_not_completed'
+        self.start_seen = False
+        self.start_command_sent = False
 
         # Data Deques untuk Live Plotting
         self.max_plot_pts = 600
@@ -231,22 +241,32 @@ class RawDataCollector:
         """Thread penerima data Serial dari ATmega 2560."""
         try:
             self.ser.write(b'#start;')
+            self.start_command_sent = True
             print("📤 Mengirim perintah #start; ke ATmega 2560...\n")
             time.sleep(0.5)
 
-            while not self.acquisition_done and not self.stop_requested:
-                raw = self.ser.readline()
-                if not raw:
+            last_valid = time.monotonic()
+            for data in serial_json_frames(self.ser):
+                if self.acquisition_done or self.stop_requested:
+                    break
+                if data is None:
+                    if self.start_seen and time.monotonic() - last_valid > 12:
+                        self.failure_reason = 'host_receive_timeout'
+                        break
                     continue
-
-                line = raw.decode('utf-8', errors='ignore').strip()
-                if not line:
-                    continue
-
-                try:
-                    data = json.loads(line)
-                except json.JSONDecodeError:
-                    print(f"  [non-JSON] {line[:80]}")
+                if data.get('event') == 'TRANSPORT_ERROR':
+                    self.failure_reason = 'serial_frame_invalid'
+                    break
+                if data.get('event') == 'ACQ_START' and self.start_seen:
+                    self.failure_reason = 'duplicate_acq_start'
+                    break
+                last_valid = time.monotonic()
+                if data.get('event') == 'ACQ_START' and data.get('mode') != 'labeled_data':
+                    self.failure_reason = 'unexpected_ai_test_session'
+                    break
+                if data.get('event') == 'ACQ_START':
+                    self.start_seen = True
+                if not self.start_seen:
                     continue
 
                 event = data.get('event', '')
@@ -267,11 +287,8 @@ class RawDataCollector:
                         actual_collect_s,
                     )
                     if actual_contract != expected_contract:
-                        print(
-                            "⚠️  Kontrak firmware berbeda dari ekspektasi host: "
-                            f"expected={expected_contract}, actual={actual_contract}. "
-                            "Akuisisi tetap disimpan mengikuti nilai firmware."
-                        )
+                        self.failure_reason = 'firmware_timing_contract_mismatch'
+                        break
 
                     self.collect_s = actual_collect_s
                     self.purge_s = actual_purge_s
@@ -291,15 +308,22 @@ class RawDataCollector:
 
                 if event == 'ACQ_COMPLETE':
                     total = data.get('total_samples', len(self.rows))
+                    if (data.get('cycles') != 5 or type(total) is not int or
+                            total != len(self.rows)):
+                        self.failure_reason = 'completion_count_mismatch'
+                        break
                     self.status_msg = f"✅ Akuisisi Selesai ({total} Sampel Raw Data)"
                     print(
                         f"\n✅ {self.cycles_total} Run selesai! "
                         f"Total sampel raw data: {total}"
                     )
                     self.acquisition_done = True
+                    self.complete_received = True
+                    self.failure_reason = ''
                     continue
 
                 if event == 'ACQ_STOP':
+                    self.failure_reason = 'acquisition_stopped'
                     self.status_msg = "⏹️ Akuisisi Dihentikan Manual"
                     print("\n⏹️ Akuisisi dihentikan oleh user.")
                     self.acquisition_done = True
@@ -316,7 +340,8 @@ class RawDataCollector:
                         "  [payload sensor ditolak] "
                         f"{sensor_payload_rejection_reason(data)}"
                     )
-                    continue
+                    self.failure_reason = 'invalid_sensor_frame'
+                    break
 
                 row = sensor_row_from_payload(
                     data,
@@ -343,6 +368,7 @@ class RawDataCollector:
                     self.status_msg = f"Run {cycle:02d}/{self.cycles_total:02d} | {phase.upper()} #{sample_idx}"
 
         except Exception as e:
+            self.failure_reason = 'serial_reader_error'
             print(f"\n❌ Error serial loop: {e}")
         finally:
             self.acquisition_done = True
@@ -441,6 +467,11 @@ def main():
 
     args = parse_args()
 
+    # Guard before touching COM/USB: no unattended or accidental start.
+    if not args.arm_hardware:
+        print("Hardware DISARMED: perlu --arm-hardware dan pengawasan onsite.")
+        return 2
+
     port = args.port or prompt_port()
 
     # Dapatkan metadata sampel
@@ -516,8 +547,11 @@ def main():
     finally:
         collector.acquisition_done = True
         try:
-            ser.write(b'#stop;')
-            print("📤 Mengirim #stop; ke ATmega...")
+            # If MCU ACK was lost after #start, the MCU may still be driving
+            # a valve. Attempt #stop whenever start was transmitted.
+            if collector.start_command_sent and not collector.complete_received:
+                ser.write(b'#stop;')
+                print("📤 Mengirim #stop; karena sesi belum complete...")
         except Exception:
             pass
         time.sleep(0.5)
@@ -542,14 +576,39 @@ def main():
         # raw data tidak dibuang dan kegagalan sensor tetap terlihat.
         df = df[ordered_cols]
 
-        df.to_csv(out_csv, index=False)
+        # Preserve incomplete readings, but never publish an interrupted or
+        # invalid capture as canonical data/raw/<name>.csv.
+        raw_root = Path(OUTPUT_DIR)
+        staging = raw_root / '.incoming'
+        incomplete = raw_root / 'incomplete'
+        staging.mkdir(parents=True, exist_ok=True)
+        incomplete.mkdir(parents=True, exist_ok=True)
+        temp = staging / (Path(out_csv).stem + '_' + uuid.uuid4().hex + '.partial.csv')
+        df.to_csv(temp, index=False)
+        issues = validate_file(temp)
+        approved = collector.complete_received and not issues
+        if approved:
+            import os as _os
+            from lcd_acquisition_service import unique_final_path
+            # Exclusive hardlink publication prevents overwriting user files.
+            destination = unique_final_path(Path(out_csv).name)
+            _os.link(temp, destination)
+            temp.unlink()
+            out_csv = str(destination)
+        else:
+            destination = incomplete / (
+                Path(out_csv).stem + '_' + uuid.uuid4().hex + '_INCOMPLETE.csv'
+            )
+            temp.replace(destination)
+            out_csv = str(destination)
+            print(f"WARNING: Sesi tidak final: {collector.failure_reason}; QA={issues}")
 
         collecting_n = len(df[df['phase'] == 'collecting'])
         purging_n    = len(df[df['phase'] == 'purging'])
         temperature_missing = int(df['temperature'].isna().sum())
         humidity_missing = int(df['humidity'].isna().sum())
         print(f"""
-📄 RAW DATA BERHASIL DISIMPAN KE CSV!
+📄 DATA {'FINAL VALID' if approved else 'INCOMPLETE / HOLD'} DISIMPAN KE CSV!
    File Location : {out_csv}
    Sample ID     : {sample_id}
    Roast Level   : {roast_level}
@@ -576,4 +635,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    raise SystemExit(main())

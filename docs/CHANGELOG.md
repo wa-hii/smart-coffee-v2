@@ -1,5 +1,26 @@
 # Catatan perubahan proyek
 
+## 14 Oktober 2026 — Perbaikan enam P0 dan software freeze RC1
+
+- Validator sensor CSV: gap indeks, urutan siklus/fase
+  ditolak; 88 valid, 1 historical clean-air excluded
+  invalid (`L-CAW_B34.csv`), 0 gagal tak terduga.
+- Collector LCD: isolasi sesi labeled/AI_TEST, verifikasi
+  START/COMPLETE, timeout/error quarantine, incomplete UUID.
+- Parser serial bersama `serial_wire.py` dipakai Windows/Pi,
+  termasuk framing lintas timeout dan batas ukuran pesan.
+- Collector manual: perlu `--arm-hardware`, STOP pada
+  sesi tidak lengkap, publish CSV hanya setelah validasi.
+- Firmware source emits `FW_HELLO`, Pi listener membandingkan
+  build/protocol; belum flash hardware.
+- QA adversarial independen dan regresi Stage0–9 PASS,
+  PlatformIO dua build SUCCESS, Nextion statis PASS,
+  Pi offline regression PASS.
+- Tag freeze `pre-onsite-software-2026-10-14-rc1`,
+  manifest/checksum pada `docs/releases/2026-10-14_pre-onsite-rc1.json`.
+- Hardware G3 tetap INCONCLUSIVE; AI NO_GO.
+
+
 ## 14 Oktober 2026 — Integrasi Tahap 8, gerbang pasif Tahap 9
 
 - Implementasi `stage8_transport_integration.py` + uji:

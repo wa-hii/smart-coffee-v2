@@ -1,5 +1,18 @@
 # Rancangan Integrasi Nextion–ATmega2560–Raspberry Pi 5
 
+**Pra-onsite RC1 14 Oktober:** firmware source `src/main.cpp`
+menambahkan satu diagnostic boot `FW_HELLO` dengan
+`protocol=legacy-json.v1`, `build_id=p0-freeze-20261014`,
+10 kanal, 5 siklus, purging 25s dan collecting 5s.
+`stage7_pi_adapter.py` mengenali hanya fixed contract
+MATCHED/INCOMPATIBLE/NOT_OBSERVED (bukan menyalin nilai
+asing ke evidence); checksum source tercatat dalam release
+manifest. **Tidak ada pembuktian bahwa PCB sudah menjalankan
+build baru**. Framer bersama `serial_wire.py` sekarang juga
+dipakai kedua collector Windows. Semua kegiatan ini tidak
+menyentuh Nextion HMI fisik ataupun rangkaian valve.
+Rujukan: `docs/reports/2026-10-14_P0_6_ISSUES_FIXED_INDEPENDENT_QA_SOFTWARE_FREEZE.md`.
+
 **14 Oktober — integrasi host offline teruji:**
 `stage8_transport_integration.py` membangun UART bytes
 **simulasi** dari ADC CSV nyata, termasuk boot noise, frame

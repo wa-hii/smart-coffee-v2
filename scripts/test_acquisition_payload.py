@@ -113,6 +113,7 @@ def main() -> int:
 
         def write_sensor(self, _data):
             self.writes += 1
+            return True
 
     service = AcquisitionService(
         port="TEST",

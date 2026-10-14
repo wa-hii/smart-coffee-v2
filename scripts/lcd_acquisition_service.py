@@ -43,6 +43,7 @@ from acquisition_schema import (
     sensor_payload_rejection_reason,
     sensor_row_from_payload,
 )
+from serial_wire import serial_json_frames
 
 ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = ROOT / "data" / "raw"
@@ -308,11 +309,13 @@ class AcquisitionSession:
             self.file.close()
         if not self.partial_path.exists():
             return None
-        stamp = time.strftime("%Y%m%d_%H%M%S")
+        # Exclusive create: two incomplete runs within one second must never
+        # overwrite each other. Hard-link publication is atomic, same FS.
         dest = INCOMPLETE_DIR / (
-            f"{self.final_path.stem}_{stamp}_INCOMPLETE.csv"
+            f"{self.final_path.stem}_{uuid.uuid4().hex}_INCOMPLETE.csv"
         )
-        shutil.move(str(self.partial_path), str(dest))
+        os.link(self.partial_path, dest)
+        self.partial_path.unlink()
         self.logger.warning(
             "ACQ INCOMPLETE reason=%s rows=%d file=%s",
             reason,
@@ -336,6 +339,7 @@ class AcquisitionService:
         self.logger = logger
         self.stop_requested = False
         self.session: AcquisitionSession | None = None
+        self.last_frame_monotonic = time.monotonic()
 
     def request_stop(self, *_args) -> None:
         self.stop_requested = True
@@ -355,17 +359,23 @@ class AcquisitionService:
         event = str(data.get("event", ""))
 
         if event == "ACQ_START":
+            if self.session is not None:
+                self.session.preserve_incomplete("another ACQ_START received")
+                self.session = None
             if data.get("mode") != "labeled_data":
                 self.logger.info(
                     "Mengabaikan ACQ_START mode=%s (bukan labeled_data)",
                     data.get("mode"),
                 )
                 return
-            if self.session is not None:
-                self.session.preserve_incomplete("new ACQ_START received")
-                self.session = None
+            if (data.get("cycles_total") != 5 or data.get("purge_s") != 25 or
+                    data.get("collect_s") != 5 or data.get("cycle") != 1 or
+                    data.get("phase") != "purging"):
+                self.logger.error("Reject invalid ACQ_START timing/phase contract")
+                return
             try:
                 self.session = AcquisitionSession(data, self.logger)
+                self.last_frame_monotonic = time.monotonic()
             except Exception:
                 self.logger.exception("Gagal membuat acquisition session")
                 self.session = None
@@ -373,6 +383,12 @@ class AcquisitionService:
 
         if event == "ACQ_COMPLETE":
             if self.session is None:
+                return
+            if (data.get("cycles") != 5 or
+                    type(data.get("total_samples")) is not int or
+                    data["total_samples"] != self.session.rows):
+                self.session.preserve_incomplete("ACQ_COMPLETE count mismatch")
+                self.session = None
                 return
             # Firmware completion does not itself prove five complete cycles.
             # Validate the staged CSV before publishing it as finished raw.
@@ -395,6 +411,12 @@ class AcquisitionService:
                 self.session = None
             return
 
+        if event == "TRANSPORT_ERROR":
+            if self.session is not None:
+                self.session.preserve_incomplete("serial frame corrupt or oversized")
+                self.session = None
+            return
+
         # Semua frame yang memiliki field event adalah control/status event,
         # bukan sample sensor.  Unknown event juga fail-closed agar event baru
         # di firmware tidak diam-diam masuk sebagai row CSV kosong.
@@ -403,7 +425,11 @@ class AcquisitionService:
             return
 
         if self.session is not None:
-            self.session.write_sensor(data)
+            if not self.session.write_sensor(data):
+                self.session.preserve_incomplete("invalid sensor payload")
+                self.session = None
+            else:
+                self.last_frame_monotonic = time.monotonic()
 
     def validate_completed_file(self, path: Path) -> None:
         """Run generic canonical acquisition validation after autosave."""
@@ -458,17 +484,14 @@ class AcquisitionService:
                     pid=os.getpid(),
                 )
 
-                while not self.stop_requested:
-                    raw = ser.readline()
-                    if not raw:
-                        continue
-                    line = raw.decode("utf-8", errors="ignore").strip()
-                    if not line or not line.startswith("{"):
-                        continue
-                    try:
-                        data = json.loads(line)
-                    except json.JSONDecodeError:
-                        self.logger.debug("Invalid JSON: %s", line[:200])
+                for data in serial_json_frames(ser):
+                    if self.stop_requested:
+                        break
+                    if data is None:
+                        if (self.session is not None and
+                                time.monotonic() - self.last_frame_monotonic > 12):
+                            self.session.preserve_incomplete("host receive timeout")
+                            self.session = None
                         continue
                     self.handle_event(data)
 

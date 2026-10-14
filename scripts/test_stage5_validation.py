@@ -95,7 +95,12 @@ def main() -> int:
     assert not surrogate["would_abstain_t06"].any()
     assert not surrogate["source_file"].str.contains("L-CAW_B34").any()
     held = artifacts["clean_air_held.csv"]
-    assert len(held) == 1 and "non-contiguous" in held.iloc[0]["reason"]
+    # Canonical Stage0 validator now catches the same missing sample index
+    # before Stage5-specific extraction gets a chance to reject it.
+    assert len(held) == 1 and any(
+        marker in held.iloc[0]["reason"]
+        for marker in ("non-contiguous", "sample_idx tidak kontigu")
+    )
 
     frame, groups, _ = load_snapshot()
     fake = frame.copy()

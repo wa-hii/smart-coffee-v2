@@ -2,6 +2,17 @@
 
 **Dokumen acuan utama versi 1.3 — pembaruan dataset nyata dan gerbang Tahap 6 tanggal 10 Oktober 2026.** Ruang lingkup: Smart Coffee E-Nose v2 / RoastSense dengan ATmega2560, Nextion, komputer host dan Raspberry Pi 5. Pengembangan dilakukan dengan menjaga kestabilan akuisisi yang telah berjalan. **Jangan otomatis mengerjakan semua tahap berikutnya.**
 
+**14 Oktober — gerbang software pra-onsite:** keenam isu P0
+software dari audit ditangani dan diverifikasi dengan uji
+negatif independen (`test_preonsite_p0_freeze.py`).
+Snapshot RC1 dibekukan pada tag
+`pre-onsite-software-2026-10-14-rc1` dan manifest
+`docs/releases/2026-10-14_pre-onsite-rc1.json`.
+Tahap berikutnya ialah verifikasi firmware binary terpasang,
+VBUS/backfeed, sensor/aktuator dan G3 **dengan supervisi
+fisik**. Tidak diperbolehkan menyatakan G3, AI, atau
+E2E hardware PASS dari regression offline.
+
 **Milestone 14 Oktober 2026 — lanjut tahap aman saat remote:**
 Tahap 8 kini meliputi **integrasi transport penuh secara
 offline**: CSV ADC asli B33 → byte UART simulasi terfragmentasi

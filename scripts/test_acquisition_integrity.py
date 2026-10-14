@@ -148,7 +148,9 @@ def main() -> int:
             make_complete_run().assign(batch_id="B97").to_csv(
                 service.session.partial_path, index=False
             )
-            service.handle_event({"event": "ACQ_COMPLETE"})
+            service.session.rows = 150  # fixture simulates 150 accepted writes
+            service.handle_event({"event": "ACQ_COMPLETE", "cycles": 5,
+                                  "total_samples": 150})
             assert service.session is None
             assert (root / "D-GAW_B97.csv").exists()
             # Duplicate completion must not clobber a final file.
@@ -157,11 +159,37 @@ def main() -> int:
             assert (root / "D-GAW_B97.csv").read_bytes() == final_bytes
 
             # STOP preserves a partial acquisition with an explicit marker.
-            service.handle_event({"event": "ACQ_START", "mode": "labeled_data", **event})
+            service.handle_event({
+                "event": "ACQ_START", "mode": "labeled_data", **event,
+                "cycle": 1, "phase": "purging", "cycles_total": 5,
+                "purge_s": 25, "collect_s": 5,
+            })
             service.handle_event(make_sensor_payload())
             service.handle_event({"event": "ACQ_STOP"})
             assert service.session is None
             assert list((root / "incomplete").glob("D-GAW_B97*_INCOMPLETE.csv"))
+
+            # A new AI_TEST MUST quarantine an active labeled session, not
+            # continue saving its ADC frames as labeled coffee data.
+            service.handle_event({
+                "event": "ACQ_START", "mode": "labeled_data", **event,
+                "cycle": 1, "phase": "purging", "cycles_total": 5,
+                "purge_s": 25, "collect_s": 5,
+            })
+            assert service.session is not None
+            service.handle_event({"event": "ACQ_START", "mode": "ai_test"})
+            assert service.session is None
+            service.handle_event(make_sensor_payload())
+            assert (root / "D-GAW_B97.csv").read_bytes() == final_bytes
+
+        dropped = valid.loc[~((valid["run_id"] == 1) &
+                              (valid["phase"] == "purging") &
+                              (valid["sample_idx"] == 3))].copy()
+        check(dropped, "sample_idx tidak kontigu")
+        mixed = valid.copy()
+        columns = ["run_id", "phase", "sample_idx"]
+        mixed.loc[[0, 50], columns] = mixed.loc[[50, 0], columns].to_numpy()
+        check(mixed, "urutan fase/siklus")
 
     print("ACQUISITION_INTEGRITY_REGRESSION_PASS")
     return 0
