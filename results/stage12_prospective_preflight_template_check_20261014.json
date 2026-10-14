@@ -1,0 +1,33 @@
+{
+  "status": "BLOCKED_NO_VALID_PROSPECTIVE_REGISTRY",
+  "as_of_utc": "2026-10-14T15:45:53.194824+00:00",
+  "minimum_acquisition_utc": "2026-10-15T00:00:00+00:00",
+  "scientifically_blind_final_score_available": false,
+  "model_promotion_allowed": false,
+  "historical_manifest_sha256": "da9b6fe1df2ac2887feddf6c87ac39afd7b0878512bcdd0d9c888d40d8e00374",
+  "frozen_historical_entries": 89,
+  "historical_model_development_files": 83,
+  "historical_air_excluded": 6,
+  "unregistered_files_discovered": [
+    "D-CAT_B24.csv",
+    "D-CAT_B25.csv",
+    "D-GAW_B24.csv",
+    "D-GAW_B25.csv",
+    "D-MING_B25.csv",
+    "D-MING_B26.csv",
+    "D-RAT_B23.csv",
+    "D-RAT_B25.csv",
+    "D-TEM_B25.csv",
+    "L-MING_B25.csv",
+    "L-MING_B26.csv"
+  ],
+  "possible_new_batch_files_UNVERIFIED_BY_FILENAME_ONLY": [],
+  "registry": {
+    "state": "EMPTY_TEMPLATE_NOT_REAL_DATA",
+    "actual_validated_new_acquisitions": 0,
+    "role_counts": {}
+  },
+  "independent_custodian_label_vault_verified": false,
+  "sealed_frozen_predictions_verified": false,
+  "required_next_action": "Independent custodian acquires genuinely new coffee and controls, logs lot/specimen/session/date with external label evidence, and provides prospective registry for validation. Do not reuse B32-B35 or expose blind labels to ML engineer."
+}
