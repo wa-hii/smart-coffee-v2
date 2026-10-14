@@ -1,0 +1,30 @@
+{
+  "status": "B36_B37_DEEP_QC_DONE_BLIND_NOT_APPROVED",
+  "source_branch": "origin/irul",
+  "source_commit": "f51a0d436656e9279dc96bd2c71500c1b6bc8fa4",
+  "files": 32,
+  "B36": 21,
+  "B37": 11,
+  "baseline_controls": 2,
+  "coffee_ui_files": 30,
+  "canonical_pass": 27,
+  "canonical_hold": 5,
+  "held_filenames": [
+    "D-CAT_B36.csv",
+    "D-GAW_B36.csv",
+    "D-GRB_B36.csv",
+    "D-MING_B36.csv",
+    "L-TOR_B36.csv"
+  ],
+  "sensor_rows": 4825,
+  "phase_rows_purging": 3994,
+  "phase_rows_collecting": 831,
+  "files_missing_all_temp": 32,
+  "files_missing_all_humidity": 32,
+  "historical_sha_collisions": 0,
+  "source_file_sha_verified": true,
+  "labels_verified": false,
+  "physical_lot_independent": false,
+  "blind_score_allowed": false,
+  "model_promotion_allowed": false
+}
