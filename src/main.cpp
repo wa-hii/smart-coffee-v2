@@ -34,6 +34,11 @@
 #define ACQ_PURGE_SECONDS 25     // durasi purging ke udara bebas (detik)
 #define ACQ_REPETITIONS 5        // jumlah pengulangan siklus
 
+// Identitas source BUILD, bukan bukti firmware sudah di-flash. Sertakan
+// pada ACQ_START supaya host tetap dapat mengidentifikasi firmware saat
+// FW_HELLO boot tidak tertangkap karena pembukaan port USB/DTR.
+#define SMART_COFFEE_BUILD_ID "g3-rc2-20261014"
+
 // ─── Feature Flags
 // ────────────────────────────────────────────────────────────
 #ifndef IS_CALIBRATING_GAS_SENSOR
@@ -195,10 +200,13 @@ void scanI2C() {
 // ═══════════════════════════════════════════════════════════════════════════════
 void setup() {
   Serial.begin(115200);
-  // Build identity is a contract marker, NOT proof that this firmware is
-  // installed on a remotely connected custom PCB. Only a supervised live
-  // read of FW_HELLO can confirm the running binary family.
-  Serial.println(F("{\"event\":\"FW_HELLO\",\"protocol\":\"legacy-json.v1\",\"build_id\":\"p0-freeze-20261014\",\"adc_channels\":10,\"cycles_total\":5,\"purge_s\":25,\"collect_s\":5}"));
+  // Build identity is a self-reported protocol marker, NOT a verified
+  // read-back of the binary installed in the remote custom PCB. Correlate
+  // with the ACQ_START marker during supervised validation; ISP verification
+  // is still required for exact chip/flash identity.
+  Serial.print(F("{\"event\":\"FW_HELLO\",\"protocol\":\"legacy-json.v1\",\"build_id\":\""));
+  Serial.print(F(SMART_COFFEE_BUILD_ID));
+  Serial.println(F("\",\"adc_channels\":10,\"cycles_total\":5,\"purge_s\":25,\"collect_s\":5}"));
   nextion.begin(NEXTION_BAUD);
   // We use our own ASCII EVT:* protocol. Suppress command ACK/error packets so
   // binary Nextion return frames never share the event stream.
@@ -297,6 +305,9 @@ void startAcquisition(AcquisitionMode mode) {
   Serial.print(mode == AcquisitionMode::AI_TEST ? F("ai_test") : F("labeled_data"));
   Serial.print(F("\",\"phase\":\"purging\",\"cycle\":1"));
   Serial.print(F(",\"source\":\"nextion_or_serial\""));
+  Serial.print(F(",\"fw_build_id\":\""));
+  Serial.print(F(SMART_COFFEE_BUILD_ID));
+  Serial.print('"');
   // Label pTake hanya untuk labeled_data, bukan jawaban kopi pada AI_TEST.
   if (mode == AcquisitionMode::LABELED_DATA) {
     char takeFilename[40] = {};
@@ -427,7 +438,7 @@ void processAcquisitionState() {
           showNextionPage("pResult");
           updateNextionInferenceResult();
           char history[UI_HISTORY_TEXT_CAPACITY] = {};
-          snprintf(history, sizeof(history), "T-%04u  %s  LOCAL", testSequence,
+          snprintf(history, sizeof(history), "T-%04u  %s  AI N/A", testSequence,
                    inference.predictLabel());
           addUiHistory(history);
           ++testSequence;
@@ -564,9 +575,10 @@ void updateNextionTestPage() {
   char testId[24] = {};
   snprintf(testId, sizeof(testId), "AUTO - T%04u", testSequence);
   nextion.text("tTestId", testId);
-  nextion.text("tMode", "LOCAL INFERENCE");
+  nextion.text("tMode", "AI NOT VALIDATED");
   nextion.text("tAtmega", arrayReady ? "READY" : "ERROR");
-  nextion.text("tPi", "LOCAL READY");
+  // Pi availability and AI inference have not been proven end-to-end.
+  nextion.text("tPi", "AI N/A");
   nextion.text("tSensors", arrayReady ? "10/10 SENSOR" : "ADC ERROR");
 }
 
@@ -587,19 +599,19 @@ void updateNextionSettingsPage() {
   nextion.text("tBright", "80 %");
   nextion.text("tLang", "EN / ID");
   nextion.text("tDevId", "ATMEGA2560");
-  nextion.text("tFw", "v1.10");
+  nextion.text("tFw", "G3-RC2");
 }
 
 void updateNextionTestRunPage() {
   char testId[24] = {};
   snprintf(testId, sizeof(testId), "TEST T-%04u", testSequence);
   nextion.text("tTestId", testId);
-  nextion.text("tPi", "LOCAL");
+  nextion.text("tPi", "AI N/A");
   nextion.progress("jAI", 0);
   nextion.text("tStep1", "RUNNING");
   nextion.text("tStep2", "WAIT");
   nextion.text("tStep3", "WAIT");
-  nextion.text("tStep4", "LOCAL");
+  nextion.text("tStep4", "N/A");
   nextion.text("tEta", "EST. REMAINING --:--");
 }
 
@@ -652,7 +664,7 @@ void updateNextionTestRunStatus() {
     nextion.text("tStep2", "RUNNING");
   }
   nextion.text("tStep3", "WAIT");
-  nextion.text("tStep4", "LOCAL");
+  nextion.text("tStep4", "N/A");
 
   char eta[28] = {};
   snprintf(eta, sizeof(eta), "EST. REMAINING %02lu:%02lu",
@@ -859,13 +871,29 @@ void handleNextionEvent(const char *event) {
     }
     showNextionPage("pHome");
   } else if (strcmp(event, "EVT:TAKE_OPEN") == 0) {
-    showNextionPage("pTake");
+    if (acqState == AcqState::IDLE) {
+      showNextionPage("pTake");
+    } else {
+      Serial.println(F("{\"event\":\"UI_NAV_BUSY_REJECTED\"}"));
+    }
   } else if (strcmp(event, "EVT:TEST_START") == 0) {
-    showNextionPage("pTest");
+    if (acqState == AcqState::IDLE) {
+      showNextionPage("pTest");
+    } else {
+      Serial.println(F("{\"event\":\"UI_NAV_BUSY_REJECTED\"}"));
+    }
   } else if (strcmp(event, "EVT:HISTORY") == 0) {
-    showNextionPage("pHistory");
+    if (acqState == AcqState::IDLE) {
+      showNextionPage("pHistory");
+    } else {
+      Serial.println(F("{\"event\":\"UI_NAV_BUSY_REJECTED\"}"));
+    }
   } else if (strcmp(event, "EVT:SETTINGS") == 0) {
-    showNextionPage("pSettings");
+    if (acqState == AcqState::IDLE) {
+      showNextionPage("pSettings");
+    } else {
+      Serial.println(F("{\"event\":\"UI_NAV_BUSY_REJECTED\"}"));
+    }
   } else if (strcmp(event, "EVT:ROAST_NEXT") == 0) {
     roastSelection = (roastSelection + 1) % ROAST_OPTION_COUNT;
     updateNextionTakePage();
@@ -921,7 +949,11 @@ void handleNextionEvent(const char *event) {
     showNextionPage("pTake");
   } else if (strcmp(event, "EVT:CAL_START") == 0) {
     if (strcmp(nextionPageName, "pCal") != 0) {
-      showNextionPage("pCal");
+      if (acqState == AcqState::IDLE) {
+        showNextionPage("pCal");
+      } else {
+        Serial.println(F("{\"event\":\"UI_NAV_BUSY_REJECTED\"}"));
+      }
     } else if (!sensorsReady || !sensors.allAdcAvailable()) {
       sendNextionAlert("Calibration error", "ADC belum siap",
                        "Periksa I2C lalu retry");

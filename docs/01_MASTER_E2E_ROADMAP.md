@@ -1,5 +1,18 @@
 # PETA JALAN INDUK PENELITIAN DAN IMPLEMENTASI AI E2E SMART COFFEE E-NOSE
 
+**Addendum RC2 14 Oktober 2026:** enam aksi Home Nextion
+dan kompatibilitas Pi G3 diaudit serta diperbaiki di source.
+Freeze `pre-onsite-software-2026-10-14-rc2` memakai marker
+firmware per sesi, identitas wajib untuk status G3 fisik,
+durasi listener 240 detik dan penanda siap. Operator melihat
+5 siklus selesai dan hasil `N/A` pada firmware lama: ini
+bukti HMI, **bukan** keberhasilan capture Pi atau validasi AI.
+Gerbang berikutnya tetap review risiko listrik dan reset USB,
+identitas binary MCU, persetujuan flashing + rollback, lalu
+satu pengujian G3 fisik dengan firmware RC2 dan pengawasan.
+Lihat `docs/reports/2026-10-14_RC2_AUDIT_MENU_NEXTION_G3_AI_RESULT.md`.
+
+
 **Dokumen acuan utama versi 1.3 — pembaruan dataset nyata dan gerbang Tahap 6 tanggal 10 Oktober 2026.** Ruang lingkup: Smart Coffee E-Nose v2 / RoastSense dengan ATmega2560, Nextion, komputer host dan Raspberry Pi 5. Pengembangan dilakukan dengan menjaga kestabilan akuisisi yang telah berjalan. **Jangan otomatis mengerjakan semua tahap berikutnya.**
 
 **14 Oktober — gerbang software pra-onsite:** keenam isu P0

@@ -1,5 +1,14 @@
 # Kontrak sistem dan keputusan rekayasa — Tahap 0
 
+**Status baru 14 Oktober RC2 (menggantikan temuan source lama di bawah):**
+`src/main.cpp` saat ini membatasi metadata roast/origin/sample_id
+hanya pada `labeled_data`; `ai_test` **tidak mengirim ground truth**.
+Firmware RC2 menambahkan `ACQ_START.fw_build_id` dan `FW_HELLO`
+`g3-rc2-20261014`. Di PCB fisik masih teramati firmware lama
+yang membocorkan label pada AI_TEST sehingga host menolaknya.
+Source baru belum di-flash; lapisan model tetap `N/A`/NO_GO.
+
+
 **Tanggal audit:** 9 Oktober 2026. **Ruang lingkup:** baseline kode/dokumen secara offline; bukan sertifikasi wiring/alat fisik. Dokumen ini melengkapi `00_CURRENT_STATE.md` dan menjadi acuan lintas subsistem untuk Tahap 1–10.
 
 ## 1. Status bukti dan sumber acuan

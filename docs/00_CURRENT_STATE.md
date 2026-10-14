@@ -1,5 +1,21 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 14 Oktober — RC2 firmware/menu/host dibekukan (software saja)
+
+Enam tombol utama Nextion diaudit: Start Test, Take Data,
+Settings, History, Calibrate, Exit. Event HMI dan handler
+firmware cocok secara statis; navigasi selama akuisisi aktif
+sekarang ditolak. Tampilan AI diperjelas menjadi `N/A` karena
+model valid belum tersedia, bukan mengisi prediksi palsu.
+Firmware source menandai `FW_HELLO` serta `ACQ_START` dengan
+build `g3-rc2-20261014`. Listener Pi menyediakan penanda siap,
+durasi 240 detik, serta menuntut identitas dan 5 siklus valid
+untuk QA G3. Regresi offline lulus; **belum flash MCU / belum
+uji fisik RC2 / belum membuktikan EEPROM dan flash aktual**.
+Laporan: `docs/reports/2026-10-14_RC2_AUDIT_MENU_NEXTION_G3_AI_RESULT.md`.
+Snapshot: `pre-onsite-software-2026-10-14-rc2`.
+
+
 ## 14 Oktober — G3 nyata pasca-reboot: START terdeteksi, QA gagal tertutup
 
 **Update observasi operator 16:45 WIB:** Nextion menampilkan

@@ -1,5 +1,29 @@
 # Catatan perubahan proyek
 
+## 14 Oktober 2026 — RC2 audit menu Home, G3, dan AI N/A
+
+- Audit enam tombol Home: Start Test, Take Data, Settings, History,
+  Calibrate, Exit; event HMI dan handler ATmega terbukti konsisten
+  secara statis. Tidak ada perubahan desain Figma/HMI.
+- `src/main.cpp`: marker `g3-rc2-20261014` pada FW_HELLO dan
+  ACQ_START, navigasi saat akuisisi aktif ditolak; teks yang
+  mengesankan AI sudah siap dikoreksi menjadi N/A/tidak tervalidasi.
+- Pi G3 adapter: durasi 240 detik, penanda `G3_LISTENER_READY_USB_RX_ONLY`,
+  pemeriksaan identitas tiap sesi serta complete fail-closed.
+- Tes menu+G3 adversarial independen dan suite Stage0–9 offline PASS;
+  dua firmware build SUCCESS, Nextion static 12 halaman/23 event PASS.
+- Adapter Pi RC2 dan uji adapter disinkronkan dengan backup RC1;
+  SHA256 identik, Pi Stage7/8 offline PASS, tanpa port serial dibuka.
+- Sumber bukti HMI operator: lima siklus selesai, seluruh AI Result
+  masih N/A (sesuai model NO_GO); Pi G3 lama gagal karena
+  `ai_test_label_leakage` dan tidak merekam ACQ_COMPLETE.
+- Freeze **source RC2**, bukan flash perangkat: tag
+  `pre-onsite-software-2026-10-14-rc2`, manifest di
+  `docs/releases/2026-10-14_pre-onsite-rc2.json`.
+- Keamanan xHCI/VBUS dan firmware aktual masih gerbang onsite;
+  flashing, kalibrasi, dan lima siklus ulang **tidak dilakukan**.
+
+
 ## 14 Oktober 2026 — Perbaikan enam P0 dan software freeze RC1
 
 - Validator sensor CSV: gap indeks, urutan siklus/fase

@@ -1,0 +1,42 @@
+{
+  "release_type": "SOURCE_AND_OFFLINE_QA_FREEZE_NOT_DEVICE_RELEASE",
+  "date_local": "2026-10-14",
+  "tag": "pre-onsite-software-2026-10-14-rc2",
+  "supersedes_source_release_tag": "pre-onsite-software-2026-10-14-rc1",
+  "branch": "wahyu",
+  "firmware_build_marker": "g3-rc2-20261014",
+  "expected_mcu_signature": "0x1E9801",
+  "mcufirmware_binary_installed_verified": false,
+  "g3_five_cycles_with_rc2_physically_verified": false,
+  "five_cycles_observed_on_hmi_old_firmware_by_operator": true,
+  "ai_predictions_enabled": false,
+  "ai_test_result": "N/A",
+  "host_listener": {
+    "usb_serial_baud": 115200,
+    "default_max_duration_s": 240,
+    "hardware_commands_transmitted": false,
+    "required_session_identity": "ACQ_START.fw_build_id",
+    "must_observe_complete_and_five_cycles": true
+  },
+  "source_sha256": {
+    "src/main.cpp": "6dfb67042ff8d84c0bb104aa0f437c2fdc137bda8d9492a165ad9c4f754095d6",
+    "scripts/stage7_pi_adapter.py": "1ac4859de6b2e7743f544d216d10b507fc85375715de138c8d231663e2879dae",
+    "scripts/test_stage7_pi_adapter.py": "09cc0977360533e3cf9fbb101574981687b16daa0dd606f707eee1fd68f08bf9",
+    "scripts/test_home_menu_g3_rc2.py": "f63ce0d20a883c7caa910093df87fb04aa94f0e93a82801e3b86826ee88d2ac1"
+  },
+  "local_build_artifact_not_git_tracked": {
+    ".pio/build/mega2560/firmware.hex_sha256": "25c92c6a9ae4090e116807bb71566823e2c833be85596f5ea8a5fc829a13a453",
+    "uploaded_to_mcu": false
+  },
+  "qa_summary": {
+    "home_menu_6_events": "PASS_STATIC",
+    "nextion_12_pages_23_events": "PASS_STATIC",
+    "g3_fail_closed_independent_regression": "PASS_OFFLINE",
+    "stage0_to_stage9_regression": "PASS_OFFLINE",
+    "pi_stage7_stage8_regression_after_sync": "PASS_OFFLINE_NO_SERIAL_OPEN",
+    "mega2560_and_nextion_test_build": "SUCCESS_NO_UPLOAD",
+    "b32plus_valid_csv": 88,
+    "b32plus_known_invalid_excluded": 1,
+    "b32plus_unexpected_failed": 0
+  }
+}

@@ -10,7 +10,8 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from stage7_pi_adapter import (
-    LIVE_OPT_IN, SerialLineFramer, json_key_signature, main, receive_lines,
+    EXPECTED_FW_HELLO, LIVE_OPT_IN, MAX_STREAM_SECONDS, SerialLineFramer,
+    json_key_signature, main, receive_lines,
     receive_serial_chunks, replay_real_csv, save_report,
     sensor_like_rejection_code, sensor_like_phase_category,
     nextion_event_category,
@@ -93,6 +94,29 @@ def main_test():
     assert recovery["diagnostics"]["malformed_json_lines"] == 1  # boot
     assert recovery["diagnostics"]["listener_transmitted_bytes"] == 0
     assert recovery["diagnostics"]["raw_sensor_values_persisted"] is False
+    assert recovery["diagnostics"]["physical_g3_complete_verified"] is False
+    # Real hardware QA cannot be marked PASS without the frozen firmware's
+    # build marker on the accepted ACQ_START, even if five cycles validate.
+    rc2_start = {**json.loads(sample_start),
+                 "fw_build_id": EXPECTED_FW_HELLO["build_id"]}
+    rc2_wire = [json.dumps(rc2_start).encode() + b"\n", *messages[2:]]
+    verified = receive_serial_chunks(rc2_wire, monotonic=lambda: 1)
+    assert verified["final"]["quality"] == "COMPLETE_QA"
+    assert verified["diagnostics"]["firmware_hello_status"] == "NOT_OBSERVED"
+    assert verified["diagnostics"]["acq_start_firmware_build_status"] == "MATCHED"
+    assert verified["diagnostics"]["physical_g3_complete_verified"] is True
+    wrong_start = {**rc2_start, "fw_build_id": "UNVERIFIED_FIRMWARE"}
+    wrong_wire = [json.dumps(wrong_start).encode() + b"\n", *messages[2:]]
+    wrong = receive_serial_chunks(wrong_wire, monotonic=lambda: 1)
+    assert wrong["final"]["quality"] == "COMPLETE_QA"
+    assert wrong["diagnostics"]["acq_start_firmware_build_status"] == "INCOMPATIBLE"
+    assert wrong["diagnostics"]["physical_g3_complete_verified"] is False
+    assert "UNVERIFIED_FIRMWARE" not in json.dumps(wrong)
+    contradictory = receive_serial_chunks([
+        json.dumps({**EXPECTED_FW_HELLO, "build_id": "OLD"}).encode() + b"\n",
+        *rc2_wire,
+    ], monotonic=lambda: 1)
+    assert contradictory["diagnostics"]["physical_g3_complete_verified"] is False
     assert original.read_bytes() == original_hash
 
     # JSON shape metadata for a later authorized capture:
@@ -262,7 +286,7 @@ def main_test():
         disconnect = receive_lines([start])
         assert disconnect["final"]["reason"] == "stream_eof_or_disconnect"
         assert receive_lines([])["final"]["quality"] == "NOT_STARTED"
-        must_fail(lambda: receive_lines([], max_seconds=181),
+        must_fail(lambda: receive_lines([], max_seconds=MAX_STREAM_SECONDS + 1),
                   ValueError, "max_duration")
         # Explicit check that even the serial CLI without opt-in never
         # reaches pyserial/open().

@@ -41,7 +41,9 @@ LIVE_OPT_IN = "I_APPROVE_USB_SERIAL_READONLY"
 SAFE_PORT = re.compile(
     r"^/dev/(?:serial/by-id/[A-Za-z0-9_.:+-]+|ttyACM[0-9]+|ttyUSB[0-9]+)$"
 )
-MAX_STREAM_SECONDS = 180
+# Lima siklus memerlukan ~150 detik. Berikan ruang untuk operator menekan
+# Nextion *setelah* konfirmasi listener siap, tanpa listener tanpa batas.
+MAX_STREAM_SECONDS = 240
 
 # Constant, privacy-safe diagnostic categories. Never persist rejected values.
 _SENSOR_SHAPE_KEYS = frozenset((
@@ -60,7 +62,7 @@ _NEXTION_EVENT_CATEGORIES = frozenset((
 ))
 EXPECTED_FW_HELLO = {
     "event": "FW_HELLO", "protocol": "legacy-json.v1",
-    "build_id": "p0-freeze-20261014", "adc_channels": 10,
+    "build_id": "g3-rc2-20261014", "adc_channels": 10,
     "cycles_total": 5, "purge_s": 25, "collect_s": 5,
 }
 
@@ -142,6 +144,7 @@ def receive_serial_chunks(chunks: Iterable[bytes], *,
     nextion_event_categories: Counter[str] = Counter()
     start_contract_outcomes: Counter[str] = Counter()
     firmware_hello = "NOT_OBSERVED"
+    firmware_start_build = "NOT_OBSERVED"
     other_json_shapes_untracked = 0
     wire_events: Counter[str] = Counter()
     known_events = {
@@ -182,6 +185,16 @@ def receive_serial_chunks(chunks: Iterable[bytes], *,
                         firmware_hello = (
                             "MATCHED" if obj == EXPECTED_FW_HELLO
                             else "INCOMPATIBLE"
+                        )
+                    if event == "ACQ_START":
+                        # Startup FW_HELLO can be missed when a USB serial
+                        # open resets the MCU. Bind actual session identity
+                        # to the ACQ_START frame without exposing user data.
+                        build_id = obj.get("fw_build_id")
+                        firmware_start_build = (
+                            "MATCHED" if build_id == EXPECTED_FW_HELLO["build_id"]
+                            else "INCOMPATIBLE" if "fw_build_id" in obj
+                            else "NOT_OBSERVED"
                         )
                     if isinstance(event, str):
                         wire_events[event if event in known_events
@@ -229,6 +242,14 @@ def receive_serial_chunks(chunks: Iterable[bytes], *,
             break
     if tracker.active is not None:
         tracker.abort("stream_eof_or_disconnect")
+    firmware_verified = (firmware_start_build == "MATCHED" and
+                         start_contract_outcomes["accepted"] == 1 and
+                         firmware_hello != "INCOMPATIBLE")
+    complete_verified = bool(
+        tracker.last_final is not None and
+        tracker.last_final.get("quality") == "COMPLETE_QA" and
+        firmware_verified and wire_events["ACQ_COMPLETE"] == 1
+    )
     return {
         "transport": "passive_readonly",
         "input_frames_read": complete_lines,
@@ -262,7 +283,9 @@ def receive_serial_chunks(chunks: Iterable[bytes], *,
                 start_contract_outcomes.items()
             )),
             "firmware_hello_status": firmware_hello,
-            "physical_g3_compatibility_verified": firmware_hello == "MATCHED",
+            "acq_start_firmware_build_status": firmware_start_build,
+            "physical_g3_compatibility_verified": firmware_verified,
+            "physical_g3_complete_verified": complete_verified,
             "json_signature_contents": "field_names_only_no_values",
             "wire_events_seen": dict(wire_events),
             "raw_sensor_values_persisted": False,
@@ -417,6 +440,7 @@ def serial_readonly(port: str, acknowledgment: str, baud: int,
     try:
         port_obj.port = port
         port_obj.open()
+        print("G3_LISTENER_READY_USB_RX_ONLY", flush=True)
 
         def incoming():
             while True:
@@ -441,7 +465,7 @@ def main(argv: list[str] | None = None) -> int:
     live = modes.add_parser("serial-readonly")
     live.add_argument("--port", required=True)
     live.add_argument("--baud", type=int, default=115200)
-    live.add_argument("--duration", type=int, default=180)
+    live.add_argument("--duration", type=int, default=240)
     live.add_argument("--acknowledgment", default="")
     live.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)
@@ -475,6 +499,8 @@ def main(argv: list[str] | None = None) -> int:
     terminal = data.get("bridge", data.get("final", {}))
     print("STAGE7_PI_ADAPTER_" + terminal.get("quality", "UNKNOWN"))
     print("RESULT=" + terminal.get("status", "N/A"))
+    if args.mode == "serial-readonly":
+        return 0 if data["diagnostics"]["physical_g3_complete_verified"] else 2
     return 0 if terminal.get("quality") == "COMPLETE_QA" else 2
 
 
