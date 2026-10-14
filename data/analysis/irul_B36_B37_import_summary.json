@@ -1,0 +1,12 @@
+{
+  "status": "IMPORTED_UNMODIFIED_RAW_HOLD_NO_MODEL_TRAINING",
+  "source_commit": "f51a0d436656e9279dc96bd2c71500c1b6bc8fa4",
+  "source_branch": "origin/irul",
+  "files_imported": 32,
+  "batch36": 21,
+  "batch37": 11,
+  "root_raw_name_collisions_preserved": 2,
+  "origin_roast_physical_provenance_verified": false,
+  "blind_test_independence_verified": false,
+  "model_promotion_allowed": false
+}
