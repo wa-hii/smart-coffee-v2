@@ -2,6 +2,10 @@
 
 ## 14 Oktober 2026 — RC2 G3 supervised, akuisisi fisik PASS
 
+- Konfirmasi lanjutan operator: Nextion selesai lima siklus
+  hingga `Test Complete – AI Result`; Roast Level, Coffee
+  Origin, dan Roast Probability tetap `N/A` sesuai gate AI.
+
 - Pi menerima 150 sampel valid (125 purging, 25 collecting),
   `ACQ_START` diterima, 9 perubahan fase dan `ACQ_COMPLETE`.
 - Marker firmware pada `FW_HELLO` dan `ACQ_START` MATCHED,

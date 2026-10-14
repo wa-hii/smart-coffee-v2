@@ -4,6 +4,12 @@
 **Status QA akuisisi fisik:** **PASS**.
 **Status AI/inferensi kopi:** **NO_GO; RESULT=N/A**.
 
+**Konfirmasi operator sesudah run:** LCD Nextion mencapai halaman
+`Test Complete – AI Result` setelah lima siklus RC2, dengan
+Roast Level, Coffee Origin, dan Roast Probability tetap **`N/A`**.
+Ini merupakan observasi langsung operator yang terpisah dari
+verifikasi 150 sampel dan `ACQ_COMPLETE` oleh Raspberry Pi.
+
 ## Prasyarat dan eksekusi
 
 - Firmware source RC2 tag `pre-onsite-software-2026-10-14-rc2`
@@ -89,9 +95,11 @@ repeatability lintas batch, kestabilan USB pada banyak run,
 kesesuaian kondisi udara/kalibrasi sensor, validitas kopi/ground
 truth atau akurasi model klasifikasi. `N/A` pada Roast Level,
 Coffee Origin, Roast Probability adalah perilaku yang benar
-karena gate AI belum terbuka. Perlu konfirmasi operator bahwa
-LCD mencapai halaman Test Complete untuk menutup bukti visual
-HMI pada run RC2 yang khusus ini.
+karena gate AI belum terbuka. Operator telah mengonfirmasi bahwa
+LCD mencapai halaman Test Complete pada run RC2 ini dan
+ketiga bidang hasil tetap `N/A`. Bukti penyelesaian HMI dan
+integritas transport Pi konsisten, tetapi tidak membuktikan
+validitas inferensi AI.
 
 **Tindak lanjut:** tanpa penulisan firmware atau operasi hardware
 tambahan pada sesi penutupan ini, pertahankan tag RC2 dan bukti Pi,

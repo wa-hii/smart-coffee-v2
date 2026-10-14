@@ -2,6 +2,12 @@
 
 ## 14 Oktober 18:23 — G3 RC2 lima siklus fisik QA PASS
 
+**Konfirmasi operator setelah run RC2:** Nextion mencapai
+`Test Complete – AI Result`; Roast Level, Coffee Origin,
+dan Roast Probability semuanya tetap `N/A`. Observasi ini
+melengkapi bukti 150 sampel dan `ACQ_COMPLETE` Pi.
+Status tetap **G3 akuisisi fisik PASS / AI NO_GO**.
+
 **Pembaruan status terbaru (menggantikan G3 NOT RUN lama):**
 setelah RC2 di-flash pada ATmega2560 dan USB kembali ke Pi,
 listener read-only G3 menerima **150/150 sampel** lengkap
