@@ -1,0 +1,24 @@
+{
+  "status": "DESCRIPTIVE_SIGNAL_QC_COMPLETE_PROVENANCE_NOT_VERIFIED",
+  "coffee_files": 18,
+  "roast_ui_counts": {
+    "dark": 6,
+    "light": 6,
+    "medium": 6
+  },
+  "sensor_channels": 10,
+  "cycles_per_file": 5,
+  "cycle_channel_rows": 900,
+  "physical_specimens_verified": 0,
+  "independent_roast_labels_verified": 0,
+  "independent_origin_labels_verified": 0,
+  "notes": [
+    "Cycle CV is unstable when signed mean response is near zero; review absolute response too.",
+    "Responses are descriptive ADC-based signals, not validated physical analyte measurements.",
+    "Repeated cycles from one file are not independent coffee specimens.",
+    "Per-roast comparisons are exploratory and confounded by origin, lot, session and drift.",
+    "No classifier fitting, test score, model selection or prospective blind-test claim."
+  ],
+  "blind_test_approved": false,
+  "model_promotion_allowed": false
+}
