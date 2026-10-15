@@ -48,7 +48,7 @@ except Exception:
 # ─── Konfigurasi Akuisisi Default ──────────────────────────────────────────────
 BAUD_RATE        = 115200
 OUTPUT_DIR       = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'data'))
-ACQ_PURGE_S      = 25     # Durasi purging per run (detik)
+ACQ_PURGE_S      = 50     # Durasi purging per run (detik)
 ACQ_COLLECT_S    = 5      # Durasi collecting per run (detik)
 ACQ_REPETITIONS  = 5      # Jumlah run per sampel kopi
 
