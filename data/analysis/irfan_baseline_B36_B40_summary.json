@@ -1,0 +1,22 @@
+{
+  "status": "IMPORT_COMPLETE_NOT_MODEL_APPROVED",
+  "source_branch": "origin/irfan-pria-solo",
+  "source_commit": "d5bd43e1e7d19325b8fe1cf2c8f18bbf152c18a8",
+  "requested": 8,
+  "imported": 7,
+  "missing": [
+    "BASELINE_B38.csv"
+  ],
+  "root_collisions_preserved": 0,
+  "paths": [
+    "data/raw/irfan_baseline_B36_B40/BASELINE_B36.csv",
+    "data/raw/irfan_baseline_B36_B40/BASELINE_B37.csv",
+    "data/raw/irfan_baseline_B36_B40/BASELINE_B39.csv",
+    "data/raw/irfan_baseline_B36_B40/BASELINE_B40.csv",
+    "data/raw/irfan_baseline_B36_B40/D-MING_B40.csv",
+    "data/raw/irfan_baseline_B36_B40/L-MING_B40.csv",
+    "data/raw/irfan_baseline_B36_B40/M-MING_B40.csv"
+  ],
+  "sha_verified": true,
+  "blind_evaluation_approved": false
+}
