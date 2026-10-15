@@ -21,7 +21,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 RAW = ROOT / 'data/raw'
 B40 = RAW / 'irfan_baseline_B36_B40'
-OUT = ROOT / 'results/plots_batch_32_36_40_verified_20261016'
+OUT = ROOT / 'results/plots_final'
 BATCHES = ['B32','B33','B34','B35','B36','B40']
 ROAST = {'D':'dark','M':'medium','L':'light'}
 SENSORS = ['adc_tgs822','adc_mq135','adc_mq3','adc_tgs2611','adc_tgs2620',
@@ -114,7 +114,8 @@ def main():
             else:skipped.append({'file':str(path.relative_to(ROOT)),'reason':'baseline_'+reason})
     written=[]
     def save(group,batch,origin,level,sensor,lines,baseline=None):
-        dest=OUT/group/f'{batch}_{origin}_{level}_{sensor}.png'
+        folder=(batch if group in ('01_sensor_per_batch','02_roast_same_origin_batch','04_roast_same_origin_baseline_t0') else 'B32-B36')
+        dest=OUT/group/folder/f'{batch}_{origin}_{level}_{sensor}.png'
         chart(lines,f'{group.replace("_"," ")} | {batch} | {origin} | {level} | {sensor}',dest,baseline)
         written.append({'group':group,'path':str(dest.relative_to(ROOT)),'batch':batch,
                         'origin':origin,'roast':level,'sensor':sensor})
@@ -136,10 +137,11 @@ def main():
     # 3: same origin+roast across batches, 2+ available.
     for origin in origins:
         for level in ROAST:
-            pair=[(b,files[(b,origin,level)][1]) for b in BATCHES if (b,origin,level) in files]
+            # Main cross-batch comparison: all valid B32, B33, B34, B35, B36.
+            pair=[(b,files[(b,origin,level)][1]) for b in BATCHES if b!='B40' and (b,origin,level) in files]
             if len(pair)<2:continue
             for sensor in SENSORS:
-                save('03_same_origin_roast_cross_batch','MULTI',origin,level,sensor,
+                save('03_same_origin_roast_cross_batch','B32-B36',origin,level,sensor,
                      [(b,d.plot_index,d[sensor]) for b,d in pair])
     # 4: t0 uses requested batch-specific reference: L-CAW B33..B36 / BASELINE_B40.
     for batch in BATCHES:

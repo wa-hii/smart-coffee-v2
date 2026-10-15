@@ -1,0 +1,26 @@
+{
+  "total_png": 750,
+  "by_group": {
+    "01_sensor_per_batch": 60,
+    "02_roast_same_origin_batch": 300,
+    "03_same_origin_roast_cross_batch": 210,
+    "04_roast_same_origin_baseline_t0": 180
+  },
+  "eligible_coffee_csv": 100,
+  "baseline_LCAW_available": [
+    "B33",
+    "B35",
+    "B36",
+    "B40"
+  ],
+  "excluded_incomplete": [
+    {
+      "file": "data\\raw\\L-CAW_B34.csv",
+      "reason": "baseline_missing_or_noncontiguous_samples"
+    }
+  ],
+  "baseline_policy": "L-CAW B33-B36; BASELINE_B40 for B40; B32 t0 skipped if no approved baseline",
+  "time_axis": "sample ordinal; no assumed seconds",
+  "t0_definition": "at x=0 use median collecting ADC from designated batch reference; subsequent x are raw data sample ordinals",
+  "raw_modified": false
+}
