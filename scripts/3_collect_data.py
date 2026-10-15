@@ -13,7 +13,7 @@ Flow per Sampel (10 Run):
   Satu File : 10 Run per Sampel ──► Output CSV: <sample_id>_<batch_id>.csv
 
 Metadata per Baris:
-  timestamp, sample_id, roast_level, origin, batch_id, run_id, phase, sample_idx,
+  timestamp, datetime, sample_id, roast_level, origin, batch_id, run_id, phase, sample_idx,
   10 Raw ADC Readings (adc_tgs822, adc_mq135, adc_mq3, adc_tgs2611, adc_tgs2620,
   adc_tgs2600, adc_tgs2602, adc_mq8, adc_tgs813, adc_tgs816), temperature, humidity
 
@@ -50,7 +50,7 @@ BAUD_RATE        = 115200
 OUTPUT_DIR       = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'data'))
 ACQ_PURGE_S      = 50     # Durasi purging per run (detik)
 ACQ_COLLECT_S    = 5      # Durasi collecting per run (detik)
-ACQ_REPETITIONS  = 5      # Jumlah run per sampel kopi
+ACQ_REPETITIONS  = 40      # Jumlah run per sampel kopi
 
 # ─── Database Sampel Eksperimen (Predefined Metadata) ───────────────────────────
 KNOWN_SAMPLES = {
@@ -301,8 +301,10 @@ class RawDataCollector:
 
                 if phase in ('purging', 'collecting'):
                     # Susun metadata lengkap untuk setiap baris data
+                    current_dt = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                     row = {
                         'timestamp': data.get('timestamp', int(time.time() * 1000)),
+                        'datetime': current_dt,
                         'sample_id': self.sample_id,
                         'roast_level': self.roast_level,
                         'origin': self.origin,
@@ -513,7 +515,7 @@ def main():
 
         # Urutan Kolom Standard Metadata & Raw ADC
         ordered_cols = [
-            'timestamp', 'sample_id', 'roast_level', 'origin', 'batch_id',
+            'timestamp', 'datetime', 'sample_id', 'roast_level', 'origin', 'batch_id',
             'run_id', 'phase', 'sample_idx'
         ] + ADC_COLS
 

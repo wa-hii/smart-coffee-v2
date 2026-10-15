@@ -30,8 +30,8 @@
 // ─── Konfigurasi Akuisisi
 // ─────────────────────────────────────────────────────
 #define ACQ_COLLECTION_SECONDS 5 // durasi menghirup aroma kopi (detik)
-#define ACQ_PURGE_SECONDS 50     // durasi purging ke udara bebas (detik)
-#define ACQ_REPETITIONS 5        // jumlah pengulangan siklus
+#define ACQ_PURGE_SECONDS 25     // durasi purging ke udara bebas (detik)
+#define ACQ_REPETITIONS 40        // jumlah pengulangan siklus
 
 // ─── Feature Flags
 // ────────────────────────────────────────────────────────────
@@ -136,9 +136,9 @@ char uiHistory[UI_HISTORY_CAPACITY][UI_HISTORY_TEXT_CAPACITY] = {};
 uint8_t uiHistoryCount = 0;
 
 static const char *const ROAST_OPTIONS[] = {"LIGHT", "MEDIUM", "DARK"};
-static const char *const ORIGIN_OPTIONS[] = {"MING", "MAN", "RAT", "GAY",
-                                             "MER",  "TEM", "CAT", "GAW",
-                                             "TIM",  "BAR", "MUK", "CAW"};
+static const char *const ORIGIN_OPTIONS[] = {
+    "MING", "MAN", "RAT", "GAY", "MER", "TEM",
+    "CAT",  "GAW", "TIM", "BAR", "MUK", "CAW"};
 static constexpr uint8_t ROAST_OPTION_COUNT =
     sizeof(ROAST_OPTIONS) / sizeof(ROAST_OPTIONS[0]);
 static constexpr uint8_t ORIGIN_OPTION_COUNT =
@@ -190,9 +190,8 @@ void setup() {
   nextion.command("bkcmd=0");
   nextionBootMs = millis();
 
-  Serial.println(F("{\"nextion\":{\"port\":\"Serial2\",\"baud\":9600,\"mcu_"
-                   "rx\":\"PH0/RXD2 pin 8\",\"mcu_tx\":\"PH1/TXD2 pin "
-                   "9\",\"mega_header_rx\":17,\"mega_header_tx\":16}}"));
+  Serial.println(
+      F("{\"nextion\":{\"port\":\"Serial2\",\"baud\":9600,\"mcu_rx\":\"PH0/RXD2 pin 8\",\"mcu_tx\":\"PH1/TXD2 pin 9\",\"mega_header_rx\":17,\"mega_header_tx\":16}}"));
 
   actuator.begin();
 
@@ -275,8 +274,7 @@ void startAcquisition(AcquisitionMode mode) {
 
   // Event: ACQ_START
   Serial.print(F("{\"event\":\"ACQ_START\",\"mode\":\""));
-  Serial.print(mode == AcquisitionMode::AI_TEST ? F("ai_test")
-                                                : F("labeled_data"));
+  Serial.print(mode == AcquisitionMode::AI_TEST ? F("ai_test") : F("labeled_data"));
   Serial.print(F("\",\"phase\":\"purging\",\"cycle\":1"));
   Serial.print(F(",\"cycles_total\":"));
   Serial.print(ACQ_REPETITIONS);
@@ -455,8 +453,7 @@ void showNextionPage(const char *pageName) {
     return;
   }
   nextion.page(pageName);
-  delay(200); // beri Nextion waktu load halaman sebelum update komponen (9600
-              // baud)
+  delay(200); // beri Nextion waktu load halaman sebelum update komponen (9600 baud)
   if (strcmp(pageName, "pSplash") != 0) {
     nextionHomeSent = true;
   }
@@ -499,9 +496,10 @@ void updateNextionTakePage() {
                      batchNumber > 0 && ACQ_REPETITIONS > 0 &&
                      filename[0] != '\0';
 
-  nextion.text("tStat",
-               ready ? "Siap untuk pengambilan data" : "Data belum lengkap");
-  nextion.textColor("tStat", ready ? NEXTION_STATUS_GREEN : NEXTION_STATUS_RED);
+  nextion.text("tStat", ready ? "Siap untuk pengambilan data"
+                              : "Data belum lengkap");
+  nextion.textColor("tStat",
+                    ready ? NEXTION_STATUS_GREEN : NEXTION_STATUS_RED);
   nextion.touch("mStart", ready);
 }
 
@@ -509,8 +507,7 @@ void buildTakeFilename(char *buffer, size_t size, bool withExtension) {
   if (buffer == nullptr || size == 0) {
     return;
   }
-  const char roastCode =
-      roastSelection == 0 ? 'L' : (roastSelection == 1 ? 'M' : 'D');
+  const char roastCode = roastSelection == 0 ? 'L' : (roastSelection == 1 ? 'M' : 'D');
   snprintf(buffer, size, withExtension ? "%c-%s_B%02u.csv" : "%c-%s_B%02u",
            roastCode, ORIGIN_OPTIONS[originSelection], batchNumber);
 }
@@ -527,8 +524,8 @@ void updateNextionTestPage() {
 }
 
 void updateNextionHistoryPage() {
-  static const char *const fields[UI_HISTORY_CAPACITY] = {"tH0", "tH1", "tH2",
-                                                          "tH3"};
+  static const char *const fields[UI_HISTORY_CAPACITY] = {
+      "tH0", "tH1", "tH2", "tH3"};
   for (uint8_t i = 0; i < UI_HISTORY_CAPACITY; ++i) {
     nextion.text(fields[i], i < uiHistoryCount ? uiHistory[i] : "-");
   }
@@ -565,9 +562,9 @@ void updateNextionTestRunStatus() {
     return;
   }
 
-  const uint32_t phaseElapsedMs = acqState == AcqState::PAUSED
-                                      ? acqPausedElapsedMs
-                                      : millis() - acqPhaseStartMs;
+  const uint32_t phaseElapsedMs =
+      acqState == AcqState::PAUSED ? acqPausedElapsedMs
+                                   : millis() - acqPhaseStartMs;
   const uint32_t phaseElapsed = phaseElapsedMs / 1000UL;
   const uint32_t cycleSeconds = ACQ_PURGE_SECONDS + ACQ_COLLECTION_SECONDS;
   const uint32_t completedCycles = acqCycle > 0 ? acqCycle - 1 : 0;
@@ -579,9 +576,9 @@ void updateNextionTestRunStatus() {
     currentCycleElapsed =
         phaseElapsed < ACQ_PURGE_SECONDS ? phaseElapsed : ACQ_PURGE_SECONDS;
   } else if (effectiveState == AcqState::COLLECTING) {
-    const uint32_t collectElapsed = phaseElapsed < ACQ_COLLECTION_SECONDS
-                                        ? phaseElapsed
-                                        : ACQ_COLLECTION_SECONDS;
+    const uint32_t collectElapsed =
+        phaseElapsed < ACQ_COLLECTION_SECONDS ? phaseElapsed
+                                               : ACQ_COLLECTION_SECONDS;
     currentCycleElapsed = ACQ_PURGE_SECONDS + collectElapsed;
   }
 
@@ -591,10 +588,10 @@ void updateNextionTestRunStatus() {
     doneSeconds = totalSeconds;
   }
   const uint32_t remaining = totalSeconds - doneSeconds;
-  const uint8_t percent =
-      totalSeconds == 0
-          ? 0
-          : static_cast<uint8_t>((doneSeconds * 100UL) / totalSeconds);
+  const uint8_t percent = totalSeconds == 0
+                              ? 0
+                              : static_cast<uint8_t>(
+                                    (doneSeconds * 100UL) / totalSeconds);
 
   nextion.progress("jAI", percent);
   if (acqState == AcqState::PAUSED) {
@@ -692,9 +689,9 @@ void updateNextionRunStatus() {
     currentCycleSeconds =
         elapsedSeconds < ACQ_PURGE_SECONDS ? elapsedSeconds : ACQ_PURGE_SECONDS;
   } else if (effectiveState == AcqState::COLLECTING) {
-    const uint32_t collectSeconds = elapsedSeconds < ACQ_COLLECTION_SECONDS
-                                        ? elapsedSeconds
-                                        : ACQ_COLLECTION_SECONDS;
+    const uint32_t collectSeconds =
+        elapsedSeconds < ACQ_COLLECTION_SECONDS ? elapsedSeconds
+                                                 : ACQ_COLLECTION_SECONDS;
     currentCycleSeconds = ACQ_PURGE_SECONDS + collectSeconds;
   }
   const uint32_t totalRunSeconds = cycleSeconds * ACQ_REPETITIONS;
@@ -703,8 +700,8 @@ void updateNextionRunStatus() {
   const uint8_t cyclePercent =
       totalRunSeconds == 0
           ? 0
-          : static_cast<uint8_t>((completedRunSeconds * 100UL) /
-                                 totalRunSeconds);
+          : static_cast<uint8_t>(
+                (completedRunSeconds * 100UL) / totalRunSeconds);
 
   buildTakeFilename(text, sizeof(text), false);
   nextion.text("tSample", text);
@@ -800,15 +797,15 @@ void handleNextionEvent(const char *event) {
     roastSelection = (roastSelection + 1) % ROAST_OPTION_COUNT;
     updateNextionTakePage();
   } else if (strcmp(event, "EVT:ROAST_PREV") == 0) {
-    roastSelection =
-        roastSelection == 0 ? ROAST_OPTION_COUNT - 1 : roastSelection - 1;
+    roastSelection = roastSelection == 0 ? ROAST_OPTION_COUNT - 1
+                                         : roastSelection - 1;
     updateNextionTakePage();
   } else if (strcmp(event, "EVT:ORIGIN_NEXT") == 0) {
     originSelection = (originSelection + 1) % ORIGIN_OPTION_COUNT;
     updateNextionTakePage();
   } else if (strcmp(event, "EVT:ORIGIN_PREV") == 0) {
-    originSelection =
-        originSelection == 0 ? ORIGIN_OPTION_COUNT - 1 : originSelection - 1;
+    originSelection = originSelection == 0 ? ORIGIN_OPTION_COUNT - 1
+                                           : originSelection - 1;
     updateNextionTakePage();
   } else if (strcmp(event, "EVT:BATCH_INC") == 0) {
     if (batchNumber < 9999) {

@@ -13,6 +13,7 @@
 #include "ADS1X15.h"
 #include "MQUnifiedsensor.h"
 #include "TGSSensor.h"
+#include "sht31.h"
 
 // ─── Software I2C Pins ────────────────────────────────────────────────────────
 #define PIN_SDA   20
@@ -82,6 +83,19 @@ public:
     uint16_t        getAdc(uint8_t idx) const { return adc_[idx]; }
     const uint16_t* getAdcArray()       const { return adc_; }
 
+    bool allAdcAvailable() const { return hasAds1_ && hasAds2_ && hasAds3_ && hasAds4_; }
+    bool adcAvailable(uint8_t idx) const {
+        if (idx <= 2) return hasAds1_;
+        if (idx <= 4) return hasAds2_;
+        if (idx <= 6) return hasAds3_;
+        if (idx <= 9) return hasAds4_;
+        return false;
+    }
+
+    bool  environmentValid() const { return sht31_.isConnected(); }
+    float getTemperatureC()  const { return sht31_.getTemperature(); }
+    float getHumidityRh()    const { return sht31_.getHumidity(); }
+
     void printJsonData(const char* phase, uint32_t cycle, uint32_t sampleIdx);
 
 private:
@@ -91,6 +105,9 @@ private:
     bool hasAds2_ = false;
     bool hasAds3_ = false;
     bool hasAds4_ = false;
+
+    // SHT31 sensor
+    SHT31Sensor sht31_;
 
     // 3× MQ sensor
     MQUnifiedsensor mq135_, mq3_, mq8_;

@@ -96,6 +96,9 @@ bool SensorArray::begin() {
     tgs813_.setRL(SENSOR_RL[SENSOR_TGS813]);    tgs813_.setRatioAir(RATIO_AIR[SENSOR_TGS813]);
     tgs816_.setRL(SENSOR_RL[SENSOR_TGS816]);    tgs816_.setRatioAir(RATIO_AIR[SENSOR_TGS816]);
 
+    // ── Init SHT31 sensor suhu & kelembapan ───────────────────────────────────
+    sht31_.begin();
+
     return (foundCount > 0);
 }
 
@@ -307,6 +310,9 @@ void SensorArray::readAll() {
     } else {
         adc_[SENSOR_MQ8] = 0; adc_[SENSOR_TGS813] = 0; adc_[SENSOR_TGS816] = 0;
     }
+
+    // Baca sensor suhu & kelembapan SHT31
+    sht31_.read();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
