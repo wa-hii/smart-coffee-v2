@@ -1,0 +1,17 @@
+{
+  "status": "B36_B37_LOCAL_QA_ONLY_NOT_BLIND",
+  "files": 20,
+  "B36": 18,
+  "B37": 2,
+  "canonical_pass": 20,
+  "canonical_hold": [],
+  "total_sensor_rows": 3026,
+  "missing_all_temperature": 0,
+  "missing_all_humidity": 0,
+  "same_name_on_irul": 19,
+  "same_bytes_as_irul": 0,
+  "duplicate_historical_sha": 2,
+  "independent_specimen_ids_verified": 0,
+  "blind_test_approved": false,
+  "model_promotion_allowed": false
+}
