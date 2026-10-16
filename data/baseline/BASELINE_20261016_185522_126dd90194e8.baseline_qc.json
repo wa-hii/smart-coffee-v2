@@ -1,0 +1,111 @@
+{
+  "source": "BASELINE_20261016_185522_126dd90194e8.csv",
+  "sha256": "8fe5f0eb38b1fd157bd2e9ba909232cb3ff018b48637c6322c1a5810c51cbdc3",
+  "sample_count": 60,
+  "duration_first_to_last_ms": 59000,
+  "temperature_range_c": [
+    30.8,
+    30.98
+  ],
+  "humidity_range_rh": [
+    57.9,
+    58.34
+  ],
+  "sensor_b0": [
+    {
+      "sensor": "adc_tgs822",
+      "b0_last10_median_adc": 10998.0,
+      "first10_median_adc": 11014.0,
+      "first_to_last_drift_pct": -0.1453,
+      "last10_min": 10996,
+      "last10_max": 11002,
+      "stable_within_1pct_by_window_medians": true
+    },
+    {
+      "sensor": "adc_mq135",
+      "b0_last10_median_adc": 2905.0,
+      "first10_median_adc": 2908.0,
+      "first_to_last_drift_pct": -0.1032,
+      "last10_min": 2904,
+      "last10_max": 2908,
+      "stable_within_1pct_by_window_medians": true
+    },
+    {
+      "sensor": "adc_mq3",
+      "b0_last10_median_adc": 2898.0,
+      "first10_median_adc": 2899.0,
+      "first_to_last_drift_pct": -0.0345,
+      "last10_min": 2895,
+      "last10_max": 2901,
+      "stable_within_1pct_by_window_medians": true
+    },
+    {
+      "sensor": "adc_tgs2611",
+      "b0_last10_median_adc": 8295.0,
+      "first10_median_adc": 8276.5,
+      "first_to_last_drift_pct": 0.2235,
+      "last10_min": 8294,
+      "last10_max": 8295,
+      "stable_within_1pct_by_window_medians": true
+    },
+    {
+      "sensor": "adc_tgs2620",
+      "b0_last10_median_adc": 8805.0,
+      "first10_median_adc": 8795.0,
+      "first_to_last_drift_pct": 0.1137,
+      "last10_min": 8803,
+      "last10_max": 8806,
+      "stable_within_1pct_by_window_medians": true
+    },
+    {
+      "sensor": "adc_tgs2600",
+      "b0_last10_median_adc": 2884.0,
+      "first10_median_adc": 2882.0,
+      "first_to_last_drift_pct": 0.0694,
+      "last10_min": 2882,
+      "last10_max": 2884,
+      "stable_within_1pct_by_window_medians": true
+    },
+    {
+      "sensor": "adc_tgs2602",
+      "b0_last10_median_adc": 9081.0,
+      "first10_median_adc": 9060.5,
+      "first_to_last_drift_pct": 0.2263,
+      "last10_min": 9077,
+      "last10_max": 9082,
+      "stable_within_1pct_by_window_medians": true
+    },
+    {
+      "sensor": "adc_mq8",
+      "b0_last10_median_adc": 12334.0,
+      "first10_median_adc": 12341.0,
+      "first_to_last_drift_pct": -0.0567,
+      "last10_min": 12332,
+      "last10_max": 12335,
+      "stable_within_1pct_by_window_medians": true
+    },
+    {
+      "sensor": "adc_tgs813",
+      "b0_last10_median_adc": 12715.0,
+      "first10_median_adc": 12718.0,
+      "first_to_last_drift_pct": -0.0236,
+      "last10_min": 12714,
+      "last10_max": 12715,
+      "stable_within_1pct_by_window_medians": true
+    },
+    {
+      "sensor": "adc_tgs816",
+      "b0_last10_median_adc": 13327.0,
+      "first10_median_adc": 13320.0,
+      "first_to_last_drift_pct": 0.0526,
+      "last10_min": 13326,
+      "last10_max": 13328,
+      "stable_within_1pct_by_window_medians": true
+    }
+  ],
+  "drift_review_recommended": false,
+  "status": "CAPTURE_COMPLETE_AIR_QUALITY_UNVERIFIED",
+  "interpretation": "B0 uses median of final 10 samples. Stability is an exploratory 1% threshold, not sensor-specific acceptance evidence.",
+  "r0_eeprom_modified": false,
+  "fw_build_id_from_start_event": "baseline60-r0safe-20261016"
+}

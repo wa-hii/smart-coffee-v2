@@ -1,0 +1,43 @@
+{
+  "source_files": [
+    "BASELINE_20261016_185310_e636759c6edb.csv",
+    "BASELINE_20261016_185522_126dd90194e8.csv"
+  ],
+  "source_sha256": [
+    "873b0efbfe946db6ff28380e10acc35a173eaec72994b7609c74b4510c004654",
+    "8fe5f0eb38b1fd157bd2e9ba909232cb3ff018b48637c6322c1a5810c51cbdc3"
+  ],
+  "both_capture_qc_valid": true,
+  "sampling_per_recording": [
+    60,
+    60
+  ],
+  "first_to_last_s": [
+    59.001,
+    59.0
+  ],
+  "sampling_gaps_ms_min_max": [
+    [
+      955,
+      1046
+    ],
+    [
+      999,
+      1001
+    ]
+  ],
+  "missing_cells": [
+    0,
+    0
+  ],
+  "within_run_1_percent_criterion_pass_sensors": 8,
+  "within_run_2_percent_criterion_pass_sensors": 10,
+  "max_inter_session_b0_absolute_pct": 0.7261,
+  "inter_session_b0_within_1pct_all_sensors": true,
+  "baseline_2_candidate_only": true,
+  "physical_clean_air_verified_independently": false,
+  "before_B41": false,
+  "eeprom_r0_written_during_capture": false,
+  "evaluation": "Second session meets exploratory 1% within-run and between-run criteria, but physical air cleanliness and sensor-specific stability not independently validated.",
+  "plot_count": 10
+}
