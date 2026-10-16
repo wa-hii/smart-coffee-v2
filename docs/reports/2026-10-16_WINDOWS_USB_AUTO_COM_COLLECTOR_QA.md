@@ -30,3 +30,11 @@ Sebelum mulai Take Data dari Nextion, lihat status `logs/acquisition_service.sta
 ## Pengaruh terhadap mesin saat ini
 
 Versi firmware `baseline60-r0safe-20261016` yang telah ter-flash pada ATmega **tidak perlu diflash ulang**: protokol JSON, USB baud 115200, Take Data 30×(25+5) dan baseline 60s sudah ada. Perubahan ini **hanya pada software komputer penerima**. Proses listener lama yang sedang running dengan argumen `--port COM5` tidak otomatis berubah perilakunya sebelum ia dijalankan ulang dengan `--port auto`. Restart hanya saat IDLE, tanpa file `.incoming` aktif.
+
+## Verifikasi langsung di laptop developer (setelah QA dan commit awal)
+
+- Diperiksa bahwa listener lama PID `9584` satu-satunya listener aktif, folder staging `data/raw/.incoming` dan `data/baseline/.incoming` kosong, log menyatakan sesi terakhir sudah COMPLETE, FT232R `0403:6001` pada COM5 tersedia.
+- Listener lama dihentikan pada kondisi IDLE, lalu listener baru dimulai memakai `pythonw.exe scripts/lcd_acquisition_service.py --port auto --baud 115200`, PID **27576**.
+- Log host pada **19:30:44 WIB** mencatat `USB detected -> COM5 (passive receive)` lalu `CONNECTED COM5`; status JSON menampilkan `state=connected`, `port=COM5`, `pid=27576`.
+- **PASS:** auto-detect USB COM5 dan pembukaan port fisik secara pasif, tanpa manual setting dan tanpa memulai akuisisi, firmware upload, atau perintah aktuator. **NOT RUN:** uji pindah USB antar-port fisik, replay otomatis, file CSV 30 siklus pertama pada laptop kedua, maupun eksekusi installer pada laptop kedua.
+- Startup shortcut baru tidak dipasang pada laptop developer oleh langkah verifikasi ini. Listener auto sekarang berjalan dalam sesi Windows aktif; bila ingin otomatis setelah login ulang, jalankan installer pada laptop tujuan.
