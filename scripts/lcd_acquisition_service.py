@@ -4,7 +4,7 @@ Background listener untuk akuisisi E-NOSE yang dimulai langsung dari Nextion.
 Alur:
     Nextion START
       -> ATmega2560 startAcquisition()
-      -> JSON USB Serial COM5
+      -> JSON USB Serial COM (otomatis atau eksplisit)
       -> service ini
       -> data/raw/<sample>_<batch>.csv
 
@@ -12,7 +12,7 @@ Service ini PASSIVE:
   - tidak pernah mengirim #start;
   - hanya merekam mode "labeled_data";
   - AI test tidak disimpan sebagai labeled dataset;
-  - reconnect otomatis jika COM5 terputus.
+  - pindai COM otomatis saat startup / USB tersambung / port berubah.
 
 File ditulis lebih dulu sebagai .partial.csv. Saat ACQ_COMPLETE diterima,
 file dipindahkan atomik menjadi CSV final. Run terputus dipertahankan di
@@ -46,6 +46,7 @@ from acquisition_schema import (
 from baseline_recording import BaselineRecording
 from baseline_quality import publish_quality
 from serial_wire import serial_json_frames
+from usb_autodetect import discover_port
 
 ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = ROOT / "data" / "raw"
@@ -57,7 +58,7 @@ STATUS_FILE = LOG_DIR / "acquisition_service.status.json"
 LOCK_FILE = LOG_DIR / "acquisition_service.lock"
 BASELINE_DIR = ROOT / "data" / "baseline"
 
-DEFAULT_PORT = "COM5"
+DEFAULT_PORT = "auto"
 DEFAULT_BAUD = 115200
 
 # Samakan metadata origin dengan dataset yang sudah dipakai 3_collect_data.py.
@@ -335,8 +336,10 @@ class AcquisitionService:
         baud: int,
         reconnect_s: float,
         logger: logging.Logger,
+        usb_serial: str | None = None,
     ):
         self.port = port
+        self.usb_serial = usb_serial
         self.baud = baud
         self.reconnect_s = reconnect_s
         self.logger = logger
@@ -349,8 +352,13 @@ class AcquisitionService:
         self.stop_requested = True
 
     def open_serial(self) -> Serial:
+        if self.port == 'auto':
+            raise RuntimeError('Select a USB device before opening serial')
+        return self.open_selected_serial(self.port)
+
+    def open_selected_serial(self, port: str) -> Serial:
         ser = Serial()
-        ser.port = self.port
+        ser.port = port
         ser.baudrate = self.baud
         ser.timeout = 1
         # Hindari reset ATmega yang tidak perlu saat listener membuka port.
@@ -527,6 +535,13 @@ class AcquisitionService:
             )
 
     def run(self) -> None:
+        # Data directories are present even on a fresh laptop before the USB
+        # device is connected. Never erase or overwrite prior recordings.
+        RAW_DIR.mkdir(parents=True, exist_ok=True)
+        INCOMING_DIR.mkdir(parents=True, exist_ok=True)
+        INCOMPLETE_DIR.mkdir(parents=True, exist_ok=True)
+        BASELINE_DIR.mkdir(parents=True, exist_ok=True)
+        last_discovery = None
         write_status(
             state="starting",
             port=self.port,
@@ -536,17 +551,37 @@ class AcquisitionService:
 
         while not self.stop_requested:
             ser: Serial | None = None
+            selected_port = self.port
+            if self.port == 'auto':
+                found = discover_port(serial_number=self.usb_serial)
+                if found.port is None:
+                    state = (found.reason, found.candidates)
+                    if state != last_discovery:
+                        self.logger.info('USB waiting: %s; candidates=%s',
+                                         found.reason, ', '.join(found.candidates))
+                    last_discovery = state
+                    write_status(state='waiting_for_device', port=None,
+                                 baud=self.baud, pid=os.getpid(),
+                                 reason=found.reason,
+                                 candidates=list(found.candidates))
+                    time.sleep(self.reconnect_s)
+                    continue
+                selected_port = found.port
+                if last_discovery != ('connected_candidate', selected_port):
+                    self.logger.info('USB detected -> %s (passive receive)', selected_port)
+                last_discovery = ('connected_candidate', selected_port)
             try:
                 self.logger.info(
                     "Membuka %s @ %d untuk passive LCD acquisition",
-                    self.port,
+                    selected_port,
                     self.baud,
                 )
-                ser = self.open_serial()
-                self.logger.info("CONNECTED %s", self.port)
+                ser = (self.open_selected_serial(selected_port) if self.port == 'auto'
+                       else self.open_serial())
+                self.logger.info("CONNECTED %s", selected_port)
                 write_status(
                     state="connected",
-                    port=self.port,
+                    port=selected_port,
                     baud=self.baud,
                     pid=os.getpid(),
                 )
@@ -574,7 +609,7 @@ class AcquisitionService:
                 )
                 write_status(
                     state="waiting_for_port",
-                    port=self.port,
+                    port=selected_port,
                     baud=self.baud,
                     pid=os.getpid(),
                 )
@@ -619,6 +654,8 @@ def parse_args():
         description="Passive autosave listener untuk akuisisi via Nextion"
     )
     parser.add_argument("--port", default=DEFAULT_PORT)
+    parser.add_argument('--usb-serial', default=None,
+                        help='Optional USB bridge serial number if multiple supported adapters are plugged in')
     parser.add_argument("--baud", type=int, default=DEFAULT_BAUD)
     parser.add_argument("--reconnect-s", type=float, default=2.0)
     parser.add_argument("--verbose", action="store_true")
@@ -639,6 +676,7 @@ def main() -> int:
         baud=args.baud,
         reconnect_s=args.reconnect_s,
         logger=logger,
+        usb_serial=args.usb_serial,
     )
     signal.signal(signal.SIGINT, service.request_stop)
     if hasattr(signal, "SIGTERM"):

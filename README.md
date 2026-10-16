@@ -1,5 +1,14 @@
 # Smart Coffee E-Nose v2
 
+**16 Oktober 2026 — Windows USB Receiver otomatis:** listener Take Data kini
+mendukung `--port auto` (default), mendeteksi USB FTDI/Arduino/CH340/CP210x
+tanpa hardcode COM5, membuat `data/raw/` jika belum ada, dan reconnect saat
+USB dicabut/dicolok kembali. Paket portable dan installer Startup untuk laptop
+lain ada di `dist/Smart_Coffee_ENose_USB_Receiver_Windows.zip`; panduan di
+`windows_receiver/README_WINDOWS_RECEIVER.md`. **Laptop penerima wajib
+memasang/jalankan aplikasi sekali**, firmware saja tidak dapat membuat CSV
+Windows. Data tetap ditulis hanya selama Take Data melalui Nextion.
+
 **14 Oktober 2026 — P0 pra-onsite software freeze RC1:**
 enam temuan integritas diselesaikan pada source software
 dan diuji offline (gap indeks, urutan fase, cross-mode LCD,

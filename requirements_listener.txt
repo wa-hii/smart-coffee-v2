@@ -1,0 +1,4 @@
+# Only the Windows host collector; firmware is uploaded independently.
+pyserial>=3.5,<4
+pandas>=2.2,<4
+numpy>=1.26,<3
