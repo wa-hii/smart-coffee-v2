@@ -1,0 +1,18 @@
+{
+  "plots": 210,
+  "valid_input_csv": 97,
+  "skipped": 0,
+  "total_series": 970,
+  "all_batches_expected": [
+    "B32",
+    "B33",
+    "B34",
+    "B35",
+    "B36"
+  ],
+  "t0": "last sensor sample of purging in run 1; collecting begins at positive x",
+  "y": "ADC - ADC(t0), no interpolation; retains all acquisition samples",
+  "x": "sample ordinal shifted so first purge last point is 0; not verified seconds",
+  "prior_plots_preserved": true,
+  "raw_edited": false
+}
