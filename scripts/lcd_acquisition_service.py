@@ -432,11 +432,11 @@ class AcquisitionService:
                 self.last_frame_monotonic = time.monotonic()
 
     def validate_completed_file(self, path: Path) -> None:
-        """Run generic canonical acquisition validation after autosave."""
+        """Repeat the same strict 30-cycle validation after publication."""
         try:
             from validate_acquisition import file_summary, validate_file
 
-            errors = validate_file(path)
+            errors = validate_file(path, expected_cycles=30)
             if errors:
                 self.logger.error(
                     "Acquisition validation FAIL %s: %s",

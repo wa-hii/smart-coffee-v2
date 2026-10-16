@@ -153,6 +153,12 @@ def main() -> int:
                                   "total_samples": 900})
             assert service.session is None
             assert (root / "D-GAW_B97.csv").exists()
+            # Re-validation after publication must use 30 cycles, not legacy 5.
+            logger.reset_mock()
+            service.validate_completed_file(root / "D-GAW_B97.csv")
+            assert not logger.error.called
+            assert any("Acquisition validation PASS" in str(call)
+                       for call in logger.info.call_args_list)
             # Duplicate completion must not clobber a final file.
             final_bytes = (root / "D-GAW_B97.csv").read_bytes()
             service.handle_event({"event": "ACQ_COMPLETE"})

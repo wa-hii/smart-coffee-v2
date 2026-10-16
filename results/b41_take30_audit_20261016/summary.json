@@ -1,0 +1,59 @@
+{
+  "filename": "D-GAW_B41.csv",
+  "status": "STRICT_30_CYCLE_QA_PASS_NOT_LABEL_VERIFIED",
+  "sha256": "823bd619b7b0081497e7364bd32d1568c1797215f2603f20be5f4a8b941f6765",
+  "size_bytes": 110700,
+  "csv_rows": 908,
+  "canonical_schema": true,
+  "strict_validator_errors": [],
+  "sample_id": "D-GAW",
+  "roast_level_from_ui": "dark",
+  "origin_from_ui": "Arabika Gayo Wine",
+  "batch_id": "B41",
+  "cycles": 30,
+  "sensor_rows": 908,
+  "metadata_only_rows": 0,
+  "partial_sensor_rows": 0,
+  "purging_rows": 754,
+  "collecting_rows": 154,
+  "purging_min_max": [
+    25,
+    26
+  ],
+  "collecting_min_max": [
+    5,
+    6
+  ],
+  "duration_first_to_last_sample_s": 907.0,
+  "sampling_gap_ms": {
+    "min": 999.0,
+    "median": 1000.0,
+    "p95": 1001.0,
+    "max": 1001.0,
+    "outside_900_1100_count": 0
+  },
+  "adc_null_cells": 0,
+  "adc_zero_cells": 0,
+  "adc_saturated_cells": 0,
+  "temperature": {
+    "min": 29.41,
+    "max": 30.53,
+    "mean": 30.011982378854622,
+    "missing": 0
+  },
+  "humidity": {
+    "min": 53.0,
+    "max": 58.13,
+    "mean": 55.200418502202645,
+    "missing": 0
+  },
+  "provenance_physical_lot_specimen_independence_verified": false,
+  "roast_label_independently_verified": false,
+  "blind_model_evaluation_allowed": false,
+  "notes": [
+    "Firmware timestamp is milliseconds since boot, not a wall clock.",
+    "Phase row counts 25/5 are nominal at approximately 1 Hz, not exact stopwatch durations.",
+    "30 cycles within one acquisition are repeated measures of one session, not independent samples.",
+    "Raw ADC shifts and per-cycle delta peaks are diagnostics, not calibrated aroma concentration."
+  ]
+}
