@@ -319,7 +319,7 @@ class RawDataCollector:
                         row[col] = data.get(col, None)
 
                     # Sensor Suhu & Kelembapan (jika tersedia)
-                    row['temperature'] = data.get('temp', None)
+                    row['temperature'] = data.get('temp', data.get('temperature', None))
                     row['humidity'] = data.get('humidity', None)
 
                     with self.lock:

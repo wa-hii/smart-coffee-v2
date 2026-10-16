@@ -337,6 +337,12 @@ void SensorArray::printJsonData(const char* phase, uint32_t cycle, uint32_t samp
     Serial.print(F(",\"adc_tgs813\":"));  Serial.print(adc_[SENSOR_TGS813]);
     Serial.print(F(",\"adc_tgs816\":"));  Serial.print(adc_[SENSOR_TGS816]);
 
+    // Suhu & Kelembapan dari SHT31
+    if (sht31_.isConnected()) {
+        Serial.print(F(",\"temp\":"));     Serial.print(sht31_.getTemperature(), 1);
+        Serial.print(F(",\"humidity\":")); Serial.print(sht31_.getHumidity(), 1);
+    }
+
 #if USE_PPM
     // TODO: Tambahkan perhitungan PPM per gas jika diperlukan
     // Contoh MQ135:

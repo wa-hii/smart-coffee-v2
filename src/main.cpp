@@ -167,6 +167,8 @@ void scanI2C() {
       if (addr >= 0x48 && addr <= 0x4B) {
         Serial.print(F("ADS1115 #"));
         Serial.print(addr - 0x48 + 1);
+      } else if (addr == 0x44 || addr == 0x45) {
+        Serial.print(F("SHT31 (Temp/Hum)"));
       } else {
         Serial.print(F("unknown"));
       }
