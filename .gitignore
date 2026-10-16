@@ -31,3 +31,4 @@ nextion/NX4827T043_011/project/RoastSense_UI_FIX_QA.HMI
 # Hardware flash/EEPROM readback may contain device-specific state;
 # keep local rollback copies private and never publish via git add .
 results/firmware-backup-*/
+results/hmi-repair-backup-*/
