@@ -18,10 +18,10 @@ from test_acquisition_payload import make_sensor_payload
 from validate_acquisition import file_summary, validate_file
 
 
-def make_complete_run() -> pd.DataFrame:
+def make_complete_run(cycles: int = 5) -> pd.DataFrame:
     rows = []
     timestamp = 1_000_000
-    for run_id in range(1, 6):
+    for run_id in range(1, cycles + 1):
         for phase, n in (("purging", 25), ("collecting", 5)):
             for idx in range(1, n + 1):
                 row = {
@@ -145,12 +145,12 @@ def main() -> int:
             # Valid staged data is promoted to final path only after QA.
             service.session = AcquisitionSession(event, logger)
             service.session.file.close()
-            make_complete_run().assign(batch_id="B97").to_csv(
+            make_complete_run(cycles=30).assign(batch_id="B97").to_csv(
                 service.session.partial_path, index=False
             )
-            service.session.rows = 150  # fixture simulates 150 accepted writes
-            service.handle_event({"event": "ACQ_COMPLETE", "cycles": 5,
-                                  "total_samples": 150})
+            service.session.rows = 900  # fixture simulates 900 accepted writes
+            service.handle_event({"event": "ACQ_COMPLETE", "cycles": 30,
+                                  "total_samples": 900})
             assert service.session is None
             assert (root / "D-GAW_B97.csv").exists()
             # Duplicate completion must not clobber a final file.
@@ -161,7 +161,7 @@ def main() -> int:
             # STOP preserves a partial acquisition with an explicit marker.
             service.handle_event({
                 "event": "ACQ_START", "mode": "labeled_data", **event,
-                "cycle": 1, "phase": "purging", "cycles_total": 5,
+                "cycle": 1, "phase": "purging", "cycles_total": 30,
                 "purge_s": 25, "collect_s": 5,
             })
             service.handle_event(make_sensor_payload())
@@ -173,7 +173,7 @@ def main() -> int:
             # continue saving its ADC frames as labeled coffee data.
             service.handle_event({
                 "event": "ACQ_START", "mode": "labeled_data", **event,
-                "cycle": 1, "phase": "purging", "cycles_total": 5,
+                "cycle": 1, "phase": "purging", "cycles_total": 30,
                 "purge_s": 25, "collect_s": 5,
             })
             assert service.session is not None

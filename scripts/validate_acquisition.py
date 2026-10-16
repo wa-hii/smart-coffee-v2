@@ -47,8 +47,11 @@ def classify_rows(df: pd.DataFrame) -> tuple[pd.Series, pd.Series, pd.Series]:
     return sensor_rows, metadata_only, partial_rows
 
 
-def validate_file(path: Path) -> list[str]:
+def validate_file(path: Path, expected_cycles: int = 5) -> list[str]:
     errors: list[str] = []
+    if type(expected_cycles) is not int or expected_cycles not in (5, 30):
+        return ["expected_cycles harus 5 atau 30"]
+    expected_runs = list(range(1, expected_cycles + 1))
     try:
         df = pd.read_csv(path)
     except Exception as exc:
@@ -97,8 +100,8 @@ def validate_file(path: Path) -> list[str]:
 
     run_numeric = pd.to_numeric(df["run_id"], errors="coerce")
     run_values = sorted(run_numeric.dropna().astype(int).unique().tolist())
-    if run_values != EXPECTED_RUNS:
-        errors.append(f"run_id harus 1..5, actual={run_values}")
+    if run_values != expected_runs:
+        errors.append(f"run_id harus 1..{expected_cycles}, actual={run_values}")
 
     phases = set(df["phase"].dropna().astype(str).str.strip().str.lower())
     unknown_phases = phases - VALID_PHASES
@@ -118,9 +121,9 @@ def validate_file(path: Path) -> list[str]:
 
     # Older LCD listener produced exactly one metadata event row per phase
     # transition: 9 for a five-run acquisition.  More than that is suspicious.
-    if metadata_count > 9:
+    if metadata_count > (2 * expected_cycles - 1):
         errors.append(
-            f"metadata-only rows terlalu banyak: {metadata_count} (maks 9)"
+            f"metadata-only rows terlalu banyak: {metadata_count} (maks {2 * expected_cycles - 1})"
         )
     metadata = df.loc[metadata_mask]
     if not metadata.empty:
@@ -185,14 +188,14 @@ def validate_file(path: Path) -> list[str]:
         ordered["phase"] = ordered["phase"].astype(str).str.strip().str.lower()
         allowed_order = [
             (run_id, phase)
-            for run_id in EXPECTED_RUNS
+            for run_id in expected_runs
             for phase in ("purging", "collecting")
         ]
         transitions = list(zip(ordered["run_id"], ordered["phase"]))
         distinct_order = [value for i, value in enumerate(transitions)
                           if i == 0 or value != transitions[i - 1]]
         if distinct_order != allowed_order:
-            errors.append("urutan fase/siklus tidak sesuai 5x purging→collecting")
+            errors.append(f"urutan fase/siklus tidak sesuai {expected_cycles}x purging→collecting")
         for (cycle, phase), group in ordered.groupby(
             ["run_id", "phase"], sort=False,
         ):
@@ -201,7 +204,7 @@ def validate_file(path: Path) -> list[str]:
                 errors.append(
                     f"run {cycle} {phase}: sample_idx tidak kontigu 1..N"
                 )
-        for run_id in EXPECTED_RUNS:
+        for run_id in expected_runs:
             run = sensor_df.loc[sensor_run == run_id]
             if run.empty:
                 errors.append(f"run {run_id}: tidak ada sensor row")

@@ -8,7 +8,7 @@
 // Alur akuisisi aktif per sampel:
 //   PURGING (valve OFF/udara bersih, 25 s)
 //     → COLLECTING (valve ON/aroma kopi, 5 s)
-//     → ulangi ACQ_REPETITIONS = 5 kali
+//     → Take Data 30 siklus; AI Test tetap 5 siklus
 //   Setelah mode AI_TEST selesai → inferensi lokal hanya bila diaktifkan;
 //   secara default USE_ON_DEVICE_INFERENCE=0 (hasil N/A).
 //
@@ -32,12 +32,14 @@
 // ─────────────────────────────────────────────────────
 #define ACQ_COLLECTION_SECONDS 5 // durasi menghirup aroma kopi (detik)
 #define ACQ_PURGE_SECONDS 25     // durasi purging ke udara bebas (detik)
-#define ACQ_REPETITIONS 5        // jumlah pengulangan siklus
+#define ACQ_DATA_REPETITIONS 30  // Nextion Take Data
+#define ACQ_AI_REPETITIONS 5     // Nextion AI Test (tidak berubah)
+#define ACQ_REPETITIONS (acqMode == AcquisitionMode::LABELED_DATA ? ACQ_DATA_REPETITIONS : ACQ_AI_REPETITIONS)
 
 // Identitas source BUILD, bukan bukti firmware sudah di-flash. Sertakan
 // pada ACQ_START supaya host tetap dapat mengidentifikasi firmware saat
 // FW_HELLO boot tidak tertangkap karena pembukaan port USB/DTR.
-#define SMART_COFFEE_BUILD_ID "g3-rc2-20261014"
+#define SMART_COFFEE_BUILD_ID "take30-ai5-20261016"
 
 // ─── Feature Flags
 // ────────────────────────────────────────────────────────────
@@ -206,7 +208,7 @@ void setup() {
   // is still required for exact chip/flash identity.
   Serial.print(F("{\"event\":\"FW_HELLO\",\"protocol\":\"legacy-json.v1\",\"build_id\":\""));
   Serial.print(F(SMART_COFFEE_BUILD_ID));
-  Serial.println(F("\",\"adc_channels\":10,\"cycles_total\":5,\"purge_s\":25,\"collect_s\":5}"));
+Serial.println(F("\",\"adc_channels\":10,\"data_cycles_total\":30,\"ai_cycles_total\":5,\"purge_s\":25,\"collect_s\":5}"));
   nextion.begin(NEXTION_BAUD);
   // We use our own ASCII EVT:* protocol. Suppress command ACK/error packets so
   // binary Nextion return frames never share the event stream.

@@ -368,7 +368,7 @@ class AcquisitionService:
                     data.get("mode"),
                 )
                 return
-            if (data.get("cycles_total") != 5 or data.get("purge_s") != 25 or
+            if (data.get("cycles_total") != 30 or data.get("purge_s") != 25 or
                     data.get("collect_s") != 5 or data.get("cycle") != 1 or
                     data.get("phase") != "purging"):
                 self.logger.error("Reject invalid ACQ_START timing/phase contract")
@@ -384,7 +384,7 @@ class AcquisitionService:
         if event == "ACQ_COMPLETE":
             if self.session is None:
                 return
-            if (data.get("cycles") != 5 or
+            if (data.get("cycles") != 30 or
                     type(data.get("total_samples")) is not int or
                     data["total_samples"] != self.session.rows):
                 self.session.preserve_incomplete("ACQ_COMPLETE count mismatch")
@@ -394,7 +394,7 @@ class AcquisitionService:
             # Validate the staged CSV before publishing it as finished raw.
             from validate_acquisition import validate_file
 
-            issues = validate_file(self.session.partial_path)
+            issues = validate_file(self.session.partial_path, expected_cycles=30)
             if issues:
                 self.logger.error("Incomplete/invalid ACQ_COMPLETE: %s", "; ".join(issues))
                 self.session.preserve_incomplete("ACQ_COMPLETE validation failed")
