@@ -40,7 +40,7 @@
 // Identitas source BUILD, bukan bukti firmware sudah di-flash. Sertakan
 // pada ACQ_START supaya host tetap dapat mengidentifikasi firmware saat
 // FW_HELLO boot tidak tertangkap karena pembukaan port USB/DTR.
-#define SMART_COFFEE_BUILD_ID "baseline60-r0safe-20261016"
+#define SMART_COFFEE_BUILD_ID "take11-baseline60-20261016"
 
 // ─── Feature Flags
 // ────────────────────────────────────────────────────────────
@@ -117,7 +117,6 @@ void updateNextionTestRunStatus();
 void updateNextionCalibrationPage();
 void stopBaselineCapture(const char *reason);
 void updateNextionRunStatus();
-void updateNextionSensorSnapshot();
 void updateNextionInferenceResult();
 void buildTakeFilename(char *buffer, size_t size, bool withExtension = true);
 void restoreNextionPageAfterBoot();
@@ -146,7 +145,6 @@ uint8_t originSelection = 0;
 // Baseline akuisisi aktif dimulai dari B32. NEXT/BATCH +/- tetap dapat
 // digunakan untuk batch berikutnya.
 uint16_t batchNumber = 32;
-uint8_t nextionSensorIndex = 0;
 uint16_t testSequence = 1;
 
 static constexpr uint16_t NEXTION_STATUS_GREEN = 13867; // RGB565(52,199,94)
@@ -522,9 +520,7 @@ void showNextionPage(const char *pageName) {
   }
   strncpy(nextionPageName, pageName, sizeof(nextionPageName) - 1);
   nextionPageName[sizeof(nextionPageName) - 1] = '\0';
-  if (strcmp(pageName, "pDataRun") == 0) {
-    nextionSensorIndex = 0;
-  } else if (strcmp(pageName, "pTake") == 0) {
+  if (strcmp(pageName, "pTake") == 0) {
     updateNextionTakePage();
   } else if (strcmp(pageName, "pTest") == 0) {
     updateNextionTestPage();
@@ -555,6 +551,23 @@ void updateNextionTakePage() {
   nextion.text("tBatch", batch);
   nextion.text("tCycles", cycles);
   nextion.text("tFile", filename);
+
+  // The operator's 11-page HMI has NO pDataRun page. While collecting,
+  // pTake itself shows live progress and blocks changes to sample metadata.
+  const bool running = acqMode == AcquisitionMode::LABELED_DATA &&
+                       (acqState == AcqState::PURGING ||
+                        acqState == AcqState::COLLECTING ||
+                        acqState == AcqState::PAUSED);
+  const char *selectors[] = {"mRoast", "mRNext", "mOrigin", "mOrgNxt",
+                             "mBatch", "mBInc0"};
+  for (const char *selector : selectors) {
+    nextion.touch(selector, !running);
+  }
+  if (running) {
+    nextion.touch("mStart", false);
+    updateNextionRunStatus();
+    return;
+  }
 
   const bool ready = ROAST_OPTIONS[roastSelection][0] != '\0' &&
                      ORIGIN_OPTIONS[originSelection][0] != '\0' &&
@@ -731,7 +744,8 @@ void sendNextionAlert(const char *title, const char *message,
 }
 
 void updateNextionRunStatus() {
-  if (strcmp(nextionPageName, "pDataRun") != 0) {
+  if (strcmp(nextionPageName, "pTake") != 0 ||
+      acqMode != AcquisitionMode::LABELED_DATA) {
     return;
   }
 
@@ -748,74 +762,13 @@ void updateNextionRunStatus() {
       1000UL;
   const uint32_t remaining =
       elapsedSeconds < totalSeconds ? totalSeconds - elapsedSeconds : 0;
-  const uint32_t cycleSeconds = ACQ_PURGE_SECONDS + ACQ_COLLECTION_SECONDS;
-  const uint32_t completedCycles = cycle > 0 ? cycle - 1 : 0;
-  uint32_t currentCycleSeconds = 0;
-  if (effectiveState == AcqState::PURGING) {
-    currentCycleSeconds =
-        elapsedSeconds < ACQ_PURGE_SECONDS ? elapsedSeconds : ACQ_PURGE_SECONDS;
-  } else if (effectiveState == AcqState::COLLECTING) {
-    const uint32_t collectSeconds =
-        elapsedSeconds < ACQ_COLLECTION_SECONDS ? elapsedSeconds
-                                                 : ACQ_COLLECTION_SECONDS;
-    currentCycleSeconds = ACQ_PURGE_SECONDS + collectSeconds;
-  }
-  const uint32_t totalRunSeconds = cycleSeconds * ACQ_REPETITIONS;
-  const uint32_t completedRunSeconds =
-      completedCycles * cycleSeconds + currentCycleSeconds;
-  const uint8_t cyclePercent =
-      totalRunSeconds == 0
-          ? 0
-          : static_cast<uint8_t>(
-                (completedRunSeconds * 100UL) / totalRunSeconds);
-
-  buildTakeFilename(text, sizeof(text), false);
-  nextion.text("tSample", text);
-  snprintf(text, sizeof(text), "CYCLE %lu / %u", (unsigned long)cycle,
-           ACQ_REPETITIONS);
-  nextion.text("tCycle", text);
-  nextion.progress("jCycle", cyclePercent > 100 ? 100 : cyclePercent);
-  nextion.text("tPhase", acqStateName());
-  snprintf(text, sizeof(text), "%02lu:%02lu", (unsigned long)(remaining / 60),
+  snprintf(text, sizeof(text), "%s %02lu/%u %02lu:%02lu",
+           acqState == AcqState::PAUSED ? "PAUSE" : acqStateName(),
+           (unsigned long)cycle, ACQ_REPETITIONS,
+           (unsigned long)(remaining / 60),
            (unsigned long)(remaining % 60));
-  nextion.text("tRemain", text);
-  if (sensors.environmentValid()) {
-    // AVR-libc printf/snprintf tidak mengaktifkan formatter %f secara default.
-    // Menggunakan %.1f di ATmega2560 dapat menghasilkan "?" di Nextion walau
-    // nilai SHT30 valid. dtostrf() adalah formatter float yang aman di AVR.
-    char value[16] = {};
-    dtostrf(sensors.getTemperatureC(), 0, 1, value);
-    snprintf(text, sizeof(text), "%s C", value);
-    nextion.text("tTemp", text);
-    dtostrf(sensors.getHumidityRh(), 0, 1, value);
-    snprintf(text, sizeof(text), "%s %%RH", value);
-    nextion.text("tHum", text);
-  } else {
-    nextion.text("tTemp", "N/A");
-    nextion.text("tHum", "N/A");
-  }
-  updateNextionSensorSnapshot();
-}
-
-void updateNextionSensorSnapshot() {
-  if (strcmp(nextionPageName, "pDataRun") != 0) {
-    return;
-  }
-  if (!sensorsReady) {
-    nextion.text("pDataRun.tSensors", "ADC ERROR");
-    return;
-  }
-
-  const uint8_t index = nextionSensorIndex;
-  char text[24] = {};
-  if (sensors.adcAvailable(index)) {
-    snprintf(text, sizeof(text), "%s:%u", SENSOR_UI_NAMES[index],
-             sensors.getAdc(index));
-  } else {
-    snprintf(text, sizeof(text), "%s:N/A", SENSOR_UI_NAMES[index]);
-  }
-  nextion.text("tSensors", text);
-  nextionSensorIndex = (index + 1) % NUM_SENSORS;
+  nextion.text("tStat", text);
+  nextion.textColor("tStat", NEXTION_STATUS_GREEN);
 }
 
 void updateNextionInferenceResult() {
@@ -852,7 +805,7 @@ void restoreNextionPageAfterBoot() {
       showNextionPage("pTestRun");
       updateNextionTestRunPage();
     } else {
-      showNextionPage("pDataRun");
+      showNextionPage("pTake");
       updateNextionRunStatus();
     }
   } else {
@@ -907,6 +860,15 @@ void handleNextionEvent(const char *event) {
     } else {
       Serial.println(F("{\"event\":\"UI_NAV_BUSY_REJECTED\"}"));
     }
+  } else if ((strcmp(event, "EVT:ROAST_NEXT") == 0 ||
+              strcmp(event, "EVT:ROAST_PREV") == 0 ||
+              strcmp(event, "EVT:ORIGIN_NEXT") == 0 ||
+              strcmp(event, "EVT:ORIGIN_PREV") == 0 ||
+              strcmp(event, "EVT:BATCH_INC") == 0 ||
+              strcmp(event, "EVT:BATCH_DEC") == 0) &&
+             acqState != AcqState::IDLE) {
+    Serial.println(F("{\"event\":\"UI_SELECTION_LOCKED_DURING_ACQ\"}"));
+    return;
   } else if (strcmp(event, "EVT:ROAST_NEXT") == 0) {
     roastSelection = (roastSelection + 1) % ROAST_OPTION_COUNT;
     updateNextionTakePage();
@@ -937,13 +899,13 @@ void handleNextionEvent(const char *event) {
     } else if (acqState == AcqState::IDLE && sensorsReady &&
                sensors.allAdcAvailable()) {
       startAcquisition();
-      showNextionPage("pDataRun");
+      showNextionPage("pTake");
     } else if (!sensorsReady || !sensors.allAdcAvailable()) {
       sendNextionAlert("Sensor error", "ADC belum siap",
                        "Periksa I2C lalu retry");
     } else {
-      sendNextionAlert("Acquisition aktif", "Run sedang berjalan",
-                       "Gunakan pause/cancel");
+      // Ignore duplicate START without leaving the active Take Data page.
+      updateNextionRunStatus();
     }
   } else if (strcmp(event, "EVT:DATA_PAUSE") == 0) {
     if (acqState == AcqState::PAUSED) {
