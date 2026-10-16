@@ -131,9 +131,16 @@ bool SensorArray::begin() {
 // ─────────────────────────────────────────────────────────────────────────────
 //  calibrate() — Kalibrasi R0 di udara bersih, simpan ke EEPROM
 // ─────────────────────────────────────────────────────────────────────────────
-void SensorArray::calibrate() {
+bool SensorArray::calibrate() {
+  // Deliberate R0 EEPROM write is only for an explicitly enabled
+  // supervised procedure, NEVER for the Nextion ADC baseline capture.
+  if (!allAdcAvailable()) {
+    Serial.println(F("{\"error\":\"R0_CAL_ADC_NOT_READY\"}"));
+    return false;
+  }
   Serial.println(F("{\"info\":\"Kalibrasi sensor gas di udara bersih...\"}"));
   float calc_r0;
+  float candidates[NUM_SENSORS] = {};
 
   // ── ADS1 ──────────────────────────────────────────────────────────────────
   if (hasAds1_) {
@@ -144,8 +151,7 @@ void SensorArray::calibrate() {
       tgs822_.setADC(adc_[SENSOR_TGS822]);
       calc_r0 += tgs822_.calibrate(RATIO_AIR[SENSOR_TGS822]);
     }
-    tgs822_.setR0(calc_r0 / SENSOR_RL[SENSOR_TGS822]);
-    saveR0ToEeprom(SENSOR_TGS822, calc_r0);
+    candidates[SENSOR_TGS822] = calc_r0 / 10.0f;
 
     // MQ135
     calc_r0 = 0;
@@ -154,8 +160,7 @@ void SensorArray::calibrate() {
       mq135_.setADC(adc_[SENSOR_MQ135]);
       calc_r0 += mq135_.calibrate(RATIO_AIR[SENSOR_MQ135]);
     }
-    mq135_.setR0(calc_r0 / SENSOR_RL[SENSOR_MQ135]);
-    saveR0ToEeprom(SENSOR_MQ135, calc_r0);
+    candidates[SENSOR_MQ135] = calc_r0 / 10.0f;
 
     // MQ3
     calc_r0 = 0;
@@ -164,8 +169,7 @@ void SensorArray::calibrate() {
       mq3_.setADC(adc_[SENSOR_MQ3]);
       calc_r0 += mq3_.calibrate(RATIO_AIR[SENSOR_MQ3]);
     }
-    mq3_.setR0(calc_r0 / SENSOR_RL[SENSOR_MQ3]);
-    saveR0ToEeprom(SENSOR_MQ3, calc_r0);
+    candidates[SENSOR_MQ3] = calc_r0 / 10.0f;
   }
 
   // ── ADS2 ──────────────────────────────────────────────────────────────────
@@ -177,8 +181,7 @@ void SensorArray::calibrate() {
       tgs2611_.setADC(adc_[SENSOR_TGS2611]);
       calc_r0 += tgs2611_.calibrate(RATIO_AIR[SENSOR_TGS2611]);
     }
-    tgs2611_.setR0(calc_r0 / SENSOR_RL[SENSOR_TGS2611]);
-    saveR0ToEeprom(SENSOR_TGS2611, calc_r0);
+    candidates[SENSOR_TGS2611] = calc_r0 / 10.0f;
 
     // TGS2620
     calc_r0 = 0;
@@ -187,8 +190,7 @@ void SensorArray::calibrate() {
       tgs2620_.setADC(adc_[SENSOR_TGS2620]);
       calc_r0 += tgs2620_.calibrate(RATIO_AIR[SENSOR_TGS2620]);
     }
-    tgs2620_.setR0(calc_r0 / SENSOR_RL[SENSOR_TGS2620]);
-    saveR0ToEeprom(SENSOR_TGS2620, calc_r0);
+    candidates[SENSOR_TGS2620] = calc_r0 / 10.0f;
   }
 
   // ── ADS3 ──────────────────────────────────────────────────────────────────
@@ -200,8 +202,7 @@ void SensorArray::calibrate() {
       tgs2600_.setADC(adc_[SENSOR_TGS2600]);
       calc_r0 += tgs2600_.calibrate(RATIO_AIR[SENSOR_TGS2600]);
     }
-    tgs2600_.setR0(calc_r0 / SENSOR_RL[SENSOR_TGS2600]);
-    saveR0ToEeprom(SENSOR_TGS2600, calc_r0);
+    candidates[SENSOR_TGS2600] = calc_r0 / 10.0f;
 
     // TGS2602
     calc_r0 = 0;
@@ -210,8 +211,7 @@ void SensorArray::calibrate() {
       tgs2602_.setADC(adc_[SENSOR_TGS2602]);
       calc_r0 += tgs2602_.calibrate(RATIO_AIR[SENSOR_TGS2602]);
     }
-    tgs2602_.setR0(calc_r0 / SENSOR_RL[SENSOR_TGS2602]);
-    saveR0ToEeprom(SENSOR_TGS2602, calc_r0);
+    candidates[SENSOR_TGS2602] = calc_r0 / 10.0f;
   }
 
   // ── ADS4 ──────────────────────────────────────────────────────────────────
@@ -223,8 +223,7 @@ void SensorArray::calibrate() {
       mq8_.setADC(adc_[SENSOR_MQ8]);
       calc_r0 += mq8_.calibrate(RATIO_AIR[SENSOR_MQ8]);
     }
-    mq8_.setR0(calc_r0 / SENSOR_RL[SENSOR_MQ8]);
-    saveR0ToEeprom(SENSOR_MQ8, calc_r0);
+    candidates[SENSOR_MQ8] = calc_r0 / 10.0f;
 
     // TGS813
     calc_r0 = 0;
@@ -233,8 +232,7 @@ void SensorArray::calibrate() {
       tgs813_.setADC(adc_[SENSOR_TGS813]);
       calc_r0 += tgs813_.calibrate(RATIO_AIR[SENSOR_TGS813]);
     }
-    tgs813_.setR0(calc_r0 / SENSOR_RL[SENSOR_TGS813]);
-    saveR0ToEeprom(SENSOR_TGS813, calc_r0);
+    candidates[SENSOR_TGS813] = calc_r0 / 10.0f;
 
     // TGS816
     calc_r0 = 0;
@@ -243,13 +241,23 @@ void SensorArray::calibrate() {
       tgs816_.setADC(adc_[SENSOR_TGS816]);
       calc_r0 += tgs816_.calibrate(RATIO_AIR[SENSOR_TGS816]);
     }
-    tgs816_.setR0(calc_r0 / SENSOR_RL[SENSOR_TGS816]);
-    saveR0ToEeprom(SENSOR_TGS816, calc_r0);
+    candidates[SENSOR_TGS816] = calc_r0 / 10.0f;
   }
 
-  // Tandai EEPROM sebagai valid
+  for (uint8_t i=0; i<NUM_SENSORS; ++i) {
+    if (!isfinite(candidates[i]) || candidates[i] <= 0.0f) {
+      Serial.println(F("{\"error\":\"R0_CAL_INVALID_CANDIDATE_NO_EEPROM_WRITE\"}"));
+      return false;
+    }
+  }
+  // Commit only after all ten candidates are valid. Mark invalid while writing.
+  EEPROM.write(EEPROM_MAGIC_ADDR, 0);
+  for (uint8_t i=0; i<NUM_SENSORS; ++i) {
+    saveR0ToEeprom(i, candidates[i]);
+  }
   EEPROM.write(EEPROM_MAGIC_ADDR, EEPROM_MAGIC_VALUE);
   Serial.println(F("{\"info\":\"Kalibrasi sensor terhubung selesai\"}"));
+  return loadCalibration();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -267,55 +275,55 @@ bool SensorArray::loadCalibration() {
 
   // MQ sensors
   r0 = loadR0FromEeprom(SENSOR_MQ135);
-  if (r0 <= 0)
+  if (!isfinite(r0) || r0 <= 0)
     return false;
-  mq135_.setR0(r0 / SENSOR_RL[SENSOR_MQ135]);
+  mq135_.setR0(r0);
 
   r0 = loadR0FromEeprom(SENSOR_MQ3);
-  if (r0 <= 0)
+  if (!isfinite(r0) || r0 <= 0)
     return false;
-  mq3_.setR0(r0 / SENSOR_RL[SENSOR_MQ3]);
+  mq3_.setR0(r0);
 
   r0 = loadR0FromEeprom(SENSOR_MQ8);
-  if (r0 <= 0)
+  if (!isfinite(r0) || r0 <= 0)
     return false;
-  mq8_.setR0(r0 / SENSOR_RL[SENSOR_MQ8]);
+  mq8_.setR0(r0);
 
   // TGS sensors
   r0 = loadR0FromEeprom(SENSOR_TGS822);
-  if (r0 <= 0)
+  if (!isfinite(r0) || r0 <= 0)
     return false;
-  tgs822_.setR0(r0 / SENSOR_RL[SENSOR_TGS822]);
+  tgs822_.setR0(r0);
 
   r0 = loadR0FromEeprom(SENSOR_TGS2620);
-  if (r0 <= 0)
+  if (!isfinite(r0) || r0 <= 0)
     return false;
-  tgs2620_.setR0(r0 / SENSOR_RL[SENSOR_TGS2620]);
+  tgs2620_.setR0(r0);
 
   r0 = loadR0FromEeprom(SENSOR_TGS2611);
-  if (r0 <= 0)
+  if (!isfinite(r0) || r0 <= 0)
     return false;
-  tgs2611_.setR0(r0 / SENSOR_RL[SENSOR_TGS2611]);
+  tgs2611_.setR0(r0);
 
   r0 = loadR0FromEeprom(SENSOR_TGS2600);
-  if (r0 <= 0)
+  if (!isfinite(r0) || r0 <= 0)
     return false;
-  tgs2600_.setR0(r0 / SENSOR_RL[SENSOR_TGS2600]);
+  tgs2600_.setR0(r0);
 
   r0 = loadR0FromEeprom(SENSOR_TGS2602);
-  if (r0 <= 0)
+  if (!isfinite(r0) || r0 <= 0)
     return false;
-  tgs2602_.setR0(r0 / SENSOR_RL[SENSOR_TGS2602]);
+  tgs2602_.setR0(r0);
 
   r0 = loadR0FromEeprom(SENSOR_TGS813);
-  if (r0 <= 0)
+  if (!isfinite(r0) || r0 <= 0)
     return false;
-  tgs813_.setR0(r0 / SENSOR_RL[SENSOR_TGS813]);
+  tgs813_.setR0(r0);
 
   r0 = loadR0FromEeprom(SENSOR_TGS816);
-  if (r0 <= 0)
+  if (!isfinite(r0) || r0 <= 0)
     return false;
-  tgs816_.setR0(r0 / SENSOR_RL[SENSOR_TGS816]);
+  tgs816_.setR0(r0);
 
   return true;
 }
@@ -384,7 +392,11 @@ void SensorArray::readAll() {
 // ─────────────────────────────────────────────────────────────────────────────
 void SensorArray::printJsonData(const char *phase, uint32_t cycle,
                                 uint32_t sampleIdx) {
-  Serial.print(F("{\"phase\":\""));
+  if (strcmp(phase, "baseline") == 0) {
+    Serial.print(F("{\"event\":\"BASELINE_SAMPLE\",\"phase\":\""));
+  } else {
+    Serial.print(F("{\"phase\":\""));
+  }
   Serial.print(phase);
   Serial.print(F("\",\"cycle\":"));
   Serial.print(cycle);

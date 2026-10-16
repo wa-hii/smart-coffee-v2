@@ -43,6 +43,8 @@ from acquisition_schema import (
     sensor_payload_rejection_reason,
     sensor_row_from_payload,
 )
+from baseline_recording import BaselineRecording
+from baseline_quality import publish_quality
 from serial_wire import serial_json_frames
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -53,6 +55,7 @@ LOG_DIR = ROOT / "logs"
 LOG_FILE = LOG_DIR / "acquisition_service.log"
 STATUS_FILE = LOG_DIR / "acquisition_service.status.json"
 LOCK_FILE = LOG_DIR / "acquisition_service.lock"
+BASELINE_DIR = ROOT / "data" / "baseline"
 
 DEFAULT_PORT = "COM5"
 DEFAULT_BAUD = 115200
@@ -339,6 +342,7 @@ class AcquisitionService:
         self.logger = logger
         self.stop_requested = False
         self.session: AcquisitionSession | None = None
+        self.baseline: BaselineRecording | None = None
         self.last_frame_monotonic = time.monotonic()
 
     def request_stop(self, *_args) -> None:
@@ -358,7 +362,67 @@ class AcquisitionService:
     def handle_event(self, data: dict) -> None:
         event = str(data.get("event", ""))
 
+        if event == "BASELINE_START":
+            if self.baseline is not None:
+                self.baseline.preserve_incomplete("duplicate baseline start")
+                self.baseline = None
+            if self.session is not None:
+                self.session.preserve_incomplete("unexpected baseline during coffee acquisition")
+                self.session = None
+                self.logger.error("Reject overlapping BASELINE_START")
+                return
+            try:
+                self.baseline = BaselineRecording(BASELINE_DIR, data)
+                self.last_frame_monotonic = time.monotonic()
+                self.logger.info("BASELINE START target=%s", self.baseline.final.name)
+            except Exception:
+                self.logger.exception("Reject BASELINE_START")
+            return
+
+        if event == "BASELINE_SAMPLE":
+            if self.baseline is None:
+                self.logger.warning("BASELINE_SAMPLE without active baseline")
+                return
+            try:
+                self.baseline.add(data)
+                self.last_frame_monotonic = time.monotonic()
+            except Exception:
+                self.logger.exception("Invalid baseline frame, quarantining")
+                self.baseline.preserve_incomplete("invalid baseline sample")
+                self.baseline = None
+            return
+
+        if event == "BASELINE_COMPLETE":
+            if self.baseline is None:
+                self.logger.warning("BASELINE_COMPLETE without active session")
+                return
+            try:
+                path = self.baseline.complete(data)
+                self.logger.info("BASELINE COMPLETE file=%s rows=60", path)
+                try:
+                    qc_path = publish_quality(path, self.baseline.build_id)
+                    self.logger.info("BASELINE QC report=%s", qc_path)
+                except Exception:
+                    self.logger.exception("Baseline saved but QC sidecar failed")
+            except Exception:
+                self.logger.exception("BASELINE_COMPLETE rejected")
+                self.baseline.preserve_incomplete("baseline completion mismatch")
+            finally:
+                self.baseline = None
+            return
+
+        if event == "BASELINE_ABORT":
+            if self.baseline is not None:
+                self.baseline.preserve_incomplete("baseline aborted by operator")
+                self.baseline = None
+            return
+
         if event == "ACQ_START":
+            if self.baseline is not None:
+                self.baseline.preserve_incomplete("unexpected coffee start")
+                self.baseline = None
+                self.logger.error("Reject coffee start overlapping baseline")
+                return
             if self.session is not None:
                 self.session.preserve_incomplete("another ACQ_START received")
                 self.session = None
@@ -412,6 +476,9 @@ class AcquisitionService:
             return
 
         if event == "TRANSPORT_ERROR":
+            if self.baseline is not None:
+                self.baseline.preserve_incomplete("serial transport error")
+                self.baseline = None
             if self.session is not None:
                 self.session.preserve_incomplete("serial frame corrupt or oversized")
                 self.session = None
@@ -492,6 +559,10 @@ class AcquisitionService:
                                 time.monotonic() - self.last_frame_monotonic > 12):
                             self.session.preserve_incomplete("host receive timeout")
                             self.session = None
+                        if (self.baseline is not None and
+                                time.monotonic() - self.last_frame_monotonic > 12):
+                            self.baseline.preserve_incomplete("baseline receive timeout")
+                            self.baseline = None
                         continue
                     self.handle_event(data)
 
@@ -510,11 +581,17 @@ class AcquisitionService:
                 if self.session is not None:
                     self.session.preserve_incomplete("serial disconnected")
                     self.session = None
+                if self.baseline is not None:
+                    self.baseline.preserve_incomplete("serial disconnected")
+                    self.baseline = None
             except Exception:
                 self.logger.exception("Unexpected service error")
                 if self.session is not None:
                     self.session.preserve_incomplete("service error")
                     self.session = None
+                if self.baseline is not None:
+                    self.baseline.preserve_incomplete("service error")
+                    self.baseline = None
             finally:
                 if ser is not None and ser.is_open:
                     ser.close()
@@ -525,6 +602,9 @@ class AcquisitionService:
         if self.session is not None:
             self.session.preserve_incomplete("service stopped")
             self.session = None
+        if self.baseline is not None:
+            self.baseline.preserve_incomplete("service stopped")
+            self.baseline = None
         write_status(
             state="stopped",
             port=self.port,

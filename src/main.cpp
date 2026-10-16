@@ -35,11 +35,12 @@
 #define ACQ_DATA_REPETITIONS 30  // Nextion Take Data
 #define ACQ_AI_REPETITIONS 5     // Nextion AI Test (tidak berubah)
 #define ACQ_REPETITIONS (acqMode == AcquisitionMode::LABELED_DATA ? ACQ_DATA_REPETITIONS : ACQ_AI_REPETITIONS)
+#define BASELINE_SAMPLES 60      // 60 samples, 1 Hz, clean-air ADC reference
 
 // Identitas source BUILD, bukan bukti firmware sudah di-flash. Sertakan
 // pada ACQ_START supaya host tetap dapat mengidentifikasi firmware saat
 // FW_HELLO boot tidak tertangkap karena pembukaan port USB/DTR.
-#define SMART_COFFEE_BUILD_ID "take30-ai5-20261016"
+#define SMART_COFFEE_BUILD_ID "baseline60-r0safe-20261016"
 
 // ─── Feature Flags
 // ────────────────────────────────────────────────────────────
@@ -83,6 +84,8 @@ unsigned long acqPausedElapsedMs = 0;
 uint32_t acqCycle = 0;        // siklus aktif (1-based)
 uint32_t acqSampleIdx = 0;    // indeks sampel dalam fase ini
 uint32_t acqTotalSamples = 0; // total sampel keseluruhan
+bool baselineCaptureActive = false;
+uint16_t baselineSampleIdx = 0;
 
 // ─── Buffer Command Serial
 // ────────────────────────────────────────────────────
@@ -112,6 +115,7 @@ void updateNextionSettingsPage();
 void updateNextionTestRunPage();
 void updateNextionTestRunStatus();
 void updateNextionCalibrationPage();
+void stopBaselineCapture(const char *reason);
 void updateNextionRunStatus();
 void updateNextionSensorSnapshot();
 void updateNextionInferenceResult();
@@ -233,8 +237,7 @@ Serial.println(F("\",\"adc_channels\":10,\"data_cycles_total\":30,\"ai_cycles_to
 
 #if IS_CALIBRATING_GAS_SENSOR
   if (sensorsReady && sensors.allAdcAvailable()) {
-    sensors.calibrate();
-    calibrationReady = sensors.loadCalibration();
+    calibrationReady = sensors.calibrate();
   }
 #else
   if (sensorsReady) {
@@ -682,7 +685,7 @@ void updateNextionCalibrationPage() {
   nextion.text("tSensors", arrayReady ? "10/10 OK" : "ADC ERROR");
   nextion.text("tPump", "STOPPED");
   nextion.text("tChamber", arrayReady ? "READY" : "CHECK ADC");
-  nextion.text("tBase", calibrationReady ? "Stable" : "NOT SET");
+  nextion.text("tBase", baselineCaptureActive ? "RECORDING" : "READY 60S");
 }
 
 void addUiHistory(const char *entry) {
@@ -870,10 +873,16 @@ void handleNextionEvent(const char *event) {
   if (strcmp(event, "EVT:HMI_READY") == 0) {
     restoreNextionPageAfterBoot();
   } else if (strcmp(event, "EVT:HOME") == 0) {
+    if (baselineCaptureActive) {
+      stopBaselineCapture("cancelled_by_operator");
+    }
     if (acqState != AcqState::IDLE) {
       stopAcquisition();
     }
     showNextionPage("pHome");
+  } else if (baselineCaptureActive && strcmp(event, "EVT:CAL_START") != 0) {
+    Serial.println(F("{\"event\":\"UI_NAV_BUSY_REJECTED\",\"reason\":\"baseline_active\"}"));
+    return;
   } else if (strcmp(event, "EVT:TAKE_OPEN") == 0) {
     if (acqState == AcqState::IDLE) {
       showNextionPage("pTake");
@@ -961,18 +970,18 @@ void handleNextionEvent(const char *event) {
     } else if (!sensorsReady || !sensors.allAdcAvailable()) {
       sendNextionAlert("Calibration error", "ADC belum siap",
                        "Periksa I2C lalu retry");
-    } else if (acqState != AcqState::IDLE) {
+    } else if (acqState != AcqState::IDLE || baselineCaptureActive) {
       sendNextionAlert("Calibration busy", "Akuisisi sedang berjalan",
                        "Cancel run lebih dulu");
     } else {
-      actuator.stop();
-      nextion.text("tBase", "RUNNING");
-      sensors.calibrate();
-      calibrationReady = sensors.loadCalibration();
-      updateNextionCalibrationPage();
-      Serial.print(F("{\"event\":\"CALIBRATION_COMPLETE\",\"ok\":"));
-      Serial.print(calibrationReady ? F("true") : F("false"));
-      Serial.println(F("}"));
+      // Baseline ADC capture ONLY. Never rewrite R0/EEPROM on HMI press.
+      actuator.setPurging();
+      baselineCaptureActive = true;
+      baselineSampleIdx = 0;
+      nextion.text("tBase", "REC 0/60");
+      Serial.print(F("{\"event\":\"BASELINE_START\",\"protocol\":\"clean_air_adc.v1\",\"fw_build_id\":\""));
+      Serial.print(F(SMART_COFFEE_BUILD_ID));
+      Serial.println(F("\",\"target_samples\":60,\"interval_ms\":1000,\"eeprom_r0_modified\":false}"));
     }
   } else if (strcmp(event, "EVT:AI_START") == 0) {
     if (!sensorsReady || !sensors.allAdcAvailable()) {
@@ -1048,7 +1057,7 @@ void serialCallback() {
 
 void processCommand(const char *cmd) {
   if (strcmp(cmd, "#start") == 0 || strcmp(cmd, "#1") == 0) {
-    if (acqState == AcqState::IDLE) {
+    if (acqState == AcqState::IDLE && !baselineCaptureActive) {
       if (sensorsReady && sensors.allAdcAvailable()) {
         startAcquisition();
       } else {
@@ -1059,12 +1068,16 @@ void processCommand(const char *cmd) {
                        "terlebih dahulu.\"}"));
     }
   } else if (strcmp(cmd, "#stop") == 0 || strcmp(cmd, "#0") == 0) {
-    stopAcquisition();
+    if (baselineCaptureActive) {
+      stopBaselineCapture("operator_serial_stop");
+    } else {
+      stopAcquisition();
+    }
   } else if (strcmp(cmd, "#help") == 0 || strcmp(cmd, "#2") == 0 ||
              strcmp(cmd, "#status") == 0) {
     printWelcome();
   } else if (strcmp(cmd, "#scan") == 0) {
-    if (acqState == AcqState::IDLE) {
+    if (acqState == AcqState::IDLE && !baselineCaptureActive) {
       scanI2C();
     } else {
       Serial.println(F("{\"warn\":\"I2C scan disabled during acquisition\"}"));
@@ -1141,6 +1154,22 @@ void processCommand(const char *cmd) {
   }
 }
 
+void stopBaselineCapture(const char *reason) {
+  if (!baselineCaptureActive) {
+    return;
+  }
+  baselineCaptureActive = false;
+  actuator.stop();
+  Serial.print(F("{\"event\":\"BASELINE_ABORT\",\"samples\":"));
+  Serial.print(baselineSampleIdx);
+  Serial.print(F(",\"reason\":\""));
+  Serial.print(reason);
+  Serial.println(F("\"}"));
+  if (strcmp(nextionPageName, "pCal") == 0) {
+    nextion.text("tBase", "CANCELLED");
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 //  ADS CALLBACK — Baca semua sensor, proses state machine, kirim JSON
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1150,6 +1179,24 @@ void adsCallback() {
   // transisikan fase sebelum menulis frame, khususnya pada ACQ_COMPLETE:
   // jika event COMPLETE muncul lebih dulu, listener menutup CSV terlalu dini.
   sensors.readAll();
+  if (baselineCaptureActive) {
+    ++baselineSampleIdx;
+    sensors.printJsonData("baseline", 0, baselineSampleIdx);
+    if (baselineSampleIdx >= BASELINE_SAMPLES) {
+      Serial.print(F("{\"event\":\"BASELINE_COMPLETE\",\"samples\":"));
+      Serial.print(baselineSampleIdx);
+      Serial.println(F("}"));
+      baselineCaptureActive = false;
+      actuator.stop();
+      nextion.text("tBase", "CAPTURE DONE");
+    } else if (baselineSampleIdx % 5 == 0) {
+      char label[20] = {};
+      snprintf(label, sizeof(label), "REC %u/%u", baselineSampleIdx,
+               BASELINE_SAMPLES);
+      nextion.text("tBase", label);
+    }
+    return;
+  }
 
   // Kirim hanya frame akuisisi aktif, bukan idle/paused/status tanpa siklus.
   if (acqState == AcqState::COLLECTING || acqState == AcqState::PURGING) {

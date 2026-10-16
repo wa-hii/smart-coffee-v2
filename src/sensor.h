@@ -50,7 +50,7 @@
 
 // ─── EEPROM Layout (kalibrasi R0) ─────────────────────────────────────────────
 #define EEPROM_MAGIC_ADDR   0
-#define EEPROM_MAGIC_VALUE  0xA5
+#define EEPROM_MAGIC_VALUE  0xA6 // New corrected mean-R0 representation; legacy A5 is incompatible.
 #define EEPROM_R0_ADDR      1      // 10 × float = 40 bytes (addr 1–40)
 
 // ─── Sensor Indices ───────────────────────────────────────────────────────────
@@ -77,7 +77,7 @@ public:
     SensorArray();
 
     bool begin();               // Init I2C, cek 4× ADS, konfigurasi sensor
-    void calibrate();           // Kalibrasi R0 di udara bersih → simpan EEPROM
+    bool calibrate();           // Explicit supervised R0 calibration; writes EEPROM on full success.
     bool loadCalibration();     // Muat R0 dari EEPROM
 
     void readAll();             // Baca 10 channel ADC
