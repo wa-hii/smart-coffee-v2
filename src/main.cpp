@@ -543,7 +543,9 @@ void updateNextionTakePage() {
   char cycles[12] = {};
   char filename[40] = {};
   snprintf(batch, sizeof(batch), "B%02u", batchNumber);
-  snprintf(cycles, sizeof(cycles), "%u", ACQ_REPETITIONS);
+  // pTake displays the data-acquisition contract even while IDLE.
+  // acqMode is NONE before START; never display AI_TEST's 5 cycles here.
+  snprintf(cycles, sizeof(cycles), "%u", ACQ_DATA_REPETITIONS);
   buildTakeFilename(filename, sizeof(filename), true);
   nextion.text("tRoast", ROAST_OPTIONS[roastSelection]);
   nextion.text("tOrigin", ORIGIN_OPTIONS[originSelection]);
@@ -553,7 +555,7 @@ void updateNextionTakePage() {
 
   const bool ready = ROAST_OPTIONS[roastSelection][0] != '\0' &&
                      ORIGIN_OPTIONS[originSelection][0] != '\0' &&
-                     batchNumber > 0 && ACQ_REPETITIONS > 0 &&
+                     batchNumber > 0 && ACQ_DATA_REPETITIONS > 0 &&
                      filename[0] != '\0';
 
   nextion.text("tStat", ready ? "Siap untuk pengambilan data"
@@ -601,7 +603,7 @@ void updateNextionSettingsPage() {
   nextion.text("tBright", "80 %");
   nextion.text("tLang", "EN / ID");
   nextion.text("tDevId", "ATMEGA2560");
-  nextion.text("tFw", "G3-RC2");
+  nextion.text("tFw", "DATA30-AI5");
 }
 
 void updateNextionTestRunPage() {
