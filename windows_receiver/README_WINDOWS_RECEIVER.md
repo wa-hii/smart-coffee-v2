@@ -6,11 +6,13 @@ ATmega2560 mengirim sampel real-time melalui USB serial **ketika operator meneka
 
 ## Instal sekali pada setiap laptop
 
-1. Ekstrak **`Smart_Coffee_ENose_USB_Receiver_Windows_v2.zip`** ke lokasi yang boleh ditulisi, misalnya `Documents\SmartCoffee_Receiver`. Jangan pindahkan folder setelah instalasi. Hindari `Program Files` dan folder ZIP yang belum diekstrak.
+1. Ekstrak **`Smart_Coffee_ENose_USB_Receiver_Windows_v3_Timing900.zip`** ke lokasi yang boleh ditulisi, misalnya `Documents\SmartCoffee_Receiver`. Jangan pindahkan folder setelah instalasi. Hindari `Program Files` dan folder ZIP yang belum diekstrak. Ini paket terbaru yang menyertakan pemeriksaan timing 900 detik firmware `take12-abs900-no-uiwait-20261017`.
 2. Instal **Python 3.10+ 64-bit** untuk Windows; saat setup diperlukan internet untuk menginstal `pyserial`, `pandas`, dan `numpy`. USB FT232R memerlukan driver agar muncul sebagai COM di Device Manager.
 3. Klik dua kali `windows_receiver\INSTALL_ON_THIS_LAPTOP.bat`. Proses ini membuat `.venv`, menginstal dependency, **menjalankan preflight Windows tanpa mengakses COM**, membuat folder `data/raw` dan `data/baseline`, memasang shortcut pada Startup pengguna, dan memulai receiver. Tidak membutuhkan admin untuk shortcut Startup.
 4. Hubungkan USB E-Nose. Listener yang berjalan mencari COM yang cocok secara otomatis, termasuk setelah USB dicabut/dicolok dan nomor COM berubah (misalnya COM5 menjadi COM7).
 5. Pastikan `logs/acquisition_service.status.json` mencatat `connected`, lalu tekan **Take Data** pada Nextion. Setelah sekitar 15 menit dan `ACQ_COMPLETE` valid, file masuk `data/raw/D-GAW_BNN.csv` sesuai pilihan LCD. Saat **Calibrate → Start Calibration**, file masuk ke `data/baseline/`.
+
+   Receiver v3 memeriksa `elapsed_active_ms`, `target_active_ms`, dan `paused_ms` jika dikirim firmware baru. Durasi aktif harus berada dalam toleransi kurang dari 1 detik terhadap target 900 detik. Sesi yang gagal QA tidak diterbitkan sebagai CSV final; data mentahnya disimpan di `data/raw/incomplete/`. Jika perangkat sengaja di-Pause, hanya waktu **aktif** yang dibandingkan terhadap 900 detik.
 
 ## Diagnostik dan perlindungan data
 
