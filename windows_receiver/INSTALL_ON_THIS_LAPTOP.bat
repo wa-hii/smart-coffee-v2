@@ -20,6 +20,13 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
+".venv\Scripts\python.exe" scripts\receiver_preflight.py
+if errorlevel 1 (
+  echo ERROR: Receiver failed the Windows environment preflight.
+  echo Run windows_receiver\DIAGNOSE_WINDOWS_10.bat and send the error output.
+  pause
+  exit /b 1
+)
 powershell -NoProfile -ExecutionPolicy Bypass -File "windows_receiver\install_autostart.ps1" -AppRoot "%CD%"
 if errorlevel 1 (
   echo ERROR: Auto-start could not be installed.

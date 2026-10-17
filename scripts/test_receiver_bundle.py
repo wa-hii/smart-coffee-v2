@@ -8,7 +8,7 @@ from tempfile import TemporaryDirectory
 from zipfile import ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
-ZIP = ROOT / 'dist/Smart_Coffee_ENose_USB_Receiver_Windows.zip'
+ZIP = ROOT / 'dist/Smart_Coffee_ENose_USB_Receiver_Windows_v2.zip'
 
 
 def main():
@@ -19,6 +19,9 @@ def main():
             app = Path(temp) / 'SmartCoffee_Receiver'
             assert (app / 'windows_receiver/INSTALL_ON_THIS_LAPTOP.bat').exists()
             assert (app / 'windows_receiver/install_autostart.ps1').exists()
+            assert (app / 'windows_receiver/DIAGNOSE_WINDOWS_10.bat').exists()
+            assert (app / 'windows_receiver/START_RECEIVER_DEBUG.bat').exists()
+            assert (app / 'scripts/receiver_preflight.py').exists()
             imports = ['lcd_acquisition_service', 'serial_wire',
                        'usb_autodetect', 'baseline_recording',
                        'baseline_quality', 'validate_acquisition',
@@ -32,6 +35,13 @@ def main():
             assert done.returncode == 0, done.stderr
             assert 'BUNDLE_IMPORTS_OK' in done.stdout
             assert not (app/'data/raw').exists(), 'bundle must not ship personal data'
+            # Execute preflight in a separate process, inside temporary bundle.
+            diag = subprocess.run([sys.executable, str(app/'scripts/receiver_preflight.py')],
+                                  cwd=app, capture_output=True, text=True,
+                                  timeout=30, check=False)
+            assert diag.returncode == 0, diag.stdout + '\n' + diag.stderr
+            assert 'PREFLIGHT PASS' in diag.stdout
+            assert (app/'data/raw').is_dir()
     print('PORTABLE_RECEIVER_ZIP_EXTRACTION_AND_IMPORT_PASS')
 
 

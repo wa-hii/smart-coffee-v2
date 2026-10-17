@@ -6,15 +6,17 @@ ATmega2560 mengirim sampel real-time melalui USB serial **ketika operator meneka
 
 ## Instal sekali pada setiap laptop
 
-1. Ekstrak `Smart_Coffee_ENose_USB_Receiver_Windows.zip` ke lokasi yang boleh ditulisi, misalnya `Documents\SmartCoffee_Receiver`. Jangan pindahkan folder setelah instalasi.
-2. Instal Python 3.10+ untuk Windows; saat setup diperlukan internet untuk menginstal `pyserial`, `pandas`, dan `numpy`. USB FT232R memerlukan driver agar muncul sebagai COM di Device Manager.
-3. Klik dua kali `windows_receiver\INSTALL_ON_THIS_LAPTOP.bat`. Proses ini membuat `.venv`, menginstal dependency, membuat folder `data/raw` dan `data/baseline`, memasang shortcut pada Startup pengguna, dan memulai receiver. Tidak membutuhkan admin untuk shortcut Startup.
+1. Ekstrak **`Smart_Coffee_ENose_USB_Receiver_Windows_v2.zip`** ke lokasi yang boleh ditulisi, misalnya `Documents\SmartCoffee_Receiver`. Jangan pindahkan folder setelah instalasi. Hindari `Program Files` dan folder ZIP yang belum diekstrak.
+2. Instal **Python 3.10+ 64-bit** untuk Windows; saat setup diperlukan internet untuk menginstal `pyserial`, `pandas`, dan `numpy`. USB FT232R memerlukan driver agar muncul sebagai COM di Device Manager.
+3. Klik dua kali `windows_receiver\INSTALL_ON_THIS_LAPTOP.bat`. Proses ini membuat `.venv`, menginstal dependency, **menjalankan preflight Windows tanpa mengakses COM**, membuat folder `data/raw` dan `data/baseline`, memasang shortcut pada Startup pengguna, dan memulai receiver. Tidak membutuhkan admin untuk shortcut Startup.
 4. Hubungkan USB E-Nose. Listener yang berjalan mencari COM yang cocok secara otomatis, termasuk setelah USB dicabut/dicolok dan nomor COM berubah (misalnya COM5 menjadi COM7).
 5. Pastikan `logs/acquisition_service.status.json` mencatat `connected`, lalu tekan **Take Data** pada Nextion. Setelah sekitar 15 menit dan `ACQ_COMPLETE` valid, file masuk `data/raw/D-GAW_BNN.csv` sesuai pilihan LCD. Saat **Calibrate → Start Calibration**, file masuk ke `data/baseline/`.
 
 ## Diagnostik dan perlindungan data
 
 - `windows_receiver\TEST_PORT_DETECTION.bat` menampilkan daftar port COM dan hasil deteksi otomatis, **tanpa membuka port atau mengirim perintah**.
+- **Windows 10 error:** jalankan `windows_receiver\DIAGNOSE_WINDOWS_10.bat`, lalu kirim screenshot seluruh baris ERROR. Pemeriksaan ini menunjukkan versi/arsitektur Python, dependency, izin folder, dan adaptor COM; tidak mengakses firmware. Jika ingin melihat error service secara langsung, jalankan `windows_receiver\START_RECEIVER_DEBUG.bat` (jangan mulai akuisisi saat mengganti listener). Jika muncul `lcd_acquisition_service sudah berjalan`, receiver lain sudah aktif: periksa `logs/acquisition_service.status.json` atau jalankan Task Manager. Jangan menghentikan proses ketika akuisisi masih berlangsung.
+- Jika installer gagal di tahap `pip install`, periksa apakah Python 64-bit tersedia, internet aktif, versi Python memenuhi syarat, dan apakah proxy/firewall Windows memblokir PyPI. Jika folder berada di lokasi yang tidak dapat ditulis, ekstrak ke Documents.
 - `waiting_for_device` artinya USB belum ditemukan atau terdapat beberapa perangkat yang cocok; `connected` artinya COM berhasil dibuka, **bukan bukti firmware atau kalibrasi sudah benar**; `waiting_for_port` artinya COM gagal dibuka atau dipakai aplikasi lain. Periksa `logs/acquisition_service.log`.
 - Auto-detect mendukung FT232R `0403:6001` (PCB custom), Arduino Mega2560 `2341:0042`/`2A03:0042`, CH340 `1A86:7523`, dan CP210x `10C4:EA60`. Bila ada beberapa port cocok sekaligus, receiver **tidak memilih secara acak**. Tutup listener yang berjalan saat IDLE dan jalankan eksplisit: `.venv\Scripts\python.exe scripts\lcd_acquisition_service.py --port COM7` atau `--port auto --usb-serial SERIAL_USB`.
 - Jangan membuka Arduino/PlatformIO Serial Monitor bersamaan; COM hanya bisa digunakan satu aplikasi pada suatu waktu.

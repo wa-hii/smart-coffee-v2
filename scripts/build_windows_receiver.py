@@ -3,17 +3,20 @@ from pathlib import Path
 from zipfile import ZipFile, ZIP_DEFLATED
 
 ROOT = Path(__file__).resolve().parents[1]
-DEST = ROOT / 'dist/Smart_Coffee_ENose_USB_Receiver_Windows.zip'
+DEST = ROOT / 'dist/Smart_Coffee_ENose_USB_Receiver_Windows_v2.zip'
 FILES = [
     'requirements_listener.txt',
     'windows_receiver/INSTALL_ON_THIS_LAPTOP.bat',
     'windows_receiver/REMOVE_AUTOSTART.bat',
     'windows_receiver/TEST_PORT_DETECTION.bat',
+    'windows_receiver/DIAGNOSE_WINDOWS_10.bat',
+    'windows_receiver/START_RECEIVER_DEBUG.bat',
     'windows_receiver/install_autostart.ps1',
     'windows_receiver/README_WINDOWS_RECEIVER.md',
     'scripts/lcd_acquisition_service.py',
     'scripts/usb_autodetect.py',
     'scripts/check_usb_receiver.py',
+    'scripts/receiver_preflight.py',
     'scripts/acquisition_schema.py',
     'scripts/baseline_recording.py',
     'scripts/baseline_quality.py',
