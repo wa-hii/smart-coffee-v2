@@ -5,7 +5,8 @@ import sys
 ROOT=Path(__file__).resolve().parents[1]
 TOOLS=ROOT/'nextion/NX4827T043_011/tools'
 sys.path.insert(0,str(TOOLS))
-from restore_12page_from_commit_34ac89d import DEST, verify
+from recover_editor_saved_datarun_20261017 import OUTPUT, validate, hmi_helper
+import hashlib
 
 
 def main():
@@ -24,7 +25,9 @@ def main():
     assert '#define BASELINE_SAMPLES 60' in source
     assert '#define IS_CALIBRATING_GAS_SENSOR 0' in source
     assert '#define USE_ON_DEVICE_INFERENCE 0' in (ROOT/'src/inference.h').read_text(encoding='utf-8')
-    assert verify(DEST.read_bytes())['page_count']==12
+    raw=OUTPUT.read_bytes()
+    assert hashlib.sha256(raw).hexdigest()=='4c117d6508506bb8a4a57331d47100b60b251849faa81e39dcd6a47c7a9a8c5a'
+    validate(raw,hmi_helper())
     print('TWELVE_PAGE_NEXTION_TAKE30_AI5_BASELINE60_QA_PASS')
 
 

@@ -80,9 +80,13 @@ def main() -> int:
     parser = argparse.ArgumentParser(description='Offline HMI-to-ATmega contract check')
     parser.add_argument('--hmi', type=Path, default=HMI,
                         help='HMI to verify (default: canonical COMPILE_READY)')
+    parser.add_argument('--editor-saved-asset-reference', type=Path,
+                        help='Compare assets against a user-edited HMI instead of the locked Figma PNGs')
     args = parser.parse_args()
     generator = load_generator()
     raw = args.hmi.read_bytes()
+    edited_reference = (args.editor_saved_asset_reference.read_bytes()
+                        if args.editor_saved_asset_reference else None)
     structural_warning = None
     try:
         qa = generator.verify(raw)
@@ -104,6 +108,13 @@ def main() -> int:
         qa = {"model_crc": f"0x{model_crc:08x}", "pages": "Editor-managed"}
 
     for picture_id, name in enumerate(NAMES):
+        _, _, _, start, size, _, _ = generator.find_entry(raw, f"{picture_id}.i")
+        encoded = raw[start + 24 : start + size]
+        if edited_reference is not None:
+            _,_,_,ref_start,ref_size,_,_=generator.find_entry(edited_reference,f"{picture_id}.i")
+            assert encoded and encoded == edited_reference[ref_start+24:ref_start+ref_size], (
+                f'{name}: resource changed compared to user-saved HMI')
+            continue
         png_path = ASSETS / f"{name}.png"
         mockup_path = MOCKUPS / f"{name}.png"
         image = Image.open(png_path)
@@ -117,8 +128,6 @@ def main() -> int:
             png_path.read_bytes()
         ).digest(), f"{name}: mockup/background mismatch"
 
-        _, _, _, start, size, _, _ = generator.find_entry(raw, f"{picture_id}.i")
-        encoded = raw[start + 24 : start + size]
         assert encoded == expected_rgb565(image, generator.rgb565), (
             f"{name}: HMI RGB565 resource differs from locked Figma frame"
         )
@@ -136,7 +145,8 @@ def main() -> int:
     assert "#define NEXTION_BAUD 9600UL" in source
     assert "NextionTransport nextion(Serial1);" not in source
 
-    print("PASS: locked Figma assets =", len(NAMES))
+    print(('PASS: user-edited asset preservation = ' if edited_reference is not None
+           else 'PASS: locked Figma assets = '),len(NAMES))
     print("PASS: HMI model =", qa["model_crc"])
     if structural_warning is None:
         print("PASS: HMI pages =", len(qa["pages"]))
