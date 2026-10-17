@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import importlib.util
+import argparse
 import re
 import struct
 from pathlib import Path
@@ -76,8 +77,12 @@ def expected_rgb565(image: Image.Image, rgb565) -> bytes:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description='Offline HMI-to-ATmega contract check')
+    parser.add_argument('--hmi', type=Path, default=HMI,
+                        help='HMI to verify (default: canonical COMPILE_READY)')
+    args = parser.parse_args()
     generator = load_generator()
-    raw = HMI.read_bytes()
+    raw = args.hmi.read_bytes()
     structural_warning = None
     try:
         qa = generator.verify(raw)
