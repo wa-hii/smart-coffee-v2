@@ -19,6 +19,7 @@
 //   main.cpp        — state machine, serial commands, coordinator
 // ═════════════════════════════════════════════════════════════════════════════
 #include "TaskScheduler.h"
+#include "acquisition_timing.h"
 #include "actuator.h"
 #include "inference.h"
 #include "nextion_transport.h"
@@ -40,7 +41,7 @@
 // Identitas source BUILD, bukan bukti firmware sudah di-flash. Sertakan
 // pada ACQ_START supaya host tetap dapat mengidentifikasi firmware saat
 // FW_HELLO boot tidak tertangkap karena pembukaan port USB/DTR.
-#define SMART_COFFEE_BUILD_ID "take12-baseline60-20261017"
+#define SMART_COFFEE_BUILD_ID "take12-abs900-no-uiwait-20261017"
 
 // ─── Feature Flags
 // ────────────────────────────────────────────────────────────
@@ -58,7 +59,12 @@
 // ─────────────────────────────────────────────────
 #define TASK_INTERVAL_MS_ADS 1000   // 1 sampel/detik
 #define TASK_INTERVAL_MS_SERIAL 100 // polling Serial 10×/detik
+#define TASK_INTERVAL_MS_UI 125 // 8 slots x 125ms = one UI refresh/second
 #define NEXTION_BAUD 9600UL         // harus sama dengan baud project HMI aktif
+
+// Timing slippage >=1s means one full ADC sampling interval was missed.
+// Quarantine rather than publish a misleading "15-minute" complete CSV.
+static constexpr uint32_t ACQ_MAX_PHASE_LATENESS_MS = 1000UL;
 
 // ─── State Machine
 // ────────────────────────────────────────────────────────────
@@ -84,6 +90,9 @@ unsigned long acqPausedElapsedMs = 0;
 uint32_t acqCycle = 0;        // siklus aktif (1-based)
 uint32_t acqSampleIdx = 0;    // indeks sampel dalam fase ini
 uint32_t acqTotalSamples = 0; // total sampel keseluruhan
+uint32_t acqStartMs = 0;
+uint32_t acqPauseStartMs = 0;
+uint32_t acqPausedTotalMs = 0;
 bool baselineCaptureActive = false;
 uint16_t baselineSampleIdx = 0;
 
@@ -96,6 +105,7 @@ int cmdBufIdx = 0;
 // ─────────────────────────────────────────────────────
 void adsCallback();
 void serialCallback();
+void uiCallback();
 void processCommand(const char *cmd);
 void startAcquisition(AcquisitionMode mode = AcquisitionMode::LABELED_DATA);
 void stopAcquisition();
@@ -133,6 +143,7 @@ void resetUiSettings();
 // ──────────────────────────────────────────────────────
 Task taskAds(TASK_INTERVAL_MS_ADS, TASK_FOREVER, &adsCallback);
 Task taskSerial(TASK_INTERVAL_MS_SERIAL, TASK_FOREVER, &serialCallback);
+Task taskUi(TASK_INTERVAL_MS_UI, TASK_FOREVER, &uiCallback);
 
 // ─── Status sensor
 // ────────────────────────────────────────────────────────────
@@ -142,6 +153,7 @@ bool nextionHomeSent = false;
 uint32_t nextionBootMs = 0;
 char nextionPageName[16] = "pSplash";
 uint8_t nextionSensorIndex = 0;
+uint8_t nextionRunUiSlot = 0;
 uint8_t roastSelection = 0;
 uint8_t originSelection = 0;
 // Baseline akuisisi aktif dimulai dari B32. NEXT/BATCH +/- tetap dapat
@@ -252,8 +264,10 @@ Serial.println(F("\",\"adc_channels\":10,\"data_cycles_total\":30,\"ai_cycles_to
   scheduler.init();
   scheduler.addTask(taskAds);
   scheduler.addTask(taskSerial);
+  scheduler.addTask(taskUi);
   taskAds.enable();
   taskSerial.enable();
+  taskUi.enable();
 
   printWelcome();
 }
@@ -261,7 +275,13 @@ Serial.println(F("\",\"adc_channels\":10,\"data_cycles_total\":30,\"ai_cycles_to
 // ═══════════════════════════════════════════════════════════════════════════════
 //  loop()
 // ═══════════════════════════════════════════════════════════════════════════════
-void loop() { scheduler.execute(); }
+void loop() {
+  // Resolve deadlines independently from the one-second ADC callback and
+  // independently from best-effort Nextion/USB command throughput.
+  processAcquisitionState();
+  scheduler.execute();
+  processAcquisitionState();
+}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  printWelcome() — Welcome banner
@@ -295,6 +315,9 @@ void startAcquisition(AcquisitionMode mode) {
   acqCycle = 1;
   acqSampleIdx = 0;
   acqTotalSamples = 0;
+  acqStartMs = millis();
+  acqPauseStartMs = 0;
+  acqPausedTotalMs = 0;
   inference.reset();
 
   acqState = AcqState::PURGING;
@@ -357,6 +380,7 @@ void stopAcquisition() {
   acqSampleIdx = 0;
   acqStateBeforePause = AcqState::IDLE;
   acqPausedElapsedMs = 0;
+  acqPauseStartMs = 0;
   acqMode = AcquisitionMode::NONE;
   setActuators();
   Serial.println(F("{\"event\":\"ACQ_STOP\",\"phase\":\"idle\"}"));
@@ -368,6 +392,7 @@ void pauseAcquisition() {
   }
   acqStateBeforePause = acqState;
   acqPausedElapsedMs = millis() - acqPhaseStartMs;
+  acqPauseStartMs = millis();
   acqState = AcqState::PAUSED;
   setActuators();
   Serial.println(F("{\"event\":\"ACQ_PAUSE\",\"phase\":\"paused\"}"));
@@ -380,6 +405,8 @@ void resumeAcquisition() {
     return;
   }
   acqState = acqStateBeforePause;
+  acqPausedTotalMs += static_cast<uint32_t>(millis() - acqPauseStartMs);
+  acqPauseStartMs = 0;
   acqPhaseStartMs = millis() - acqPausedElapsedMs;
   acqPausedElapsedMs = 0;
   setActuators();
@@ -393,39 +420,54 @@ void processAcquisitionState() {
       acqState == AcqState::COMPLETE)
     return;
 
-  unsigned long elapsedMs = millis() - acqPhaseStartMs;
+  const uint32_t nowMs = millis();
+  const uint32_t durationMs = (acqState == AcqState::PURGING
+                                   ? ACQ_PURGE_SECONDS
+                                   : ACQ_COLLECTION_SECONDS) * 1000UL;
+  if (!AcquisitionTiming::due(nowMs, acqPhaseStartMs, durationMs)) {
+    return;
+  }
+  const uint32_t lateMs =
+      AcquisitionTiming::lateness(nowMs, acqPhaseStartMs, durationMs);
+  if (lateMs >= ACQ_MAX_PHASE_LATENESS_MS) {
+    Serial.print(F("{\"event\":\"ACQ_TIMING_FAULT\",\"late_ms\":"));
+    Serial.print(lateMs);
+    Serial.println(F(",\"reason\":\"phase_deadline_missed\"}"));
+    stopAcquisition(); // listener quarantines partial CSV on ACQ_STOP
+    sendNextionAlert("Timing error", "Sampling deadline missed",
+                     "Cancel and retry");
+    return;
+  }
+  // Preserve the exact scheduled boundary rather than accumulating the
+  // latency of callbacks (including ADC read, Nextion TX and task cadence).
+  const uint32_t nextPhaseStartMs =
+      AcquisitionTiming::boundary(acqPhaseStartMs, durationMs);
 
   if (acqState == AcqState::PURGING) {
-    if (elapsedMs >= (unsigned long)ACQ_PURGE_SECONDS * 1000UL) {
-      // Transisi Purging -> Collecting pada siklus yang sama (acqCycle)
-      acqState = AcqState::COLLECTING;
-      acqPhaseStartMs = millis();
+    // Transisi Purging -> Collecting pada siklus yang sama (acqCycle).
+    acqState = AcqState::COLLECTING;
+    acqPhaseStartMs = nextPhaseStartMs;
+    acqSampleIdx = 0;
+    setActuators();
+
+    Serial.print(F("{\"event\":\"PHASE_CHANGE\",\"cycle\":"));
+    Serial.print(acqCycle);
+    Serial.print(F(",\"phase\":\"collecting\"}"));
+    Serial.println();
+  } else if (acqState == AcqState::COLLECTING) {
+    if (acqCycle < ACQ_REPETITIONS) {
+      // Lanjut ke siklus berikutnya: increment cycle -> PURGING.
+      acqCycle++;
+      acqState = AcqState::PURGING;
+      acqPhaseStartMs = nextPhaseStartMs;
       acqSampleIdx = 0;
       setActuators();
 
       Serial.print(F("{\"event\":\"PHASE_CHANGE\",\"cycle\":"));
       Serial.print(acqCycle);
-      Serial.print(F(",\"phase\":\"collecting\"}"));
+      Serial.print(F(",\"phase\":\"purging\"}"));
       Serial.println();
-    }
-  } else if (acqState == AcqState::COLLECTING) {
-    // Akumulasi fitur dari pembacaan collecting yang baru dicatat.
-    inference.accumulate(sensors.getAdcArray());
-
-    if (elapsedMs >= (unsigned long)ACQ_COLLECTION_SECONDS * 1000UL) {
-      if (acqCycle < ACQ_REPETITIONS) {
-        // Lanjut ke siklus berikutnya: increment cycle -> PURGING
-        acqCycle++;
-        acqState = AcqState::PURGING;
-        acqPhaseStartMs = millis();
-        acqSampleIdx = 0;
-        setActuators();
-
-        Serial.print(F("{\"event\":\"PHASE_CHANGE\",\"cycle\":"));
-        Serial.print(acqCycle);
-        Serial.print(F(",\"phase\":\"purging\"}"));
-        Serial.println();
-      } else {
+    } else {
         // Semua siklus (Purging + Collecting) selesai -> COMPLETE.
         acqState = AcqState::COMPLETE;
         setActuators();
@@ -461,10 +503,9 @@ void processAcquisitionState() {
                    ACQ_REPETITIONS);
           addUiHistory(history);
         }
-        acqState = AcqState::IDLE;
-        acqStateBeforePause = AcqState::IDLE;
-        acqMode = AcquisitionMode::NONE;
-      }
+      acqState = AcqState::IDLE;
+      acqStateBeforePause = AcqState::IDLE;
+      acqMode = AcquisitionMode::NONE;
     }
   }
 }
@@ -506,6 +547,13 @@ void printAcquisitionSummary() {
   Serial.print(acqTotalSamples);
   Serial.print(F(",\"feat_count\":"));
   Serial.print(inference.getFeatureCount());
+  Serial.print(F(",\"elapsed_active_ms\":"));
+  Serial.print(static_cast<uint32_t>(millis() - acqStartMs - acqPausedTotalMs));
+  Serial.print(F(",\"paused_ms\":"));
+  Serial.print(acqPausedTotalMs);
+  Serial.print(F(",\"target_active_ms\":"));
+  Serial.print(static_cast<uint32_t>(ACQ_PURGE_SECONDS + ACQ_COLLECTION_SECONDS) *
+               ACQ_REPETITIONS * 1000UL);
   Serial.println(F("}"));
 }
 
@@ -524,6 +572,7 @@ void showNextionPage(const char *pageName) {
   nextionPageName[sizeof(nextionPageName) - 1] = '\0';
   if (strcmp(pageName, "pDataRun") == 0) {
     nextionSensorIndex = 0;
+    nextionRunUiSlot = 0;
     updateNextionRunStatus();
   } else if (strcmp(pageName, "pTake") == 0) {
     updateNextionTakePage();
@@ -772,30 +821,56 @@ void updateNextionRunStatus() {
           : static_cast<uint8_t>(
                 (completedRunSeconds * 100UL) / totalRunSeconds);
 
-  buildTakeFilename(text, sizeof(text), false);
-  nextion.text("tSample", text);
-  snprintf(text, sizeof(text), "CYCLE %lu / %u", (unsigned long)cycle,
-           ACQ_REPETITIONS);
-  nextion.text("tCycle", text);
-  nextion.progress("jCycle", cyclePercent > 100 ? 100 : cyclePercent);
-  nextion.text("tPhase", acqState == AcqState::PAUSED ? "paused" : acqStateName());
-  snprintf(text, sizeof(text), "%02lu:%02lu", (unsigned long)(remaining / 60),
-           (unsigned long)(remaining % 60));
-  nextion.text("tRemain", text);
-  if (sensors.environmentValid()) {
-    // AVR snprintf does not enable floating-point formatting by default.
-    char value[16] = {};
-    dtostrf(sensors.getTemperatureC(), 0, 1, value);
-    snprintf(text, sizeof(text), "%s C", value);
-    nextion.text("tTemp", text);
-    dtostrf(sensors.getHumidityRh(), 0, 1, value);
-    snprintf(text, sizeof(text), "%s %%RH", value);
-    nextion.text("tHum", text);
-  } else {
-    nextion.text("tTemp", "N/A");
-    nextion.text("tHum", "N/A");
+  // One field per 125ms slot, and only if it fits the free 9600-baud TX
+  // queue. Failure to enqueue only drops an LCD refresh, NEVER an ADC sample.
+  const uint8_t slot = nextionRunUiSlot;
+  nextionRunUiSlot = (nextionRunUiSlot + 1) % 8;
+  switch (slot) {
+  case 0:
+    buildTakeFilename(text, sizeof(text), false);
+    nextion.tryText("tSample", text);
+    break;
+  case 1:
+    snprintf(text, sizeof(text), "CYCLE %lu / %u", (unsigned long)cycle,
+             ACQ_REPETITIONS);
+    nextion.tryText("tCycle", text);
+    break;
+  case 2:
+    nextion.tryProgress("jCycle", cyclePercent > 100 ? 100 : cyclePercent);
+    break;
+  case 3:
+    nextion.tryText("tPhase", acqState == AcqState::PAUSED ? "paused"
+                                                               : acqStateName());
+    break;
+  case 4:
+    snprintf(text, sizeof(text), "%02lu:%02lu", (unsigned long)(remaining / 60),
+             (unsigned long)(remaining % 60));
+    nextion.tryText("tRemain", text);
+    break;
+  case 5:
+    if (sensors.environmentValid()) {
+      char value[16] = {};
+      dtostrf(sensors.getTemperatureC(), 0, 1, value);
+      snprintf(text, sizeof(text), "%s C", value);
+      nextion.tryText("tTemp", text);
+    } else {
+      nextion.tryText("tTemp", "N/A");
+    }
+    break;
+  case 6:
+    if (sensors.environmentValid()) {
+      char value[16] = {};
+      dtostrf(sensors.getHumidityRh(), 0, 1, value);
+      snprintf(text, sizeof(text), "%s %%RH", value);
+      nextion.tryText("tHum", text);
+    } else {
+      nextion.tryText("tHum", "N/A");
+    }
+    break;
+  default:
+    updateNextionSensorSnapshot();
+    break;
   }
-  updateNextionSensorSnapshot();
 }
 
 void updateNextionSensorSnapshot() {
@@ -815,8 +890,9 @@ void updateNextionSensorSnapshot() {
   } else {
     snprintf(text, sizeof(text), "%s:N/A", SENSOR_UI_NAMES[index]);
   }
-  nextion.text("tSensors", text);
-  nextionSensorIndex = (index + 1) % NUM_SENSORS;
+  if (nextion.tryText("tSensors", text)) {
+    nextionSensorIndex = (index + 1) % NUM_SENSORS;
+  }
 }
 
 void updateNextionInferenceResult() {
@@ -1065,6 +1141,14 @@ void serialCallback() {
   }
 }
 
+void uiCallback() {
+  if (acqMode == AcquisitionMode::LABELED_DATA &&
+      (acqState == AcqState::PURGING || acqState == AcqState::COLLECTING ||
+       acqState == AcqState::PAUSED)) {
+    updateNextionRunStatus();
+  }
+}
+
 void processCommand(const char *cmd) {
   if (strcmp(cmd, "#start") == 0 || strcmp(cmd, "#1") == 0) {
     if (acqState == AcqState::IDLE && !baselineCaptureActive) {
@@ -1212,14 +1296,15 @@ void adsCallback() {
   if (acqState == AcqState::COLLECTING || acqState == AcqState::PURGING) {
     ++acqSampleIdx;
     acqTotalSamples++;
+    if (acqState == AcqState::COLLECTING) {
+      inference.accumulate(sensors.getAdcArray());
+    }
     sensors.printJsonData(acqStateName(), acqCycle, acqSampleIdx);
   }
 
-  // Setelah sampel selesai dilabel dan dikirim, baru ubah fase/aktuator
-  // atau terbitkan PHASE_CHANGE / ACQ_COMPLETE.
-  processAcquisitionState();
-
-  // Refresh HMI dari snapshot terbaru.
-  updateNextionRunStatus();
-  updateNextionTestRunStatus();
+  // State changes run on absolute deadlines in loop(), not AFTER an ADC
+  // sample. LCD refresh runs separately on best-effort 125ms slots.
+  if (acqMode == AcquisitionMode::AI_TEST) {
+    updateNextionTestRunStatus();
+  }
 }

@@ -264,8 +264,12 @@ class AcquisitionSession:
         """
         if not is_sensor_payload(data):
             self.logger.warning(
-                "Sensor payload ditolak: %s",
+                "Sensor payload ditolak: %s | keys=%s cycle=%r sample_idx=%r timestamp=%r",
                 sensor_payload_rejection_reason(data),
+                ','.join(sorted(str(k) for k in data.keys())) if isinstance(data, dict) else '-',
+                data.get('cycle') if isinstance(data, dict) else None,
+                data.get('sample_idx') if isinstance(data, dict) else None,
+                data.get('timestamp') if isinstance(data, dict) else None,
             )
             return False
 
@@ -462,6 +466,28 @@ class AcquisitionService:
                 self.session.preserve_incomplete("ACQ_COMPLETE count mismatch")
                 self.session = None
                 return
+            # New 900-second firmware reports active (pause-excluded)
+            # duration. Preserve backward compatibility with old firmware,
+            # but never accept a partial/incorrect timing report.
+            timing_fields = ("elapsed_active_ms", "target_active_ms", "paused_ms")
+            if any(field in data for field in timing_fields):
+                actual = data.get("elapsed_active_ms")
+                target = data.get("target_active_ms")
+                paused = data.get("paused_ms")
+                if not (type(actual) is int and type(target) is int and
+                        type(paused) is int and target == 900_000 and
+                        paused >= 0 and abs(actual - target) < 1_000):
+                    self.logger.error(
+                        "Timing QA FAIL active=%r target=%r paused=%r",
+                        actual, target, paused,
+                    )
+                    self.session.preserve_incomplete("active duration out of tolerance")
+                    self.session = None
+                    return
+                self.logger.info(
+                    "Timing QA PASS active=%dms target=%dms paused=%dms",
+                    actual, target, paused,
+                )
             # Firmware completion does not itself prove five complete cycles.
             # Validate the staged CSV before publishing it as finished raw.
             from validate_acquisition import validate_file
@@ -480,6 +506,13 @@ class AcquisitionService:
         if event == "ACQ_STOP":
             if self.session is not None:
                 self.session.preserve_incomplete("ACQ_STOP")
+                self.session = None
+            return
+
+        if event == "ACQ_TIMING_FAULT":
+            if self.session is not None:
+                self.logger.error("Firmware timing fault: %s", data)
+                self.session.preserve_incomplete("firmware deadline missed")
                 self.session = None
             return
 

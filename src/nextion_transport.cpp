@@ -1,5 +1,7 @@
 #include "nextion_transport.h"
 
+#include <string.h>
+
 NextionTransport::NextionTransport(HardwareSerial &serial) : serial_(serial) {}
 
 void NextionTransport::begin(uint32_t baud) { serial_.begin(baud); }
@@ -60,6 +62,34 @@ void NextionTransport::text(const char *object, const char *value) {
   safeText(value);
   serial_.print('"');
   terminator();
+}
+
+bool NextionTransport::tryText(const char *object, const char *value) {
+  if (object == nullptr || value == nullptr) {
+    return false;
+  }
+  // .txt=" + closing quote + 0xFF x3 = ten framing bytes.
+  const size_t len = strlen(value);
+  const size_t capped = len < TEXT_CAPACITY - 1 ? len : TEXT_CAPACITY - 1;
+  const size_t needed = strlen(object) + capped + 10;
+  if (needed > 63 || serial_.availableForWrite() < static_cast<int>(needed)) {
+    return false;
+  }
+  text(object, value);
+  return true;
+}
+
+bool NextionTransport::tryProgress(const char *object, uint8_t percent) {
+  if (object == nullptr) {
+    return false;
+  }
+  // .val= + up to 3 digits + 0xFF x3 = eleven framing bytes.
+  const size_t needed = strlen(object) + 11;
+  if (needed > 63 || serial_.availableForWrite() < static_cast<int>(needed)) {
+    return false;
+  }
+  progress(object, percent);
+  return true;
 }
 
 void NextionTransport::value(const char *object, int value) {

@@ -16,6 +16,10 @@ public:
   void command(const char *value);
   void page(const char *pageName);
   void text(const char *object, const char *value);
+  // Only enqueue commands that fit fully in the current AVR UART TX FIFO.
+  // Best-effort UI; sensor acquisition never waits for LCD serial delivery.
+  bool tryText(const char *object, const char *value);
+  bool tryProgress(const char *object, uint8_t percent);
   void value(const char *object, int value);
   void progress(const char *object, uint8_t percent);
   void touch(const char *object, bool enabled);

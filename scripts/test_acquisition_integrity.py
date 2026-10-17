@@ -150,7 +150,27 @@ def main() -> int:
             )
             service.session.rows = 900  # fixture simulates 900 accepted writes
             service.handle_event({"event": "ACQ_COMPLETE", "cycles": 30,
-                                  "total_samples": 900})
+                                  "total_samples": 900,
+                                  "elapsed_active_ms": 955_000,
+                                  "target_active_ms": 900_000,
+                                  "paused_ms": 0})
+            assert service.session is None
+            assert not (root / "D-GAW_B97.csv").exists()
+            assert any("Timing QA FAIL" in str(call)
+                       for call in logger.error.call_args_list)
+
+            # Same valid sensor rows publish with the new 900s duration.
+            service.session = AcquisitionSession(event, logger)
+            service.session.file.close()
+            make_complete_run(cycles=30).assign(batch_id="B97").to_csv(
+                service.session.partial_path, index=False
+            )
+            service.session.rows = 900
+            service.handle_event({"event": "ACQ_COMPLETE", "cycles": 30,
+                                  "total_samples": 900,
+                                  "elapsed_active_ms": 900_070,
+                                  "target_active_ms": 900_000,
+                                  "paused_ms": 0})
             assert service.session is None
             assert (root / "D-GAW_B97.csv").exists()
             # Re-validation after publication must use 30 cycles, not legacy 5.
@@ -174,6 +194,19 @@ def main() -> int:
             service.handle_event({"event": "ACQ_STOP"})
             assert service.session is None
             assert list((root / "incomplete").glob("D-GAW_B97*_INCOMPLETE.csv"))
+
+            # A firmware timing fault must also quarantine immediately,
+            # even when the operator has not pressed LCD Cancel.
+            service.handle_event({
+                "event": "ACQ_START", "mode": "labeled_data", **event,
+                "cycle": 1, "phase": "purging", "cycles_total": 30,
+                "purge_s": 25, "collect_s": 5,
+            })
+            service.handle_event(make_sensor_payload())
+            service.handle_event({"event": "ACQ_TIMING_FAULT", "late_ms": 1250})
+            assert service.session is None
+            assert any("Firmware timing fault" in str(call)
+                       for call in logger.error.call_args_list)
 
             # A new AI_TEST MUST quarantine an active labeled session, not
             # continue saving its ADC frames as labeled coffee data.
