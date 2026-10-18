@@ -1,5 +1,18 @@
 # Smart Coffee E-Nose v2
 
+**18 Oktober 2026 — perbaikan salah folder dan receiver ganda (Windows):**
+audit menemukan tiga instalasi receiver aktif sekaligus (lima proses Python,
+termasuk proses launcher), satu receiver repo mencoba COM5 yang tidak ada,
+dan portable receiver lama justru merekam COM4 ke `Downloads/.../data/raw`.
+Tiga CSV lengkap `L-MING_B50*` (900 sampel per file, QA PASS) sudah disalin
+secara aman ke `data/raw/` repo dengan hash cocok; sumber tidak dihapus.
+Paket v4 `dist/Smart_Coffee_ENose_USB_Receiver_Windows_v4_SingleInstance.zip`
+menambahkan host mutex, informasi lokasi penyimpanan pada status, diagnostik
+proses, dan utilitas recovery. Startup Windows pada host pengembangan telah
+diarahkan ke satu listener repo `--port auto` untuk login berikutnya, tetapi
+receiver yang sedang berjalan tidak dihentikan, dan belum ada uji live baru.
+Panduan: `windows_receiver/README_WINDOWS_RECEIVER.md`.
+
 **16 Oktober 2026 — Windows USB Receiver otomatis:** listener Take Data kini
 mendukung `--port auto` (default), mendeteksi USB FTDI/Arduino/CH340/CP210x
 tanpa hardcode COM5, membuat `data/raw/` jika belum ada, dan reconnect saat

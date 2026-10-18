@@ -35,7 +35,9 @@ if errorlevel 1 (
 )
 echo.
 echo Installed. This laptop will listen for a supported E-Nose USB port
-echo at next Windows sign-in, and the listener is started now.
+echo at next Windows sign-in. If an old receiver is currently running,
+echo the installer intentionally does NOT start a competing listener now.
+echo Wait for the current Take Data to finish before switching receivers.
 echo Raw data directory: %CD%\data\raw
 echo Current status: %CD%\logs\acquisition_service.status.json
 pause

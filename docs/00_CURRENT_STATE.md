@@ -1,5 +1,25 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 18 Oktober — diagnosis receiver ganda dan pemulihan CSV
+
+Audit pasif Windows mendapati adaptor FT232R (`0403:6001`) pada COM4, tetapi
+receiver repo berjalan dengan argumen `--port COM5` dan gagal mengakses COM5.
+Ada tiga instalasi receiver (lima proses Python, sebagian launcher); portable
+lama berhasil menangkap 3 sesi `L-MING_B50*` masing-masing 900 sampel dan
+menyimpannya ke folder `data/raw/` dalam direktori **instalasi Downloads**,
+bukan checkout repo. Portable v3 lain mencoba membuka COM4 namun mendapat
+`Access is denied`. Ketiga CSV diverifikasi validator 30 siklus dan SHA256,
+lalu disalin aman ke `data/raw/` repo tanpa menghapus file sumber.
+
+Shortcut Startup Windows yang saling bertabrakan dibackup, lalu diganti satu
+shortcut repo `--port auto` untuk **login berikutnya**; proses receiver yang
+sedang berjalan tidak dihentikan. Paket Windows receiver v4 menambahkan mutex
+satu instance per sesi Windows, status lokasi output, diagnostik read-only,
+dan alat pemulihan no-clobber. Build/QA offline PASS; **live capture setelah
+penggantian startup belum diuji**. Laptop Windows 10 yang sebelumnya gagal
+enumerasi USB tetap memerlukan diagnosis FTDI terpisah. Detail:
+`docs/reports/2026-10-18_WINDOWS_RECEIVER_RECOVERY_AND_STARTUP_QA.md`.
+
 ## 14 Oktober — Stage11 provenance + split gate + benchmark (offline)
 
 **Audit ulang malam 14 Oktober WIB:** `stage11_quality_review.py` memeriksa

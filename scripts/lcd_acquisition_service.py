@@ -144,6 +144,8 @@ def write_status(**values) -> None:
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     payload = {
         "updated_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
+        "receiver_root": str(ROOT),
+        "data_raw_dir": str(RAW_DIR),
         **values,
     }
     tmp = STATUS_FILE.with_suffix(".tmp")
@@ -171,6 +173,40 @@ def acquire_process_lock():
                 "lcd_acquisition_service sudah berjalan"
             ) from exc
     return handle
+
+
+def acquire_host_instance_lock():
+    """Prevent new receivers from *different extracted folders* racing for COM.
+
+    Windows session-local named mutex; legacy copies installed before this
+    version cannot participate, so also run the read-only instance diagnostic.
+    Acquiring a mutex never opens serial or interrupts an existing receiver.
+    """
+    if os.name != 'nt':
+        return None
+    import ctypes
+    from ctypes import wintypes
+
+    api = ctypes.WinDLL('kernel32', use_last_error=True)
+    create = api.CreateMutexW
+    create.argtypes = [ctypes.c_void_p, wintypes.BOOL, wintypes.LPCWSTR]
+    create.restype = wintypes.HANDLE
+    api.CloseHandle.argtypes = [wintypes.HANDLE]
+    api.CloseHandle.restype = wintypes.BOOL
+    handle = create(None, False, 'Local\\SmartCoffeeENoseReceiverExclusiveV4')
+    if not handle:
+        raise OSError(ctypes.get_last_error(), 'Cannot create receiver host mutex')
+    if ctypes.get_last_error() == 183:  # ERROR_ALREADY_EXISTS
+        api.CloseHandle(handle)
+        raise RuntimeError('Receiver baru sudah berjalan pada sesi Windows ini; '
+                           'periksa proses dan lokasi data/raw masing-masing')
+    return (api, handle)
+
+
+def release_host_instance_lock(host_lock):
+    if host_lock is not None:
+        api, handle = host_lock
+        api.CloseHandle(handle)
 
 
 def sanitize_filename(event: dict) -> str:
@@ -704,6 +740,13 @@ def main() -> int:
         logger.error("%s", exc)
         return 2
 
+    try:
+        host_lock = acquire_host_instance_lock()
+    except (RuntimeError, OSError) as exc:
+        logger.error('Receiver conflict: %s', exc)
+        lock_handle.close()
+        return 2
+
     service = AcquisitionService(
         port=args.port,
         baud=args.baud,
@@ -718,6 +761,7 @@ def main() -> int:
     try:
         service.run()
     finally:
+        release_host_instance_lock(host_lock)
         lock_handle.close()
     return 0
 

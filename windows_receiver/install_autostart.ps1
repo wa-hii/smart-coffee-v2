@@ -19,7 +19,17 @@ $shortcut.WorkingDirectory = $root
 $shortcut.Description = 'Smart Coffee E-Nose USB-to-CSV automatic receiver'
 $shortcut.Save()
 Write-Host ('Startup shortcut: ' + $linkPath)
-# Existing listener may already hold a process lock. Never terminate it here.
-# One duplicate attempt exits immediately without touching the active session.
+# Do not start another copy while an older receiver from another extracted
+# directory is active. Older builds do not share our host-wide mutex.
+$existing = @(Get-CimInstance Win32_Process | Where-Object {
+    $_.Name -match '^pythonw?\.exe$' -and
+    $_.CommandLine -like '*lcd_acquisition_service.py*'
+})
+if ($existing.Count -gt 0) {
+    Write-Warning ('Found ' + $existing.Count + ' receiver-related Python processes. ' +
+        'Startup shortcut was updated, but no new receiver was launched. ' +
+        'Do not stop any process until the current Take Data is finished and the device is IDLE.')
+    return
+}
 Start-Process -FilePath $python -ArgumentList @('"' + $script + '"', '--port', 'auto', '--baud', '115200') -WorkingDirectory $root
 Write-Host 'Listener launch requested; inspect logs/acquisition_service.status.json for connected/waiting state.'
