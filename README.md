@@ -1,5 +1,16 @@
 # Smart Coffee E-Nose v2
 
+**19 Oktober 2026 — multi-device salvage receiver v9:** atas permintaan
+pengambilan tetap berjalan sampai akhir 30 siklus meski ada frame JSON
+rusak (ALAT_3 `L-CAT_B63`, frame 257 byte, parser pos 256), supervisor
+Windows v9 mengaktifkan `--salvage-on-frame-error` dari BAT. Frame invalid,
+indeks duplikat, dan sampel invalid dilewati; sensor valid tetap disimpan
+hingga `ACQ_COMPLETE`. Final `data/raw` **hanya** untuk 900 sampel valid
+dan validator PASS; kurang dari 900 dikarantina ke `incomplete` dengan
+`.quality.json` (jumlah valid, hilang, error). Firmware tidak diubah,
+tidak ada interpolasi atau fake samples. Paket:
+`dist/Smart_Coffee_ENose_USB_Receiver_Windows_v9_SalvageContinue.zip`.
+
 **19 Oktober 2026 — ALAT_2 serial invalid JSON 272 byte:** pada laptop
 Probook, ALAT_2/COM6 mencatat `L-MING_B60` incomplete setelah 351 baris,
 `malformed_json detail=invalid_json_or_encoding frame_bytes=272`.

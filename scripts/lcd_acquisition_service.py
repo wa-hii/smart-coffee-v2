@@ -262,7 +262,7 @@ def unique_final_path(filename: str) -> Path:
 
 
 class AcquisitionSession:
-    def __init__(self, event: dict, logger: logging.Logger):
+    def __init__(self, event: dict, logger: logging.Logger, *, salvage_mode: bool = False):
         self.logger = logger
         self.sample_id = str(event.get("sample_id", "")).strip().upper()
         self.roast_level = str(event.get("roast_level", "")).strip().lower()
@@ -274,6 +274,12 @@ class AcquisitionSession:
             ORIGIN_BY_CODE.get(self.origin_code, self.origin_code),
         )
         self.rows = 0
+        self.salvage_mode = salvage_mode
+        self.issue_counts: dict[str, int] = {}
+        self.seen_keys: set[tuple[int, str, int]] = set()
+        self.last_sample_key: tuple[int, int, int] | None = None
+        self.last_timestamp: int | None = None
+        self.firmware_total_samples: int | None = None
 
         if self.roast_level not in {"light", "medium", "dark"}:
             raise ValueError(f"roast_level tidak valid: {self.roast_level!r}")
@@ -344,6 +350,9 @@ class AcquisitionSession:
         self.file.flush()
         os.fsync(self.file.fileno())
         self.rows += 1
+        if self.salvage_mode and self.rows % 100 == 0:
+            self.logger.info("SALVAGE PROGRESS valid_sensor_rows=%d/900; "
+                             "issues=%s", self.rows, dict(self.issue_counts))
         return True
 
     def complete(self) -> Path:
@@ -368,7 +377,34 @@ class AcquisitionSession:
             self.final_path,
             self.rows,
         )
+        self._write_quality_report(self.final_path, "validated_complete")
         return self.final_path
+
+    def flag_issue(self, reason: str) -> None:
+        # Aggregate counts only; no raw bytes or pseudo sensor values.
+        self.issue_counts[reason] = self.issue_counts.get(reason, 0) + 1
+
+    def _write_quality_report(self, data_path: Path, status: str) -> None:
+        if not self.salvage_mode:
+            return
+        report = {
+            "quality_status": status,
+            "trainable_as_complete_30_cycle_dataset": status == "validated_complete",
+            "sample_id": self.sample_id,
+            "batch_id": self.batch_id,
+            "device_id": DEVICE_ID,
+            "firmware_target_sensor_samples": 900,
+            "firmware_reported_sensor_samples": self.firmware_total_samples,
+            "received_valid_sensor_rows": self.rows,
+            "missing_vs_900": max(0, 900 - self.rows),
+            "ignored_frame_or_sensor_issues": dict(self.issue_counts),
+            "csv_path": str(data_path),
+        }
+        sidecar = data_path.with_suffix(".quality.json")
+        # Never alter the CSV or overwrite a pre-existing quality report.
+        with sidecar.open("x", encoding="utf-8") as stream:
+            json.dump(report, stream, ensure_ascii=False, indent=2)
+            stream.write("\n")
 
     def preserve_incomplete(self, reason: str) -> Path | None:
         if not self.file.closed:
@@ -389,6 +425,7 @@ class AcquisitionSession:
             self.rows,
             dest,
         )
+        self._write_quality_report(dest, "incomplete_not_for_training")
         return dest
 
 
@@ -400,9 +437,11 @@ class AcquisitionService:
         reconnect_s: float,
         logger: logging.Logger,
         usb_serial: str | None = None,
+        salvage_on_frame_error: bool = False,
     ):
         self.port = port
         self.usb_serial = usb_serial
+        self.salvage_on_frame_error = salvage_on_frame_error
         self.baud = baud
         self.reconnect_s = reconnect_s
         self.logger = logger
@@ -509,7 +548,9 @@ class AcquisitionService:
                 self.logger.error("Reject invalid ACQ_START timing/phase contract")
                 return
             try:
-                self.session = AcquisitionSession(data, self.logger)
+                self.session = AcquisitionSession(
+                    data, self.logger, salvage_mode=self.salvage_on_frame_error
+                )
                 self.last_frame_monotonic = time.monotonic()
             except Exception:
                 self.logger.exception("Gagal membuat acquisition session")
@@ -524,9 +565,13 @@ class AcquisitionService:
                     data.get('sample_id'), data.get('batch_id'),
                 )
                 return
+            self.session.firmware_total_samples = (
+                data.get("total_samples") if type(data.get("total_samples")) is int else None
+            )
+            expected_count = (900 if self.salvage_on_frame_error else self.session.rows)
             if (data.get("cycles") != 30 or
                     type(data.get("total_samples")) is not int or
-                    data["total_samples"] != self.session.rows):
+                    data["total_samples"] != expected_count):
                 self.logger.error(
                     'ACQ COMPLETE count mismatch: receiver rows=%d '
                     'reported cycles=%r total_samples=%r',
@@ -564,7 +609,21 @@ class AcquisitionService:
             issues = validate_file(self.session.partial_path, expected_cycles=30)
             if issues:
                 self.logger.error("Incomplete/invalid ACQ_COMPLETE: %s", "; ".join(issues))
+                if self.salvage_on_frame_error:
+                    self.logger.warning(
+                        "RECORDING REACHED ACQ_COMPLETE BUT VALID ROWS=%d/900; "
+                        "preserving available data in incomplete (NOT training-ready)",
+                        self.session.rows,
+                    )
                 self.session.preserve_incomplete("ACQ_COMPLETE validation failed")
+                self.session = None
+                return
+            if self.salvage_on_frame_error and self.session.rows != 900:
+                self.logger.warning(
+                    "RECORDING REACHED ACQ_COMPLETE with only %d/900 valid sensor rows; "
+                    "preserving in incomplete (NOT training-ready)", self.session.rows,
+                )
+                self.session.preserve_incomplete("valid sensor rows below 900")
                 self.session = None
                 return
             final_path = self.session.complete()
@@ -608,11 +667,20 @@ class AcquisitionService:
                 self.baseline.preserve_incomplete("serial transport error")
                 self.baseline = None
             if self.session is not None:
-                self.session.preserve_incomplete(
-                    "serial frame corrupt or oversized: " +
-                    str(data.get("reason", "unknown"))
-                )
-                self.session = None
+                if self.salvage_on_frame_error:
+                    self.session.flag_issue("serial_" + str(data.get("reason", "unknown")))
+                    self.last_frame_monotonic = time.monotonic()
+                    self.logger.warning(
+                        "SALVAGE: corrupted frame ignored, continuing to ACQ_COMPLETE; "
+                        "accepted=%d/900; damaged sensor samples CANNOT count as valid",
+                        self.session.rows,
+                    )
+                else:
+                    self.session.preserve_incomplete(
+                        "serial frame corrupt or oversized: " +
+                        str(data.get("reason", "unknown"))
+                    )
+                    self.session = None
             return
 
         # Semua frame yang memiliki field event adalah control/status event,
@@ -623,6 +691,35 @@ class AcquisitionService:
             return
 
         if self.session is not None:
+            if self.salvage_on_frame_error:
+                if not is_sensor_payload(data):
+                    self.session.flag_issue("invalid_sensor_payload")
+                    self.logger.warning(
+                        "SALVAGE: invalid sensor payload ignored; accepted=%d/900",
+                        self.session.rows,
+                    )
+                    return
+                key = (data["cycle"], str(data["phase"]).strip().lower(),
+                       data["sample_idx"])
+                order = (key[0], 0 if key[1] == "purging" else 1, key[2])
+                if key in self.session.seen_keys:
+                    self.session.flag_issue("duplicate_sensor_index")
+                    self.logger.warning("SALVAGE: duplicate sensor index ignored %s", key)
+                    return
+                if (key[0] > 30 or key[2] > (25 if key[1] == "purging" else 5)
+                        or (self.session.last_sample_key is not None
+                            and order <= self.session.last_sample_key)
+                        or (self.session.last_timestamp is not None
+                            and data["timestamp"] <= self.session.last_timestamp)):
+                    self.session.flag_issue("out_of_order_or_invalid_index")
+                    self.logger.warning("SALVAGE: out-of-order sensor index ignored %s", key)
+                    return
+                if self.session.write_sensor(data):
+                    self.session.seen_keys.add(key)
+                    self.session.last_sample_key = order
+                    self.session.last_timestamp = data["timestamp"]
+                    self.last_frame_monotonic = time.monotonic()
+                return
             if not self.session.write_sensor(data):
                 self.session.preserve_incomplete("invalid sensor payload")
                 self.session = None
@@ -782,6 +879,9 @@ def parse_args():
     parser.add_argument("--baud", type=int, default=DEFAULT_BAUD)
     parser.add_argument("--reconnect-s", type=float, default=2.0)
     parser.add_argument("--verbose", action="store_true")
+    parser.add_argument('--salvage-on-frame-error', action='store_true',
+                        help='Continue receiving after malformed JSON or duplicate sensor indices; '
+                             'quarantine incomplete datasets with quality report')
     return parser.parse_args()
 
 
@@ -807,6 +907,7 @@ def main() -> int:
         reconnect_s=args.reconnect_s,
         logger=logger,
         usb_serial=args.usb_serial,
+        salvage_on_frame_error=args.salvage_on_frame_error,
     )
     signal.signal(signal.SIGINT, service.request_stop)
     if hasattr(signal, "SIGTERM"):

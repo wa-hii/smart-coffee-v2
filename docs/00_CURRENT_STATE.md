@@ -1,5 +1,26 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 19 Oktober — receiver v9 salvage sampai ACQ_COMPLETE (software-only)
+
+Kasus operator ALAT_3 COM7 `L-CAT_B63`: pada baris 128, frame sepanjang
+257 byte gagal `invalid_json_or_encoding`, dengan `json_error_pos=256`,
+`Invalid control character at`, `ends_with_brace=False`; error serupa
+terjadi dua kali. Ini bukan duplicate dataset. Parser PC mendukung
+reassembly data serial dalam chunk 256 byte, dibuktikan oleh QA.
+Root cause frame terpotong belum dibuktikan.
+
+Mode opt-in `--salvage-on-frame-error` memperlakukan satu frame rusak atau
+sample index duplikat sebagai *recoverable*, sehingga memantau semua 30
+siklus hingga `ACQ_COMPLETE`. Tidak menambah sampel buatan.
+Sesi 900 valid + validator PASS dipublikasikan di `data/raw/devices`.
+Jika sensor valid kurang dari 900, hasilnya di `incomplete` bersama
+`.quality.json`; ini bukan dataset training yang lengkap. Gangguan
+USB fisik/timeout panjang tetap fatal dan memerlukan pemeriksaan nyata.
+
+Uji offline mencakup 899 valid + 1 corrupt + duplicate yang tetap
+mencapai `ACQ_COMPLETE` dan disimpan sebagai incomplete, lalu sesi
+berikutnya dengan 900 valid + duplicate yang dipublikasikan PASS.
+
 ## 19 Oktober — ALAT_2 L-MING_B60 ditolak sebagai malformed JSON
 
 Log Windows Probook receiver v7:

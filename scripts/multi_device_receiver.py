@@ -79,7 +79,7 @@ def validate_ports(port_names: list[str], devices: list | None = None) -> list[D
     return found
 
 
-def receiver_worker(device: Device, stop_event) -> None:
+def receiver_worker(device: Device, stop_event, salvage_on_frame_error: bool = False) -> None:
     """Runs entirely in own process; never shares mutable app globals."""
     app.configure_device_storage(device.label)
     logger = app.configure_logging()
@@ -87,7 +87,8 @@ def receiver_worker(device: Device, stop_event) -> None:
     # When absent, keep a fixed port and tell operator to verify after reconnect.
     port = 'auto' if device.usb_serial else device.initial_port
     service = app.AcquisitionService(port, 115200, 2.0, logger,
-                                     usb_serial=device.usb_serial)
+                                     usb_serial=device.usb_serial,
+                                     salvage_on_frame_error=salvage_on_frame_error)
 
     def request_stop(*_args):
         service.request_stop()
@@ -113,6 +114,10 @@ def main(argv: list[str] | None = None) -> int:
                         help='COM ports of the physically identified ALAT_1, ALAT_2, ALAT_3')
     parser.add_argument('--start', action='store_true',
                         help='Actually open all COMs (default: READ-ONLY preflight)')
+    parser.add_argument('--salvage-on-frame-error', action='store_true',
+                        help='Keep collecting after bad JSON/duplicate index; '
+                             'publish only strictly verified 900-valid-row datasets. '
+                             'Otherwise quarantine with quality JSON sidecar.')
     args = parser.parse_args(argv)
     try:
         devices = validate_ports(args.ports)
@@ -156,11 +161,16 @@ def main(argv: list[str] | None = None) -> int:
         root_lock = app.acquire_process_lock()
         host_lock = app.acquire_host_instance_lock()
         for dev in devices:
-            process = ctx.Process(target=receiver_worker, args=(dev, stop),
+            process = ctx.Process(target=receiver_worker,
+                                  args=(dev, stop, args.salvage_on_frame_error),
                                   name=f'ENose-{dev.label}')
             process.start()
             workers.append(process)
         print('Receivers started. Wait for every status=connected BEFORE Take Data.', flush=True)
+        if args.salvage_on_frame_error:
+            print('SALVAGE MODE: bad frames will NOT abort 30 cycles; files with '
+                  'fewer than 900 valid rows are INCOMPLETE, not training-ready.',
+                  flush=True)
         print('Status per instrument: logs/devices/ALAT_N/acquisition_service.status.json',
               flush=True)
         print('Keep this terminal open throughout acquisition. Ctrl+C only when IDLE.',

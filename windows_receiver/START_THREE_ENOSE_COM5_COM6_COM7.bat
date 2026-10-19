@@ -15,7 +15,7 @@ echo Only start when all existing listeners are STOPPED and devices are IDLE.
 echo Press Ctrl+C to terminate ONLY after ALL acquisitions have finished.
 set /p "CONFIRM=Type START to launch all three receivers: "
 if /I not "%CONFIRM%"=="START" goto :done
-"%PY%" -u scripts\multi_device_receiver.py --ports COM5 COM6 COM7 --start
+"%PY%" -u scripts\multi_device_receiver.py --ports COM5 COM6 COM7 --start --salvage-on-frame-error
 :fail
 echo Check COM mapping, USB drivers, and existing receiver processes.
 :done

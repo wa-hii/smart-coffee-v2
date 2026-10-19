@@ -1,5 +1,45 @@
 # Pengambilan data 3 E-Nose pada 1 laptop — COM5 / COM6 / COM7
 
+## Receiver v9 — lanjutkan 30 siklus meski satu JSON rusak
+
+Gunakan `Smart_Coffee_ENose_USB_Receiver_Windows_v9_SalvageContinue.zip`.
+`START_THREE_ENOSE_COM5_COM6_COM7.bat` sekarang mengaktifkan
+`--salvage-on-frame-error` secara eksplisit untuk tiga alat.
+Ketika parser menemukan JSON tidak valid atau sampel duplikat, receiver
+akan **melewati frame tidak valid tetapi tetap menerima data berikutnya**
+sampai event `ACQ_COMPLETE` atau kondisi fatal (misal USB terputus).
+
+Penerima secara berkala mengeluarkan `SALVAGE PROGRESS valid_sensor_rows=X/900`
+sehingga operator dapat memeriksa hasil hingga akhir. Tidak ada interpolasi,
+penambahan dummy, atau pemalsuan pembacaan sensor.
+
+- **900/900 sensor valid** dengan 30 siklus lengkap dan QA PASS: CSV final
+  dalam `data/raw/devices/ALAT_N/`, walaupun ada frame duplikat tambahan
+  yang dilewati. File `.quality.json` mencatat peringatan.
+- **899/900 atau kurang** setelah event `ACQ_COMPLETE`: receiver **tidak
+  menghentikan pemantauan di error pertama**; menyimpan semua sensor valid
+  yang terkumpul di `data/raw/devices/ALAT_N/incomplete/` dan menulis
+  `.quality.json` dengan `received_valid_sensor_rows`, `missing_vs_900`,
+  serta jumlah error.
+- Gangguan koneksi USB/hilang port, timeout panjang, atau metadata sesi
+  bentrok tetap fatal demi integritas data. Sesi yang demikian tidak dapat
+  dipulihkan dari USB dan tidak diklaim sebagai 900 observasi valid.
+
+Contoh menjalankan supervisor dari PowerShell bila tidak menggunakan BAT:
+
+```powershell
+.\.venv\Scripts\python.exe -u scripts\multi_device_receiver.py --ports COM5 COM6 COM7 --start --salvage-on-frame-error
+```
+
+PENTING: v9 hanya aktif untuk **sesi baru**; tutup receiver v8 ketika tiga
+alat IDLE dan pastikan dataset v8 sudah tersimpan sebelum memasang v9 ke
+folder baru. Data B60/B63 dari v8 tidak tiba-tiba dapat dipulihkan.
+
+Framer sudah diuji dengan satu JSON normal >256 byte yang dipecah ke
+potongan 256 byte. Potongan serial di PC tidak menyebabkan pemutusan pesan;
+frame 257 byte `Invalid control character` dari alat masih memerlukan
+penelusuran kualitas USB/kabel/firmware dan kemungkinan restart perangkat.
+
 **Update v8, diagnosis `invalid_json_or_encoding` pada ALAT_2:** paket
 `Smart_Coffee_ENose_USB_Receiver_Windows_v8_JSONFaultLocation.zip`
 menambahkan klasifikasi penyebab parser yang lebih spesifik:

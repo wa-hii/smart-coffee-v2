@@ -67,6 +67,17 @@ def main():
     assert utf8['fault_class'] == 'invalid_utf8'
     assert utf8['invalid_byte_offset'] > 0
 
+    # pyserial's 256-byte read chunk does NOT end a JSON line. Verify an
+    # ordinary frame longer than 256 bytes is reassembled before decoding.
+    import json
+    long_valid = {f'field_{i:02}': 123456 for i in range(30)}
+    encoded = (json.dumps(long_valid) + '\n').encode('ascii')
+    assert len(encoded) > 256
+    fragmented = serial_json_frames(FakePort([
+        encoded[:256], encoded[256:512], encoded[512:]
+    ]))
+    assert next(fragmented) == long_valid
+
     with TemporaryDirectory() as tmp:
         root = Path(tmp)
         with patch.object(service_module, 'RAW_DIR', root / 'raw'), \
