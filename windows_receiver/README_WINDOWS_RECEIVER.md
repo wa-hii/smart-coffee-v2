@@ -1,5 +1,11 @@
 # Smart Coffee E-Nose USB receiver otomatis (Windows)
 
+**Memakai 3 alat E-Nose di satu laptop?** Gunakan paket receiver v5
+`Smart_Coffee_ENose_USB_Receiver_Windows_v5_ThreeDevices.zip` dan ikuti
+`windows_receiver/README_THREE_DEVICES.md`, **bukan** menjalankan tiga
+instance listener v4 yang berbagi folder/log/mutex. Jalur v4 di bawah ini
+tetap berlaku untuk konfigurasi satu alat saja.
+
 ## Mengapa di laptop teman belum ada CSV?
 
 ATmega2560 mengirim sampel real-time melalui USB serial **ketika operator menekan Take Data**. Firmware tidak bisa membuat folder/data di laptop tanpa aplikasi penerima. Tidak ada penyimpanan internal untuk mengambil ulang sesi lama setelah USB dicabut. Laptop lain memerlukan driver USB yang sesuai, Python 3.10+, dan receiver ini yang berjalan **sebelum** menekan tombol Start.

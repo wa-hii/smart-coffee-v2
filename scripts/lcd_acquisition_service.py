@@ -57,6 +57,7 @@ LOG_FILE = LOG_DIR / "acquisition_service.log"
 STATUS_FILE = LOG_DIR / "acquisition_service.status.json"
 LOCK_FILE = LOG_DIR / "acquisition_service.lock"
 BASELINE_DIR = ROOT / "data" / "baseline"
+DEVICE_ID: str | None = None
 
 DEFAULT_PORT = "auto"
 DEFAULT_BAUD = 115200
@@ -115,6 +116,27 @@ ORIGIN_BY_CODE = {
 SAFE_FILENAME_RE = re.compile(r"^[LMD]-[A-Z0-9]+_B[0-9]+\.csv$")
 
 
+def configure_device_storage(device_id: str, *, root: Path = ROOT) -> None:
+    """Isolate each receiver process by stable *physical* device label.
+
+    Only the multi-device supervisor calls this in independently spawned
+    processes. The default single-device receiver paths stay unchanged.
+    """
+    if not re.fullmatch(r"ALAT_[1-9][0-9]*", device_id):
+        raise ValueError("device_id must be ALAT_1, ALAT_2, etc.")
+    global RAW_DIR, INCOMING_DIR, INCOMPLETE_DIR
+    global LOG_DIR, LOG_FILE, STATUS_FILE, LOCK_FILE, BASELINE_DIR, DEVICE_ID
+    DEVICE_ID = device_id
+    RAW_DIR = root / "data" / "raw" / "devices" / device_id
+    INCOMING_DIR = RAW_DIR / ".incoming"
+    INCOMPLETE_DIR = RAW_DIR / "incomplete"
+    LOG_DIR = root / "logs" / "devices" / device_id
+    LOG_FILE = LOG_DIR / "acquisition_service.log"
+    STATUS_FILE = LOG_DIR / "acquisition_service.status.json"
+    LOCK_FILE = LOG_DIR / "acquisition_service.lock"
+    BASELINE_DIR = root / "data" / "baseline" / "devices" / device_id
+
+
 def configure_logging(verbose: bool = False) -> logging.Logger:
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     logger = logging.getLogger("enose-acquisition")
@@ -146,6 +168,7 @@ def write_status(**values) -> None:
         "updated_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "receiver_root": str(ROOT),
         "data_raw_dir": str(RAW_DIR),
+        "device_id": DEVICE_ID,
         **values,
     }
     tmp = STATUS_FILE.with_suffix(".tmp")

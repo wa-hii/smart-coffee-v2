@@ -1,5 +1,17 @@
 # Smart Coffee E-Nose v2
 
+**19 Oktober 2026 — dukungan multi-device receiver (software-only):** satu
+laptop Windows kini dapat menggunakan tiga alat E-Nose pada COM5/COM6/COM7
+secara paralel melalui `scripts/multi_device_receiver.py`. Setiap proses
+menulis CSV dan log ke folder `data/raw/devices/ALAT_1..3/` serta
+`logs/devices/ALAT_1..3/`, dan memakai USB serial bridge untuk identitas
+stabil bila tersedia. Tidak ada perubahan firmware, HMI, atau pengoperasian
+hardware. Paket portabel terbaru:
+`dist/Smart_Coffee_ENose_USB_Receiver_Windows_v5_ThreeDevices.zip`.
+Panduan: `windows_receiver/README_THREE_DEVICES.md`. Pengujian tiga proses
+paralel dengan CSV sintetis 900 sampel per perangkat PASS, tetapi belum
+terverifikasi dengan tiga alat fisik.
+
 **18 Oktober 2026 — perbaikan salah folder dan receiver ganda (Windows):**
 audit menemukan tiga instalasi receiver aktif sekaligus (lima proses Python,
 termasuk proses launcher), satu receiver repo mencoba COM5 yang tidak ada,

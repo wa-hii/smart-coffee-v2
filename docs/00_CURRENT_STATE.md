@@ -1,5 +1,21 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 19 Oktober — receiver tiga alat sekaligus, belum diuji fisik
+
+`scripts/multi_device_receiver.py` mendukung tiga adaptor USB serial pada
+Windows (contoh COM5/COM6/COM7), memetakan satu proses per instrument ke
+`data/raw/devices/ALAT_1`, `ALAT_2`, `ALAT_3`. USB serial unik, jika
+tersedia, dipakai untuk mempertahankan identitas alat meskipun nomor COM
+berubah; mapping manual awal tetap wajib dicek. Parent memegang lock
+single-device v4 untuk mencegah receiver baru saling berebut COM, dan
+preflight read-only menolak proses receiver lama yang masih berjalan.
+CSV final/incomplete, baseline, status, dan log tiap alat dipisah. File dari
+tiga alat tidak digabung/ditimpa. Paket portabel baru v5 di `dist/`.
+**QA offline: 3 proses simultan, masing-masing 900 sensor rows, identik
+sample/batch, PASS tanpa membuka port serial fisik.** Next step adalah
+verifikasi pada laptop Windows 10 dan 3 perangkat nyata, setelah receiver
+lama ditutup dalam kondisi IDLE. Panduan `windows_receiver/README_THREE_DEVICES.md`.
+
 ## 18 Oktober — diagnosis receiver ganda dan pemulihan CSV
 
 Audit pasif Windows mendapati adaptor FT232R (`0403:6001`) pada COM4, tetapi
