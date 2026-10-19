@@ -1,0 +1,18 @@
+﻿family,group,files,records
+roast_same_origin_batch,CAT_B62,L-CAT_B62.csv | M-CAT_B62.csv,2
+roast_same_origin_batch,CAT_B63,L-CAT_B63.csv | M-CAT_B63.csv,2
+roast_same_origin_batch,GAW_B60,L-GAW_B60.csv | M-GAW_B60.csv,2
+roast_same_origin_batch,GAW_B61,L-GAW_B61.csv | M-GAW_B61.csv,2
+roast_same_origin_batch,TOR_B63,L-TOR_B63.csv | M-TOR_B63.csv | D-TOR_B63.csv,3
+roast_same_origin_batch,TOR_B65,L-TOR_B65.csv | M-TOR_B65.csv,2
+same_origin_roast_cross_batch,CAT_Light,L-CAT_B60.csv | L-CAT_B62.csv | L-CAT_B63.csv,3
+same_origin_roast_cross_batch,CAT_Medium,M-CAT_B62.csv | M-CAT_B63.csv | M-CAT_B64.csv,3
+same_origin_roast_cross_batch,GAW_Light,L-GAW_B60.csv | L-GAW_B61.csv,2
+same_origin_roast_cross_batch,GAW_Medium,M-GAW_B60.csv | M-GAW_B61.csv,2
+same_origin_roast_cross_batch,GAY_Light,L-GAY_B62.csv | L-GAY_B63.csv | L-GAY_B65.csv,3
+same_origin_roast_cross_batch,GRB_Light,L-GRB_B62.csv | L-GRB_B63.csv | L-GRB_B64.csv | L-GRB_B65.csv | L-GRB_B66.csv,5
+same_origin_roast_cross_batch,GRB_Medium,M-GRB_B60.csv | M-GRB_B61.csv,2
+same_origin_roast_cross_batch,TEM_Medium,M-TEM_B60.csv | M-TEM_B61.csv | M-TEM_B62.csv | M-TEM_B62_20261019_175906.csv | M-TEM_B63.csv | M-TEM_B64.csv,6
+same_origin_roast_cross_batch,TOR_Dark,D-TOR_B60.csv | D-TOR_B61.csv | D-TOR_B63.csv,3
+same_origin_roast_cross_batch,TOR_Light,L-TOR_B62.csv | L-TOR_B63.csv | L-TOR_B65.csv,3
+same_origin_roast_cross_batch,TOR_Medium,M-TOR_B63.csv | M-TOR_B64.csv | M-TOR_B65.csv | M-TOR_B66.csv | M-TOR_B67.csv,5

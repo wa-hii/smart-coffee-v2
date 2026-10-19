@@ -1,0 +1,31 @@
+{
+  "audit_manifest": "D:\\ENOSE\\smart-coffee-v2-hardware\\smart-coffee-v2-hardware\\data\\raw\\data 30 siklus\\HASIL_AUDIT_30_SIKLUS_20261019\\audit_manifest.json",
+  "audited_valid_input_csv": 38,
+  "sensor_count": 10,
+  "sensors": [
+    "adc_tgs822",
+    "adc_mq135",
+    "adc_mq3",
+    "adc_tgs2611",
+    "adc_tgs2620",
+    "adc_tgs2600",
+    "adc_tgs2602",
+    "adc_mq8",
+    "adc_tgs813",
+    "adc_tgs816"
+  ],
+  "plots_by_family": {
+    "per_batch": 380,
+    "same_origin_batch_roast": 60,
+    "same_origin_roast_cross_batch": 110,
+    "roast_t0": 60
+  },
+  "total_plots": 610,
+  "roast_comparison_groups": 6,
+  "cross_batch_groups": 11,
+  "files_excluded_from_69_audit": 31,
+  "normalization": "ADC(t)-ADC(t0); t0=last sensor sample of cycle 1 purging (sample_idx 25), just BEFORE t26 first collecting sample. Per-CSV anchor, no smoothing/interpolation/resampling.",
+  "time_axis": "based on original firmware timestamp milliseconds; per-CSV alignment",
+  "source_data_edited": false,
+  "cross_recording_caution": "Different E-Nose instruments / specimens cannot be assumed identical; colors are roast/batch group labels, not statistical significance."
+}
