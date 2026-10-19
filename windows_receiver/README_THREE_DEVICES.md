@@ -1,5 +1,21 @@
 # Pengambilan data 3 E-Nose pada 1 laptop — COM5 / COM6 / COM7
 
+**Update v7 frame diagnostics:** apabila sesi berpindah ke `incomplete`
+karena `serial frame corrupt or oversized`, receiver baru mencatat alasan
+terpisah `SERIAL FRAME REJECTED reason=malformed_json` (dengan `detail` dan
+`frame_bytes`) atau `reason=oversized_line` (`limit_bytes=4096`). Tidak
+mencatat isi mentah frame dan **tetap tidak meloloskan dataset rusak**.
+Paket terbaru: `Smart_Coffee_ENose_USB_Receiver_Windows_v7_SerialFrameDiagnostics.zip`.
+File v5 yang lama **tidak menyimpan rincian penyebab ini**; menginstal v7
+tidak dapat mengungkap paket serial yang sudah lewat.
+
+Jika beberapa alat melaporkan masalah di siklus berbeda, prioritas inspeksi
+ketika semuanya IDLE adalah kestabilan USB data/driver FTDI, kabel, catu
+daya USB hub, dan apakah Nextion/MCU sedang reboot atau mengeluarkan JSON
+tidak valid. Jangan meningkatkan `MAX_LINE_BYTES` atau mengabaikan
+`TRANSPORT_ERROR` sebagai jalan pintas: satu pesan normal jauh lebih pendek
+daripada 4096 byte dan data tidak valid tidak boleh menjadi label training.
+
 **Update v6 diagnostik (19 Oktober 2026):** gunakan ZIP
 `Smart_Coffee_ENose_USB_Receiver_Windows_v6_ThreeDevices_Diagnostics.zip`.
 Paket ini mempertahankan protokol dan lokasi CSV v5 serta menambahkan
@@ -31,7 +47,7 @@ pasif dan **tidak mengirim perintah START, tidak flash, tidak mengaktifkan valve
 
 ## Instalasi di laptop lama (Windows 10/11)
 
-1. Ekstrak `Smart_Coffee_ENose_USB_Receiver_Windows_v6_ThreeDevices_Diagnostics.zip`
+1. Ekstrak `Smart_Coffee_ENose_USB_Receiver_Windows_v7_SerialFrameDiagnostics.zip`
    ke folder baru di `Documents` (jangan jalankan di dalam ZIP). Jangan menimpa
    folder receiver v3/v4 atau data raw sebelumnya.
 2. Setelah semua alat **IDLE**, tutup receiver lama, lalu **nonaktifkan shortcut

@@ -53,9 +53,14 @@ def serial_json_frames(port, *, chunk_size: int = 256):
                 continue
             try:
                 yield decode_line(line)
-            except FrameError:
-                yield {"event": "TRANSPORT_ERROR", "reason": "malformed_json"}
+            except FrameError as err:
+                # Preserve the original failure class for safe diagnosis.
+                # Do not log raw sensor bytes; a malformed packet cannot be
+                # promoted to valid sensor rows by the receiver.
+                yield {"event": "TRANSPORT_ERROR", "reason": "malformed_json",
+                       "detail": str(err), "frame_bytes": len(line)}
         if framer.oversized_lines != before:
-            yield {"event": "TRANSPORT_ERROR", "reason": "oversized_line"}
+            yield {"event": "TRANSPORT_ERROR", "reason": "oversized_line",
+                   "limit_bytes": MAX_LINE_BYTES}
         if not chunk:
             yield None

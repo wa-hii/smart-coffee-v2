@@ -586,11 +586,23 @@ class AcquisitionService:
             return
 
         if event == "TRANSPORT_ERROR":
+            self.logger.error(
+                "SERIAL FRAME REJECTED reason=%s detail=%s frame_bytes=%s "
+                "limit_bytes=%s active_session=%s accepted_rows=%s",
+                data.get("reason", "unknown"), data.get("detail", "unknown"),
+                data.get("frame_bytes", "n/a"),
+                data.get("limit_bytes", "n/a"),
+                self.session is not None,
+                self.session.rows if self.session is not None else 0,
+            )
             if self.baseline is not None:
                 self.baseline.preserve_incomplete("serial transport error")
                 self.baseline = None
             if self.session is not None:
-                self.session.preserve_incomplete("serial frame corrupt or oversized")
+                self.session.preserve_incomplete(
+                    "serial frame corrupt or oversized: " +
+                    str(data.get("reason", "unknown"))
+                )
                 self.session = None
             return
 

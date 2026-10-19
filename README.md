@@ -1,5 +1,15 @@
 # Smart Coffee E-Nose v2
 
+**19 Oktober 2026 — frame serial invalid pada Probook:** operator melaporkan
+ALAT_1 `L-TOR_B61` (758 baris) dan ALAT_3 `L-CAT_B63` (487 baris) masuk
+`incomplete` karena `serial frame corrupt or oversized`. Kode v5 tidak
+membedakan parse JSON yang gagal dan baris di atas 4096 byte dalam pesan
+log. Paket v7 menambahkan klasifikasi `malformed_json` + detail error versus
+`oversized_line` tanpa menyimpan raw byte atau meloloskan sesi rusak:
+`dist/Smart_Coffee_ENose_USB_Receiver_Windows_v7_SerialFrameDiagnostics.zip`.
+Uji framing dan preservasi incomplete offline PASS. Penyebab fisik / byte
+yang gagal pada laptop Probook belum dapat diketahui dari log v5.
+
 **19 Oktober 2026 — diagnosis dropout COM7 dan sesi lanjutan:** log Windows
 Probook memperlihatkan dua sesi lengkap (ALAT_1/COM5 `M-GRB_B61`,
 ALAT_2/COM6 `L-MING_B51`: masing-masing 900 baris, PASS) dan satu

@@ -1,5 +1,19 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 19 Oktober — serial frame reject pada 3 alat (laptop Probook)
+
+Log operator menunjukkan `L-TOR_B61` pada ALAT_1 masuk incomplete
+setelah 758 baris dan `L-CAT_B63` ALAT_3 setelah 487 baris; alasan umum
+`serial frame corrupt or oversized`. Audit `serial_wire.py`: batas
+JSON = 4096 byte/baris, chunk USB 256 byte dirangkai kembali, sehingga
+batas chunk tidak menyebabkan frame gagal. `decode_line` menolak malformed
+JSON, encoding invalid, NUL, duplicate keys, nonfinite number; framer
+menolak oversized lines yang dapat muncul jika delimiter newline hilang.
+Paket v7 mencatat reason/detail/ukuran frame tanpa merekam konten rusak;
+tetap fail-closed dan menyimpan partial di incomplete. QA offline PASS.
+Belum ada byte/log rinci dari Probook untuk membedakan malformed vs
+oversized dan belum ada uji tiga alat fisik setelah perubahan.
+
 ## 19 Oktober — tindak lanjut laporan data kedua hilang pada 3 alat
 
 Laporan operator laptop Probook: COM5 FTDI `A10KMM3SA`, COM6 FTDI

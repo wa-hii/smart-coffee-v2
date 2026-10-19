@@ -15,7 +15,7 @@ from unittest.mock import Mock, patch
 
 from acquisition_schema import ADC_COLS
 from lcd_acquisition_service import AcquisitionService, AcquisitionSession
-from serial_wire import SerialLineFramer, serial_json_frames
+from serial_wire import MAX_LINE_BYTES, SerialLineFramer, serial_json_frames
 from stage7_pi_adapter import EXPECTED_FW_HELLO, receive_serial_chunks
 from test_acquisition_integrity import make_complete_run
 from validate_acquisition import validate_file
@@ -69,8 +69,15 @@ def fragmented_frames() -> None:
     ]))
     assert next(frames) is None  # read() timeout, not message terminator
     assert next(frames) == sample
-    assert next(frames) == {"event": "TRANSPORT_ERROR", "reason": "malformed_json"}
-    assert next(frames) == {"event": "TRANSPORT_ERROR", "reason": "oversized_line"}
+    malformed = next(frames)
+    assert malformed["event"] == "TRANSPORT_ERROR"
+    assert malformed["reason"] == "malformed_json"
+    assert malformed["detail"] == "invalid_json_or_encoding"
+    assert malformed["frame_bytes"] == len(b"{bad\n")
+    oversized = next(frames)
+    assert oversized["event"] == "TRANSPORT_ERROR"
+    assert oversized["reason"] == "oversized_line"
+    assert oversized["limit_bytes"] == MAX_LINE_BYTES
     assert next(frames) is None
     framing = SerialLineFramer()
     assert not framing.feed(raw[:4])
