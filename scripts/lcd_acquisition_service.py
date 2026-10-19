@@ -139,7 +139,7 @@ def configure_device_storage(device_id: str, *, root: Path = ROOT) -> None:
 
 def configure_logging(verbose: bool = False) -> logging.Logger:
     LOG_DIR.mkdir(parents=True, exist_ok=True)
-    logger = logging.getLogger("enose-acquisition")
+    logger = logging.getLogger("enose-acquisition" + (f".{DEVICE_ID}" if DEVICE_ID else ""))
     logger.setLevel(logging.DEBUG if verbose else logging.INFO)
     logger.handlers.clear()
 
@@ -156,7 +156,7 @@ def configure_logging(verbose: bool = False) -> logging.Logger:
 
     if sys.stdout is not None:
         console = logging.StreamHandler(sys.stdout)
-        console.setFormatter(logging.Formatter("%(levelname)s | %(message)s"))
+        console.setFormatter(logging.Formatter("%(name)s | %(levelname)s | %(message)s"))
         logger.addHandler(console)
 
     return logger
@@ -518,10 +518,20 @@ class AcquisitionService:
 
         if event == "ACQ_COMPLETE":
             if self.session is None:
+                self.logger.warning(
+                    'ACQ_COMPLETE ignored: no active labeled session (possibly missing ACQ_START, '
+                    'USB disconnect, or non-labeled AI_TEST); sample=%r batch=%r',
+                    data.get('sample_id'), data.get('batch_id'),
+                )
                 return
             if (data.get("cycles") != 30 or
                     type(data.get("total_samples")) is not int or
                     data["total_samples"] != self.session.rows):
+                self.logger.error(
+                    'ACQ COMPLETE count mismatch: receiver rows=%d '
+                    'reported cycles=%r total_samples=%r',
+                    self.session.rows, data.get('cycles'), data.get('total_samples'),
+                )
                 self.session.preserve_incomplete("ACQ_COMPLETE count mismatch")
                 self.session = None
                 return

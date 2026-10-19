@@ -1,5 +1,29 @@
 # Pengambilan data 3 E-Nose pada 1 laptop — COM5 / COM6 / COM7
 
+**Update v6 diagnostik (19 Oktober 2026):** gunakan ZIP
+`Smart_Coffee_ENose_USB_Receiver_Windows_v6_ThreeDevices_Diagnostics.zip`.
+Paket ini mempertahankan protokol dan lokasi CSV v5 serta menambahkan
+`windows_receiver/DIAGNOSE_THREE_SESSIONS.bat`. Laporan hanya membaca
+status/log/final/incomplete/partial dan daftar COM. Bisa dipakai saat
+Take Data berlangsung tanpa membuka COM. Supervisor tetap mendukung
+COM5/6/7 dan USB serial identity seperti v5.
+
+**Jika COM tiba-tiba hilang dan muncul `ClearCommError failed (Access is
+denied)`/`usb_not_found`:** catat identitas alat, USB serial, waktu, log,
+dan lokasi incomplete. Ini merupakan kegagalan transport yang tidak boleh
+diubah menjadi file CSV lengkap atau dipulihkan dengan mengarang sampel.
+Tinjau kabel USB data, hub/port USB berdaya cukup, FTDI driver, Device
+Manager, dan Windows USB power management **setelah alat IDLE**. Koneksi
+yang tersambung kembali hanya dapat menerima sesi *baru*; tidak otomatis
+memulihkan sesi 30 siklus yang telah kehilangan 303 sampel.
+
+**Kegagalan pengambilan kedua:** CSV final hanya diterbitkan ketika
+`ACQ_COMPLETE` dan validasi PASS. Pada sesi aktif CSV masih berada di
+`data/raw/devices/ALAT_N/.incoming/`. Jika tidak muncul hasil kedua,
+periksa log alat tersebut: ada/tidak `ACQ START`, `ACQ COMPLETE`, `Timing
+QA PASS`, `ACQ INCOMPLETE`, dan `Acquisition validation PASS`. Jangan
+menutup terminal receiver sebelum seluruh sesi selesai.
+
 **Didukung oleh receiver multi-device v5.** Setiap ATmega2560 mengirim data
 melalui FT232R/USB ke port Windows sendiri. Tombol **Take Data** pada masing-
 masing LCD Nextion menjalankan 30 siklus secara independen. Receiver PC bersifat
@@ -7,7 +31,7 @@ pasif dan **tidak mengirim perintah START, tidak flash, tidak mengaktifkan valve
 
 ## Instalasi di laptop lama (Windows 10/11)
 
-1. Ekstrak `Smart_Coffee_ENose_USB_Receiver_Windows_v5_ThreeDevices.zip`
+1. Ekstrak `Smart_Coffee_ENose_USB_Receiver_Windows_v6_ThreeDevices_Diagnostics.zip`
    ke folder baru di `Documents` (jangan jalankan di dalam ZIP). Jangan menimpa
    folder receiver v3/v4 atau data raw sebelumnya.
 2. Setelah semua alat **IDLE**, tutup receiver lama, lalu **nonaktifkan shortcut

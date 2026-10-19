@@ -1,5 +1,17 @@
 # Smart Coffee E-Nose v2
 
+**19 Oktober 2026 — diagnosis dropout COM7 dan sesi lanjutan:** log Windows
+Probook memperlihatkan dua sesi lengkap (ALAT_1/COM5 `M-GRB_B61`,
+ALAT_2/COM6 `L-MING_B51`: masing-masing 900 baris, PASS) dan satu
+dropout USB pada ALAT_3/COM7 `L-MING_B52` setelah 597 baris dengan
+`ClearCommError Access is denied`, diikuti `usb_not_found`.
+`M-GRB_B62` baru terlihat `ACQ START`; keberhasilan akhirnya belum
+diketahui dari potongan log. Paket v6 menambah diagnostik read-only,
+identitas alat pada output console, log untuk event completion yang ditolak,
+dan pengujian 2 sesi berurutan pada tiap alat secara paralel.
+ZIP: `dist/Smart_Coffee_ENose_USB_Receiver_Windows_v6_ThreeDevices_Diagnostics.zip`.
+**Tidak ada uji hardware baru ataupun jaminan koneksi fisik COM7 telah pulih.**
+
 **19 Oktober 2026 — dukungan multi-device receiver (software-only):** satu
 laptop Windows kini dapat menggunakan tiga alat E-Nose pada COM5/COM6/COM7
 secara paralel melalui `scripts/multi_device_receiver.py`. Setiap proses

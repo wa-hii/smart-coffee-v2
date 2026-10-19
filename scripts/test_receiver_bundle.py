@@ -8,7 +8,7 @@ from tempfile import TemporaryDirectory
 from zipfile import ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
-ZIP = ROOT / 'dist/Smart_Coffee_ENose_USB_Receiver_Windows_v5_ThreeDevices.zip'
+ZIP = ROOT / 'dist/Smart_Coffee_ENose_USB_Receiver_Windows_v6_ThreeDevices_Diagnostics.zip'
 
 
 def main():
@@ -25,14 +25,16 @@ def main():
             assert (app / 'windows_receiver/INSTALL_THREE_ON_THIS_LAPTOP.bat').exists()
             assert (app / 'windows_receiver/START_THREE_ENOSE_COM5_COM6_COM7.bat').exists()
             assert (app / 'windows_receiver/README_THREE_DEVICES.md').exists()
+            assert (app / 'windows_receiver/DIAGNOSE_THREE_SESSIONS.bat').exists()
             assert (app / 'scripts/multi_device_receiver.py').exists()
+            assert (app / 'scripts/diagnose_three_receivers.py').exists()
             assert (app / 'scripts/receiver_preflight.py').exists()
             receiver=(app / 'scripts/lcd_acquisition_service.py').read_text(encoding='utf-8')
             assert 'elapsed_active_ms' in receiver and 'target_active_ms' in receiver
             assert 'ACQ_TIMING_FAULT' in receiver and 'active duration out of tolerance' in receiver
             assert 'acquire_host_instance_lock' in receiver
             assert 'data_raw_dir' in receiver
-            imports = ['lcd_acquisition_service', 'multi_device_receiver', 'recover_receiver_completed_csv', 'serial_wire',
+            imports = ['lcd_acquisition_service', 'multi_device_receiver', 'diagnose_three_receivers', 'recover_receiver_completed_csv', 'serial_wire',
                        'usb_autodetect', 'baseline_recording',
                        'baseline_quality', 'validate_acquisition',
                        'stage7_bridge', 'stage6_release_gate']

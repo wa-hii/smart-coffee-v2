@@ -1,5 +1,24 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 19 Oktober — tindak lanjut laporan data kedua hilang pada 3 alat
+
+Laporan operator laptop Probook: COM5 FTDI `A10KMM3SA`, COM6 FTDI
+`A10KN6X9A`, COM7 FTDI `A10KMZQJA`. Receiver v5 ketiganya CONNECTED.
+ALAT_1/COM5 `M-GRB_B61` dan ALAT_2/COM6 `L-MING_B51` sukses 900 baris
+dan QA PASS. ALAT_3/COM7 `L-MING_B52` terputus USB saat 597 baris,
+dipindahkan ke folder incomplete; Windows serial error `ClearCommError
+Access is denied`, kemudian `usb_not_found`. ALAT_1/COM5 kemudian
+mulai `M-GRB_B62`, tetapi potongan log belum menunjukkan completion.
+
+Receiver v6 software-only menyediakan diagnostik status/log/CSV tiga
+perangkat tanpa membuka COM, identitas alat pada pesan console, dan
+alasan untuk completion tanpa sesi aktif. Uji offline **dua sesi berurutan
+per alat, tiga alat paralel** memastikan receiver tidak berhenti setelah
+sesi pertama pada data sintetis; tidak membuktikan USB fisik/alat pulih.
+Tindakan operator berikut: kumpulkan log dan status akhir tiga ALAT,
+inspeksi koneksi USB COM7 saat IDLE, jalankan uji prospektif; jangan
+mempromosikan incomplete menjadi 900 baris valid.
+
 ## 19 Oktober — receiver tiga alat sekaligus, belum diuji fisik
 
 `scripts/multi_device_receiver.py` mendukung tiga adaptor USB serial pada

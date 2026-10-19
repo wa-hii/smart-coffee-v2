@@ -20,26 +20,28 @@ def simulated_instrument(temp: str, index: int):
     assert app.RAW_DIR == Path(temp) / 'data/raw/devices' / device
     assert app.LOG_DIR == Path(temp) / 'logs/devices' / device
     logger = Mock()
-    meta = {'sample_id': 'D-GAW', 'roast_level': 'dark',
-            'origin_code': 'GAW', 'batch_id': 'B99',
-            'filename': 'D-GAW_B99.csv'}
     service = app.AcquisitionService('COM' + str(4 + index), 115200, 0.1, logger)
-    service.handle_event({'event': 'ACQ_START', 'mode': 'labeled_data',
-                          'cycles_total': 30, 'purge_s': 25, 'collect_s': 5,
-                          'cycle': 1, 'phase': 'purging', **meta})
-    assert service.session is not None
-    service.session.file.close()
-    df = make_complete_run(30)
-    df['adc_tgs822'] += index * 500
-    df.to_csv(service.session.partial_path, index=False)
-    service.session.rows = 900
-    service.handle_event({'event': 'ACQ_COMPLETE', 'cycles': 30,
-                          'total_samples': 900, 'elapsed_active_ms': 900_012,
-                          'target_active_ms': 900_000, 'paused_ms': 0})
-    assert service.session is None
-    assert not logger.error.called, logger.error.call_args_list
-    out = app.RAW_DIR / 'D-GAW_B99.csv'
-    assert not validate_file(out, expected_cycles=30)
+    for batch in (99, 100):
+        meta = {'sample_id': 'D-GAW', 'roast_level': 'dark',
+                'origin_code': 'GAW', 'batch_id': f'B{batch}',
+                'filename': f'D-GAW_B{batch}.csv'}
+        service.handle_event({'event': 'ACQ_START', 'mode': 'labeled_data',
+                              'cycles_total': 30, 'purge_s': 25, 'collect_s': 5,
+                              'cycle': 1, 'phase': 'purging', **meta})
+        assert service.session is not None
+        service.session.file.close()
+        df = make_complete_run(30)
+        df['batch_id'] = f'B{batch}'
+        df['adc_tgs822'] += index * 500 + (batch - 99) * 100
+        df.to_csv(service.session.partial_path, index=False)
+        service.session.rows = 900
+        service.handle_event({'event': 'ACQ_COMPLETE', 'cycles': 30,
+                              'total_samples': 900, 'elapsed_active_ms': 900_012,
+                              'target_active_ms': 900_000, 'paused_ms': 0})
+        assert service.session is None
+        assert not logger.error.called, logger.error.call_args_list
+        out = app.RAW_DIR / f'D-GAW_B{batch}.csv'
+        assert not validate_file(out, expected_cycles=30)
     app.write_status(state='completed_simulation', port=service.port)
 
 
@@ -90,14 +92,14 @@ def main():
         for i in (1,2,3):
             root = Path(tmp) / 'data/raw/devices' / f'ALAT_{i}'
             files = list(root.glob('*.csv'))
-            assert len(files) == 1 and files[0].name == 'D-GAW_B99.csv'
-            assert not validate_file(files[0], expected_cycles=30)
-            values = pd.read_csv(files[0])['adc_tgs822']
+            assert sorted(f.name for f in files) == ['D-GAW_B100.csv','D-GAW_B99.csv']
+            assert all(not validate_file(f, expected_cycles=30) for f in files)
+            values = pd.read_csv(root/'D-GAW_B99.csv')['adc_tgs822']
             stamps.append(int(values.iloc[0]))
             assert (Path(tmp)/'logs/devices'/f'ALAT_{i}'/
                     'acquisition_service.status.json').exists()
         assert len(set(stamps)) == 3, 'Samples from distinct instruments mixed'
-    print('MULTI_3_DEVICE_PARALLEL_900_SAMPLES_NO_COM_NO_CLOBBER_PASS')
+    print('MULTI_3_DEVICE_PARALLEL_TWO_SEQUENTIAL_RUNS_900_SAMPLES_EACH_PASS')
 
 
 if __name__ == '__main__':

@@ -1,7 +1,7 @@
 # Smart Coffee E-Nose USB receiver otomatis (Windows)
 
-**Memakai 3 alat E-Nose di satu laptop?** Gunakan paket receiver v5
-`Smart_Coffee_ENose_USB_Receiver_Windows_v5_ThreeDevices.zip` dan ikuti
+**Memakai 3 alat E-Nose di satu laptop?** Gunakan paket receiver v6
+`Smart_Coffee_ENose_USB_Receiver_Windows_v6_ThreeDevices_Diagnostics.zip` dan ikuti
 `windows_receiver/README_THREE_DEVICES.md`, **bukan** menjalankan tiga
 instance listener v4 yang berbagi folder/log/mutex. Jalur v4 di bawah ini
 tetap berlaku untuk konfigurasi satu alat saja.
