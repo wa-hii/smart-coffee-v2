@@ -1,5 +1,22 @@
 # Pengambilan data 3 E-Nose pada 1 laptop — COM5 / COM6 / COM7
 
+**Update v8, diagnosis `invalid_json_or_encoding` pada ALAT_2:** paket
+`Smart_Coffee_ENose_USB_Receiver_Windows_v8_JSONFaultLocation.zip`
+menambahkan klasifikasi penyebab parser yang lebih spesifik:
+`fault_class=json_syntax` dengan `json_error_pos`, `json_error_message`,
+`json_error_at_end`, dan `ends_with_brace` atau `fault_class=invalid_utf8`
+dengan `invalid_byte_offset`. Hanya informasi *struktur* frame yang dicatat;
+tidak merekam nilai sensor mentah saat terjadi kesalahan. Validasi CSV tetap
+ketat dan frame gagal tetap mengarantina sesi ke `incomplete`.
+
+Log pengguna v7 memperlihatkan ALAT_2 / COM6 FTDI `A10KN6X9A` dengan
+`L-MING_B60` gagal setelah 351 baris: `malformed_json`,
+`invalid_json_or_encoding`, `frame_bytes=272`. Ini ukuran satu frame biasa,
+bukan oversized, tetapi log lama tidak memberi lokasi JSON yang salah.
+Receiver v8 hanya dapat memberi detail **pada insiden baru setelah v8
+dijalankan**, bukan pada insiden v7 yang telah berlalu. Jangan mengganti
+receiver atau USB ketika sesi 30 siklus masih berlangsung.
+
 **Update v7 frame diagnostics:** apabila sesi berpindah ke `incomplete`
 karena `serial frame corrupt or oversized`, receiver baru mencatat alasan
 terpisah `SERIAL FRAME REJECTED reason=malformed_json` (dengan `detail` dan

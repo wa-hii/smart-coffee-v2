@@ -1,5 +1,16 @@
 # Smart Coffee E-Nose v2
 
+**19 Oktober 2026 — ALAT_2 serial invalid JSON 272 byte:** pada laptop
+Probook, ALAT_2/COM6 mencatat `L-MING_B60` incomplete setelah 351 baris,
+`malformed_json detail=invalid_json_or_encoding frame_bytes=272`.
+Ukuran tersebut bukan overrun 4096 byte. Pemeriksaan kode: JSON sensor
+dihasilkan via beberapa `Serial.print()` dan SHT30 memeriksa CRC; sumber
+kerusakan byte spesifik tidak bisa disimpulkan dari log yang tersedia.
+Receiver v8 menambah posisi dan kategori parser JSON untuk diagnosis
+prospektif tanpa mencatat konten sensor mentah; tidak mengubah firmware
+atau syarat penerimaan CSV. Paket:
+`dist/Smart_Coffee_ENose_USB_Receiver_Windows_v8_JSONFaultLocation.zip`.
+
 **19 Oktober 2026 — frame serial invalid pada Probook:** operator melaporkan
 ALAT_1 `L-TOR_B61` (758 baris) dan ALAT_3 `L-CAT_B63` (487 baris) masuk
 `incomplete` karena `serial frame corrupt or oversized`. Kode v5 tidak

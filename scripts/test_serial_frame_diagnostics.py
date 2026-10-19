@@ -31,6 +31,10 @@ def main():
     assert bad['reason'] == 'malformed_json'
     assert bad['detail'] == 'invalid_json_or_encoding'
     assert bad['frame_bytes'] == len(b'{"bad":\n')
+    assert bad['fault_class'] == 'json_syntax'
+    assert bad['json_error_message'] == 'Expecting value'
+    assert bad['json_error_at_end'] is True
+    assert bad['ends_with_brace'] is False
     duplicate = next(frames)
     assert duplicate['reason'] == 'malformed_json'
     assert duplicate['detail'] == 'duplicate_json_key'
@@ -39,6 +43,29 @@ def main():
     too_long = next(frames)
     assert too_long['reason'] == 'oversized_line'
     assert too_long['limit_bytes'] == MAX_LINE_BYTES
+
+    # Four distinct 272-byte faults: ordinary corrupt syntax, truncated
+    # sensor JSON, invalid UTF-8, and a valid-looking object with invalid
+    # bytes. None may be accepted by the strict sensor CSV receiver.
+    one_line = b'{"adc_tgs822":1533,"sample_idx":12,"cycle":14,"phase":"purging"}'
+    malformed_272 = (one_line[:-1] + b',' + b' ' * (271 - len(one_line)) + b'\n')
+    assert len(malformed_272) == 272
+    faults = serial_json_frames(FakePort([
+        malformed_272,
+        b'{"adc_tgs822":1533,"sample_idx":12,\n',
+        b'{"adc_tgs822":"\xff"}\n',
+    ]))
+    bad272 = next(faults)
+    assert bad272['fault_class'] == 'json_syntax'
+    assert bad272['frame_bytes'] == 272
+    assert bad272['json_error_pos'] > 0
+    assert bad272['ends_with_brace'] is False
+    truncated = next(faults)
+    assert truncated['fault_class'] == 'json_syntax'
+    assert truncated['json_error_at_end'] is True
+    utf8 = next(faults)
+    assert utf8['fault_class'] == 'invalid_utf8'
+    assert utf8['invalid_byte_offset'] > 0
 
     with TemporaryDirectory() as tmp:
         root = Path(tmp)

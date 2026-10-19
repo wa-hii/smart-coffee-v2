@@ -1,5 +1,23 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 19 Oktober — ALAT_2 L-MING_B60 ditolak sebagai malformed JSON
+
+Log Windows Probook receiver v7:
+`enose-acquisition.ALAT_2 | ERROR | SERIAL FRAME REJECTED
+reason=malformed_json detail=invalid_json_or_encoding frame_bytes=272
+active_session=True accepted_rows=351`. File tetap berada di
+`data/raw/devices/ALAT_2/incomplete`. Bukan masalah frame >4096 byte;
+parser mengalami error JSON atau UTF-8 yang pada v7 sama-sama dipetakan
+ke `invalid_json_or_encoding`. Audit firmware menunjukkan sensor JSON
+dikirim `Serial.print()` + newline dan pembacaan SHT30 ber-CRC, tetapi
+tidak membuktikan byte selalu utuh pada USB.
+
+Receiver v8 software-only menambahkan `fault_class`, JSON parser
+error position/message, status penutup `}`, dan byte offset UTF-8 invalid
+tanpa merekam isi frame. Offline QA PASS. Root cause belum dikonfirmasi;
+observasi parser dan tes kabel/hub/daya fisik harus dilakukan prospektif,
+ketika alat sudah IDLE. Jangan meloloskan incomplete CSV.
+
 ## 19 Oktober — serial frame reject pada 3 alat (laptop Probook)
 
 Log operator menunjukkan `L-TOR_B61` pada ALAT_1 masuk incomplete

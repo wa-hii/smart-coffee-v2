@@ -8,7 +8,7 @@ from tempfile import TemporaryDirectory
 from zipfile import ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
-ZIP = ROOT / 'dist/Smart_Coffee_ENose_USB_Receiver_Windows_v7_SerialFrameDiagnostics.zip'
+ZIP = ROOT / 'dist/Smart_Coffee_ENose_USB_Receiver_Windows_v8_JSONFaultLocation.zip'
 
 
 def main():
@@ -35,6 +35,8 @@ def main():
             assert 'acquire_host_instance_lock' in receiver
             assert 'data_raw_dir' in receiver
             assert 'SERIAL FRAME REJECTED' in receiver
+            framer=(app / 'scripts/serial_wire.py').read_text(encoding='utf-8')
+            assert 'json_error_pos' in framer and 'fault_class' in framer
             imports = ['lcd_acquisition_service', 'multi_device_receiver', 'diagnose_three_receivers', 'recover_receiver_completed_csv', 'serial_wire',
                        'usb_autodetect', 'baseline_recording',
                        'baseline_quality', 'validate_acquisition',

@@ -588,10 +588,19 @@ class AcquisitionService:
         if event == "TRANSPORT_ERROR":
             self.logger.error(
                 "SERIAL FRAME REJECTED reason=%s detail=%s frame_bytes=%s "
-                "limit_bytes=%s active_session=%s accepted_rows=%s",
+                "limit_bytes=%s fault_class=%s json_error_pos=%s "
+                "json_error_message=%s json_error_at_end=%s "
+                "ends_with_brace=%s invalid_byte_offset=%s "
+                "active_session=%s accepted_rows=%s",
                 data.get("reason", "unknown"), data.get("detail", "unknown"),
                 data.get("frame_bytes", "n/a"),
                 data.get("limit_bytes", "n/a"),
+                data.get("fault_class", "n/a"),
+                data.get("json_error_pos", "n/a"),
+                data.get("json_error_message", "n/a"),
+                data.get("json_error_at_end", "n/a"),
+                data.get("ends_with_brace", "n/a"),
+                data.get("invalid_byte_offset", "n/a"),
                 self.session is not None,
                 self.session.rows if self.session is not None else 0,
             )
