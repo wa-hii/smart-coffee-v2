@@ -1,0 +1,16 @@
+timestamp,sample_id,roast_level,origin,batch_id,run_id,phase,sample_idx,adc_tgs822,adc_mq135,adc_mq3,adc_tgs2611,adc_tgs2620,adc_tgs2600,adc_tgs2602,adc_mq8,adc_tgs813,adc_tgs816,temperature,humidity
+1394210,M-GRB,medium,Arabika Redbourbon Gayo Aceh Natural,B62,1,purging,1,14384,2908,2890,8773,10795,2882,9327,14357,15204,14948,31.58,58.44
+1395184,M-GRB,medium,Arabika Redbourbon Gayo Aceh Natural,B62,1,purging,2,14347,2908,2896,8773,10790,2884,9325,14350,15193,14946,31.61,58.46
+1396184,M-GRB,medium,Arabika Redbourbon Gayo Aceh Natural,B62,1,purging,3,14311,2907,2893,8772,10786,2884,9324,14344,15183,14944,31.58,58.44
+1397184,M-GRB,medium,Arabika Redbourbon Gayo Aceh Natural,B62,1,purging,4,14278,2906,2892,8771,10783,2882,9323,14338,15174,14942,31.61,58.44
+1398183,M-GRB,medium,Arabika Redbourbon Gayo Aceh Natural,B62,1,purging,5,14248,2908,2895,8771,10779,2884,9322,14334,15165,14941,31.58,58.39
+1399184,M-GRB,medium,Arabika Redbourbon Gayo Aceh Natural,B62,1,purging,6,14223,2905,2890,8770,10778,2884,9322,14330,15157,14940,31.59,58.43
+1400183,M-GRB,medium,Arabika Redbourbon Gayo Aceh Natural,B62,1,purging,7,14199,2904,2893,8769,10777,2882,9324,14326,15150,14939,31.58,58.42
+1401184,M-GRB,medium,Arabika Redbourbon Gayo Aceh Natural,B62,1,purging,8,14177,2906,2892,8769,10777,2884,9325,14322,15143,14938,31.58,58.43
+1402183,M-GRB,medium,Arabika Redbourbon Gayo Aceh Natural,B62,1,purging,9,14156,2906,2893,8769,10776,2884,9325,14318,15137,14937,31.58,58.45
+1403184,M-GRB,medium,Arabika Redbourbon Gayo Aceh Natural,B62,1,purging,10,14135,2906,2891,8769,10776,2884,9326,14315,15131,14935,31.55,58.44
+1404184,M-GRB,medium,Arabika Redbourbon Gayo Aceh Natural,B62,1,purging,11,14115,2909,2893,8768,10775,2884,9324,14311,15125,14934,31.53,58.46
+1405184,M-GRB,medium,Arabika Redbourbon Gayo Aceh Natural,B62,1,purging,12,14096,2908,2889,8769,10774,2884,9323,14306,15119,14931,31.53,58.48
+1406184,M-GRB,medium,Arabika Redbourbon Gayo Aceh Natural,B62,1,purging,13,14080,2907,2893,8769,10772,2884,9321,14303,15113,14929,31.53,58.49
+1407183,M-GRB,medium,Arabika Redbourbon Gayo Aceh Natural,B62,1,purging,14,14066,2908,2892,8768,10770,2884,9320,14300,15107,14927,31.5,58.52
+1408184,M-GRB,medium,Arabika Redbourbon Gayo Aceh Natural,B62,1,purging,15,14052,2905,2891,8767,10768,2884,9317,14296,15101,14925,31.55,58.54
