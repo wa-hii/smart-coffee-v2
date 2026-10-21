@@ -1,0 +1,23 @@
+{
+  "source_valid": "D:\\ENOSE\\smart-coffee-v2-hardware\\smart-coffee-v2-hardware\\data\\raw\\data 30 siklus\\HASIL_AUDIT_30_SIKLUS_20261019\\HASIL_GABUNGAN_20261021\\01_VALID_GABUNGAN",
+  "input_csv": 112,
+  "all_source_files_checked": 112,
+  "sensor_count": 10,
+  "roast_groups": 31,
+  "cross_batch_groups": 21,
+  "plot_counts": {
+    "per_batch": 1120,
+    "roast_same_origin_batch": 310,
+    "origin_roast_cross_batch": 210,
+    "roast_same_origin_batch_t0": 310,
+    "origin_roast_cross_batch_t0": 210
+  },
+  "plots_total": 2160,
+  "new_csv": "M-MING_B65.csv",
+  "t0": "sample 25 of first purging phase (cycle 1), just BEFORE collecting begins at sample t26; each CSV has its own ADC(t0) baseline",
+  "t0_formula": "Delta_ADC(t)=ADC(t)-ADC(t0)",
+  "original_samples_per_file": 900,
+  "sampling": "timestamps from raw CSV; no interpolation, resampling, smoothing",
+  "overwritten_inputs": false,
+  "smoke": false
+}

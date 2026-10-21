@@ -1,0 +1,53 @@
+﻿type,group,count,files
+roast_same_origin_batch,CAT_B60,2,L-CAT_B60.csv | D-CAT_B60.csv
+roast_same_origin_batch,CAT_B62,3,L-CAT_B62.csv | M-CAT_B62.csv | D-CAT_B62.csv
+roast_same_origin_batch,CAT_B63,3,L-CAT_B63.csv | M-CAT_B63.csv | D-CAT_B63.csv
+roast_same_origin_batch,CAT_B64,2,M-CAT_B64.csv | D-CAT_B64.csv
+roast_same_origin_batch,CAT_B66,2,L-CAT_B66.csv | M-CAT_B66.csv
+roast_same_origin_batch,CAT_B67,2,L-CAT_B67.csv | M-CAT_B67.csv
+roast_same_origin_batch,GAW_B60,3,L-GAW_B60.csv | M-GAW_B60.csv | D-GAW_B60.csv
+roast_same_origin_batch,GAW_B61,3,L-GAW_B61.csv | M-GAW_B61.csv | D-GAW_B61.csv
+roast_same_origin_batch,GAW_B66,3,L-GAW_B66.csv | M-GAW_B66.csv | D-GAW_B66.csv
+roast_same_origin_batch,GAW_B67,2,L-GAW_B67.csv | M-GAW_B67.csv
+roast_same_origin_batch,GAW_B68,2,L-GAW_B68.csv | M-GAW_B68.csv
+roast_same_origin_batch,GRB_B60,3,M-GRB_B60.csv | M-GRB_B60__NEW_9645c0fc1e.csv | D-GRB_B60.csv
+roast_same_origin_batch,GRB_B61,2,M-GRB_B61.csv | D-GRB_B61.csv
+roast_same_origin_batch,GRB_B62,2,L-GRB_B62.csv | D-GRB_B62.csv
+roast_same_origin_batch,GRB_B63,2,L-GRB_B63.csv | D-GRB_B63.csv
+roast_same_origin_batch,GRB_B64,2,L-GRB_B64.csv | D-GRB_B64.csv
+roast_same_origin_batch,GRB_B66,2,L-GRB_B66.csv | M-GRB_B66.csv
+roast_same_origin_batch,MING_B60,2,L-MING_B60.csv | D-MING_B60.csv
+roast_same_origin_batch,MING_B61,2,M-MING_B61.csv | D-MING_B61.csv
+roast_same_origin_batch,MING_B62,2,M-MING_B62.csv | D-MING_B62.csv
+roast_same_origin_batch,MING_B63,2,M-MING_B63.csv | D-MING_B63.csv
+roast_same_origin_batch,MING_B64,2,M-MING_B64.csv | D-MING_B64.csv
+roast_same_origin_batch,TEM_B60,3,L-TEM_B60.csv | M-TEM_B60.csv | D-TEM_B60.csv
+roast_same_origin_batch,TEM_B61,3,L-TEM_B61.csv | M-TEM_B61.csv | D-TEM_B61.csv
+roast_same_origin_batch,TEM_B62,4,L-TEM_B62.csv | M-TEM_B62.csv | M-TEM_B62_20261019_175906.csv | D-TEM_B62.csv
+roast_same_origin_batch,TEM_B63,3,L-TEM_B63.csv | M-TEM_B63.csv | D-TEM_B63.csv
+roast_same_origin_batch,TEM_B64,3,L-TEM_B64.csv | M-TEM_B64.csv | D-TEM_B64.csv
+roast_same_origin_batch,TOR_B63,3,L-TOR_B63.csv | M-TOR_B63.csv | D-TOR_B63.csv
+roast_same_origin_batch,TOR_B65,2,L-TOR_B65.csv | M-TOR_B65.csv
+roast_same_origin_batch,TOR_B66,3,L-TOR_B66.csv | M-TOR_B66.csv | D-TOR_B66.csv
+roast_same_origin_batch,TOR_B67,3,L-TOR_B67.csv | M-TOR_B67.csv | D-TOR_B67.csv
+origin_roast_cross_batch,CAT_Dark,6,D-CAT_B60.csv | D-CAT_B61.csv | D-CAT_B62.csv | D-CAT_B63.csv | D-CAT_B64.csv | D-CAT_B65.csv
+origin_roast_cross_batch,CAT_Light,5,L-CAT_B60.csv | L-CAT_B62.csv | L-CAT_B63.csv | L-CAT_B66.csv | L-CAT_B67.csv
+origin_roast_cross_batch,CAT_Medium,5,M-CAT_B62.csv | M-CAT_B63.csv | M-CAT_B64.csv | M-CAT_B66.csv | M-CAT_B67.csv
+origin_roast_cross_batch,GAW_Dark,7,D-GAW_B60.csv | D-GAW_B61.csv | D-GAW_B62.csv | D-GAW_B63.csv | D-GAW_B64.csv | D-GAW_B65.csv | D-GAW_B66.csv
+origin_roast_cross_batch,GAW_Light,5,L-GAW_B60.csv | L-GAW_B61.csv | L-GAW_B66.csv | L-GAW_B67.csv | L-GAW_B68.csv
+origin_roast_cross_batch,GAW_Medium,5,M-GAW_B60.csv | M-GAW_B61.csv | M-GAW_B66.csv | M-GAW_B67.csv | M-GAW_B68.csv
+origin_roast_cross_batch,GAY_Light,5,L-GAY_B62.csv | L-GAY_B63.csv | L-GAY_B65.csv | L-GAY_B66.csv | L-GAY_B67.csv
+origin_roast_cross_batch,GRB_Dark,5,D-GRB_B60.csv | D-GRB_B61.csv | D-GRB_B62.csv | D-GRB_B63.csv | D-GRB_B64.csv
+origin_roast_cross_batch,GRB_Light,5,L-GRB_B62.csv | L-GRB_B63.csv | L-GRB_B64.csv | L-GRB_B65.csv | L-GRB_B66.csv
+origin_roast_cross_batch,GRB_Medium,6,M-GRB_B60.csv | M-GRB_B60__NEW_9645c0fc1e.csv | M-GRB_B61.csv | M-GRB_B66.csv | M-GRB_B67.csv | M-GRB_B68.csv
+origin_roast_cross_batch,MING_Dark,5,D-MING_B60.csv | D-MING_B61.csv | D-MING_B62.csv | D-MING_B63.csv | D-MING_B64.csv
+origin_roast_cross_batch,MING_Light,5,L-MING_B60.csv | L-MING_B66.csv | L-MING_B67.csv | L-MING_B68.csv | L-MING_B69.csv
+origin_roast_cross_batch,MING_Medium,5,M-MING_B61.csv | M-MING_B62.csv | M-MING_B63.csv | M-MING_B64.csv | M-MING_B65.csv
+origin_roast_cross_batch,MUK_Medium,6,M-MUK_B60.csv | M-MUK_B61.csv | M-MUK_B62.csv | M-MUK_B63.csv | M-MUK_B64.csv | M-MUK_B65.csv
+origin_roast_cross_batch,RAT_Dark,6,D-RAT_B61.csv | D-RAT_B62.csv | D-RAT_B63.csv | D-RAT_B64.csv | D-RAT_B65.csv | D-RAT_B66.csv
+origin_roast_cross_batch,TEM_Dark,5,D-TEM_B60.csv | D-TEM_B61.csv | D-TEM_B62.csv | D-TEM_B63.csv | D-TEM_B64.csv
+origin_roast_cross_batch,TEM_Light,5,L-TEM_B60.csv | L-TEM_B61.csv | L-TEM_B62.csv | L-TEM_B63.csv | L-TEM_B64.csv
+origin_roast_cross_batch,TEM_Medium,6,M-TEM_B60.csv | M-TEM_B61.csv | M-TEM_B62.csv | M-TEM_B62_20261019_175906.csv | M-TEM_B63.csv | M-TEM_B64.csv
+origin_roast_cross_batch,TOR_Dark,5,D-TOR_B60.csv | D-TOR_B61.csv | D-TOR_B63.csv | D-TOR_B66.csv | D-TOR_B67.csv
+origin_roast_cross_batch,TOR_Light,5,L-TOR_B62.csv | L-TOR_B63.csv | L-TOR_B65.csv | L-TOR_B66.csv | L-TOR_B67.csv
+origin_roast_cross_batch,TOR_Medium,5,M-TOR_B63.csv | M-TOR_B64.csv | M-TOR_B65.csv | M-TOR_B66.csv | M-TOR_B67.csv
