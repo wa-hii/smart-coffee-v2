@@ -1,0 +1,61 @@
+{
+  "source": "D:\\ENOSE\\smart-coffee-v2-hardware\\smart-coffee-v2-hardware\\data\\raw\\data 30 siklus\\HASIL_AUDIT_30_SIKLUS_20261019\\HASIL_GABUNGAN_20261021\\01_VALID_GABUNGAN",
+  "source_files_audited": 112,
+  "input_candidates_valid_b60_b68": 111,
+  "selected_files": 78,
+  "excluded_same_batch_records": 2,
+  "eligible_origins": [
+    "GAW",
+    "GRB",
+    "TEM",
+    "CAT",
+    "TOR"
+  ],
+  "origin_counts": {
+    "GAW": {
+      "Light": 5,
+      "Medium": 5,
+      "Dark": 7
+    },
+    "GRB": {
+      "Light": 5,
+      "Medium": 5,
+      "Dark": 5
+    },
+    "TEM": {
+      "Light": 5,
+      "Medium": 5,
+      "Dark": 5
+    },
+    "CAT": {
+      "Light": 5,
+      "Medium": 5,
+      "Dark": 6
+    },
+    "TOR": {
+      "Light": 5,
+      "Medium": 5,
+      "Dark": 5
+    }
+  },
+  "total_plots": 100,
+  "raw_plots": 50,
+  "t0_plots": 50,
+  "sensors": [
+    "adc_tgs822",
+    "adc_mq135",
+    "adc_mq3",
+    "adc_tgs2611",
+    "adc_tgs2620",
+    "adc_tgs2600",
+    "adc_tgs2602",
+    "adc_mq8",
+    "adc_tgs813",
+    "adc_tgs816"
+  ],
+  "t0_definition": "purging cycle 1 sample_idx=25 (zero-based row 24), before collecting at t26",
+  "t0_math": "ADC(t) - ADC(t0) for each CSV separately",
+  "input_unchanged": true,
+  "no_smoothing_interpolation_resampling": true,
+  "independence_warning": "Each run is a curve; 30 cycles are not independent replicates; physical device and specimen independence not established."
+}
