@@ -1,6 +1,6 @@
-"""Overlay all 30-cycle Light/Medium/Dark trials within each coffee origin.
+"""Overlay all audited 30-cycle L/M/D trials per coffee origin (any batch ID).
 
-Acceptance: B60..B68, strict 900-row acquisition QA, at least five *unique*
+Acceptance: every batch ID is a recording identifier, strict 900-row QA, five *unique*
 batch IDs for each of the three roast levels. Repetitions in one batch are
 reported but never silently counted as different independent replicates.
 All 900 readings from each selected CSV are shown, raw and per-file t0=purge25
@@ -34,8 +34,7 @@ from plot_merged_30_siklus_five_schemes import SRC, SENSOR_LABELS, ROAST_NAMES, 
 
 
 ROOT=Path(__file__).resolve().parents[1]
-OUT=ROOT/'results/plots_origin_LMD_merge_B60_B68_20261021'
-ORIGINS=['GAW','GRB','TEM','CAT','MING','TOR']
+OUT=ROOT/'results/plots_origin_LMD_merge_all_valid_20261021'
 ROASTS=['L','M','D']
 LINE_STYLES=['solid','dashed','dashdot','dotted',(0,(4,1,1,1)),(0,(2,2,1,2)),(0,(7,2))]
 CSV_FIELDS_PROVENANCE=['filename','origin','roast_level','batch_id','sha256','signal_sha256',
@@ -69,8 +68,8 @@ def read_and_audit(source:Path):
             batch_number=int(batch[1:]) if batch.startswith('B') else -1
         except ValueError:
             batch_number=-1
-        if not 60<=batch_number<=68:
-            reasons.append('OUTSIDE_B60_B68')
+        if batch_number<0:
+            reasons.append('BATCH_ID_NOT_NUMERIC')
         if not origin or level not in ROASTS or roast!=ROAST_NAMES.get(level,'').lower():
             reasons.append('INVALID_SAMPLE_ROAST')
         fp=signal_fingerprint(file)
@@ -122,7 +121,8 @@ def choose_groups(candidates,provenance):
                               'reason':'MULTIPLE_VALID_RECORDINGS_SAME_BATCH_UNVERIFIED_INDEPENDENCE'})
 
     matrix=[]; eligible=[]; origin_inputs={}
-    for origin in ORIGINS:
+    # Discover origins from actual verified CSVs, not a hardcoded name list.
+    for origin in sorted({r['origin'] for r in candidates}):
         per_level={level:sorted([r for (o,l,b),r in chosen.items() if o==origin and l==level],
                                 key=lambda x:x['batch_number']) for level in ROASTS}
         batches={level:[r['batch_id'] for r in per_level[level]] for level in ROASTS}
@@ -144,7 +144,7 @@ def choose_groups(candidates,provenance):
     for row in provenance:
         if row['source_path'] in selected_paths:
             row['status']='SELECTED_FOR_PLOT'
-            row['selection_reason']='VALID_B60_B68_UNIQUE_BATCH_AND_ORIGIN_ELIGIBLE'
+            row['selection_reason']='VALID_IN_ALL_BATCHES_UNIQUE_BATCH_AND_ORIGIN_ELIGIBLE'
         elif row['status']=='CANDIDATE':
             if row['filename'] in conflict_paths:
                 row['status']='EXCLUDED_EXTRA_SAME_BATCH'
@@ -273,7 +273,7 @@ def plot_one(task):
     ax.xaxis.set_major_locator(MultipleLocator(60))
     ax.grid(alpha=.22,linewidth=.55)
     ax.spines[['top','right']].set_visible(False)
-    ax.set_title(f'{origin} · Light / Medium / Dark · B60–B68 · {SENSOR_LABELS[sensor]} · {mode}',
+    ax.set_title(f'{origin} · Light / Medium / Dark · All valid batches · {SENSOR_LABELS[sensor]} · {mode}',
                  fontsize=13,pad=14)
     ax.legend(loc='upper center',bbox_to_anchor=(.5,-.18),ncol=3,
               fontsize=7.4,frameon=False,handlelength=3)
@@ -292,7 +292,7 @@ def write_gallery(out,plot_index):
     obj=json.dumps(data,ensure_ascii=False).replace('<','\\u003c')
     html='''<!doctype html><html lang="id"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Smart Coffee E-Nose: LMD Merge B60–B68</title><style>
+<title>Smart Coffee E-Nose: LMD Merge All Valid Batches</title><style>
 body{font-family:system-ui,Segoe UI,sans-serif;background:#f6f7fa;color:#263142;max-width:1350px;padding:24px;margin:auto}
 h1{font-size:1.7rem}.muted{color:#5c6679}.control{display:flex;gap:12px;flex-wrap:wrap;background:#fff;border:1px solid #ddd;padding:16px;border-radius:12px}
 label{display:grid;gap:6px;flex:1;min-width:160px;font-size:.84rem;font-weight:600}select{border:1px solid #bfc6d4;padding:8px;border-radius:7px;background:#fff;color:#222}
@@ -300,7 +300,7 @@ label{display:grid;gap:6px;flex:1;min-width:160px;font-size:.84rem;font-weight:6
 .plot img{width:100%;height:auto;display:block}.meta{padding:13px;font-size:.87rem}.meta small{display:block;color:#5b6679;margin-top:5px;line-height:1.45;overflow-wrap:anywhere}
 @media(prefers-color-scheme:dark){body{background:#131a24;color:#f2f4f8}.plot,.control{background:#202b3b;border-color:#3e4b60}.muted,.meta small{color:#b8c2d1}select{background:#1b2532;color:#fff;border-color:#637086}}
 </style></head><body><h1>Perbandingan Light–Medium–Dark dalam satu origin</h1>
-<p class="muted">B60–B68 · minimal lima batch valid per roast · 10 sensor · dua mode (RAW ADC dan normalisasi t0). Semua kurva rekaman asli ditampilkan, bukan hanya rata-rata.</p>
+<p class="muted">Seluruh batch valid (nomor batch adalah identitas, bukan batas seleksi) · minimal lima batch berbeda per roast · 10 sensor · dua mode (RAW ADC dan normalisasi t0). Semua kurva asli ditampilkan.</p>
 <div class="control"><label>Origin<select id="origin"></select></label><label>Sensor<select id="sensor"></select></label><label>Grafik<select id="mode"></select></label></div>
 <p id="count" class="muted"></p><div class="gallery" id="gallery"></div><p class="muted">t0 ialah purging siklus 1 indeks sampel 25, tepat sebelum collecting t26. Detail provenance pada README.md, plot_index.csv dan input_provenance.csv.</p>
 <script>const data=__DATA__,origin=document.getElementById('origin'),sensor=document.getElementById('sensor'),mode=document.getElementById('mode');
@@ -377,7 +377,8 @@ def run(source=SRC,out=OUT,workers=3):
     fields=list(comparisons[0])
     write_csv(out/'sensor_separation_diagnostics.csv',comparisons,fields)
     summary={'source':str(source.resolve()),'source_files_audited':len(provenance),
-             'input_candidates_valid_b60_b68':len(candidates),
+             'batch_policy':'All valid numeric batch IDs; no maximum or minimum cutoff; names alone cannot exclude a valid CSV',
+             'input_candidates_valid_all_batches':len(candidates),
              'selected_files':len(all_files),'excluded_same_batch_records':len(conflicts),
              'eligible_origins':eligible,
              'origin_counts':{origin:dict(Counter(r['roast_level'] for r in rows)) for origin,rows in by_origin.items()},
@@ -388,7 +389,7 @@ def run(source=SRC,out=OUT,workers=3):
              'input_unchanged':True,'no_smoothing_interpolation_resampling':True,
              'independence_warning':'Each run is a curve; 30 cycles are not independent replicates; physical device and specimen independence not established.'}
     (out/'summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    notes=['# Overlay Light–Medium–Dark berdasarkan origin, batch B60–B68','',
+    notes=['# Overlay Light–Medium–Dark berdasarkan origin, seluruh batch valid','',
            'Sumber: `'+str(source.resolve())+'`.',
            f'CSV diperiksa: **{len(provenance)}**; rekaman digunakan: **{len(all_files)}**; origin eligible: **{len(eligible)}**.',
            f'PNG: **{len(tasks)}** (RAW {len(tasks)//2}, T0 normalized {len(tasks)//2}).','',
@@ -398,7 +399,7 @@ def run(source=SRC,out=OUT,workers=3):
         notes.append(f'| {row["origin"]} | {row["light_valid_batch"]} | {row["medium_valid_batch"]} | {row["dark_valid_batch"]} | {"Ya" if row["eligible"] else "Tidak: "+row["reason"]} |')
     notes+=['','## Methodology','',
             '- Overlay **all selected genuine CSV curves** per sensor/roast on one axis (not averaged curves).',
-            '- B60–B68 inclusive; 900 valid time-indexed points per file; 30 × (25s purging + 5s collecting).',
+            '- Tidak ada filter nomor batch: batch hanya label identitas rekaman; semua CSV valid dinilai menggunakan aturan yang sama. Setiap CSV 900 sampel dan 30 × (25s purging + 5s collecting).',
             '- Minimum five **unique batch IDs** each roast. Canonical sample code filename is preferred if repeated valid recordings share a batch; see `duplicate_same_batch_qa.csv`.',
             '- RAW ADC unchanged. ΔADC(t) = ADC(t) − ADC(t0) where t0=last purging measurement in cycle1 (sample_idx=25, at nominal t=24s). t26 is first collecting measurement.',
             '- All 900 samples plotted; t0-normalized negative time interval retains first 24 purge samples.',
@@ -411,7 +412,7 @@ def run(source=SRC,out=OUT,workers=3):
             '- `GALERI_LMD_MERGE.html`: filter origin, sensor, raw/t0.',
             '- `plot_index.csv`: one row per graph and source list.',
             '- `input_provenance.csv`: SHA256 and selection reason for **all audited** source CSV.',
-            '- `eligible_origins.csv`: all six candidate origin eligibility checks.',
+            '- `eligible_origins.csv`: seluruh origin yang ditemukan pada dataset dan pemeriksaan kelayakannya.',
             '- `baseline_t0_per_sensor.csv`: anchor ADC for every selected record and sensor.',
             '- `sensor_separation_diagnostics.csv`: per-origin/sensor descriptive ratios, ranks, baseline spread, drift and collection contrast.',
             '- `duplicate_same_batch_qa.csv`: records excluded from the graph for sharing same roast+origin+batch without independent provenance.',
