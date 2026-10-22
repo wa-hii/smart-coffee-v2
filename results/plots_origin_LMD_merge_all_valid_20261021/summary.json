@@ -62,6 +62,11 @@
   ],
   "t0_definition": "purging cycle 1 sample_idx=25 (zero-based row 24), before collecting at t26",
   "t0_math": "ADC(t) - ADC(t0) for each CSV separately",
+  "roast_colors": {
+    "Light": "#168A43",
+    "Medium": "#D4A400",
+    "Dark": "#C62828"
+  },
   "input_unchanged": true,
   "no_smoothing_interpolation_resampling": true,
   "independence_warning": "Each run is a curve; 30 cycles are not independent replicates; physical device and specimen independence not established."

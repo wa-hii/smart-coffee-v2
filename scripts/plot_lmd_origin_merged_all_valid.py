@@ -30,12 +30,16 @@ import pandas as pd
 from acquisition_schema import ADC_COLS
 from audit_dataset_30_siklus import audit_one, categorize
 from merge_new_30_siklus_audit import checksum, signal_fingerprint
-from plot_merged_30_siklus_five_schemes import SRC, SENSOR_LABELS, ROAST_NAMES, ROAST_COLOR
+from plot_merged_30_siklus_five_schemes import SRC, SENSOR_LABELS, ROAST_NAMES
 
 
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'results/plots_origin_LMD_merge_all_valid_20261021'
 ROASTS=['L','M','D']
+# Visual-only palette for origin-level L/M/D overlays. Do not change the
+# shared palette used by older figure families or modify sensor readings.
+# Gold-yellow is sufficiently dark to remain legible on a white chart.
+ROAST_COLOR={'L':'#168A43', 'M':'#D4A400', 'D':'#C62828'}
 LINE_STYLES=['solid','dashed','dashdot','dotted',(0,(4,1,1,1)),(0,(2,2,1,2)),(0,(7,2))]
 CSV_FIELDS_PROVENANCE=['filename','origin','roast_level','batch_id','sha256','signal_sha256',
                        'rows','cycles','duration_seconds','source_path','status','selection_reason']
@@ -247,18 +251,15 @@ def plot_one(task):
                 x=(ts-ts[0])/1000.0
             ax.plot(x,y,color=ROAST_COLOR[level],
                     linestyle=LINE_STYLES[i%len(LINE_STYLES)],
-                    linewidth=1.05,alpha=.68,
+                    linewidth=1.25,alpha=.92,
                     label=f'{ROAST_NAMES[level]} | {rec["filename"]}')
     lo,hi=ax.get_ylim()
     # Single artist: nominal collecting intervals, 25s purge + 5s collect.
     # The sample25 t0 timestamp is normally t=24s from first sample.
-    first=records[0]
-    ref=pd.read_csv(first['source_path'],usecols=['timestamp'],nrows=26)
-    first_collect_rel=(float(ref.timestamp.iloc[25])-float(ref.timestamp.iloc[24]))/1000.0
     # Nominal collecting windows only; true per-file timestamps may vary by ms.
     offs=-24 if normalized else 0
     ax.broken_barh([(cycle*30+25+offs,5) for cycle in range(30)],
-                   (lo,hi-lo),facecolors='#DDA04A',alpha=.060,zorder=0,linewidths=0)
+                   (lo,hi-lo),facecolors='#A5ABB3',alpha=.045,zorder=0,linewidths=0)
     ax.set_ylim(lo,hi)
     if normalized:
         ax.axvline(0,linewidth=.9,color='#5C6671',ls='--')
@@ -301,6 +302,7 @@ label{display:grid;gap:6px;flex:1;min-width:160px;font-size:.84rem;font-weight:6
 @media(prefers-color-scheme:dark){body{background:#131a24;color:#f2f4f8}.plot,.control{background:#202b3b;border-color:#3e4b60}.muted,.meta small{color:#b8c2d1}select{background:#1b2532;color:#fff;border-color:#637086}}
 </style></head><body><h1>Perbandingan Light–Medium–Dark dalam satu origin</h1>
 <p class="muted">Seluruh batch valid (nomor batch adalah identitas, bukan batas seleksi) · minimal lima batch berbeda per roast · 10 sensor · dua mode (RAW ADC dan normalisasi t0). Semua kurva asli ditampilkan.</p>
+<p><strong style="color:#168A43">● Light = hijau</strong> &nbsp; <strong style="color:#D4A400">● Medium = kuning</strong> &nbsp; <strong style="color:#C62828">● Dark = merah</strong></p>
 <div class="control"><label>Origin<select id="origin"></select></label><label>Sensor<select id="sensor"></select></label><label>Grafik<select id="mode"></select></label></div>
 <p id="count" class="muted"></p><div class="gallery" id="gallery"></div><p class="muted">t0 ialah purging siklus 1 indeks sampel 25, tepat sebelum collecting t26. Detail provenance pada README.md, plot_index.csv dan input_provenance.csv.</p>
 <script>const data=__DATA__,origin=document.getElementById('origin'),sensor=document.getElementById('sensor'),mode=document.getElementById('mode');
@@ -386,6 +388,9 @@ def run(source=SRC,out=OUT,workers=3):
              't0_plots':len(eligible)*len(ADC_COLS),'sensors':list(ADC_COLS),
              't0_definition':'purging cycle 1 sample_idx=25 (zero-based row 24), before collecting at t26',
              't0_math':'ADC(t) - ADC(t0) for each CSV separately',
+             'roast_colors':{'Light':ROAST_COLOR['L'],
+                             'Medium':ROAST_COLOR['M'],
+                             'Dark':ROAST_COLOR['D']},
              'input_unchanged':True,'no_smoothing_interpolation_resampling':True,
              'independence_warning':'Each run is a curve; 30 cycles are not independent replicates; physical device and specimen independence not established.'}
     (out/'summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
@@ -403,7 +408,7 @@ def run(source=SRC,out=OUT,workers=3):
             '- Minimum five **unique batch IDs** each roast. Canonical sample code filename is preferred if repeated valid recordings share a batch; see `duplicate_same_batch_qa.csv`.',
             '- RAW ADC unchanged. ΔADC(t) = ADC(t) − ADC(t0) where t0=last purging measurement in cycle1 (sample_idx=25, at nominal t=24s). t26 is first collecting measurement.',
             '- All 900 samples plotted; t0-normalized negative time interval retains first 24 purge samples.',
-            '- Light blue, Medium orange, Dark red. Different batch runs within a roast have different dash patterns.',
+            '- Light hijau (`#168A43`), Medium kuning keemasan (`#D4A400`), Dark merah (`#C62828`). Different batch runs within a roast have different dash patterns.',
             '- Shaded collecting phases show 5s *nominal* windows, not independently logged actual valve movement.',
             '- No smoothing, interpolation, resampling, filling missing points, or synthetic readings.',
             '', '## Files','',

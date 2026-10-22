@@ -8,7 +8,7 @@ from pathlib import Path
 
 from merge_new_30_siklus_audit import checksum
 from plot_lmd_origin_merged_all_valid import (
-    OUT, SRC, ROASTS, read_and_audit, choose_groups,
+    OUT, SRC, ROASTS, ROAST_COLOR, read_and_audit, choose_groups,
     build_measurements, compute_comparison,
 )
 
@@ -46,6 +46,9 @@ def main():
     summary=json.loads((OUT/'summary.json').read_text(encoding='utf-8'))
     assert summary['input_candidates_valid_all_batches']==112
     assert 'no maximum or minimum cutoff' in summary['batch_policy']
+    assert ROAST_COLOR=={'L':'#168A43','M':'#D4A400','D':'#C62828'}
+    assert summary['roast_colors']=={'Light':'#168A43',
+                                     'Medium':'#D4A400','Dark':'#C62828'}
     index=rows(OUT/'plot_index.csv')
     p=rows(OUT/'input_provenance.csv')
     a=rows(OUT/'baseline_t0_per_sensor.csv')

@@ -25,7 +25,7 @@ PNG: **120** (RAW 60, T0 normalized 60).
 - Minimum five **unique batch IDs** each roast. Canonical sample code filename is preferred if repeated valid recordings share a batch; see `duplicate_same_batch_qa.csv`.
 - RAW ADC unchanged. ΔADC(t) = ADC(t) − ADC(t0) where t0=last purging measurement in cycle1 (sample_idx=25, at nominal t=24s). t26 is first collecting measurement.
 - All 900 samples plotted; t0-normalized negative time interval retains first 24 purge samples.
-- Light blue, Medium orange, Dark red. Different batch runs within a roast have different dash patterns.
+- **Light hijau (`#168A43`), Medium kuning keemasan (`#D4A400`), Dark merah (`#C62828`)**. Kuning dibuat agak gelap agar tetap terlihat pada latar putih. Different batch runs within a roast have different dash patterns.
 - Shaded collecting phases show 5s *nominal* windows, not independently logged actual valve movement.
 - No smoothing, interpolation, resampling, filling missing points, or synthetic readings.
 
