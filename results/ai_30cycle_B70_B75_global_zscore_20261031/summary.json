@@ -1,0 +1,79 @@
+{
+  "total_merged_valid_csv": 233,
+  "unique_recordings_all": 231,
+  "three_roast_training_old": 93,
+  "three_roast_testing_new": 103,
+  "eligible_origins": [
+    "CAT",
+    "GAW",
+    "GRB",
+    "MING",
+    "TEM",
+    "TOR"
+  ],
+  "training_groups": {
+    "CAT|dark": 6,
+    "CAT|light": 5,
+    "CAT|medium": 5,
+    "GAW|dark": 7,
+    "GAW|light": 5,
+    "GAW|medium": 5,
+    "GRB|dark": 5,
+    "GRB|light": 5,
+    "GRB|medium": 5,
+    "MING|dark": 5,
+    "MING|light": 5,
+    "MING|medium": 5,
+    "TEM|dark": 5,
+    "TEM|light": 5,
+    "TEM|medium": 5,
+    "TOR|dark": 5,
+    "TOR|light": 5,
+    "TOR|medium": 5
+  },
+  "testing_groups": {
+    "CAT|dark": 6,
+    "CAT|light": 6,
+    "CAT|medium": 6,
+    "GAW|dark": 6,
+    "GAW|light": 6,
+    "GAW|medium": 5,
+    "GRB|dark": 6,
+    "GRB|light": 6,
+    "GRB|medium": 6,
+    "MING|dark": 6,
+    "MING|light": 5,
+    "MING|medium": 6,
+    "TEM|dark": 6,
+    "TEM|light": 6,
+    "TEM|medium": 5,
+    "TOR|dark": 6,
+    "TOR|light": 5,
+    "TOR|medium": 5
+  },
+  "sensor_rank_based_on": "OLD-TRAIN leave-one-origin-out CV (no new test selection)",
+  "top3_from_train_cv": [
+    "adc_mq8",
+    "adc_tgs816",
+    "adc_tgs2611"
+  ],
+  "top5_from_train_cv": [
+    "adc_mq8",
+    "adc_tgs816",
+    "adc_tgs2611",
+    "adc_tgs2620",
+    "adc_tgs822"
+  ],
+  "global_zscore_fitted_only_on": "OLD-TRAIN all roasting classes together, per feature; never fit on new test",
+  "baseline_formula": "median purge samples 21..25 each cycle, subtract from 5 collecting ADC samples, then extract run-level features",
+  "holdout": "B70..B75 all valid complete CSV for six three-roast origins",
+  "no_label_dependent_baselines": true,
+  "no_interpolation_incomplete": true,
+  "main_limitations": [
+    "Train device metadata UNKNOWN, no direct old-vs-new instrument harmonization",
+    "New device assignment is not balanced across origin/roast",
+    "Batch is not proof of separate physical coffee preparation",
+    "Held-out new test score is single temporal split not prospectively independent specimens",
+    "Sensor rankings based on small six-origin training cross-validation are exploratory"
+  ]
+}

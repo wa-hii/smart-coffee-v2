@@ -1,0 +1,93 @@
+{
+  "old_inputs": 112,
+  "new_inputs": 126,
+  "total_inputs": 238,
+  "old_accepted": 112,
+  "new_accepted": 121,
+  "new_quarantined": 5,
+  "merged_valid_csv": 233,
+  "independent_origin_roast_batch_unique": 231,
+  "same_batch_extras": 2,
+  "by_origin_roast_source": {
+    "B70_B75:CAT:dark": 6,
+    "B70_B75:CAT:light": 6,
+    "B70_B75:CAT:medium": 6,
+    "B70_B75:GAW:dark": 6,
+    "B70_B75:GAW:light": 6,
+    "B70_B75:GAW:medium": 5,
+    "B70_B75:GAY:light": 6,
+    "B70_B75:GRB:dark": 6,
+    "B70_B75:GRB:light": 6,
+    "B70_B75:GRB:medium": 6,
+    "B70_B75:MING:dark": 6,
+    "B70_B75:MING:light": 5,
+    "B70_B75:MING:medium": 6,
+    "B70_B75:MUK:medium": 6,
+    "B70_B75:RAT:dark": 6,
+    "B70_B75:TEM:dark": 6,
+    "B70_B75:TEM:light": 6,
+    "B70_B75:TEM:medium": 5,
+    "B70_B75:TOR:dark": 6,
+    "B70_B75:TOR:light": 5,
+    "B70_B75:TOR:medium": 5,
+    "previous_audit:CAT:dark": 6,
+    "previous_audit:CAT:light": 5,
+    "previous_audit:CAT:medium": 5,
+    "previous_audit:GAW:dark": 7,
+    "previous_audit:GAW:light": 5,
+    "previous_audit:GAW:medium": 5,
+    "previous_audit:GAY:light": 5,
+    "previous_audit:GRB:dark": 5,
+    "previous_audit:GRB:light": 5,
+    "previous_audit:GRB:medium": 6,
+    "previous_audit:MING:dark": 5,
+    "previous_audit:MING:light": 5,
+    "previous_audit:MING:medium": 5,
+    "previous_audit:MUK:medium": 6,
+    "previous_audit:RAT:dark": 6,
+    "previous_audit:TEM:dark": 5,
+    "previous_audit:TEM:light": 5,
+    "previous_audit:TEM:medium": 6,
+    "previous_audit:TOR:dark": 5,
+    "previous_audit:TOR:light": 5,
+    "previous_audit:TOR:medium": 5
+  },
+  "by_device_new": {
+    "ALAT_1": 41,
+    "ALAT_2": 40,
+    "ALAT_3": 40
+  },
+  "rejected_files": [
+    {
+      "filename": "M-TOR_B70_3328c9859044444ba86977be746831e2_INCOMPLETE.csv",
+      "reason": "INTERVAL_SENSOR_TIDAK_SEKITAR_1_DETIK | JUMLAH_ATAU_INDEKS_PER_FASE_TIDAK_25_5 | JUMLAH_SAMPEL_BUKAN_900 | URUTAN_SIKLUS_FASE_SAMPLE_IDX_TIDAK_SESUAI | RECEIVER_FLAG_INCOMPLETE",
+      "rows": 892,
+      "device": "ALAT_1"
+    },
+    {
+      "filename": "M-TEM_B73_a00116bc923c42b888da60e07fad130c_INCOMPLETE.csv",
+      "reason": "INTERVAL_SENSOR_TIDAK_SEKITAR_1_DETIK | JUMLAH_ATAU_INDEKS_PER_FASE_TIDAK_25_5 | JUMLAH_SAMPEL_BUKAN_900 | URUTAN_SIKLUS_FASE_SAMPLE_IDX_TIDAK_SESUAI | RECEIVER_FLAG_INCOMPLETE",
+      "rows": 888,
+      "device": "ALAT_3"
+    },
+    {
+      "filename": "L-MING_B75_8d9adafb31744b538fa663e1fef1b18c_INCOMPLETE.csv",
+      "reason": "INTERVAL_SENSOR_TIDAK_SEKITAR_1_DETIK | JUMLAH_ATAU_INDEKS_PER_FASE_TIDAK_25_5 | JUMLAH_SAMPEL_BUKAN_900 | URUTAN_SIKLUS_FASE_SAMPLE_IDX_TIDAK_SESUAI | RECEIVER_FLAG_INCOMPLETE",
+      "rows": 893,
+      "device": "ALAT_2"
+    },
+    {
+      "filename": "L-TOR_B75_ad0a30d7ece544609ad4efcb742504e2_INCOMPLETE.csv",
+      "reason": "INTERVAL_SENSOR_TIDAK_SEKITAR_1_DETIK | JUMLAH_ATAU_INDEKS_PER_FASE_TIDAK_25_5 | JUMLAH_SAMPEL_BUKAN_900 | URUTAN_SIKLUS_FASE_SAMPLE_IDX_TIDAK_SESUAI | RECEIVER_FLAG_INCOMPLETE",
+      "rows": 892,
+      "device": "ALAT_2"
+    },
+    {
+      "filename": "M-GAW_B75_bc7301af72124e398d4edb8626b1836e_INCOMPLETE.csv",
+      "reason": "INTERVAL_SENSOR_TIDAK_SEKITAR_1_DETIK | JUMLAH_ATAU_INDEKS_PER_FASE_TIDAK_25_5 | JUMLAH_SAMPEL_BUKAN_900 | URUTAN_SIKLUS_FASE_SAMPLE_IDX_TIDAK_SESUAI | RECEIVER_FLAG_INCOMPLETE",
+      "rows": 891,
+      "device": "ALAT_3"
+    }
+  ],
+  "no_source_changes": true
+}
