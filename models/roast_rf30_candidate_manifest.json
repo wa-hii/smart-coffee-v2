@@ -1,0 +1,35 @@
+{
+  "status": "CANDIDATE_HOST_ONLY_NOT_PRODUCTION",
+  "source": "Uploaded by user on 2026-11-10; training code and fold manifest not provided",
+  "binary_file": "final_model.joblib",
+  "binary_file_bytes": 2363398,
+  "sha256": "b2b6e8d8ff03e92c695c1b0b55a8c06ea9d4178249c9ce012203e602ff1bcf5d",
+  "persisted_sklearn_version_marker": "1.7.2",
+  "model_type_reported": "RandomForestClassifier",
+  "n_estimators_reported": 500,
+  "classes_reported": ["dark", "light", "medium"],
+  "n_train_reported": 176,
+  "oob_score_reported": 0.8352,
+  "nested_cv_weighted_acc_reported": 0.8011,
+  "nested_cv_macro_f1_reported": 0.7492,
+  "feature_order": [
+    "tgs822_max_mean",
+    "tgs822_purging_mean_mean",
+    "mq8_max_mean"
+  ],
+  "features_are_absolute_adc_not_baseline_corrected": true,
+  "required_recording": {
+    "cycles": 30,
+    "purging_samples_per_cycle": 25,
+    "collecting_samples_per_cycle": 5,
+    "total_rows": 900,
+    "approx_duration_seconds": 900
+  },
+  "trained_batch_provenance_verified": false,
+  "nested_cv_group_structure_verified": false,
+  "probabilities_calibrated": false,
+  "host_only_offline_qa": "Feature extraction and strict CSV/NDJSON replay verified with existing CSV; no joblib deserialization",
+  "raspberry_pi_live_inference_verified": false,
+  "nextion_ai_result_integration_verified": false,
+  "safety_note": "Do not auto-load or auto-deploy a joblib file until its origin/training provenance is trusted. Hash check alone is not a security proof."
+}

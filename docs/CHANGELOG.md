@@ -1,5 +1,13 @@
 # Catatan perubahan proyek
 
+## 10 November 2026 — kandidat RF500 30 siklus: adapter Pi dan kontrak LCD
+
+- Terima kandidat model eksternal berformat joblib (500 pohon, tiga fitur ADC absolut), simpan manifest SHA256 dan skor yang **dilaporkan peneliti**, bukan klaim tervalidasi; model binary tidak disimpan di Git dan belum di-deserialize.
+- Tambahkan `roast_rf30_pi_inference.py`: pengambilan 30 siklus (900 baris) ketat, urutan fitur persis helper sumber, tolak sesi incomplete/5 siklus, verifikasi metadata/hash sebelum mencoba menjalankan model.
+- Tambahkan replay NDJSON firmware 30 siklus read-only dan tes positif/negatif tanpa port serial, tanpa HMI dan tanpa kontrol aktuator.
+- Masalah integrasi dijelaskan: `Start AI Test` firmware sekarang hanya 5 siklus dan Pi→ATmega→Nextion belum memiliki handler hasil. Tidak ada perubahan firmware, wiring, Nextion atau keputusan GO produksi.
+- Laporan: `docs/reports/2026-11-10_RF30_PI_NEXTION_INTEGRATION_CANDIDATE.md`.
+
 ## 14 Oktober 2026 — Stage11 pemisahan dataset & blind protocol
 
 - Audit ulang source quality: flag review cadence 14 berkas,
