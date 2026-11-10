@@ -110,7 +110,7 @@ class HostSession:
         self.error=None
 
     def feed(self, line:bytes|str,*,model_path=None,metadata_path=None,
-             model=None,allow_predict=False):
+             model=None,allow_predict=False,predictor=None):
         """Feed a COMPLETE newline-terminated UTF-8 JSON firmware frame.
 
         Returns (optional command bytes, public diagnostic). No side effects.
@@ -176,8 +176,13 @@ class HostSession:
                     writer=csv.DictWriter(fh,fieldnames=fields)
                     writer.writeheader()
                     writer.writerows(records)
-                candidate=predict_capture(csv_file,model_path,metadata_path,
-                                          validate_only=False,model=model)
+                if predictor is not None:
+                    # Explicit model adapter used by the SVM30 bench workflow.
+                    # All wire validation above is shared across RF and SVM.
+                    candidate=predictor(csv_file)
+                else:
+                    candidate=predict_capture(csv_file,model_path,metadata_path,
+                                              validate_only=False,model=model)
             roast=candidate.get("roast_predicted")
             if roast not in LABELS:
                 raise ReturnProtocolError("invalid_model_roast")

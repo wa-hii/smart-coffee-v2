@@ -1,0 +1,39 @@
+{
+  "feature_order": [
+    "median_phase_response__adc_tgs822",
+    "mean_phase_response__adc_tgs822",
+    "response_early_late__adc_tgs822",
+    "median_phase_response__adc_tgs2602",
+    "mean_phase_response__adc_tgs2602",
+    "response_early_late__adc_tgs2602",
+    "median_phase_response__adc_tgs816",
+    "mean_phase_response__adc_tgs816",
+    "response_early_late__adc_tgs816"
+  ],
+  "training_files": 133,
+  "test_files": 66,
+  "train_groups": [
+    "CAT",
+    "GAW",
+    "GRB",
+    "MING",
+    "TEM",
+    "TOR"
+  ],
+  "excluded_invalid_kept": [
+    "L-MING_B75_8d9adafb31744b538fa663e1fef1b18c_INCOMPLETE.csv",
+    "L-TOR_B75_ad0a30d7ece544609ad4efcb742504e2_INCOMPLETE.csv",
+    "M-GAW_B75_bc7301af72124e398d4edb8626b1836e_INCOMPLETE.csv",
+    "M-TEM_B73_a00116bc923c42b888da60e07fad130c_INCOMPLETE.csv"
+  ],
+  "excluded_duplicate_filenames": [
+    "M-TEM_B62_20261019_175906.csv"
+  ],
+  "source": "structurally_valid + manual_kept + dedup origin,roast,batch",
+  "feature_parity": "recomputed independently from 199 original SHA-pinned CSV and matched existing 9 benchmark features (absolute tolerance 1e-7)",
+  "test_policy": "Never use cohort c for scaler fit, feature tuning or training",
+  "files": {
+    "train_a_b_133.csv": "0d07804529649557800051c05f41710775f2f9243a2946ed048bf4c05197ca0a",
+    "holdout_c_66.csv": "425f119a6117bbda1a9b0127b945570708e8bb9d1ac22b71cbb3a82af855ce34"
+  }
+}

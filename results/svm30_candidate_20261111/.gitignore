@@ -1,0 +1,6 @@
+# Private derived trial-level features and per-sample predictions.
+# Only reviewed, de-identified metadata / aggregate metrics are versioned.
+train_a_b_133.csv
+holdout_c_66.csv
+holdout_predictions.csv
+*.joblib

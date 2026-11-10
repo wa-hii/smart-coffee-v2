@@ -1,5 +1,18 @@
 # Smart Coffee E-Nose v2
 
+**11 November 2026 — kandidat SVM 9 fitur pada Pi 5:**
+Model `SVC(kernel='rbf',C=1,gamma='scale',class_weight='balanced')`
+telah dilatih pada **133 CSV tervalidasi** dan diuji pada **66 CSV**
+terpisah. Fitur: 3 metrik collecting dikoreksi baseline lokal untuk
+TGS822/TGS2602/TGS816 (9 fitur); global Z-score `StandardScaler`
+di-fit hanya pada training dan berada di `Pipeline`.
+Balanced accuracy CV lintas origin 54,69%; testing 65,27%
+(eksploratif, belum validasi prospektif). Artefak kandidat berada di
+`~/smart-coffee-stage7/svm30_staging/svm30_model/` pada Pi, tidak
+dimasukkan GitHub. Replay 900 sampel dan paket balik ke Nextion PASS
+offline, **USB live / flashing / LCD fisik NOT RUN**.
+Laporan: `docs/reports/2026-11-11_SVM30_PI_TRAINING_AND_NEXTION_CANDIDATE.md`.
+
 **11 November 2026 — Pi model + return bridge (sumber, belum live):**
 RF500 asli 30 siklus berhasil dijalankan **offline di Raspberry Pi 5**
 dengan scikit-learn 1.7.2; replay 900 sampel menghasilkan paket

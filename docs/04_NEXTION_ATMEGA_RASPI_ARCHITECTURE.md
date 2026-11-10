@@ -1,5 +1,17 @@
 # Rancangan Integrasi Nextion–ATmega2560–Raspberry Pi 5
 
+**Update 11 November 2026 — adapter SVM30:**
+Pipeline AI Test sekarang memiliki kandidat SVM RBF sembilan fitur
+`median_phase_response`, `mean_phase_response`,
+`response_early_late` masing-masing pada TGS822/TGS2602/TGS816.
+Baseline lokal collecting lalu `StandardScaler` training-only.
+Adapter `svm30_pi_return_bridge.py` menghasilkan kelas
+`light|medium|dark` ke protokol firmware
+`#rf30:<token>:<label>;` (nama wire tetap demi kompatibilitas,
+bukan RF500 inference). Mode offline pada Pi PASS; mode live
+masih gated, firmware return default disable, LCD fisik N/A.
+Lihat laporan `2026-11-11_SVM30_PI_TRAINING_AND_NEXTION_CANDIDATE.md`.
+
 **Milestone 11 November 2026 — source protokol balasan kandidat:**
 AI Test menghasilkan token sesi pada `ACQ_START`. Setelah 900
 sampel dan `ACQ_COMPLETE` MCU mengeluarkan

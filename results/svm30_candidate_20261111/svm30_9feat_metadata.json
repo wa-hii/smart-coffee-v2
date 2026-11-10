@@ -1,0 +1,329 @@
+{
+  "model_type": "SVC_RBF",
+  "feature_order": [
+    "median_phase_response__adc_tgs822",
+    "mean_phase_response__adc_tgs822",
+    "response_early_late__adc_tgs822",
+    "median_phase_response__adc_tgs2602",
+    "mean_phase_response__adc_tgs2602",
+    "response_early_late__adc_tgs2602",
+    "median_phase_response__adc_tgs816",
+    "mean_phase_response__adc_tgs816",
+    "response_early_late__adc_tgs816"
+  ],
+  "sensors": [
+    "adc_tgs822",
+    "adc_tgs2602",
+    "adc_tgs816"
+  ],
+  "classes": [
+    "dark",
+    "light",
+    "medium"
+  ],
+  "C": 1,
+  "gamma": "scale",
+  "kernel": "rbf",
+  "class_weight": "balanced",
+  "n_cycles": 30,
+  "purging_s": 25,
+  "collecting_s": 5,
+  "train_n": 133,
+  "holdout_n": 66,
+  "training_preprocessing": "StandardScaler fitted on cohort a+b only",
+  "baseline_correction": "median last 5 purge ADC per cycle, subtracted from 5 collecting ADC mean",
+  "training_cohorts": [
+    "a",
+    "b"
+  ],
+  "heldout_cohort": "c",
+  "crossvalidation": "LeaveOneGroupOut(origin) inside cohort a+b",
+  "cv_metrics": {
+    "balanced_accuracy": 0.546882907752473,
+    "macro_f1": 0.5444298245614035,
+    "accuracy": 0.5488721804511278,
+    "recall_by_roast": {
+      "light": 0.7555555555555555,
+      "medium": 0.45652173913043476,
+      "dark": 0.42857142857142855
+    },
+    "confusion_order": [
+      "light",
+      "medium",
+      "dark"
+    ],
+    "confusion": [
+      [
+        34,
+        9,
+        2
+      ],
+      [
+        12,
+        21,
+        13
+      ],
+      [
+        4,
+        20,
+        18
+      ]
+    ]
+  },
+  "cv_fold_metrics": [
+    {
+      "holdout_origin": "CAT",
+      "n": 17,
+      "balanced_accuracy": 0.626984126984127,
+      "macro_f1": 0.6321678321678322,
+      "accuracy": 0.6470588235294118,
+      "recall_by_roast": {
+        "light": 0.7142857142857143,
+        "medium": 0.5,
+        "dark": 0.6666666666666666
+      },
+      "confusion_order": [
+        "light",
+        "medium",
+        "dark"
+      ],
+      "confusion": [
+        [
+          5,
+          2,
+          0
+        ],
+        [
+          1,
+          2,
+          1
+        ],
+        [
+          0,
+          2,
+          4
+        ]
+      ]
+    },
+    {
+      "holdout_origin": "GAW",
+      "n": 23,
+      "balanced_accuracy": 0.23148148148148148,
+      "macro_f1": 0.2148148148148148,
+      "accuracy": 0.2608695652173913,
+      "recall_by_roast": {
+        "light": 0.0,
+        "medium": 0.25,
+        "dark": 0.4444444444444444
+      },
+      "confusion_order": [
+        "light",
+        "medium",
+        "dark"
+      ],
+      "confusion": [
+        [
+          0,
+          5,
+          1
+        ],
+        [
+          2,
+          2,
+          4
+        ],
+        [
+          0,
+          5,
+          4
+        ]
+      ]
+    },
+    {
+      "holdout_origin": "GRB",
+      "n": 21,
+      "balanced_accuracy": 0.5566137566137566,
+      "macro_f1": 0.5575396825396826,
+      "accuracy": 0.5714285714285714,
+      "recall_by_roast": {
+        "light": 0.7142857142857143,
+        "medium": 0.4,
+        "dark": 0.5555555555555556
+      },
+      "confusion_order": [
+        "light",
+        "medium",
+        "dark"
+      ],
+      "confusion": [
+        [
+          5,
+          1,
+          1
+        ],
+        [
+          2,
+          2,
+          1
+        ],
+        [
+          0,
+          4,
+          5
+        ]
+      ]
+    },
+    {
+      "holdout_origin": "MING",
+      "n": 26,
+      "balanced_accuracy": 0.5767195767195766,
+      "macro_f1": 0.5554001554001554,
+      "accuracy": 0.6153846153846154,
+      "recall_by_roast": {
+        "light": 1.0,
+        "medium": 0.4444444444444444,
+        "dark": 0.2857142857142857
+      },
+      "confusion_order": [
+        "light",
+        "medium",
+        "dark"
+      ],
+      "confusion": [
+        [
+          10,
+          0,
+          0
+        ],
+        [
+          3,
+          4,
+          2
+        ],
+        [
+          3,
+          2,
+          2
+        ]
+      ]
+    },
+    {
+      "holdout_origin": "TEM",
+      "n": 20,
+      "balanced_accuracy": 0.6111111111111112,
+      "macro_f1": 0.5962962962962962,
+      "accuracy": 0.6,
+      "recall_by_roast": {
+        "light": 0.8333333333333334,
+        "medium": 0.5,
+        "dark": 0.5
+      },
+      "confusion_order": [
+        "light",
+        "medium",
+        "dark"
+      ],
+      "confusion": [
+        [
+          5,
+          1,
+          0
+        ],
+        [
+          1,
+          5,
+          4
+        ],
+        [
+          0,
+          2,
+          2
+        ]
+      ]
+    },
+    {
+      "holdout_origin": "TOR",
+      "n": 26,
+      "balanced_accuracy": 0.580952380952381,
+      "macro_f1": 0.5372775372775372,
+      "accuracy": 0.6153846153846154,
+      "recall_by_roast": {
+        "light": 1.0,
+        "medium": 0.6,
+        "dark": 0.14285714285714285
+      },
+      "confusion_order": [
+        "light",
+        "medium",
+        "dark"
+      ],
+      "confusion": [
+        [
+          9,
+          0,
+          0
+        ],
+        [
+          3,
+          6,
+          1
+        ],
+        [
+          1,
+          5,
+          1
+        ]
+      ]
+    }
+  ],
+  "holdout_diagnostic_only": {
+    "balanced_accuracy": 0.6526610644257703,
+    "macro_f1": 0.6010443998559448,
+    "accuracy": 0.6060606060606061,
+    "recall_by_roast": {
+      "light": 0.9285714285714286,
+      "medium": 0.5294117647058824,
+      "dark": 0.5
+    },
+    "confusion_order": [
+      "light",
+      "medium",
+      "dark"
+    ],
+    "confusion": [
+      [
+        13,
+        1,
+        0
+      ],
+      [
+        12,
+        18,
+        4
+      ],
+      [
+        5,
+        4,
+        9
+      ]
+    ]
+  },
+  "source_features_sha256": {
+    "train_a_b_133.csv": "0d07804529649557800051c05f41710775f2f9243a2946ed048bf4c05197ca0a",
+    "holdout_c_66.csv": "425f119a6117bbda1a9b0127b945570708e8bb9d1ac22b71cbb3a82af855ce34"
+  },
+  "model_selection": "locked 9-feature SVM C=1 RBF gamma=scale before holdout; no tuning",
+  "sklearn_version": "1.7.2",
+  "numpy_version": "2.5.4",
+  "joblib_version": "1.6.0",
+  "artifact_sha256": "4f1f4e75165845867f54905ef3596ac666f3e30b4f65252f881c00b9931531c0",
+  "deployed_to_production": false,
+  "class_probability_calibrated": false,
+  "limitations": [
+    "manual kept sorting",
+    "no confirmed independent physical specimens",
+    "device origin roast confounding",
+    "prospective unknown detection missing",
+    "model outputs class only (no calibrated probability)"
+  ]
+}

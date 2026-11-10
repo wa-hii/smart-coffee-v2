@@ -1,5 +1,24 @@
 # Catatan perubahan proyek
 
+## 11 November 2026 — SVM 9 fitur dilatih di Pi dan adapter balik diuji
+
+- SVM RBF sekarang kandidat yang diminta pengguna; RF500 tetap
+  di staging historis terpisah. Training 133 CSV a+b, holdout 66 CSV c;
+  incomplete kept 4 dan duplikat 1 tidak digunakan.
+- Fitur dihitung ulang dari 199 sumber SHA-pinned dan cocok dengan
+  pengujian terdahulu; 9 fitur baseline-corrected pada TGS822,
+  TGS2602, TGS816. `StandardScaler` training-only berada dalam
+  pipeline, bukan fit ulang setiap AI Test.
+- Model SVM dilatih langsung pada Pi scikit-learn 1.7.2:
+  balanced accuracy CV lintas origin 54,69% dan testing c 65,27%.
+  Model belum memenuhi validasi prospektif.
+- Pi staging terisolasi `~/smart-coffee-stage7/svm30_staging/`;
+  model binary tidak di-commit. Adapter `svm30_pi_return_bridge.py`
+  memakai protokol `#rf30:TOKEN:roast;` yang sama agar kompatibel
+  dengan MCU source, bukan RF classifier. Replay actual model 900
+  frame pada cohort c PASS, ACK mock; fisik/serial TX NOT RUN.
+- Detail: `docs/reports/2026-11-11_SVM30_PI_TRAINING_AND_NEXTION_CANDIDATE.md`.
+
 ## 11 November 2026 — RF500 model dijalankan offline di Pi dan protokol return
 
 - SSH Tailscale ke Pi 5 berhasil dan preflight USB read-only memeriksa

@@ -1,5 +1,23 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 11 November 2026 — model aktif kandidat SVM RBF 9 fitur
+
+Atas arahan pengguna, penelitian beralih dari kandidat RF500 menuju
+**SVM RBF** sembilan fitur dari TGS822, TGS2602 dan TGS816. Model
+SVM asli (bukan simulasi) telah di-fit di Raspberry Pi 5 dengan
+scikit-learn 1.7.2 pada 133 rekaman a+b; holdout c 66.
+Skor seimbang CV origin 0,5469, holdout c 0,6527.
+Pipeline `StandardScaler + SVC` memakai baseline correction
+per siklus, lalu fit Z-score hanya pada data training.
+
+Artefak hanya di Pi staging, metadata di results repo; model
+belum dipromosikan. Pengujian offline pada 900 sampel uji
+berhasil menghasilkan `dark` dan payload `#rf30:<token>:dark;`
+dengan ACK simulasi. Tidak ada serial USB dibuka, flashing
+atau model output ke layar Nextion fisik. Alat tetap perlu
+G0/G2/G3 onsite sebelum pemasangan aktif; FT232 serial saat
+ini `A10KNJBL`. Laporan di `docs/reports/2026-11-11_SVM30_PI_TRAINING_AND_NEXTION_CANDIDATE.md`.
+
 ## 11 November 2026 — RF500 dijalankan di Pi; return protocol source-only
 
 SSH Tailscale ke Pi 5 berhasil. FT232R sekarang serial `A10KNJBL`,
