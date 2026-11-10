@@ -1,5 +1,26 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 11 November 2026 — RF500 dijalankan di Pi; return protocol source-only
+
+SSH Tailscale ke Pi 5 berhasil. FT232R sekarang serial `A10KNJBL`,
+berbeda dengan alat uji Oktober, dan kernel mencatat USB disconnect
+02:29 WIB lalu reconnect 02:31 WIB. USB serial **tidak dibuka** dan
+firmware fisik **tidak di-flash**.
+
+Model joblib RF500 asli diterima di folder Pi staging yang terisolasi;
+SHA256 cocok dengan manifest dan scikit-learn 1.7.2 tersedia pada venv
+terpisah. Pengujian offline CSV `D-CAT_B70.csv` 900 baris memberi
+`dark` (RF vote 1.0 belum terkalibrasi). Replay 900 ADC dari file
+tersebut lewat parser Pi/model asli membentuk paket kandidat
+`#rf30:B1F503A9:dark;`, ACK disimulasikan saja.
+
+Firmware source kini punya parser token sesi, timeout 30 s dan
+pengembalian kelas pada `pResult`, namun **release gate default OFF**
+(`ENABLE_PI_RF30_RETURN=0`). Build standar/bench dan QA simulasi
+lulus; USB Pi→MCU live, MCU flash dan Nextion fisik tetap NOT RUN,
+menunggu identitas perangkat/USB stabil/SOP G0/G2/G3.
+Laporan: `docs/reports/2026-11-11_RF30_PI_REMOTE_STAGING_AND_RETURN_PROTOCOL.md`.
+
 ## 10 November 2026 — penyamaan source AI Test dan Take Data: 30 siklus
 
 **Source firmware telah disinkronkan (belum di-flash pada PCB):** tombol

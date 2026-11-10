@@ -1,5 +1,19 @@
 # Rancangan Integrasi Nextion–ATmega2560–Raspberry Pi 5
 
+**Milestone 11 November 2026 — source protokol balasan kandidat:**
+AI Test menghasilkan token sesi pada `ACQ_START`. Setelah 900
+sampel dan `ACQ_COMPLETE` MCU mengeluarkan
+`AI_AWAITING_RESULT` (hanya bila `ENABLE_PI_RF30_RETURN=1`
+pada build bench yang disetujui). Pi memvalidasi seluruh data,
+menjalankan RF500 dari tiga fitur ADC absolut, lalu **nantinya**
+mengirim `#rf30:<8HEXTOKEN>:<light|medium|dark>;`.
+Firmware hanya menerima hasil yang cocok sesi, pada halaman
+`pResult` dan dalam 30 detik, lalu memberi `AI_RESULT_ACK`.
+Pada timeout/error/disable, hasil tetap `N/A`. Simulasi protokol
+dengan model asli di Pi dan ACK mock PASS, tetapi USB fisik dan
+layar Nextion **belum diuji**. Model masih kandidat, bukan AI release.
+Lihat laporan 11 November di `docs/reports/`.
+
 **Update source 10 November 2026 (belum di-flash):** mode AI Test
 (`EVT:AI_START`) sekarang **30 siklus**, sama dengan Take Data,
 yaitu 25 detik purging + 5 detik collecting per siklus,

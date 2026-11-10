@@ -1,5 +1,27 @@
 # Catatan perubahan proyek
 
+## 11 November 2026 — RF500 model dijalankan offline di Pi dan protokol return
+
+- SSH Tailscale ke Pi 5 berhasil dan preflight USB read-only memeriksa
+  FT232R: serial saat ini `A10KNJBL`, bukan serial Oktober.
+  Kernel mencatat disconnect dan reconnect; tidak dilakukan serial
+  open, flash, reset, atau operasi aktuator.
+- RF500 asli (SHA-pinned, 2,36 MB) dan metadata disalin melalui SSH
+  ke staging terisolasi `~/smart-coffee-stage7/rf30_staging/`, **bukan Git**.
+  Venv isolated dengan scikit-learn 1.7.2. Pengujian Pi pada CSV valid
+  D-CAT_B70 (900 sampel) menghasilkan `dark` (RF vote fraction 1.0,
+  belum terkalibrasi; bukan blind).
+- Modul `rf30_pi_result_bridge.py` + `ai_rf30_return.h` menambahkan
+  protokol kandidat Pi → MCU berupa token sesi, label roast,
+  ACK/NACK dan timeout 30 detik. Integrasi HMI `pResult` secara
+  source-only; origin/confidence tetap N/A. Safety flag
+  `ENABLE_PI_RF30_RETURN=0` default, build bench =1 compile-only.
+- Tes native parser, kontrak firmware, replay model asli di Pi ke
+  `#rf30:B1F503A9:dark;` dengan ACK mock **PASS**.
+  G2/G3 USB serial, flashing, hasil Nextion fisik dan validasi model
+  prospektif **BELUM DIJALANKAN**.
+- Detail: `docs/reports/2026-11-11_RF30_PI_REMOTE_STAGING_AND_RETURN_PROTOCOL.md`.
+
 ## 10 November 2026 — source Take Data dan AI Test disamakan menjadi 30 siklus
 
 - Firmware source: kedua mode memakai konstanta 30 siklus yang sama,

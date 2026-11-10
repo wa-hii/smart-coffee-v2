@@ -19,6 +19,7 @@
 //   main.cpp        — state machine, serial commands, coordinator
 // ═════════════════════════════════════════════════════════════════════════════
 #include "TaskScheduler.h"
+#include "ai_rf30_return.h"
 #include "acquisition_timing.h"
 #include "actuator.h"
 #include "inference.h"
@@ -54,6 +55,14 @@
 #ifndef ENABLE_MANUAL_ACTUATOR_TESTS
 #define ENABLE_MANUAL_ACTUATOR_TESTS 0
 #endif
+
+// The RF500 model has not passed prospective/device-independent release QA.
+// This remains OFF on all normal firmware builds. Only an approved, supervised
+// test may build with -DENABLE_PI_RF30_RETURN=1.
+#ifndef ENABLE_PI_RF30_RETURN
+#define ENABLE_PI_RF30_RETURN 0
+#endif
+static constexpr uint32_t AI_RF30_REPLY_TIMEOUT_MS = 30000UL;
 
 // ─── Task Scheduler Intervals
 // ─────────────────────────────────────────────────
@@ -93,6 +102,11 @@ uint32_t acqTotalSamples = 0; // total sampel keseluruhan
 uint32_t acqStartMs = 0;
 uint32_t acqPauseStartMs = 0;
 uint32_t acqPausedTotalMs = 0;
+uint32_t aiRf30SessionToken = 0;
+uint32_t aiRf30SessionSequence = 0;
+uint32_t aiRf30Deadline = 0;
+bool aiRf30Pending = false;
+AiRf30Return::Roast aiRf30Roast = AiRf30Return::Roast::NONE;
 bool baselineCaptureActive = false;
 uint16_t baselineSampleIdx = 0;
 
@@ -138,6 +152,8 @@ void sendNextionAlert(const char *title, const char *message,
 void addUiHistory(const char *entry);
 void exportUiHistory();
 void resetUiSettings();
+void processAiRf30Reply(const char *cmd);
+void expireAiRf30Reply();
 
 // ─── TaskScheduler Tasks
 // ──────────────────────────────────────────────────────
@@ -285,6 +301,7 @@ void loop() {
   processAcquisitionState();
   scheduler.execute();
   processAcquisitionState();
+  expireAiRf30Reply();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -315,6 +332,10 @@ void printWelcome() {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 void startAcquisition(AcquisitionMode mode) {
+  // Any new data/AI acquisition invalidates the previous return token.
+  aiRf30Pending = false;
+  aiRf30Roast = AiRf30Return::Roast::NONE;
+  aiRf30SessionToken = 0;
   acqMode = mode;
   acqCycle = 1;
   acqSampleIdx = 0;
@@ -323,6 +344,13 @@ void startAcquisition(AcquisitionMode mode) {
   acqPauseStartMs = 0;
   acqPausedTotalMs = 0;
   inference.reset();
+  if (mode == AcquisitionMode::AI_TEST) {
+    ++aiRf30SessionSequence;
+    aiRf30SessionToken =
+        (static_cast<uint32_t>(millis()) ^
+         (aiRf30SessionSequence * 2654435761UL) ^ 0xB1F503A9UL);
+    if (aiRf30SessionToken == 0) aiRf30SessionToken = 1;
+  }
 
   acqState = AcqState::PURGING;
   acqPhaseStartMs = millis();
@@ -340,6 +368,13 @@ void startAcquisition(AcquisitionMode mode) {
   Serial.print(F(",\"fw_build_id\":\""));
   Serial.print(F(SMART_COFFEE_BUILD_ID));
   Serial.print('"');
+  if (mode == AcquisitionMode::AI_TEST) {
+    char token[9] = {};
+    AiRf30Return::tokenHex(aiRf30SessionToken, token, sizeof(token));
+    Serial.print(F(",\"ai_session_token\":\""));
+    Serial.print(token);
+    Serial.print('"');
+  }
   // Label pTake hanya untuk labeled_data, bukan jawaban kopi pada AI_TEST.
   if (mode == AcquisitionMode::LABELED_DATA) {
     char takeFilename[40] = {};
@@ -379,6 +414,8 @@ void startAcquisition(AcquisitionMode mode) {
 }
 
 void stopAcquisition() {
+  aiRf30Pending = false;
+  aiRf30SessionToken = 0;
   acqState = AcqState::IDLE;
   acqCycle = 0;
   acqSampleIdx = 0;
@@ -485,6 +522,8 @@ void processAcquisitionState() {
             nextion.text("tStep4", "RUNNING");
             nextion.text("tEta", "EST. REMAINING 00:00");
           }
+          // Local inference remains disabled. Remote RF reply is correlated
+          // to this exact capture only AFTER all 900 samples are complete.
           doInference();
           showNextionPage("pResult");
           updateNextionInferenceResult();
@@ -493,6 +532,21 @@ void processAcquisitionState() {
                    inference.predictLabel());
           addUiHistory(history);
           ++testSequence;
+#if ENABLE_PI_RF30_RETURN
+          if (acqTotalSamples == 900 && aiRf30SessionToken != 0) {
+            aiRf30Pending = true;
+            aiRf30Deadline = millis() + AI_RF30_REPLY_TIMEOUT_MS;
+            char token[9] = {};
+            AiRf30Return::tokenHex(aiRf30SessionToken, token,sizeof(token));
+            Serial.print(F("{\"event\":\"AI_AWAITING_RESULT\",\"token\":\""));
+            Serial.print(token);
+            Serial.println(F("\",\"samples\":900,\"window_ms\":30000}"));
+          } else {
+            Serial.println(F("{\"event\":\"AI_RESULT_UNAVAILABLE\",\"reason\":\"invalid_sample_count\"}"));
+          }
+#else
+          Serial.println(F("{\"event\":\"AI_RESULT_UNAVAILABLE\",\"reason\":\"release_gate_disabled\"}"));
+#endif
         } else {
           showNextionPage("pDataDone");
           char filename[40] = {};
@@ -900,7 +954,9 @@ void updateNextionSensorSnapshot() {
 }
 
 void updateNextionInferenceResult() {
-  const char *label = inference.predictLabel();
+  const char *label = aiRf30Roast != AiRf30Return::Roast::NONE
+                          ? AiRf30Return::label(aiRf30Roast)
+                          : inference.predictLabel();
   const bool resultReady = label != nullptr && strcmp(label, "N/A") != 0;
   const char *displayLabel = label;
   if (resultReady) {
@@ -1092,7 +1148,9 @@ void handleNextionEvent(const char *event) {
     showNextionPage("pHome");
   } else if (strcmp(event, "EVT:RESULT_SAVE") == 0) {
     Serial.print(F("{\"event\":\"RESULT_EXPORT\",\"roast\":\""));
-    Serial.print(inference.predictLabel());
+    Serial.print(aiRf30Roast != AiRf30Return::Roast::NONE
+                     ? AiRf30Return::label(aiRf30Roast)
+                     : inference.predictLabel());
     Serial.println(F("\",\"origin\":null,\"confidence\":null}"));
     sendNextionAlert("Result exported", "Hasil dikirim ke Serial USB",
                      "History RAM tetap tersimpan");
@@ -1153,8 +1211,54 @@ void uiCallback() {
   }
 }
 
+void expireAiRf30Reply() {
+  if (!aiRf30Pending ||
+      static_cast<int32_t>(millis() - aiRf30Deadline) < 0) {
+    return;
+  }
+  aiRf30Pending = false; // a late or repeated packet can never alter pResult
+  Serial.println(F("{\"event\":\"AI_RESULT_TIMEOUT\",\"result\":\"N/A\"}"));
+}
+
+void processAiRf30Reply(const char *cmd) {
+#if ENABLE_PI_RF30_RETURN
+  uint32_t token = 0;
+  AiRf30Return::Roast roast = AiRf30Return::Roast::NONE;
+  if (!AiRf30Return::decode(cmd, &token, &roast)) {
+    Serial.println(F("{\"event\":\"AI_RESULT_NACK\",\"reason\":\"bad_packet\"}"));
+    return;
+  }
+  expireAiRf30Reply();
+  if (!aiRf30Pending || token != aiRf30SessionToken ||
+      acqState != AcqState::IDLE ||
+      strcmp(nextionPageName, "pResult") != 0) {
+    Serial.println(F("{\"event\":\"AI_RESULT_NACK\",\"reason\":\"wrong_session_or_state\"}"));
+    return;
+  }
+  aiRf30Pending = false; // consume nonce before HMI updates / serial output
+  aiRf30Roast = roast;
+  updateNextionInferenceResult();
+  char tokenText[9] = {};
+  AiRf30Return::tokenHex(token,tokenText,sizeof(tokenText));
+  Serial.print(F("{\"event\":\"AI_RESULT_ACK\",\"token\":\""));
+  Serial.print(tokenText);
+  Serial.print(F("\",\"roast\":\""));
+  Serial.print(AiRf30Return::label(roast));
+  Serial.println(F("\",\"origin\":null,\"confidence\":null}"));
+  char history[UI_HISTORY_TEXT_CAPACITY] = {};
+  snprintf(history,sizeof(history),"T-%04u RF30 %s",testSequence - 1,
+           AiRf30Return::label(roast));
+  addUiHistory(history);
+#else
+  (void)cmd;
+  Serial.println(F("{\"event\":\"AI_RESULT_NACK\",\"reason\":\"release_gate_disabled\"}"));
+#endif
+}
+
 void processCommand(const char *cmd) {
-  if (strcmp(cmd, "#start") == 0 || strcmp(cmd, "#1") == 0) {
+  if (strncmp(cmd, "#rf30:", 6) == 0) {
+    processAiRf30Reply(cmd);
+  } else if (strcmp(cmd, "#start") == 0 || strcmp(cmd, "#1") == 0) {
     if (acqState == AcqState::IDLE && !baselineCaptureActive) {
       if (sensorsReady && sensors.allAdcAvailable()) {
         startAcquisition();

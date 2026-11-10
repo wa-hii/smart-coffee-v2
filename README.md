@@ -1,5 +1,15 @@
 # Smart Coffee E-Nose v2
 
+**11 November 2026 — Pi model + return bridge (sumber, belum live):**
+RF500 asli 30 siklus berhasil dijalankan **offline di Raspberry Pi 5**
+dengan scikit-learn 1.7.2; replay 900 sampel menghasilkan paket
+kandidat `#rf30:<token>:dark;` dan ACK simulasi. Source ATmega memiliki
+handler token, timeout dan update `pResult`, tetapi default
+`ENABLE_PI_RF30_RETURN=0` dan firmware belum di-flash.
+Catatan hardware FT232R disconnect/reconnect serta serial yang berbeda
+dari uji sebelumnya memblokir percobaan G2/G3 otomatis.
+Laporan: `docs/reports/2026-11-11_RF30_PI_REMOTE_STAGING_AND_RETURN_PROTOCOL.md`.
+
 **10 November 2026 — penyamaan 30 siklus (SOURCE ONLY):**
 Firmware source mengatur **AI Test dan Take Data 30 siklus** ×
 (25 s purging + 5 s collecting), total nominal 900 baris / 15 menit.
