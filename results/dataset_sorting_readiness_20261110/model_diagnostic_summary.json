@@ -1,0 +1,56 @@
+{
+  "training_counts_by_origin_roast": {
+    "CAT|dark": 6,
+    "CAT|light": 7,
+    "CAT|medium": 4,
+    "GAW|dark": 9,
+    "GAW|light": 6,
+    "GAW|medium": 8,
+    "GRB|dark": 9,
+    "GRB|light": 7,
+    "GRB|medium": 5,
+    "MING|dark": 7,
+    "MING|light": 10,
+    "MING|medium": 9,
+    "TEM|dark": 4,
+    "TEM|light": 6,
+    "TEM|medium": 10,
+    "TOR|dark": 7,
+    "TOR|light": 9,
+    "TOR|medium": 10
+  },
+  "testing_counts_by_origin_roast": {
+    "CAT|dark": 2,
+    "CAT|light": 6,
+    "CAT|medium": 7,
+    "GAW|dark": 6,
+    "GAW|medium": 5,
+    "GRB|dark": 5,
+    "GRB|medium": 11,
+    "TEM|dark": 2,
+    "TEM|light": 3,
+    "TEM|medium": 11,
+    "TOR|dark": 3,
+    "TOR|light": 5
+  },
+  "train_n": 133,
+  "test_n": 66,
+  "duplicate_kept_discarded": [
+    "M-TEM_B62_20261019_175906.csv"
+  ],
+  "training_cohorts": [
+    "a",
+    "b"
+  ],
+  "testing_cohort": "c",
+  "label_sources": "manual sorted/kept; only structural QA-validated; not random prospective samples",
+  "grouping_for_cv": "origin (5 train, 1 validate); test cohort c B80-B90 is never used to fit scalers",
+  "inherent_limitations": [
+    "class-origin coverage incomplete in test C",
+    "origin/roast/device confounded especially in B70-B75",
+    "missing device identifiers for A and C",
+    "manual sorting may bias distribution / select response amplitudes",
+    "physical specimen/preparation independence unverified",
+    "exploratory configuration comparison on test is not a final unbiased estimate"
+  ]
+}

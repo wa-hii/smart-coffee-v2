@@ -1,0 +1,356 @@
+{
+  "total_csv": 366,
+  "counts_by_cohort_status": {
+    "a/excluded": 19,
+    "a/kept": 64,
+    "a/maybe": 28,
+    "b/excluded": 12,
+    "b/kept": 96,
+    "b/maybe": 18,
+    "c/excluded": 55,
+    "c/kept": 72,
+    "c/maybe": 2
+  },
+  "audit_categories": {
+    "VALID": 361,
+    "INCOMPLETE": 5
+  },
+  "sort_status_audit": {
+    "INCOMPLETE": {
+      "excluded": 0,
+      "kept": 4,
+      "maybe": 1
+    },
+    "VALID": {
+      "excluded": 86,
+      "kept": 228,
+      "maybe": 47
+    }
+  },
+  "kept_files": 232,
+  "kept_valid": 228,
+  "kept_unique_label_batch": 227,
+  "maybe_valid": 47,
+  "excluded_valid": 86,
+  "distinct_sha": 366,
+  "distinct_signal_hash": 366,
+  "duplicate_origin_roast_batch_count": 4,
+  "matching_previous_valid_sha": 121,
+  "matching_previous_valid_signal": 232,
+  "trainable_class_origin_coverage": [
+    {
+      "cohort": "a",
+      "origin": "CAT",
+      "roast": "dark",
+      "n_independent_label_batches": 3
+    },
+    {
+      "cohort": "a",
+      "origin": "CAT",
+      "roast": "light",
+      "n_independent_label_batches": 3
+    },
+    {
+      "cohort": "a",
+      "origin": "GAW",
+      "roast": "dark",
+      "n_independent_label_batches": 3
+    },
+    {
+      "cohort": "a",
+      "origin": "GAW",
+      "roast": "light",
+      "n_independent_label_batches": 1
+    },
+    {
+      "cohort": "a",
+      "origin": "GAW",
+      "roast": "medium",
+      "n_independent_label_batches": 3
+    },
+    {
+      "cohort": "a",
+      "origin": "GAY",
+      "roast": "light",
+      "n_independent_label_batches": 1
+    },
+    {
+      "cohort": "a",
+      "origin": "GRB",
+      "roast": "dark",
+      "n_independent_label_batches": 3
+    },
+    {
+      "cohort": "a",
+      "origin": "GRB",
+      "roast": "light",
+      "n_independent_label_batches": 4
+    },
+    {
+      "cohort": "a",
+      "origin": "GRB",
+      "roast": "medium",
+      "n_independent_label_batches": 3
+    },
+    {
+      "cohort": "a",
+      "origin": "MING",
+      "roast": "dark",
+      "n_independent_label_batches": 1
+    },
+    {
+      "cohort": "a",
+      "origin": "MING",
+      "roast": "light",
+      "n_independent_label_batches": 5
+    },
+    {
+      "cohort": "a",
+      "origin": "MING",
+      "roast": "medium",
+      "n_independent_label_batches": 4
+    },
+    {
+      "cohort": "a",
+      "origin": "MUK",
+      "roast": "medium",
+      "n_independent_label_batches": 5
+    },
+    {
+      "cohort": "a",
+      "origin": "RAT",
+      "roast": "dark",
+      "n_independent_label_batches": 2
+    },
+    {
+      "cohort": "a",
+      "origin": "TEM",
+      "roast": "dark",
+      "n_independent_label_batches": 4
+    },
+    {
+      "cohort": "a",
+      "origin": "TEM",
+      "roast": "medium",
+      "n_independent_label_batches": 5
+    },
+    {
+      "cohort": "a",
+      "origin": "TOR",
+      "roast": "dark",
+      "n_independent_label_batches": 4
+    },
+    {
+      "cohort": "a",
+      "origin": "TOR",
+      "roast": "light",
+      "n_independent_label_batches": 4
+    },
+    {
+      "cohort": "a",
+      "origin": "TOR",
+      "roast": "medium",
+      "n_independent_label_batches": 5
+    },
+    {
+      "cohort": "b",
+      "origin": "CAT",
+      "roast": "dark",
+      "n_independent_label_batches": 3
+    },
+    {
+      "cohort": "b",
+      "origin": "CAT",
+      "roast": "light",
+      "n_independent_label_batches": 4
+    },
+    {
+      "cohort": "b",
+      "origin": "CAT",
+      "roast": "medium",
+      "n_independent_label_batches": 4
+    },
+    {
+      "cohort": "b",
+      "origin": "GAW",
+      "roast": "dark",
+      "n_independent_label_batches": 6
+    },
+    {
+      "cohort": "b",
+      "origin": "GAW",
+      "roast": "light",
+      "n_independent_label_batches": 5
+    },
+    {
+      "cohort": "b",
+      "origin": "GAW",
+      "roast": "medium",
+      "n_independent_label_batches": 5
+    },
+    {
+      "cohort": "b",
+      "origin": "GAY",
+      "roast": "light",
+      "n_independent_label_batches": 6
+    },
+    {
+      "cohort": "b",
+      "origin": "GRB",
+      "roast": "dark",
+      "n_independent_label_batches": 6
+    },
+    {
+      "cohort": "b",
+      "origin": "GRB",
+      "roast": "light",
+      "n_independent_label_batches": 3
+    },
+    {
+      "cohort": "b",
+      "origin": "GRB",
+      "roast": "medium",
+      "n_independent_label_batches": 2
+    },
+    {
+      "cohort": "b",
+      "origin": "MING",
+      "roast": "dark",
+      "n_independent_label_batches": 6
+    },
+    {
+      "cohort": "b",
+      "origin": "MING",
+      "roast": "light",
+      "n_independent_label_batches": 5
+    },
+    {
+      "cohort": "b",
+      "origin": "MING",
+      "roast": "medium",
+      "n_independent_label_batches": 5
+    },
+    {
+      "cohort": "b",
+      "origin": "MUK",
+      "roast": "medium",
+      "n_independent_label_batches": 4
+    },
+    {
+      "cohort": "b",
+      "origin": "RAT",
+      "roast": "dark",
+      "n_independent_label_batches": 4
+    },
+    {
+      "cohort": "b",
+      "origin": "TEM",
+      "roast": "light",
+      "n_independent_label_batches": 6
+    },
+    {
+      "cohort": "b",
+      "origin": "TEM",
+      "roast": "medium",
+      "n_independent_label_batches": 5
+    },
+    {
+      "cohort": "b",
+      "origin": "TOR",
+      "roast": "dark",
+      "n_independent_label_batches": 3
+    },
+    {
+      "cohort": "b",
+      "origin": "TOR",
+      "roast": "light",
+      "n_independent_label_batches": 5
+    },
+    {
+      "cohort": "b",
+      "origin": "TOR",
+      "roast": "medium",
+      "n_independent_label_batches": 5
+    },
+    {
+      "cohort": "c",
+      "origin": "CAT",
+      "roast": "dark",
+      "n_independent_label_batches": 2
+    },
+    {
+      "cohort": "c",
+      "origin": "CAT",
+      "roast": "light",
+      "n_independent_label_batches": 6
+    },
+    {
+      "cohort": "c",
+      "origin": "CAT",
+      "roast": "medium",
+      "n_independent_label_batches": 7
+    },
+    {
+      "cohort": "c",
+      "origin": "GAW",
+      "roast": "dark",
+      "n_independent_label_batches": 6
+    },
+    {
+      "cohort": "c",
+      "origin": "GAW",
+      "roast": "medium",
+      "n_independent_label_batches": 5
+    },
+    {
+      "cohort": "c",
+      "origin": "GRB",
+      "roast": "dark",
+      "n_independent_label_batches": 5
+    },
+    {
+      "cohort": "c",
+      "origin": "GRB",
+      "roast": "medium",
+      "n_independent_label_batches": 11
+    },
+    {
+      "cohort": "c",
+      "origin": "MUK",
+      "roast": "medium",
+      "n_independent_label_batches": 6
+    },
+    {
+      "cohort": "c",
+      "origin": "TEM",
+      "roast": "dark",
+      "n_independent_label_batches": 2
+    },
+    {
+      "cohort": "c",
+      "origin": "TEM",
+      "roast": "light",
+      "n_independent_label_batches": 3
+    },
+    {
+      "cohort": "c",
+      "origin": "TEM",
+      "roast": "medium",
+      "n_independent_label_batches": 11
+    },
+    {
+      "cohort": "c",
+      "origin": "TOR",
+      "roast": "dark",
+      "n_independent_label_batches": 3
+    },
+    {
+      "cohort": "c",
+      "origin": "TOR",
+      "roast": "light",
+      "n_independent_label_batches": 5
+    }
+  ],
+  "unknown_device_kept": 136,
+  "source_untouched": true
+}
