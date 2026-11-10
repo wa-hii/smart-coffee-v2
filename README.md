@@ -1,5 +1,14 @@
 # Smart Coffee E-Nose v2
 
+**10 November 2026 — penyamaan 30 siklus (SOURCE ONLY):**
+Firmware source mengatur **AI Test dan Take Data 30 siklus** ×
+(25 s purging + 5 s collecting), total nominal 900 baris / 15 menit.
+Nextion `pTestRun` menampilkan progres/ETA 15 menit dan `tFw=DATA30-AI30`;
+Pi validator aktif menolak rekaman lima siklus. Model RF500 kandidat
+tetap memakai ADC absolut dari 30 siklus; **belum ada hasil model yang
+ditransmisikan ke LCD** dan tidak ada bukti firmware baru ter-flash.
+Detail: `docs/reports/2026-11-10_TAKE_DATA_AI_TEST_30CYCLE_SYNC.md`.
+
 **19 Oktober 2026 — multi-device salvage receiver v9:** atas permintaan
 pengambilan tetap berjalan sampai akhir 30 siklus meski ada frame JSON
 rusak (ALAT_3 `L-CAT_B63`, frame 257 byte, parser pos 256), supervisor

@@ -8,7 +8,7 @@
 // Alur akuisisi aktif per sampel:
 //   PURGING (valve OFF/udara bersih, 25 s)
 //     → COLLECTING (valve ON/aroma kopi, 5 s)
-//     → Take Data 30 siklus; AI Test tetap 5 siklus
+//     → Take Data dan AI Test sama-sama 30 siklus (900 ADC samples)
 //   Setelah mode AI_TEST selesai → inferensi lokal hanya bila diaktifkan;
 //   secara default USE_ON_DEVICE_INFERENCE=0 (hasil N/A).
 //
@@ -34,14 +34,14 @@
 #define ACQ_COLLECTION_SECONDS 5 // durasi menghirup aroma kopi (detik)
 #define ACQ_PURGE_SECONDS 25     // durasi purging ke udara bebas (detik)
 #define ACQ_DATA_REPETITIONS 30  // Nextion Take Data
-#define ACQ_AI_REPETITIONS 5     // Nextion AI Test (tidak berubah)
+#define ACQ_AI_REPETITIONS ACQ_DATA_REPETITIONS // AI Test identik dengan Take Data
 #define ACQ_REPETITIONS (acqMode == AcquisitionMode::LABELED_DATA ? ACQ_DATA_REPETITIONS : ACQ_AI_REPETITIONS)
 #define BASELINE_SAMPLES 60      // 60 samples, 1 Hz, clean-air ADC reference
 
 // Identitas source BUILD, bukan bukti firmware sudah di-flash. Sertakan
 // pada ACQ_START supaya host tetap dapat mengidentifikasi firmware saat
 // FW_HELLO boot tidak tertangkap karena pembukaan port USB/DTR.
-#define SMART_COFFEE_BUILD_ID "take12-abs900-no-uiwait-20261017"
+#define SMART_COFFEE_BUILD_ID "take30-ai30-rfhost-20261110"
 
 // ─── Feature Flags
 // ────────────────────────────────────────────────────────────
@@ -224,7 +224,11 @@ void setup() {
   // is still required for exact chip/flash identity.
   Serial.print(F("{\"event\":\"FW_HELLO\",\"protocol\":\"legacy-json.v1\",\"build_id\":\""));
   Serial.print(F(SMART_COFFEE_BUILD_ID));
-Serial.println(F("\",\"adc_channels\":10,\"data_cycles_total\":30,\"ai_cycles_total\":5,\"purge_s\":25,\"collect_s\":5}"));
+  Serial.print(F("\",\"adc_channels\":10,\"data_cycles_total\":"));
+  Serial.print(ACQ_DATA_REPETITIONS);
+  Serial.print(F(",\"ai_cycles_total\":"));
+  Serial.print(ACQ_AI_REPETITIONS);
+  Serial.println(F(",\"purge_s\":25,\"collect_s\":5}"));
   nextion.begin(NEXTION_BAUD);
   // We use our own ASCII EVT:* protocol. Suppress command ACK/error packets so
   // binary Nextion return frames never share the event stream.
@@ -597,7 +601,7 @@ void updateNextionTakePage() {
   char filename[40] = {};
   snprintf(batch, sizeof(batch), "B%02u", batchNumber);
   // pTake displays the data-acquisition contract even while IDLE.
-  // acqMode is NONE before START; never display AI_TEST's 5 cycles here.
+  // acqMode is NONE before START; show duration from common 30-cycle contract.
   snprintf(cycles, sizeof(cycles), "%u", ACQ_DATA_REPETITIONS);
   buildTakeFilename(filename, sizeof(filename), true);
   nextion.text("tRoast", ROAST_OPTIONS[roastSelection]);
@@ -657,7 +661,7 @@ void updateNextionSettingsPage() {
   nextion.text("tBright", "80 %");
   nextion.text("tLang", "EN / ID");
   nextion.text("tDevId", "ATMEGA2560");
-  nextion.text("tFw", "DATA30-AI5");
+  nextion.text("tFw", "DATA30-AI30");
 }
 
 void updateNextionTestRunPage() {
@@ -670,7 +674,7 @@ void updateNextionTestRunPage() {
   nextion.text("tStep2", "WAIT");
   nextion.text("tStep3", "WAIT");
   nextion.text("tStep4", "N/A");
-  nextion.text("tEta", "EST. REMAINING --:--");
+  nextion.text("tEta", "EST. REMAINING 15:00");
 }
 
 void updateNextionTestRunStatus() {

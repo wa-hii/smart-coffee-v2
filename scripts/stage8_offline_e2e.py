@@ -85,7 +85,9 @@ def _firmware_samples(rows: Iterable[dict]) -> Iterable[tuple[int, str, str]]:
 def mock_session(rows: list[dict], *, mode: str, fault: str) -> dict:
     if mode not in MODES or fault not in FAULTS:
         raise ValueError("invalid_mode_or_fault")
-    bridge = LegacySessionBridge(session_factory=lambda: "stage8realcsv001")
+    # Historical 5-cycle source: preserve legacy evidence. Active modes use 30.
+    bridge = LegacySessionBridge(session_factory=lambda: "stage8realcsv001",
+                                 expected_cycles=5)
     # Only an abstract Nextion gesture, NOT hardware Nextion events.
     start = {
         "event": "ACQ_START", "mode": mode, "cycle": 1,

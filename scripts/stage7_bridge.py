@@ -1,6 +1,8 @@
 """Tahap 7 — kontrak serial dan state tracker Pi (OFFLINE / READ-ONLY).
 
-Versi firmware saat ini mengirim JSON per baris tanpa session_id/seq.
+Kontrak aktif: AI Test dan Take Data = 30 siklus x (25s purge + 5s collect).
+Fixture lama G3 5-siklus dapat diuji hanya dengan expected_cycles=5.
+Versi firmware mengirim JSON per baris tanpa session_id/seq.
 Adapter legacy membangkitkan envelope internal tanpa mengirim perintah
 ke ATmega. Kontrak wire v1 bersifat spesifikasi untuk firmware MENDATANG.
 Tidak membuka serial, port GPIO, COM5, SSH, atau mengendalikan aktuator.
@@ -152,7 +154,11 @@ class V1SequenceGuard:
 class LegacySessionBridge:
     """Passive state/quality tracker of actual firmware Serial 115200 output."""
 
-    def __init__(self, session_factory: Callable[[], str] | None = None):
+    def __init__(self, session_factory: Callable[[], str] | None = None,
+                 expected_cycles: int = 30):
+        if expected_cycles not in (5, 30):
+            raise ValueError("unsupported_expected_cycles")
+        self.expected_cycles = expected_cycles
         self.session_factory = session_factory or (
             lambda: uuid.uuid4().hex
         )
@@ -182,7 +188,8 @@ class LegacySessionBridge:
             reason=reason, sensor_samples=n, terminal=True,
             host_only=True, sent_to_atmega=False,
             actuator_commands_sent=0, model_invoked=False,
-            nominal_150_samples=n == 150,
+            nominal_150_samples=n == 150 and self.expected_cycles == 5,
+            nominal_900_samples=n == 900 and self.expected_cycles == 30,
         )
         self.last_final = result
         self.active = None
@@ -206,14 +213,15 @@ class LegacySessionBridge:
             return self.finish("host_receive_timeout")
         return None
 
-    @staticmethod
-    def _validate_cycle_counts(session: dict) -> str | None:
+    def _validate_cycle_counts(self, session: dict) -> str | None:
         if session["paused"]:
             return "complete_while_paused"
-        for cycle in range(1, 6):
+        for cycle in range(1, self.expected_cycles + 1):
             purge = session["counts"].get((cycle, "purging"), 0)
             collect = session["counts"].get((cycle, "collecting"), 0)
-            if not (24 <= purge <= 26 and 4 <= collect <= 7):
+            if (self.expected_cycles == 30 and (purge != 25 or collect != 5)) or (
+                self.expected_cycles == 5 and not (24 <= purge <= 26 and 4 <= collect <= 7)
+            ):
                 return f"missing_or_extra_cycle_{cycle}_phase_samples"
         return None
 
@@ -232,7 +240,7 @@ class LegacySessionBridge:
             mode = data.get("mode")
             if (mode not in MODES or
                     type(data.get("cycles_total")) is not int or
-                    data["cycles_total"] != 5 or
+                    data["cycles_total"] != self.expected_cycles or
                     data.get("purge_s") != 25 or
                     data.get("collect_s") != 5 or
                     data.get("phase") != "purging" or
@@ -300,12 +308,12 @@ class LegacySessionBridge:
         if event == "ACQ_STOP":
             return [self.finish("operator_stopped")]
         if event == "ACQ_COMPLETE":
-            if data.get("cycles") != 5 or data.get("total_samples") != sum(
+            if data.get("cycles") != self.expected_cycles or data.get("total_samples") != sum(
                 s["counts"].values()
             ):
                 return [self.finish("incorrect_acq_complete_counts")]
             issue = self._validate_cycle_counts(s)
-            return [self.finish(issue or "five_cycles_checked_no_approved_model",
+            return [self.finish(issue or f"{self.expected_cycles}_cycles_checked_no_approved_model",
                                 ok=issue is None)]
         # Preboot logs, I2C probe and on-device INFERENCE=N/A are diagnostic.
         if event == "INFERENCE" and data.get("result") not in ("N/A", None):
@@ -313,10 +321,12 @@ class LegacySessionBridge:
         return []
 
 
-def replay_csv(file: Path, *, session_factory: Callable[[], str] | None = None
+def replay_csv(file: Path, *, session_factory: Callable[[], str] | None = None,
+               expected_cycles: int = 30
                ) -> dict:
     """Use real, read-only CSV to generate firmware-shaped in-memory replay."""
-    bridge = LegacySessionBridge(session_factory=session_factory)
+    bridge = LegacySessionBridge(session_factory=session_factory,
+                                 expected_cycles=expected_cycles)
     with file.open(newline="", encoding="utf-8") as stream:
         rows = list(csv.DictReader(stream))
     if not rows:
@@ -327,7 +337,7 @@ def replay_csv(file: Path, *, session_factory: Callable[[], str] | None = None
     source_sha256 = hashlib.sha256(file.read_bytes()).hexdigest()
     bridge.feed(json.dumps({
         "event": "ACQ_START", "mode": "ai_test", "cycle": 1,
-        "phase": "purging", "cycles_total": 5, "purge_s": 25,
+        "phase": "purging", "cycles_total": expected_cycles, "purge_s": 25,
         "collect_s": 5,
     }))
     previous = (1, "purging")
@@ -352,7 +362,7 @@ def replay_csv(file: Path, *, session_factory: Callable[[], str] | None = None
         count += 1
     if bridge.active:
         bridge.feed(json.dumps({
-            "event": "ACQ_COMPLETE", "cycles": 5, "total_samples": count,
+            "event": "ACQ_COMPLETE", "cycles": expected_cycles, "total_samples": count,
         }))
     result = bridge.last_final or {
         "status": "N/A", "quality": "FAIL_CLOSED",

@@ -7,7 +7,8 @@ Reads CANONICAL ADC columns from CSV containing exactly 30 complete cycles of
 There is NO baseline subtraction, fit, global Z-score, or test-label input.
 
 This utility DOES NOT open serial ports, transmit to ATmega/Nextion, or
-operate pumps. Do not apply this 30-cycle model to 5-cycle AI_TEST captures.
+operate pumps. Active AI Test and Take Data sources both target 30 cycles;
+historical 5-cycle captures are rejected, not padded or extrapolated.
 
 The joblib format executes Python during loading. Load ONLY the provenance-
 verified SHA256-pinned artifact and within an isolated Python environment.

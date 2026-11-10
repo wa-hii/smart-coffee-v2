@@ -14,6 +14,7 @@ from pathlib import Path
 
 from acquisition_schema import ADC_COLS
 from stage7_pi_adapter import receive_serial_chunks
+from stage7_bridge import LegacySessionBridge
 from stage8_offline_e2e import _firmware_samples, read_real_csv
 from stage6_release_gate import evaluate as stage6_evaluate
 
@@ -129,6 +130,7 @@ def run_case(rows: list[dict], scenario: str) -> dict:
     # machine performance. Timing windows are tested in Stage7 unit QA.
     result = receive_serial_chunks(
         fragmented(make_frames(rows, scenario)), monotonic=lambda: 1.0,
+        bridge=LegacySessionBridge(expected_cycles=5),
     )
     diag = result["diagnostics"]
     terminal = result["final"]

@@ -6,8 +6,8 @@ Requires one complete 30-cycle session. Reconstructs canonical MQ3 CSV
 in an ephemeral temporary directory; ignores all operator ground-truth
 labels so they cannot affect inference. Never writes MCU/Nextion.
 
-Firmware today sends 30 cycles only for labeled_data (Take Data);
-AI_TEST is FIVE cycles and MUST NOT use this RF 30-cycle model unchanged.
+The new firmware source uses 30 cycles for BOTH labeled_data and ai_test.
+Do not infer from a 5-cycle historical recording; no hardware is accessed.
 """
 from __future__ import annotations
 
@@ -54,6 +54,9 @@ def collect_firmware_ndjson(log_path:Path)->list[dict]:
                     frame.get("cycles_total")!=30 or
                     frame.get("purge_s")!=25 or frame.get("collect_s")!=5):
                     raise StreamError("start_contract_not_30_cycles")
+                if frame["mode"]=="ai_test" and any(k in frame for k in
+                        ("sample_id","roast_level","origin","origin_code","label")):
+                    raise StreamError("ai_test_label_leakage")
                 active=True
                 events+=1
                 continue

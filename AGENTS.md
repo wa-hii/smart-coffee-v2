@@ -40,7 +40,7 @@ Kepemilikan direktori: `src/`, `include/`, `lib/` (firmware); `test/` (uji embed
 - **Sepuluh kanal gas berurutan:** TGS822, MQ135, **MQ3**, TGS2611, TGS2620, TGS2600, TGS2602, MQ8, TGS813, TGS816.
 - **Nextion:** NX4827T043_011 melalui `Serial2` @ 9600 baud. Nextion TX → PH0/RXD2 (**TQFP-100 pin 12**, header Mega RX2/D17); Nextion RX ← PH1/TXD2 (**TQFP-100 pin 13**, header TX2/D16). Jangan samakan nomor pin kemasan IC dengan nomor pin header Arduino; pastikan jalur PCB custom berdasarkan skematik. Acuan: datasheet Microchip ATmega2560 dan pinout Arduino Mega resmi.
 - **USB ke host:** `Serial` @ 115200 baud; Raspberry Pi 5 adalah target pemrosesan/inferensi AI.
-- **Akuisisi aktif:** lima siklus, masing-masing 25 detik purging + 5 detik collecting.
+- **Akuisisi aktif pada source (belum flash hardware):** AI Test dan Take Data sama-sama 30 siklus, tiap siklus 25 detik purging + 5 detik collecting (nominal 900 sampel/15 menit). Lima siklus G3 lama adalah riwayat.
 - Dataset aktif B32+ memakai **MQ3**; data historis tertentu memakai **MQ9**. Jangan menggabungkan keduanya tanpa pembuktian kompatibilitas.
 
 ATmega memegang state machine, akuisisi dan keselamatan pompa/valve. Raspberry Pi ditujukan untuk pengolahan data/inferensi; integrasi fisik E2E belum boleh dianggap teruji. Perubahan pin, protokol, pemetaan sensor, timing, aktuator, dan skema data perlu analisis dampak dan pengujian memadai.
@@ -58,7 +58,7 @@ ATmega memegang state machine, akuisisi dan keselamatan pompa/valve. Raspberry P
 
 **Preferensi 5B — Nextion:** boleh memperbaiki event, navigasi, logika, validasi, dan komunikasi tanpa mengubah desain visual. Pertahankan aset Figma final dan HMI acuan `nextion/NX4827T043_011/project/RoastSense_NX4827T043_011_COMPILE_READY.HMI`. Perubahan layout, warna, gambar, atau desain utama memerlukan persetujuan. Hindari regenerasi HMI yang menimpa hasil edit manual; verifikasi kontrak firmware–HMI.
 
-**Data:** jangan menghapus, mengedit, atau menimpa CSV asli dalam `data/raw/`. Pisahkan event dari sampel sensor; validasi tipe/rentang, fase, indeks, metadata, dan kelengkapan. Cegah duplikasi serta penimpaan nama file; pertahankan data terputus dan provenance. Bedakan file, lima siklus dalam file, batch, sesi, dan **spesimen kopi fisik**. Jangan menganggap pengukuran berulang sebagai sampel independen.
+**Data:** jangan menghapus, mengedit, atau menimpa CSV asli dalam `data/raw/`. Pisahkan event dari sampel sensor; validasi tipe/rentang, fase, indeks, metadata, dan kelengkapan. Cegah duplikasi serta penimpaan nama file; pertahankan data terputus dan provenance. Bedakan file, 30 siklus dalam file, batch, sesi, dan **spesimen kopi fisik**. Jangan menganggap pengukuran berulang sebagai sampel independen.
 
 ## 6. Metodologi AI dan batas klaim
 

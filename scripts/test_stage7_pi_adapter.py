@@ -12,15 +12,25 @@ from unittest.mock import patch
 from stage7_pi_adapter import (
     EXPECTED_FW_HELLO, LIVE_OPT_IN, MAX_STREAM_SECONDS, SerialLineFramer,
     json_key_signature, main, receive_lines,
-    receive_serial_chunks, replay_real_csv, save_report,
+    receive_serial_chunks as current_receive_serial_chunks,
+    replay_real_csv, save_report,
     sensor_like_rejection_code, sensor_like_phase_category,
     nextion_event_category,
     serial_readonly,
     validate_live_args,
 )
-from stage7_bridge import MAX_LINE_BYTES
+from stage7_bridge import MAX_LINE_BYTES, LegacySessionBridge
 from acquisition_schema import ADC_COLS
 from stage8_offline_e2e import _firmware_samples, read_real_csv
+
+
+def receive_serial_chunks(chunks, **kwargs):
+    """Historical 5-cycle G3 test explicitly selects legacy parsing.
+
+    The production Pi parser defaults to 30 cycles and rejects G3 5 cycles.
+    """
+    kwargs.setdefault("bridge", LegacySessionBridge(expected_cycles=5))
+    return current_receive_serial_chunks(chunks, **kwargs)
 
 
 def must_fail(callback, exception, fragment):
@@ -36,7 +46,7 @@ def main_test():
     root = Path(__file__).resolve().parents[1]
     original = root / "data/raw/D-GAW_B33.csv"
     original_hash = original.read_bytes()
-    replay = replay_real_csv(original)
+    replay = replay_real_csv(original, expected_cycles=5)
     assert replay["hardware_serial_opened"] is False
     assert replay["bridge"]["quality"] == "COMPLETE_QA"
     assert replay["bridge"]["status"] == "N/A"
@@ -96,7 +106,7 @@ def main_test():
     assert recovery["diagnostics"]["raw_sensor_values_persisted"] is False
     assert recovery["diagnostics"]["physical_g3_complete_verified"] is False
     # Real hardware QA cannot be marked PASS without the frozen firmware's
-    # build marker on the accepted ACQ_START, even if five cycles validate.
+    # build marker on the accepted ACQ_START, even if legacy five cycles validate.
     rc2_start = {**json.loads(sample_start),
                  "fw_build_id": EXPECTED_FW_HELLO["build_id"]}
     rc2_wire = [json.dumps(rc2_start).encode() + b"\n", *messages[2:]]
@@ -104,7 +114,8 @@ def main_test():
     assert verified["final"]["quality"] == "COMPLETE_QA"
     assert verified["diagnostics"]["firmware_hello_status"] == "NOT_OBSERVED"
     assert verified["diagnostics"]["acq_start_firmware_build_status"] == "MATCHED"
-    assert verified["diagnostics"]["physical_g3_complete_verified"] is True
+    # A legacy five-cycle fixture can NEVER verify the new 30-cycle firmware.
+    assert verified["diagnostics"]["physical_g3_complete_verified"] is False
     wrong_start = {**rc2_start, "fw_build_id": "UNVERIFIED_FIRMWARE"}
     wrong_wire = [json.dumps(wrong_start).encode() + b"\n", *messages[2:]]
     wrong = receive_serial_chunks(wrong_wire, monotonic=lambda: 1)
@@ -261,8 +272,9 @@ def main_test():
     with TemporaryDirectory() as root_tmp:
         tmp = Path(root_tmp)
         dest = tmp / "result.json"
+        new_30 = root / "data/dataset sorting/b/kept/D-CAT_B70.csv"
         assert main([
-            "replay-csv", "--input", str(original), "--output", str(dest)
+            "replay-csv", "--input", str(new_30), "--output", str(dest)
         ]) == 0
         result = json.loads(dest.read_text(encoding="utf-8"))
         assert result["model_promotion_allowed"] is False
@@ -278,12 +290,14 @@ def main_test():
             "phase": "purging", "cycles_total": 5, "purge_s": 25,
             "collect_s": 5,
         }).encode()
-        bad = receive_lines([start, b'{"bad json"'])
+        bad = receive_lines([start, b'{"bad json"'],
+                            bridge=LegacySessionBridge(expected_cycles=5))
         assert bad["final"]["status"] == "N/A"
         assert bad["final"]["quality"] == "FAIL_CLOSED"
         assert bad["terminal_event_count"] == 1
         assert bad["final"]["actuator_commands_sent"] == 0
-        disconnect = receive_lines([start])
+        disconnect = receive_lines([start],
+                                   bridge=LegacySessionBridge(expected_cycles=5))
         assert disconnect["final"]["reason"] == "stream_eof_or_disconnect"
         assert receive_lines([])["final"]["quality"] == "NOT_STARTED"
         must_fail(lambda: receive_lines([], max_seconds=MAX_STREAM_SECONDS + 1),
@@ -314,8 +328,9 @@ def main_test():
                 # Emulate a physical 1 Hz acquisition frame fragmented by
                 # a 1-second timeout; serial calls must NOT be parsed as
                 # individual JSON messages until LF arrives.
+                live_start = json.dumps({**json.loads(start), "cycles_total": 30}).encode()
                 self.frames = iter([
-                    start[:14], b"", start[14:] + b"\n",
+                    live_start[:14], b"", live_start[14:] + b"\n",
                     b"not json\n",
                 ])
 

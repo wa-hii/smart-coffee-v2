@@ -1,5 +1,6 @@
 """Stage 7 Pi host adapter: offline replay or explicitly authorized serial RX.
 
+Active firmware AI Test / Take Data = 30 cycles, 900 sensor rows, ~15 min.
 DEFAULT IS OFFLINE. No model fitting/inference, no actuator messages, and
 never writes to the MCU. USB serial open may reset the MCU through DTR;
 the hardware mode is disabled unless individually authorized at the CLI.
@@ -41,9 +42,9 @@ LIVE_OPT_IN = "I_APPROVE_USB_SERIAL_READONLY"
 SAFE_PORT = re.compile(
     r"^/dev/(?:serial/by-id/[A-Za-z0-9_.:+-]+|ttyACM[0-9]+|ttyUSB[0-9]+)$"
 )
-# Lima siklus memerlukan ~150 detik. Berikan ruang untuk operator menekan
-# Nextion *setelah* konfirmasi listener siap, tanpa listener tanpa batas.
-MAX_STREAM_SECONDS = 240
+# 30 cycles x 30s = 900s. Give operator 5 minutes after listener starts,
+# plus margin for start/complete. Still bounded to avoid infinite listening.
+MAX_STREAM_SECONDS = 1260
 
 # Constant, privacy-safe diagnostic categories. Never persist rejected values.
 _SENSOR_SHAPE_KEYS = frozenset((
@@ -62,8 +63,9 @@ _NEXTION_EVENT_CATEGORIES = frozenset((
 ))
 EXPECTED_FW_HELLO = {
     "event": "FW_HELLO", "protocol": "legacy-json.v1",
-    "build_id": "g3-rc2-20261014", "adc_channels": 10,
-    "cycles_total": 5, "purge_s": 25, "collect_s": 5,
+    "build_id": "take30-ai30-rfhost-20261110", "adc_channels": 10,
+    "data_cycles_total": 30, "ai_cycles_total": 30,
+    "purge_s": 25, "collect_s": 5,
 }
 
 
@@ -127,7 +129,7 @@ def receive_serial_chunks(chunks: Iterable[bytes], *,
     Diagnostics persist only frame categories/counts, not sensor readings.
     """
     if not 1 <= max_seconds <= MAX_STREAM_SECONDS:
-        raise ValueError("max_duration_outside_1_180_seconds")
+        raise ValueError("max_duration_outside_1_1260_seconds")
     tracker = bridge if bridge is not None else make_bridge()
     framer = SerialLineFramer()
     started = monotonic()
@@ -242,7 +244,8 @@ def receive_serial_chunks(chunks: Iterable[bytes], *,
             break
     if tracker.active is not None:
         tracker.abort("stream_eof_or_disconnect")
-    firmware_verified = (firmware_start_build == "MATCHED" and
+    firmware_verified = (tracker.expected_cycles == 30 and
+                         firmware_start_build == "MATCHED" and
                          start_contract_outcomes["accepted"] == 1 and
                          firmware_hello != "INCOMPATIBLE")
     complete_verified = bool(
@@ -342,7 +345,7 @@ def receive_lines(lines: Iterable[bytes | str], *,
     blocking stream use an underlying finite read timeout (pyserial: 1s).
     """
     if not 1 <= max_seconds <= MAX_STREAM_SECONDS:
-        raise ValueError("max_duration_outside_1_180_seconds")
+        raise ValueError("max_duration_outside_1_1260_seconds")
     tracker = bridge or make_bridge()
     start = monotonic()
     last_rx = start
@@ -380,10 +383,10 @@ def receive_lines(lines: Iterable[bytes | str], *,
     }
 
 
-def replay_real_csv(path: Path) -> dict:
+def replay_real_csv(path: Path, *, expected_cycles: int = 30) -> dict:
     if not path.is_file():
         raise FileNotFoundError(path)
-    result = replay_csv(path)
+    result = replay_csv(path, expected_cycles=expected_cycles)
     result["mode"] = "replay-csv"
     result["hardware_serial_opened"] = False
     return result
@@ -465,7 +468,7 @@ def main(argv: list[str] | None = None) -> int:
     live = modes.add_parser("serial-readonly")
     live.add_argument("--port", required=True)
     live.add_argument("--baud", type=int, default=115200)
-    live.add_argument("--duration", type=int, default=240)
+    live.add_argument("--duration", type=int, default=MAX_STREAM_SECONDS)
     live.add_argument("--acknowledgment", default="")
     live.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)

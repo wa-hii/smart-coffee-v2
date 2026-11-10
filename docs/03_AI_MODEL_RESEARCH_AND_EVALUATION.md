@@ -1,5 +1,17 @@
 # Penelitian dan Evaluasi Model AI — 8 Oktober 2026
 
+## 10 November 2026 — protokol 30 siklus untuk kedua mode
+
+Mulai dari source code yang disiapkan pada 10 November, AI Test
+dan Take Data sama-sama mengambil 30 × (purging 25 detik +
+collecting 5 detik), nominal 900 baris/CSV. Model RF500 yang dilaporkan
+peneliti memakai tiga fitur ADC **absolut** dan membutuhkan 30 siklus;
+ia **tidak** di-retrain, di-Z-score, atau dipaksa menerima
+data lima siklus. Skor OOB/nested CV 176 sesi merupakan metadata
+yang dilaporkan, belum divalidasi prospektif. Jalur hasil ke
+Nextion belum diaktifkan; default AI N/A menunggu tahap
+pengujian dan rilis tersendiri. Uji G3 lima siklus bersifat historis.
+
 ## Addendum 14 Oktober — Stage11 provenance & protokol blind independen
 
 **QA tambahan malam 14 Oktober:** dari 89 CSV canonical,

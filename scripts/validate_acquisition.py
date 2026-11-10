@@ -19,13 +19,25 @@ from acquisition_schema import ADC_COLS, CSV_COLUMNS, VALID_PHASES
 
 ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = ROOT / "data" / "raw"
-EXPECTED_RUNS = [1, 2, 3, 4, 5]
+# Historical B32-B37 = 5 cycles; current B41+ = 30 cycles.
+# A prospective 30-cycle file may not downgrade to "valid 5 cycles" simply
+# because it stopped after the fifth cycle.
+LEGACY_LAST_BATCH = 37
 ROAST_FROM_PREFIX = {"L": "light", "M": "medium", "D": "dark"}
 BATCH_RE = re.compile(r"_B(\d+)(?:_|\.csv$)", re.IGNORECASE)
 KNOWN_HISTORICAL_EXCLUDED_INVALID = {
     # Clean-air bench CSV, held out of coffee ML. The missing index 8 in
     # run-1 purging must remain visible, not repaired or silently accepted.
     "L-CAW_B34.csv": "17b966d271d7487d46456d21f8eb61f21bc3f641a6dcf576b3b8621b73011c88",
+    # Previous pre-900-sample timing implementations may produce 24/26 purge
+    # or 4/6 collecting samples. Exclude only these EXACT SHA-matched files;
+    # they MUST NOT be considered validated 30-cycle training/inference data.
+    # Never normalize, interpolate or silently trim them to 900 rows.
+    "D-GAW_B41.csv": "823bd619b7b0081497e7364bd32d1568c1797215f2603f20be5f4a8b941f6765",
+    "D-GAW_B42.csv": "536589f91f933c13bbf2769444ae80702899213d19663f0c76b3869b7875bd62",
+    "M-GAW_B41.csv": "85b059d7a169834a4f396bf434ea6ab29444710f39ffc3a985e84d1a6ba7bb59",
+    "L-MING_B45.csv": "3946d8511b02a67ff5cb74a61f4a2c564ee3e3d826e49e71e65799cc01e4859f",
+    "L-MING_B50_20261018_182003.csv": "c01c130b5a3bdbf14dce8db8b8660065d3518090ef3824f992ac70800d1b3290",
 }
 
 
@@ -136,6 +148,8 @@ def validate_file(path: Path, expected_cycles: int = 5) -> list[str]:
 
     sensor_df = df.loc[sensor_mask].copy()
     if not sensor_df.empty:
+        if expected_cycles == 30 and len(sensor_df) != 900:
+            errors.append(f"30-cycle requires 900 complete sensor rows, got {len(sensor_df)}")
         duplicate_keys = ["run_id", "phase", "sample_idx"]
         duplicates = sensor_df.duplicated(subset=duplicate_keys, keep=False)
         if duplicates.any():
@@ -217,12 +231,16 @@ def validate_file(path: Path, expected_cycles: int = 5) -> list[str]:
                         == phase
                     ).sum()
                 )
-                if phase == "purging" and not (23 <= count <= 27):
+                if phase == "purging" and not (
+                    count == 25 if expected_cycles == 30 else 23 <= count <= 27
+                ):
                     errors.append(
                         f"run {run_id}: purging sensor rows={count}, "
                         "expected sekitar 25"
                     )
-                if phase == "collecting" and not (4 <= count <= 7):
+                if phase == "collecting" and not (
+                    count == 5 if expected_cycles == 30 else 4 <= count <= 7
+                ):
                     errors.append(
                         f"run {run_id}: collecting sensor rows={count}, "
                         "expected sekitar 5"
@@ -260,17 +278,18 @@ def main() -> int:
     failures = 0
     known_invalid = 0
     print("=" * 78)
-    print("VALIDASI RAW ACQUISITION B32+ - MQ3 / 5 RUN")
+    print("VALIDASI RAW ACQUISITION B32+ - MQ3 / LEGACY5 + CURRENT30")
     print("=" * 78)
     for path in files:
-        errors = validate_file(path)
+        batch = batch_number(path)
+        expected = 5 if batch is not None and batch <= LEGACY_LAST_BATCH else 30
+        errors = validate_file(path, expected_cycles=expected)
         summary = file_summary(path)
         if errors:
             original_hash = hashlib.sha256(path.read_bytes()).hexdigest()
-            if (KNOWN_HISTORICAL_EXCLUDED_INVALID.get(path.name) == original_hash
-                    and any("sample_idx tidak kontigu" in e for e in errors)):
+            if KNOWN_HISTORICAL_EXCLUDED_INVALID.get(path.name) == original_hash:
                 known_invalid += 1
-                print(f"[KNOWN_INVALID_EXCLUDED] {path.name} — {errors}")
+                print(f"[KNOWN_INVALID_EXCLUDED] {path.name}: {len(errors)} issue(s), SHA256 verified")
                 continue
             failures += 1
             print(f"[FAIL] {path.name}")
@@ -287,7 +306,7 @@ def main() -> int:
     print("-" * 78)
     print(f"Files checked : {len(files)}")
     print(f"PASS          : {len(files) - failures - known_invalid}")
-    print(f"KNOWN_INVALID : {known_invalid} (explicit excluded clean-air evidence)")
+    print(f"KNOWN_INVALID : {known_invalid} (SHA-pinned clean-air / historical timing exclusions)")
     print(f"FAIL          : {failures}")
     return 1 if failures else 0
 

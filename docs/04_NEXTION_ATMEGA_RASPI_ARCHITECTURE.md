@@ -1,5 +1,16 @@
 # Rancangan Integrasi Nextion–ATmega2560–Raspberry Pi 5
 
+**Update source 10 November 2026 (belum di-flash):** mode AI Test
+(`EVT:AI_START`) sekarang **30 siklus**, sama dengan Take Data,
+yaitu 25 detik purging + 5 detik collecting per siklus,
+nominal 900 sampel, sekitar 15 menit.
+Firmware HELLO mengumumkan kedua angka 30; progress `pTestRun`
+menggunakan durasi total 900 detik. Parser Pi default dan replay RF500
+memerlukan tepat 900 titik. Perangkat lama/tes G3 lima siklus merupakan
+riwayat dan tidak memenuhi kontrak model RF500. Belum ada transmisi hasil
+Pi→ATmega→Nextion, sehingga `pResult` tetap menampilkan N/A sampai
+protokol balik, verifikasi sesi, evaluasi model dan SOP hardware selesai.
+
 **Pra-onsite RC1 14 Oktober:** firmware source `src/main.cpp`
 menambahkan satu diagnostic boot `FW_HELLO` dengan
 `protocol=legacy-json.v1`, `build_id=p0-freeze-20261014`,
@@ -128,7 +139,7 @@ Inferensi tidak boleh menghalangi mekanisme keselamatan pompa, valve, dan pengat
 |---|---|---|
 | **ATmega2560** | Baca ADC/SHT30, kontrol aktuator, state machine, waktu akuisisi, keselamatan perangkat, event, komunikasi Nextion | Training model, penyimpanan data besar, fitting preprocessing |
 | **Nextion** | Interaksi pengguna, pemilihan metadata untuk AMBIL DATA, progres, status, hasil dan error | Menetapkan ground truth pada AI_TEST atau menjalankan model AI |
-| **Raspberry Pi 5** | Menerima serial, memvalidasi payload, mendeteksi data hilang, menyusun lima siklus, ekstraksi fitur, inferensi, unknown/N/A, log dan riwayat | Mengendalikan pompa/valve secara langsung |
+| **Raspberry Pi 5** | Menerima serial, memvalidasi payload, mendeteksi data hilang, menyusun 30 siklus, ekstraksi fitur, inferensi, unknown/N/A, log dan riwayat | Mengendalikan pompa/valve secara langsung |
 | **Komputer training offline** | Inventaris dataset, validasi kelompok, eksperimen model, pemilihan fitur, ekspor artefak terverifikasi | Melakukan fitting otomatis pada data pengujian saat perangkat berjalan |
 
 ## 3. Usulan kontrak serial host versi 1 — belum diimplementasikan
@@ -164,7 +175,7 @@ perlu verifikasi fisik.
 
 ## 4. Skenario QA dan kriteria penerimaan
 
-1. Replay offline lima siklus AI_TEST valid menghasilkan **tepat satu** hasil inferensi dan tidak mengalirkan metadata ground truth ke masukan model.
+1. Replay offline 30 siklus AI_TEST valid harus menghasilkan **tepat satu** hasil validasi sesi (900 sensor samples) dan tidak mengalirkan metadata ground truth ke masukan model. Inferensi RF belum diintegrasikan pada transport Stage7.
 2. ADC hilang, kanal tertukar, pesan rusak/duplikat, siklus tidak berurutan, nilai lingkungan tidak masuk akal, atau sequence berulang harus ditolak atau diberi status kualitas secara eksplisit.
 3. Restart ATmega/Nextion di tengah akuisisi tidak boleh menampilkan hasil seolah-olah proses selesai; harus kembali ke status pemulihan yang sesuai.
 4. Raspberry Pi mati, model tidak tersedia, atau inferensi melewati batas waktu → tampil **N/A**. Aktuator tetap mengikuti keadaan aman yang diatur ATmega. Berlaku setelah adapter komunikasi dan handler hasil benar-benar diterapkan.

@@ -92,7 +92,7 @@ def cross_mode_quarantine(directory: Path) -> None:
         labeled = {"event": "ACQ_START", "mode": "labeled_data",
                    "sample_id": "D-GAW", "roast_level": "dark",
                    "origin_code": "GAW", "batch_id": "B99",
-                   "cycle": 1, "phase": "purging", "cycles_total": 5,
+                   "cycle": 1, "phase": "purging", "cycles_total": 30,
                    "purge_s": 25, "collect_s": 5}
         listener.handle_event(labeled)
         assert listener.session is not None

@@ -1,5 +1,25 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 10 November 2026 — penyamaan source AI Test dan Take Data: 30 siklus
+
+**Source firmware telah disinkronkan (belum di-flash pada PCB):** tombol
+Nextion `EVT:AI_START` dan Take Data memicu 30 siklus, tiap siklus
+purging 25 detik + collecting 5 detik, total 900 sensor samples pada
+sampling nominal 1 Hz selama 900 detik (15 menit). Kontrak
+`FW_HELLO` sekarang mengiklankan `data_cycles_total=30` dan
+`ai_cycles_total=30`. UI `pTestRun` menghitung progres/ETA untuk
+durasi 900 detik; tulisan firmware berubah menjadi `DATA30-AI30`
+tanpa mengedit HMI pengguna.
+
+Adapter Pi aktif mengenali 30 siklus dan memberi batas pendengar 1.260
+detik termasuk waktu operator menekan tombol. Data lima siklus historis
+G3 tetap dapat diuji hanya dalam mode legacy khusus, tetapi **bukan**
+input untuk RF500 30-siklus. Program Raspberry Pi kandidat baru dapat
+menghasilkan prediksi di host setelah validasi 900 titik; jalur hasil
+Pi → MCU → Nextion belum di-deploy dan pResult masih **N/A**.
+Tidak ada serial fisik, flashing atau pompa yang dijalankan.
+Laporan: `docs/reports/2026-11-10_TAKE_DATA_AI_TEST_30CYCLE_SYNC.md`.
+
 ## 19 Oktober — receiver v9 salvage sampai ACQ_COMPLETE (software-only)
 
 Kasus operator ALAT_3 COM7 `L-CAT_B63`: pada baris 128, frame sepanjang

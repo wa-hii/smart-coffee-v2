@@ -1,4 +1,4 @@
-"""Independent-style offline regression: six Nextion home actions and G3.
+"""Independent-style offline regression: six Nextion home actions and AI30.
 
 Static HMI/source verification plus adversarial in-memory serial tests.
 No tty, network, firmware upload, GPIO, pump or valve is accessed.
@@ -53,7 +53,8 @@ def main() -> int:
     cal_token = 'strcmp(event, "EVT:CAL_START") == 0'
     cal = handler.split(cal_token, 1)[1].split('} else if (strcmp(event,', 1)[0]
     assert 'strcmp(nextionPageName, "pCal") != 0' in cal
-    assert cal.index('showNextionPage("pCal")') < cal.index('sensors.calibrate()')
+    assert cal.index('showNextionPage("pCal")') < cal.index('baselineCaptureActive = true')
+    assert 'sensors.calibrate()' not in cal  # clean-air capture must not rewrite R0
     assert 'acqState != AcqState::IDLE' in cal
 
     exit_branch = handler.split('strcmp(event, "EVT:EXIT") == 0', 1)[1]
@@ -61,7 +62,7 @@ def main() -> int:
     assert 'stopAcquisition();' in exit_branch
     assert '"EVT:AI_START"' in handler and '"EVT:DATA_START"' in handler
 
-    # Frozen RC2 has no production ML predictions. The HMI *can* show the
+    # New AI30 source still has no production ML predictions. The HMI *can* show the
     # layout for roast/origin/confidence without claiming any numeric result.
     inference_h = (ROOT / "src/inference.h").read_text(encoding="utf-8")
     result_body = MAIN.split("void updateNextionInferenceResult() {", 1)[1].split(
@@ -70,7 +71,7 @@ def main() -> int:
     assert "#define USE_ON_DEVICE_INFERENCE 0" in inference_h
     assert 'nextion.text("tMode", "AI NOT VALIDATED")' in MAIN
     assert 'nextion.text("tPi", "LOCAL READY")' not in MAIN
-    assert 'nextion.text("tFw", "G3-RC2")' in MAIN
+    assert 'nextion.text("tFw", "DATA30-AI30")' in MAIN
     assert 'nextion.text("tStep4", "LOCAL")' not in MAIN
     assert 'nextion.text("tStep4", "N/A")' in MAIN
     assert 'nextion.text("tRConf", "N/A")' in result_body
@@ -87,18 +88,18 @@ def main() -> int:
     assert 'fw_build_id' in acq and 'SMART_COFFEE_BUILD_ID' in acq
     assert 'if (mode == AcquisitionMode::LABELED_DATA)' in acq
 
-    # Full five-cycle stream without label and with matching firmware can
-    # pass G3, even if the startup FW_HELLO is missed by USB auto-reset.
-    csv_file = ROOT / "data/raw/D-GAW_B33.csv"
+    # Full 30-cycle stream without label and with matching firmware can
+    # pass the new contract, even if boot FW_HELLO was missed.
+    csv_file = ROOT / "data/dataset sorting/b/kept/D-CAT_B70.csv"
     rows, _ = read_real_csv(csv_file)
     start = {
         "event": "ACQ_START", "mode": "ai_test", "cycle": 1,
-        "phase": "purging", "cycles_total": 5, "purge_s": 25,
+        "phase": "purging", "cycles_total": 30, "purge_s": 25,
         "collect_s": 5, "fw_build_id": build.group(1),
     }
     sensors = [msg.encode() + b"\n" for _, _, msg in _firmware_samples(rows)]
-    complete = (json.dumps({"event": "ACQ_COMPLETE", "cycles": 5,
-                            "total_samples": 151}).encode() + b"\n")
+    complete = (json.dumps({"event": "ACQ_COMPLETE", "cycles": 30,
+                            "total_samples": 900}).encode() + b"\n")
     def run(start_frame: dict, stream: list[bytes] | None = None) -> dict:
         return receive_serial_chunks(
             [json.dumps(start_frame).encode() + b"\n",
@@ -122,13 +123,13 @@ def main() -> int:
     assert unknown["final"]["quality"] == "COMPLETE_QA"
     assert unknown["diagnostics"]["physical_g3_complete_verified"] is False
 
-    # A physical five-cycle HMI completion cannot mask incomplete Pi data.
+    # A 30-cycle HMI completion cannot mask incomplete Pi data.
     missing = run(start, sensors[:-1])
     assert missing["final"]["quality"] == "FAIL_CLOSED"
     assert missing["diagnostics"]["physical_g3_complete_verified"] is False
 
     print("HOME_MENU_6_EVENTS_STATIC_PASS")
-    print("RC2_G3_IDENTITY_AND_FAIL_CLOSED_ADVERSARIAL_PASS")
+    print("AI30_IDENTITY_AND_FAIL_CLOSED_ADVERSARIAL_PASS")
     return 0
 
 

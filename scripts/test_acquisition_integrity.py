@@ -47,9 +47,10 @@ def main() -> int:
         root = Path(temp)
         csv_file = root / "D-GAW_B99.csv"
 
-        def check(df: pd.DataFrame, expected_problem: str | None = None):
+        def check(df: pd.DataFrame, expected_problem: str | None = None,
+                  *, expected_cycles: int = 5):
             df.to_csv(csv_file, index=False)
-            errors = validate_file(csv_file)
+            errors = validate_file(csv_file, expected_cycles=expected_cycles)
             if expected_problem is None:
                 assert not errors, errors
             else:
@@ -86,6 +87,13 @@ def main() -> int:
         summary = file_summary(csv_file)
         assert summary["metadata_rows"] == 1
         assert summary["sensor_rows"] == 150
+
+        # Source firmware now uses exactly 30 cycles for Take Data and AI Test;
+        # retain 5-cycle acceptance ONLY for earlier B32-B37 recordings.
+        thirty = make_complete_run(cycles=30)
+        check(thirty, expected_cycles=30)
+        check(thirty.iloc[:-1], "requires 900", expected_cycles=30)
+        check(thirty, "run_id harus 1..5", expected_cycles=5)
 
         with patch("lcd_acquisition_service.RAW_DIR", root):
             reserved = root / "D-GAW_B99.csv"

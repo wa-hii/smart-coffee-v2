@@ -1,6 +1,6 @@
 """Offline regression tests for candidate 30-cycle RF inference.
 
-Tests reject partial 5-cycle AI_TEST, malformed ADC and label leakage.
+Tests reject historical 5-cycle captures, malformed ADC and label leakage.
 No joblib file is deserialized, no serial port opened or HMI controlled.
 """
 from __future__ import annotations

@@ -1,5 +1,21 @@
 # Catatan perubahan proyek
 
+## 10 November 2026 — source Take Data dan AI Test disamakan menjadi 30 siklus
+
+- Firmware source: kedua mode memakai konstanta 30 siklus yang sama,
+  25 detik purging + 5 detik collecting, nominal 900 baris / 15 menit.
+  `FW_HELLO` dan ID build diperbarui untuk membedakan firmware lama;
+  progress/ETA `pTestRun` mengikuti 900 detik, `tFw` menunjukkan
+  `DATA30-AI30`. HMI visual dan logika aktuator tidak diubah.
+- Adapter Raspberry Pi Stage7 default 30 siklus, validasi per fase 25+5
+  ketat, batas listener read-only 1.260 detik.
+  Tes G3 5 siklus dipertahankan **hanya** sebagai fixture historis.
+- Model RF500 tetap memakai 3 fitur ADC absolut dari sesi 30 siklus:
+  tidak dilatih ulang, tidak di-Z-score/baseline correction, dan
+  belum dipromosikan ke perangkat. Pi→ATmega→Nextion hasil AI belum
+  aktif; `pResult` tetap N/A untuk mencegah prediksi tak terverifikasi.
+- Laporan: `docs/reports/2026-11-10_TAKE_DATA_AI_TEST_30CYCLE_SYNC.md`.
+
 ## 10 November 2026 — kandidat RF500 30 siklus: adapter Pi dan kontrak LCD
 
 - Terima kandidat model eksternal berformat joblib (500 pohon, tiga fitur ADC absolut), simpan manifest SHA256 dan skor yang **dilaporkan peneliti**, bukan klaim tervalidasi; model binary tidak disimpan di Git dan belum di-deserialize.

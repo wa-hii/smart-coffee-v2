@@ -40,7 +40,9 @@ def fail(action, phrase):
 
 def fixture_bridge(collect_samples=5, pause=False):
     # Protocol fixture only, NOT a synthetic dataset for model training.
-    bridge = LegacySessionBridge(session_factory=lambda: "stage7fixture001")
+    # Historical G3 5-cycle fixture, NOT the 30-cycle live contract.
+    bridge = LegacySessionBridge(session_factory=lambda: "stage7fixture001",
+                                 expected_cycles=5)
     bridge.feed(start())
     ts = 0
     for cycle in range(1, 6):
@@ -121,7 +123,7 @@ def main() -> int:
     good = fixture_bridge()
     assert good.last_final["status"] == "N/A"
     assert good.last_final["quality"] == "COMPLETE_QA"
-    assert good.last_final["reason"] == "five_cycles_checked_no_approved_model"
+    assert good.last_final["reason"] == "5_cycles_checked_no_approved_model"
     assert good.last_final["sensor_samples"] == 150
     assert good.last_final["nominal_150_samples"]
     assert not good.last_final["sent_to_atmega"]
@@ -134,7 +136,8 @@ def main() -> int:
     assert not six.last_final["nominal_150_samples"]
     assert six.last_final["sensor_samples"] == 155
 
-    b = LegacySessionBridge(session_factory=lambda: "session_good001")
+    b = LegacySessionBridge(session_factory=lambda: "session_good001",
+                            expected_cycles=5)
     b.feed(start())
     b.feed(sensor())
     assert b.abort()["reason"] == "stream_disconnected"
@@ -147,7 +150,7 @@ def main() -> int:
     assert timeout["quality"] == "FAIL_CLOSED"
     assert b.timeout_if_idle(elapsed_seconds=11) is None
 
-    b = LegacySessionBridge()
+    b = LegacySessionBridge(expected_cycles=5)
     b.feed(start())
     b.feed(sensor())
     assert b.feed(sensor())[0]["reason"] == "duplicate_or_gapped_sample_idx"
@@ -176,7 +179,8 @@ def main() -> int:
     actual = Path(__file__).resolve().parents[1] / "data/raw/D-GAW_B33.csv"
     if actual.exists():
         before = actual.read_bytes()
-        replay = replay_csv(actual, session_factory=lambda: "realplay001")
+        replay = replay_csv(actual, session_factory=lambda: "realplay001",
+                            expected_cycles=5)
         assert replay["bridge"]["status"] == "N/A"
         assert replay["bridge"]["quality"] == "COMPLETE_QA"
         assert replay["source_sha256"]
