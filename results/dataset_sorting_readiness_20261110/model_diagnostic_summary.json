@@ -38,6 +38,13 @@
   "duplicate_kept_discarded": [
     "M-TEM_B62_20261019_175906.csv"
   ],
+  "excluded_invalid_kept_count": 4,
+  "excluded_invalid_kept_files": [
+    "L-MING_B75_8d9adafb31744b538fa663e1fef1b18c_INCOMPLETE.csv",
+    "L-TOR_B75_ad0a30d7ece544609ad4efcb742504e2_INCOMPLETE.csv",
+    "M-GAW_B75_bc7301af72124e398d4edb8626b1836e_INCOMPLETE.csv",
+    "M-TEM_B73_a00116bc923c42b888da60e07fad130c_INCOMPLETE.csv"
+  ],
   "training_cohorts": [
     "a",
     "b"

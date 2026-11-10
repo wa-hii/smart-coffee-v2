@@ -31,7 +31,15 @@ LABELS=['light','medium','dark']
 
 def prepare():
     a=pd.read_csv(OUT/'all_csv_audit.csv')
+    # Explicit, reviewable exclusion manifest: the manual `kept` label is
+    # NOT sufficient. Every invalid/incomplete capture must fail eligibility.
+    blocked=a[(a.sort_status=='kept')&(~a.structurally_valid)].copy()
+    blocked[['cohort','sort_status','filename','relative_path','n_rows',
+             'audit_category','audit_reasons','sha256']].to_csv(
+                OUT/'excluded_invalid_from_kept.csv',index=False,encoding='utf-8-sig')
+    blocked_names=set(blocked.filename)
     a=a[a.structurally_valid & (a.sort_status=='kept') & a.origin.isin(ORIGINS)].copy()
+    assert not set(a.filename).intersection(blocked_names), 'Invalid kept file entered modeling'
     a['canonical']=a.apply(lambda r:r.filename==f'{r.sample_id}_{r.batch}.csv',axis=1)
     a=a.sort_values(['origin','roast','batch','canonical'],ascending=[True,True,True,False])
     dup=a[a.duplicated(['origin','roast','batch'])].copy()
@@ -74,6 +82,8 @@ def run():
     assert len(train)>90 and len(test)>50
     assert set(train.filename).isdisjoint(test.filename)
     assert not set(train.batch).intersection(set(test.batch))
+    blocked=pd.read_csv(OUT/'excluded_invalid_from_kept.csv')
+    assert not set(t.filename).intersection(set(blocked.filename)), 'Incomplete file in train/test'
     feature_sets={
       'TGS822_TGS2602_TGS816':[f'{feat}__{sensor}' for sensor in ['adc_tgs822','adc_tgs2602','adc_tgs816']
                                for feat in ['median_phase_response','mean_phase_response','response_early_late']],
@@ -118,6 +128,8 @@ def run():
       'training_counts_by_origin_roast':{'|'.join(k):int(v) for k,v in train.groupby(['origin','roast']).size().items()},
       'testing_counts_by_origin_roast':{'|'.join(k):int(v) for k,v in test.groupby(['origin','roast']).size().items()},
       'train_n':len(train),'test_n':len(test),'duplicate_kept_discarded':[x.filename for x in dup.itertuples()],
+      'excluded_invalid_kept_count':len(blocked),
+      'excluded_invalid_kept_files':blocked.filename.tolist(),
       'training_cohorts':['a','b'],'testing_cohort':'c',
       'label_sources':'manual sorted/kept; only structural QA-validated; not random prospective samples',
       'grouping_for_cv':'origin (5 train, 1 validate); test cohort c B80-B90 is never used to fit scalers',
