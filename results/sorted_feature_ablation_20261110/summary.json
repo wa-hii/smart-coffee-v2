@@ -1,0 +1,55 @@
+{
+  "train_count": 133,
+  "holdout_c_count": 66,
+  "excluded_incomplete_kept": [
+    "L-MING_B75_8d9adafb31744b538fa663e1fef1b18c_INCOMPLETE.csv",
+    "L-TOR_B75_ad0a30d7ece544609ad4efcb742504e2_INCOMPLETE.csv",
+    "M-GAW_B75_bc7301af72124e398d4edb8626b1836e_INCOMPLETE.csv",
+    "M-TEM_B73_a00116bc923c42b888da60e07fad130c_INCOMPLETE.csv"
+  ],
+  "removed_duplicate_batch": [
+    "M-TEM_B62_20261019_175906.csv"
+  ],
+  "core_sensors": [
+    "adc_tgs822",
+    "adc_tgs2602",
+    "adc_tgs816"
+  ],
+  "all_sensors": [
+    "adc_tgs822",
+    "adc_mq135",
+    "adc_mq3",
+    "adc_tgs2611",
+    "adc_tgs2620",
+    "adc_tgs2600",
+    "adc_tgs2602",
+    "adc_mq8",
+    "adc_tgs813",
+    "adc_tgs816"
+  ],
+  "old_features": [
+    "median_phase_response",
+    "mean_phase_response",
+    "response_early_late"
+  ],
+  "added_features": [
+    "peak_response",
+    "collect_auc_trapz",
+    "baseline_iqr_30cycles"
+  ],
+  "peak": "median across 30 cycles of max(collecting ADC[1..5] minus per-cycle purge baseline)",
+  "area": "median across cycles of signed trapezoidal AUC on five corrected collecting samples, 4 seconds observed span, ADC*s",
+  "baseline_var": "IQR of 30 per-cycle median purge[21..25] values, ADC",
+  "preprocess": "per-cycle baseline correction before record feature extraction; global StandardScaler fit only on training",
+  "train_val": "cohorts a+b, leave-one-origin-out CV with training-only scaling in each fold",
+  "holdout": "cohort c B80-B90 kept+valid. Incomplete and duplicate batch IDs excluded.",
+  "selection_rule": "select model and features on training CV; cohort c scores are diagnostic and not final unbiased model selection",
+  "important_limitations": [
+    "Only manual-kept records, cohort c is human-selected.",
+    "Some origin x roast combinations absent in cohort c.",
+    "Device metadata absent in a and c, and label-device confounded in b.",
+    "Batch IDs do not prove physical specimen independence.",
+    "Median area is inherently correlated to mean phase response on 5-point collecting segments.",
+    "Only a future prospective test can validate deployment performance."
+  ]
+}

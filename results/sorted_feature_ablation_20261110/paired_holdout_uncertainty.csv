@@ -1,0 +1,3 @@
+﻿model,candidate,reference,observed_change_balanced_accuracy,bootstrap_ci_low,bootstrap_ci_high,candidate_new_correct,candidate_new_wrong,bootstrap_replicates,interpretation
+SVM_RBF,CORE3_F12_BASELINE_IQR,CORE3_F9_BASE,0.02754435107376274,-0.08014316837846243,0.13072673513849975,7,4,5000,descriptive stratified file-level resampling only; not robust to shared physical specimen/device and manual sorting
+SVM_RBF,CORE3_F18_ALL,CORE3_F9_BASE,0.028322440087145906,-0.06613756613756616,0.12807345160286335,5,3,5000,descriptive stratified file-level resampling only; not robust to shared physical specimen/device and manual sorting
