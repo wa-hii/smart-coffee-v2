@@ -1,5 +1,26 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 11 November 2026 — B6 standalone AI Test siap, menunggu START dari Nextion fisik
+
+Pengguna mengonfirmasi sesudah flashing SVM30
+bahwa `pHome`, pompa/dinamo, dan valve pada IDLE
+normal. Port COM5 FT232R masih terdeteksi,
+receiver tidak digunakan, checksum dan manifest
+upload ATmega2560 menunjukkan **50006 bytes
+ditulis+diverifikasi**. Profil standalone
+menonaktifkan remote `#start` dari Serial0
+dan tidak membutuhkan Raspberry Pi/CSV.
+
+**Tidak ada bukti START AI TEST fisik sudah
+ditekan atau sesi 30 siklus selesai.**
+Prosedur final disusun di
+`docs/reports/2026-11-11_B6_AI_TEST_OPERATOR_PROCEDURE.md`.
+Langkah pengguna sekarang:
+`pHome → AI Test → START AI TEST`, observasi
+30×(25s purge + 5s collect) lalu
+`pResult.tRoast`. Tidak melakukan
+reset COM5/flash ulang/aktuator remotely.
+
 ## 11 November 2026 — B6 firmware SVM30 standalone FLASH + VERIFY PASS
 
 Dengan izin eksplisit operator untuk flashing,
