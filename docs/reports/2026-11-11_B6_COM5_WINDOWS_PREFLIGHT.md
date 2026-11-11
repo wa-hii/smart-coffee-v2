@@ -117,3 +117,44 @@ SPECIFIC_UPLOAD_APPROVAL_MISSING
 
 **Sampai ini dipenuhi, B6 tetap NO-GO; tidak ada
 pengubahan firmware fisik, EEPROM, TFT, port, atau aktuator.**
+
+## Addendum — Operator mengonfirmasi Nextion sudah di pHome
+
+Pada sesi lanjutan, operator secara eksplisit menyampaikan:
+**`sudah masuk ke halaman utama pHome`** saat PCB terhubung
+melalui COM5. Ini merupakan bukti pengamatan langsung dari
+operator bahwa Nextion tidak lagi stuck pada layar
+`Initializing Systems`, **bukan** bukti telemetri/firmware
+version read-back, stabilitas boot berulang, atau kesiapan flashing.
+
+Pemeriksaan pasif diperbarui dengan
+`--operator-reported-phome` dan menghasilkan snapshot privat
+`private/svm30_b6_preflight_phome_20261111.json`.
+Pemeriksaan ini tetap **tidak membuka COM5**, menghentikan
+receiver, melakukan reset, atau flashing.
+
+**NO_GO: empat gerbang masih terbuka:**
+
+```text
+COM5_RECEIVER_ACTIVE_OR_UNKNOWN
+NO_VERIFIED_FLASH_EEPROM_BACKUP
+PROGRAMMER_POWER_SOP_NOT_VERIFIED
+SPECIFIC_UPLOAD_APPROVAL_MISSING
+```
+
+Receiver `pythonw.exe` PID 14628 tetap hidup dengan
+`state=connected` pada COM5. Folder `data/raw/.incoming`
+tidak berisi file parsial saat pemeriksaan, dan log
+receiver terakhir memperlihatkan `CONNECTED COM5`
+15:16:23 WIB. Tidak adanya file parsial **bukan jaminan**
+bahwa alat sedang IDLE sepanjang waktu.
+
+**Keputusan:** pengamatan `pHome` dari operator memperbarui
+status boot yang sebelumnya belum diketahui. Jangan
+menafsirkannya sebagai izin melepas kepemilikan COM5,
+melakukan DTR reset, membaca firmware, atau mengunggah
+SVM30. Tahap berikutnya harus memastikan alat benar-benar
+IDLE tanpa run aktif, mendapat izin terpisah untuk
+menutup receiver secara aman dan membaca backup Flash/EEPROM,
+memastikan jalur bootloader/ISP di PCB custom, serta
+menyetujui prosedur rollback sebelum flashing.

@@ -1,5 +1,22 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 11 November 2026 — Nextion pHome sudah dikonfirmasi operator, B6 belum GO
+
+Pengguna menyatakan layar Nextion **sudah tampil pHome**
+setelah PCB terhubung COM5. Ini menyelesaikan
+**konfirmasi startup secara visual oleh operator**
+yang sebelumnya outstanding, tetapi bukan validasi
+UART/firmware versi terpasang atau boot jangka panjang.
+
+Preflight pasif `--operator-reported-phome` kini
+menyisakan **4 blockers**: receiver PID 14628 masih
+connected di COM5, backup firmware/EEPROM belum ada,
+jalur pemrograman dan SOP daya belum diverifikasi,
+serta tidak ada izin khusus upload. Tidak ada
+serial open, DTR reset, penghentian receiver, atau
+flashing. Detail pada addendum
+`docs/reports/2026-11-11_B6_COM5_WINDOWS_PREFLIGHT.md`.
+
 ## 11 November 2026 — B6 COM5 Windows preflight NO-GO
 
 Pengguna memindahkan koneksi ATmega ke COM5 laptop Windows.

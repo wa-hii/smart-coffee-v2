@@ -22,6 +22,15 @@ def test():
             bad[key] = None
             assert "COM5_RECEIVER_ACTIVE_OR_UNKNOWN" in assess(bad)
     assert len(assess({})) == 8
+    # A report of pHome does not remove serial/backup/flash blockers.
+    observer = dict(good)
+    observer["receiver_owns_com5"] = True
+    observer["flash_and_eeprom_backups_verified"] = False
+    observer["programmer_and_power_sop_verified"] = False
+    observer["specific_upload_approval"] = False
+    remaining = assess(observer)
+    assert "NEXTION_BOOT_NOT_VERIFIED" not in remaining
+    assert len(remaining) == 4
     print("SVM30_B6_PASSIVE_PREFLIGHT_GATE_TEST_PASS",
           {"gates": 8, "serial_opened": False, "flash_performed": False})
 

@@ -1,5 +1,21 @@
 # Catatan perubahan proyek
 
+## 11 November 2026 — Konfirmasi pHome operator dan B6 preflight ulang
+
+- Operator mengonfirmasi Nextion sekarang sudah masuk
+  `pHome` melalui PCB/COM5 (laporan visual, bukan
+  serial read-back).
+- Preflight B6 mendapat opsi
+  `--operator-reported-phome` untuk mencatat bukti
+  observasi operator secara eksplisit tanpa membuka COM.
+  Uji delapan gerbang safety PASS, hasil tetap **NO_GO**
+  dengan empat blockers: COM5 masih milik receiver,
+  belum ada backup Flash/EEPROM, SOP daya/programmer
+  belum sah, serta belum ada izin upload spesifik.
+- Firmware dan model SVM30 tidak diubah atau di-flash.
+  Laporan diperbarui pada
+  `docs/reports/2026-11-11_B6_COM5_WINDOWS_PREFLIGHT.md`.
+
 ## 11 November 2026 — B6 preflight COM5 Windows, hardware NO-GO
 
 - Memverifikasi COM5 FT232R serial `A10KMM3SA` melalui

@@ -70,7 +70,7 @@ def assess(snapshot: dict) -> list[str]:
     return blockers
 
 
-def inspect() -> dict:
+def inspect(*, operator_reported_phome: bool = False) -> dict:
     # Safe Windows enumeration does not call Serial(), open(), or avrdude.
     from serial.tools import list_ports
 
@@ -124,7 +124,14 @@ def inspect() -> dict:
         model_integrity=model_ok,
         firmware_integrity=image_ok,
         firmware_sha256=manifest.get("firmware_hex_sha256"),
-        physical_boot_to_phome_verified=False,
+        # Operator confirmation is a valid preliminary B0 observation,
+        # NOT a serial/HMI bench measurement or a programming approval.
+        physical_boot_to_phome_verified=operator_reported_phome,
+        nextion_boot_evidence=(
+            "OPERATOR_REPORTED_PHOME_NOT_INSTRUMENTED"
+            if operator_reported_phome else "NOT_CONFIRMED"
+        ),
+        nextion_technical_bench_verified=False,
         flash_and_eeprom_backups_verified=False,
         programmer_and_power_sop_verified=False,
         specific_upload_approval=False,
@@ -138,8 +145,12 @@ def inspect() -> dict:
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, default=None)
+    parser.add_argument(
+        "--operator-reported-phome", action="store_true",
+        help="Operator explicitly reports pHome. Does not authorize serial or flashing."
+    )
     args = parser.parse_args()
-    report = inspect()
+    report = inspect(operator_reported_phome=args.operator_reported_phome)
     report["blockers"] = assess(report)
     report["decision"] = "NO_GO" if report["blockers"] else "REVIEW_REQUIRED"
     if args.output:
@@ -153,7 +164,7 @@ def main():
         k: report[k] for k in (
             "decision", "com5_matches_ftdi", "receiver_owns_com5",
             "model_integrity", "firmware_integrity", "blockers",
-            "port_opened", "firmware_flashed")
+            "nextion_boot_evidence", "port_opened", "firmware_flashed")
     }))
     return 0 if not report["blockers"] else 2
 
