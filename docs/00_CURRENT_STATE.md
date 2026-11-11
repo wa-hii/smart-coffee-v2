@@ -1,5 +1,34 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 11 November 2026 — B6 firmware SVM30 standalone FLASH + VERIFY PASS
+
+Dengan izin eksplisit operator untuk flashing,
+firmware standalone SVM30 **benar-benar terpasang**
+ke ATmega2560 melalui **COM5** FT232R `A10KMM3SA`.
+Satu kali `avrdude` `-p m2560 -c wiring -P COM5
+-b 115200 -D` menulis **50.006 byte Flash**
+dan **memverifikasi 50.006 byte (PASS)**,
+exit code 0 dalam **24,27 detik**. Tidak ada
+perintah menulis EEPROM, fuse, area bootloader
+atau file Nextion. Bootloader area aman secara
+alamat payload; checksum image di
+`private/svm30_standalone_firmware.hex`
+tetap `6d6b45f0bfcfda0c14b9cd6de1e9a32479e92ab3ee1cccd8e69dce3d530eeba2`.
+
+Backup Flash/EEPROM awal tetap di
+`private/b6_com5_readback/20261111_170948/`;
+rollback application-only telah dibuat dan
+tervalidasi offline (belum diuji fisik).
+Upload log dan manifest disimpan privat di
+`private/b6_com5_svm30_deployment/`.
+**B6 belum PASS end-to-end**: status boot
+`pHome` setelah flash, sensor dan tombol AI
+Test 900-sampel/30-siklus, serta hasil
+`pResult` belum dikonfirmasi operator.
+Tindakan berikutnya adalah pemeriksaan
+visual startup, bukan pembukaan ulang COM5.
+Rincian `docs/reports/2026-11-11_B6_COM5_SVM30_FLASH_VERIFIED.md`.
+
 ## 11 November 2026 — B6 pHome normal sesudah backup, izin flashing pending
 
 Operator mengonfirmasi bahwa **setelah backup COM5**

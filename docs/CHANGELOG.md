@@ -1,5 +1,27 @@
 # Catatan perubahan proyek
 
+## 11 November 2026 — B6 COM5 upload SVM30 standalone sukses terverifikasi
+
+- Setelah konfirmasi operator dan preflight COM5,
+  checksum candidate+model serta backup,
+  disiapkan rollback app-only dari Flash lama
+  dengan batas bootloader `0x3E000`; image
+  rollback **belum terbukti dapat direstore
+  ke hardware**.
+- Satu upload `avrdude` `-c wiring` / COM5
+  / 115200 baud `-D` dengan image SVM30 final.
+  Device signature `0x1e9801`; **50.006 byte
+  Flash ditulis + 50.006 byte diverifikasi**,
+exit code 0 dan durasi 24,27s.
+- Firmware/model/rollback/log disimpan di
+  `private/` tidak di-Git. Tanpa EEPROM write,
+  TFT/Nextion upload, auto-retry, atau operasi
+  pompa/valve melalui komputer.
+- **B6 fisik 30 siklus dan kelas `pResult` belum
+  teruji**, menunggu pemeriksaan pHome dan
+  interaksi START AI TEST oleh operator onsite.
+- Laporan: `docs/reports/2026-11-11_B6_COM5_SVM30_FLASH_VERIFIED.md`.
+
 ## 11 November 2026 — B6 COM5 Flash/EEPROM read-only backup
 
 - Setelah izin pengguna dan konfirmasi `pHome` sebelumnya,
