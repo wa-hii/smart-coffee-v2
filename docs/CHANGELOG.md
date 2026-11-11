@@ -1,5 +1,21 @@
 # Catatan perubahan proyek
 
+## 11 November 2026 — B6 LIGHT terdeteksi DARK
+
+- Uji fisik berhasil memunculkan prediksi di LCD
+  tetapi salah kelas: LIGHT→DARK.
+- Audit replay 199 sesi menunjukkan 156 sesuai
+  label dan dua kasus LIGHT→DARK; kesetaraan
+  model Python–C++ pada 199 replay tetap 100%.
+- Menambahkan analisis offline tanpa hardware
+  untuk memeriksa confusion per kelas dan kasus
+  error. Detail privat di private/.
+- Belum ada fitur atau skor dari run fisik;
+  belum ada root cause pasti. Tidak mengubah
+  model atau melakukan reflash.
+- Laporan:
+  docs/reports/2026-11-11_B6_LIGHT_TO_DARK_CLASSIFICATION_INCIDENT.md.
+
 ## 11 November 2026 — B6 COM5 upload SVM30 standalone sukses terverifikasi
 
 - Setelah konfirmasi operator dan preflight COM5,

@@ -12,3 +12,4 @@ svm30_standalone_firmware_manifest.json
 svm30_b6_preflight_*.json
 b6_com5_readback/
 b6_com5_svm30_deployment/
+svm30_b6_light_dark_replay_diagnosis.json

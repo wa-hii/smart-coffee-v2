@@ -1,5 +1,23 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 11 November 2026 — B6 fisik menghasilkan DARK padahal LIGHT
+
+Operator mengonfirmasi AI Test pada LCD Nextion
+telah selesai dan menampilkan DARK untuk kopi
+yang sebenarnya LIGHT. Ini membuktikan hasil
+klasifikasi MCU tampil di LCD tetapi **prediksi
+fisik pertama salah**.
+
+Analisis replay lokal atas 199 sampel berlabel
+menemukan 156/199 prediksi sesuai label dan
+2/59 LIGHT→DARK; 199/199 prediksi native C++
+tetap setara dengan Python. Karena standalone
+tidak menyimpan 900 data ADC atau 30 fitur dari
+run fisik, akar masalah belum terbukti.
+Tidak ada perubahan firmware/COM5/EEPROM/TFT.
+Laporan:
+docs/reports/2026-11-11_B6_LIGHT_TO_DARK_CLASSIFICATION_INCIDENT.md.
+
 ## 11 November 2026 — B6 standalone AI Test siap, menunggu START dari Nextion fisik
 
 Pengguna mengonfirmasi sesudah flashing SVM30
