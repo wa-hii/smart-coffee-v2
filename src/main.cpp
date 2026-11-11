@@ -9,8 +9,8 @@
 //   PURGING (valve OFF/udara bersih, 25 s)
 //     → COLLECTING (valve ON/aroma kopi, 5 s)
 //     → Take Data dan AI Test sama-sama 30 siklus (900 ADC samples)
-//   Setelah mode AI_TEST selesai → inferensi lokal hanya bila diaktifkan;
-//   secara default USE_ON_DEVICE_INFERENCE=0 (hasil N/A).
+//   Setelah mode AI_TEST selesai → default firmware: N/A.
+//   Standalone bench profile: 30-feature SVM entirely on ATmega2560.
 //
 // Arsitektur modular:
 //   sensor.h/cpp    — ADS1115, MQ, TGS sensors + kalibrasi EEPROM
@@ -25,6 +25,13 @@
 #include "inference.h"
 #include "nextion_transport.h"
 #include "sensor.h"
+#ifndef SMART_COFFEE_STANDALONE_SVM30
+#define SMART_COFFEE_STANDALONE_SVM30 0
+#endif
+#if SMART_COFFEE_STANDALONE_SVM30
+#include "embedded_svm30_features.h"
+#include "embedded_svm30_classifier.h"
+#endif
 #include <Arduino.h>
 #include <Wire.h>
 #include <stdio.h>
@@ -42,7 +49,11 @@
 // Identitas source BUILD, bukan bukti firmware sudah di-flash. Sertakan
 // pada ACQ_START supaya host tetap dapat mengidentifikasi firmware saat
 // FW_HELLO boot tidak tertangkap karena pembukaan port USB/DTR.
+#if SMART_COFFEE_STANDALONE_SVM30
+#define SMART_COFFEE_BUILD_ID "standalone-svm30-bench-20261111"
+#else
 #define SMART_COFFEE_BUILD_ID "take30-ai30-rfhost-20261110"
+#endif
 
 // ─── Feature Flags
 // ────────────────────────────────────────────────────────────
@@ -61,6 +72,14 @@
 // test may build with -DENABLE_PI_RF30_RETURN=1.
 #ifndef ENABLE_PI_RF30_RETURN
 #define ENABLE_PI_RF30_RETURN 0
+#endif
+#if SMART_COFFEE_STANDALONE_SVM30
+#if !defined(ENABLE_AVR_SVM30) || !ENABLE_AVR_SVM30
+#error "Standalone profile requires embedded SVM30 classifier enabled"
+#endif
+#if ENABLE_PI_RF30_RETURN || ENABLE_MANUAL_ACTUATOR_TESTS || USE_ON_DEVICE_INFERENCE
+#error "Standalone SVM mode cannot enable Pi reply, manual actuators or legacy RF"
+#endif
 #endif
 static constexpr uint32_t AI_RF30_REPLY_TIMEOUT_MS = 30000UL;
 
@@ -86,6 +105,19 @@ enum class AcquisitionMode { NONE, LABELED_DATA, AI_TEST };
 SensorArray sensors;
 Actuator actuator;
 Inference inference;
+#if SMART_COFFEE_STANDALONE_SVM30
+// The standalone backup never buffers 900 samples or a CSV in MCU RAM.
+EmbeddedSvm30::Features svm30Capture;
+// A pre-inference guard, not a replacement for B5 stack watermark testing
+// on the actual 16 MHz MCU. Leave room for kernel[125], scaled[30], math
+// library calls, scheduler and Nextion.
+extern "C" char __heap_start;
+extern "C" char *__brkval;
+static int16_t standaloneFreeRam() {
+  char top;
+  return &top - (__brkval ? __brkval : &__heap_start);
+}
+#endif
 Scheduler scheduler;
 NextionTransport nextion(Serial2);
 
@@ -256,8 +288,14 @@ void setup() {
 
   actuator.begin();
 
+  // Avoid a blocking full-bus I2C scan in the no-Pi backup image.
+#if SMART_COFFEE_STANDALONE_SVM30
+  Wire.begin();
+  Wire.setWireTimeout(25000UL, true);
+#else
   // Diagnostik: scan I2C bus terlebih dahulu
   scanI2C();
+#endif
 
   // Init sensor — TIDAK fatal jika gagal (untuk debugging)
   sensorsReady = sensors.begin();
@@ -308,6 +346,7 @@ void loop() {
 //  printWelcome() — Welcome banner
 // ═══════════════════════════════════════════════════════════════════════════════
 void printWelcome() {
+#if !SMART_COFFEE_STANDALONE_SVM30
   Serial.println();
   Serial.println(F("=============================================="));
   Serial.println(F("  Smart Coffee E-NOSE v2 - ATmega 2560"));
@@ -325,6 +364,7 @@ void printWelcome() {
   Serial.println(F("=============================================="));
   Serial.println(
       F("{\"info\":\"Sistem siap. Kirim #start; untuk mulai akuisisi.\"}"));
+#endif
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -344,6 +384,9 @@ void startAcquisition(AcquisitionMode mode) {
   acqPauseStartMs = 0;
   acqPausedTotalMs = 0;
   inference.reset();
+#if SMART_COFFEE_STANDALONE_SVM30
+  svm30Capture.reset();
+#endif
   if (mode == AcquisitionMode::AI_TEST) {
     ++aiRf30SessionSequence;
     aiRf30SessionToken =
@@ -357,6 +400,7 @@ void startAcquisition(AcquisitionMode mode) {
   setActuators();
 
   // Event: ACQ_START
+#if !SMART_COFFEE_STANDALONE_SVM30
   //
   // Metadata ini membuat laptop dapat menjadi passive listener: operator
   // memilih roast/origin/batch dan menekan START di Nextion, lalu host dapat
@@ -411,9 +455,14 @@ void startAcquisition(AcquisitionMode mode) {
   Serial.print((long)(ACQ_COLLECTION_SECONDS + ACQ_PURGE_SECONDS) *
                ACQ_REPETITIONS);
   Serial.println(F("}"));
+#endif
 }
 
 void stopAcquisition() {
+#if SMART_COFFEE_STANDALONE_SVM30
+  svm30Capture.reset();
+  aiRf30Roast = AiRf30Return::Roast::NONE;
+#endif
   aiRf30Pending = false;
   aiRf30SessionToken = 0;
   acqState = AcqState::IDLE;
@@ -424,7 +473,9 @@ void stopAcquisition() {
   acqPauseStartMs = 0;
   acqMode = AcquisitionMode::NONE;
   setActuators();
+#if !SMART_COFFEE_STANDALONE_SVM30
   Serial.println(F("{\"event\":\"ACQ_STOP\",\"phase\":\"idle\"}"));
+#endif
 }
 
 void pauseAcquisition() {
@@ -491,10 +542,12 @@ void processAcquisitionState() {
     acqSampleIdx = 0;
     setActuators();
 
+#if !SMART_COFFEE_STANDALONE_SVM30
     Serial.print(F("{\"event\":\"PHASE_CHANGE\",\"cycle\":"));
     Serial.print(acqCycle);
     Serial.print(F(",\"phase\":\"collecting\"}"));
     Serial.println();
+#endif
   } else if (acqState == AcqState::COLLECTING) {
     if (acqCycle < ACQ_REPETITIONS) {
       // Lanjut ke siklus berikutnya: increment cycle -> PURGING.
@@ -504,10 +557,12 @@ void processAcquisitionState() {
       acqSampleIdx = 0;
       setActuators();
 
+#if !SMART_COFFEE_STANDALONE_SVM30
       Serial.print(F("{\"event\":\"PHASE_CHANGE\",\"cycle\":"));
       Serial.print(acqCycle);
       Serial.print(F(",\"phase\":\"purging\"}"));
       Serial.println();
+#endif
     } else {
         // Semua siklus (Purging + Collecting) selesai -> COMPLETE.
         acqState = AcqState::COMPLETE;
@@ -522,11 +577,12 @@ void processAcquisitionState() {
             nextion.text("tStep4", "RUNNING");
             nextion.text("tEta", "EST. REMAINING 00:00");
           }
-          // Local inference remains disabled. Remote RF reply is correlated
-          // to this exact capture only AFTER all 900 samples are complete.
+          // In the standalone build, doInference() uses the 30-feature MCU
+          // accumulator and SHA-pinned SVM in Flash, with no Pi/USB data.
           doInference();
           showNextionPage("pResult");
           updateNextionInferenceResult();
+#if !SMART_COFFEE_STANDALONE_SVM30
           char history[UI_HISTORY_TEXT_CAPACITY] = {};
           snprintf(history, sizeof(history), "T-%04u  %s  AI N/A", testSequence,
                    inference.predictLabel());
@@ -546,6 +602,9 @@ void processAcquisitionState() {
           }
 #else
           Serial.println(F("{\"event\":\"AI_RESULT_UNAVAILABLE\",\"reason\":\"release_gate_disabled\"}"));
+#endif
+#else
+          ++testSequence;
 #endif
         } else {
           showNextionPage("pDataDone");
@@ -599,6 +658,7 @@ const char *acqStateName() {
 }
 
 void printAcquisitionSummary() {
+#if !SMART_COFFEE_STANDALONE_SVM30
   Serial.print(F("{\"event\":\"ACQ_COMPLETE\",\"cycles\":"));
   Serial.print(ACQ_REPETITIONS);
   Serial.print(F(",\"total_samples\":"));
@@ -613,9 +673,30 @@ void printAcquisitionSummary() {
   Serial.print(static_cast<uint32_t>(ACQ_PURGE_SECONDS + ACQ_COLLECTION_SECONDS) *
                ACQ_REPETITIONS * 1000UL);
   Serial.println(F("}"));
+#endif
 }
 
-void doInference() { inference.printResult(); }
+void doInference() {
+#if SMART_COFFEE_STANDALONE_SVM30
+  aiRf30Roast = AiRf30Return::Roast::NONE;
+  if (acqMode != AcquisitionMode::AI_TEST ||
+      acqTotalSamples != EmbeddedSvm30::kSamples ||
+      !svm30Capture.complete()) return;
+  if (standaloneFreeRam() < 2048) return;
+  float raw[EmbeddedSvm30::kNumFeatures] = {};
+  if (!svm30Capture.copyFeatures(raw)) return;
+  const EmbeddedSvm30::RoastClass predicted =
+      EmbeddedSvm30::Classifier::predict(raw);
+  switch (predicted) {
+    case EmbeddedSvm30::DARK: aiRf30Roast=AiRf30Return::Roast::DARK; break;
+    case EmbeddedSvm30::LIGHT: aiRf30Roast=AiRf30Return::Roast::LIGHT; break;
+    case EmbeddedSvm30::MEDIUM: aiRf30Roast=AiRf30Return::Roast::MEDIUM; break;
+    default: break; // fail-closed; Nextion will show N/A
+  }
+#else
+  inference.printResult();
+#endif
+}
 
 void showNextionPage(const char *pageName) {
   if (pageName == nullptr) {
@@ -665,16 +746,25 @@ void updateNextionTakePage() {
   nextion.text("tFile", filename);
 
   // pTake is the pre-start form. Active sampling runs on pDataRun (page 3).
+#if !SMART_COFFEE_STANDALONE_SVM30
   const bool ready = ROAST_OPTIONS[roastSelection][0] != '\0' &&
                      ORIGIN_OPTIONS[originSelection][0] != '\0' &&
                      batchNumber > 0 && ACQ_DATA_REPETITIONS > 0 &&
                      filename[0] != '\0';
+#endif
 
+#if SMART_COFFEE_STANDALONE_SVM30
+  // Take Data has no external receiver/storage in standalone mode.
+  nextion.text("tStat", "MODE DATA TIDAK TERSEDIA");
+  nextion.textColor("tStat", NEXTION_STATUS_RED);
+  nextion.touch("mStart", false);
+#else
   nextion.text("tStat", ready ? "Siap untuk pengambilan data"
                               : "Data belum lengkap");
   nextion.textColor("tStat",
                     ready ? NEXTION_STATUS_GREEN : NEXTION_STATUS_RED);
   nextion.touch("mStart", ready);
+#endif
 }
 
 void buildTakeFilename(char *buffer, size_t size, bool withExtension) {
@@ -691,10 +781,18 @@ void updateNextionTestPage() {
   char testId[24] = {};
   snprintf(testId, sizeof(testId), "AUTO - T%04u", testSequence);
   nextion.text("tTestId", testId);
+#if SMART_COFFEE_STANDALONE_SVM30
+  nextion.text("tMode", "SVM30 BENCH");
+#else
   nextion.text("tMode", "AI NOT VALIDATED");
+#endif
   nextion.text("tAtmega", arrayReady ? "READY" : "ERROR");
   // Pi availability and AI inference have not been proven end-to-end.
+#if SMART_COFFEE_STANDALONE_SVM30
+  nextion.text("tPi", "LOCAL MCU");
+#else
   nextion.text("tPi", "AI N/A");
+#endif
   nextion.text("tSensors", arrayReady ? "10/10 SENSOR" : "ADC ERROR");
 }
 
@@ -715,14 +813,22 @@ void updateNextionSettingsPage() {
   nextion.text("tBright", "80 %");
   nextion.text("tLang", "EN / ID");
   nextion.text("tDevId", "ATMEGA2560");
+#if SMART_COFFEE_STANDALONE_SVM30
+  nextion.text("tFw", "SVM30-LOCAL");
+#else
   nextion.text("tFw", "DATA30-AI30");
+#endif
 }
 
 void updateNextionTestRunPage() {
   char testId[24] = {};
   snprintf(testId, sizeof(testId), "TEST T-%04u", testSequence);
   nextion.text("tTestId", testId);
+#if SMART_COFFEE_STANDALONE_SVM30
+  nextion.text("tPi", "LOCAL MCU");
+#else
   nextion.text("tPi", "AI N/A");
+#endif
   nextion.progress("jAI", 0);
   nextion.text("tStep1", "RUNNING");
   nextion.text("tStep2", "WAIT");
@@ -954,9 +1060,13 @@ void updateNextionSensorSnapshot() {
 }
 
 void updateNextionInferenceResult() {
+#if SMART_COFFEE_STANDALONE_SVM30
+  const char *label = AiRf30Return::label(aiRf30Roast);
+#else
   const char *label = aiRf30Roast != AiRf30Return::Roast::NONE
                           ? AiRf30Return::label(aiRf30Roast)
                           : inference.predictLabel();
+#endif
   const bool resultReady = label != nullptr && strcmp(label, "N/A") != 0;
   const char *displayLabel = label;
   if (resultReady) {
@@ -1078,6 +1188,10 @@ void handleNextionEvent(const char *event) {
     }
     updateNextionTakePage();
   } else if (strcmp(event, "EVT:DATA_START") == 0) {
+#if SMART_COFFEE_STANDALONE_SVM30
+    sendNextionAlert("Mode data nonaktif", "Standalone: tanpa simpan CSV",
+                     "Gunakan START AI TEST");
+#else
     if (acqState == AcqState::PAUSED) {
       resumeAcquisition();
     } else if (acqState == AcqState::IDLE && sensorsReady &&
@@ -1091,6 +1205,7 @@ void handleNextionEvent(const char *event) {
       // Ignore duplicate START without leaving active DataRun.
       updateNextionRunStatus();
     }
+#endif
   } else if (strcmp(event, "EVT:DATA_PAUSE") == 0) {
     if (acqState == AcqState::PAUSED) {
       resumeAcquisition();
@@ -1107,6 +1222,10 @@ void handleNextionEvent(const char *event) {
     }
     showNextionPage("pTake");
   } else if (strcmp(event, "EVT:CAL_START") == 0) {
+#if SMART_COFFEE_STANDALONE_SVM30
+    sendNextionAlert("Record nonaktif", "Tidak ada penyimpanan data",
+                     "Gunakan START AI TEST");
+#else
     if (strcmp(nextionPageName, "pCal") != 0) {
       if (acqState == AcqState::IDLE) {
         showNextionPage("pCal");
@@ -1129,6 +1248,7 @@ void handleNextionEvent(const char *event) {
       Serial.print(F(SMART_COFFEE_BUILD_ID));
       Serial.println(F("\",\"target_samples\":60,\"interval_ms\":1000,\"eeprom_r0_modified\":false}"));
     }
+#endif
   } else if (strcmp(event, "EVT:AI_START") == 0) {
     if (!sensorsReady || !sensors.allAdcAvailable()) {
       sendNextionAlert("Sensor error", "ADC belum siap",
@@ -1147,6 +1267,10 @@ void handleNextionEvent(const char *event) {
     }
     showNextionPage("pHome");
   } else if (strcmp(event, "EVT:RESULT_SAVE") == 0) {
+#if SMART_COFFEE_STANDALONE_SVM30
+    sendNextionAlert("Simpan nonaktif", "Hasil hanya tampil di LCD",
+                     "Tidak ada penyimpanan CSV");
+#else
     Serial.print(F("{\"event\":\"RESULT_EXPORT\",\"roast\":\""));
     Serial.print(aiRf30Roast != AiRf30Return::Roast::NONE
                      ? AiRf30Return::label(aiRf30Roast)
@@ -1154,6 +1278,7 @@ void handleNextionEvent(const char *event) {
     Serial.println(F("\",\"origin\":null,\"confidence\":null}"));
     sendNextionAlert("Result exported", "Hasil dikirim ke Serial USB",
                      "History RAM tetap tersimpan");
+#endif
   } else if (strcmp(event, "EVT:HISTORY_CLEAR") == 0 ||
              strcmp(event, "EVT:HISTORY_EXPORT") == 0) {
     exportUiHistory();
@@ -1187,6 +1312,7 @@ void serialCallback() {
     nextionHomeSent = true;
   }
 
+#if !SMART_COFFEE_STANDALONE_SVM30
   while (Serial.available()) {
     char c = (char)Serial.read();
 
@@ -1201,6 +1327,7 @@ void serialCallback() {
       cmdBuf[cmdBufIdx++] = c;
     }
   }
+#endif
 }
 
 void uiCallback() {
@@ -1404,10 +1531,33 @@ void adsCallback() {
   if (acqState == AcqState::COLLECTING || acqState == AcqState::PURGING) {
     ++acqSampleIdx;
     acqTotalSamples++;
+#if SMART_COFFEE_STANDALONE_SVM30
+    // No USB listener/CSV; strictly process exactly one real ADC reading.
+    if (acqMode == AcquisitionMode::AI_TEST) {
+      const bool available =
+          sensors.adcAvailable(SENSOR_TGS822) &&
+          sensors.adcAvailable(SENSOR_TGS2602) &&
+          sensors.adcAvailable(SENSOR_TGS816) &&
+          sensors.adcAvailable(SENSOR_MQ8);
+      const EmbeddedSvm30::Phase phase =
+          acqState == AcqState::PURGING ? EmbeddedSvm30::PURGING
+                                       : EmbeddedSvm30::COLLECTING;
+      if (!available ||
+          !svm30Capture.add(sensors.getAdcArray(),
+                           static_cast<uint8_t>(acqCycle), phase,
+                           static_cast<uint8_t>(acqSampleIdx))) {
+        stopAcquisition();  // valve solenoid OFF immediately
+        sendNextionAlert("AI Test invalid", "Data sensor tidak lengkap",
+                         "Cancel dan ulangi");
+        return;
+      }
+    }
+#else
     if (acqState == AcqState::COLLECTING) {
       inference.accumulate(sensors.getAdcArray());
     }
     sensors.printJsonData(acqStateName(), acqCycle, acqSampleIdx);
+#endif
   }
 
   // State changes run on absolute deadlines in loop(), not AFTER an ADC

@@ -1,5 +1,18 @@
 # Smart Coffee E-Nose v2
 
+**Backup standalone SVM30 B4 (11 November 2026):**
+Profil opsional `scripts/platformio_svm30_standalone.ini`
+sekarang menghubungkan SensorArray ADS1115 → 900 sampel
+30 siklus → fitur 30D streaming → SVM RBF 125 SV
+di PROGMEM → kelas pada Nextion `pResult`, tanpa
+Raspberry Pi/CSV dan tanpa modifikasi visual HMI.
+Build full ATmega2560 compile-only PASS (50.006B Flash,
+4.189B SRAM global), firmware utama default unchanged.
+**Firmware belum di-flash dan belum diuji end-to-end pada
+PCB fisik**: masalah Nextion startup/USB harus dipulihkan,
+stack peak serta latency AVR perlu diukur.
+Laporan: `docs/reports/2026-11-11_B4_B6_SVM30_STANDALONE_INTEGRATION_QA.md`.
+
 **Embedded SVM backup B1–B3 (11 November 2026):**
 Model akhir `final_svm.joblib` berisi **SVM RBF 30 fitur /
 125 support vector** telah diekspor ke header AVR PROGMEM

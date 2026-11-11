@@ -33,7 +33,12 @@ def check_firmware_contract():
     assert "nextion.progress(\"jAI\", percent)" in text
     assert "const uint32_t totalSeconds = cycleSeconds * ACQ_REPETITIONS" in text
     assert "const uint32_t totalRunSeconds = cycleSeconds * ACQ_REPETITIONS" in text
-    marker = re.search(r'#define SMART_COFFEE_BUILD_ID "([^"]+)"', text)
+    # The opt-in standalone SVM uses a different build identity. The
+    # original 30-cycle Pi contract must remain the default (#else).
+    marker = re.search(
+        r'#if SMART_COFFEE_STANDALONE_SVM30\s*'
+        r'#define SMART_COFFEE_BUILD_ID "standalone-svm30-bench-20261111"\s*'
+        r'#else\s*#define SMART_COFFEE_BUILD_ID "([^"]+)"\s*#endif', text)
     assert marker and marker.group(1) == EXPECTED_FW_HELLO["build_id"]
     assert EXPECTED_FW_HELLO["data_cycles_total"] == 30
     assert EXPECTED_FW_HELLO["ai_cycles_total"] == 30

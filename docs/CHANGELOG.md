@@ -1,5 +1,28 @@
 # Catatan perubahan proyek
 
+## 11 November 2026 — Integrasi standalone B4 dan QA B5 (B6 hardware NO-GO)
+
+- Firmware ATmega main kini memiliki jalur compile-time gated
+  `SMART_COFFEE_STANDALONE_SVM30=1`: reset fitur saat AI START,
+  30 siklus × 25s purging+5s collecting, 900 ADC strict,
+  30 fitur streaming, SVM final PROGMEM dan hasil `pResult`.
+- Tanpa Pi/USB listener atau simpan CSV; event Start Take Data,
+  baseline Record dan Result Save ditolak dengan pesan Nextion.
+  Output `tRoast` Light/Medium/Dark atau N/A; Origin/
+  Confidence N/A; desain HMI/Nextion tidak diubah.
+- Build AVR standalone penuh PASS **50.006 B Flash /
+  4.189 B SRAM global**; build default tetap 34.760B/
+  3.899B. Diagnostic compiler memperkirakan 663B
+  frame stack classifier, belum termasuk seluruh call
+  stack/interrupt; pengukuran runtime 16MHz outstanding.
+- Regresi firmware, kontrak Nextion, input buruk,
+  ekstraksi/model parity lulus. Image Intel HEX dan
+  model full disimpan privat, **tidak** di Git.
+- B6 **BLOCKED** karena FT232R masih hilang di Raspberry Pi
+  pada 15:41 WIB dan `pSplash` Nextion terakhir stuck.
+  Tidak ada hardware reset/flash/serial open/aktuator.
+- Laporan: `docs/reports/2026-11-11_B4_B6_SVM30_STANDALONE_INTEGRATION_QA.md`.
+
 ## 11 November 2026 — B1–B3 port SVM30 final ke C++ ATmega (offline)
 
 - B1: hash sumber model asli dan fitur dipertahankan, 199

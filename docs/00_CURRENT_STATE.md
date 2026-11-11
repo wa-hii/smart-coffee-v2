@@ -1,5 +1,30 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 11 November 2026 — SVM30 standalone B4 compile PASS, B6 hardware BLOCKED
+
+Profil standalone yang **tidak membutuhkan Raspberry Pi atau CSV**
+sekarang mengintegrasikan 30 siklus sensor, fitur streaming,
+SVM RBF final 125 SV di Flash, dan kelas Light/Medium/Dark
+pada halaman Nextion `pResult`. Semua perubahan bersifat
+**compile-time opt-in**; build default dan pengaturan
+COM lokal tidak diubah. Host streaming data/Take Data/
+Result Save dinonaktifkan pada profil standalone,
+dan hasil tidak valid tetap `N/A`.
+
+Build standalone penuh `svm30_standalone` PASS:
+**50.006B Flash / 4.189B global SRAM**; compiler
+stack diagnostic frame `Classifier::predict` 663B
+(bukan stack peak). Header model privat dan image HEX
+berada di `private/`, bukan GitHub. B5 pengukuran
+stack puncak serta latensi klasifikasi 16MHz belum selesai.
+
+**B6 belum dilakukan**: pemeriksaan SSH read-only di
+Pi pukul 15:41 WIB masih tidak menemukan FT232R atau
+`/dev/ttyUSB0`; Nextion fisik terakhir dilaporkan
+tertahan pada `Initializing Systems`. Tidak ada
+flashing/reset/operasi aktuator. Laporan:
+`docs/reports/2026-11-11_B4_B6_SVM30_STANDALONE_INTEGRATION_QA.md`.
+
 ## 11 November 2026 — Backup embedded AI B1–B3 PASS (offline)
 
 Karena USB Raspberry Pi–PCB xHCI bermasalah, disiapkan

@@ -1,5 +1,26 @@
 # Rencana Backup: Smart Coffee E-Nose Standalone (ATmega2560 + Nextion)
 
+## Update implementasi B4–B6 — 11 November 2026
+
+- **B4 PASS (firmware build/source):** Profil build
+  `scripts/platformio_svm30_standalone.ini` sekarang benar-benar
+  menghubungkan ADC 30 siklus/900 sampel → fitur streaming 30
+  → SVM final 125 SV PROGMEM → `pResult.tRoast`.
+  Tidak mengirim 900 JSON sensor, tidak perlu Pi/CSV, dan
+  menonaktifkan tombol Take Data/Record/Save (tanpa mengubah
+  desain visual Nextion).
+- **B5 PASS sebagian:** Full AVR compile-only 50.006 byte Flash,
+  4.189 byte SRAM global; negative tests dan kontrak HMI PASS.
+  Compiler melaporkan 663B *stack frame* klasifikasi
+  pada build diagnostik tanpa LTO; pengukuran **peak
+  stack/latensi pada 16MHz masih NOT RUN**.
+- **B6 BLOCKED:** Cek SSH read-only 15:41 WIB mengonfirmasi
+  FT232R masih tidak terdeteksi di USB Pi, sementara
+  Nextion terakhir dilaporkan stuck di `Initializing Systems`.
+  Firmware HEX disiapkan privat **tetapi belum di-flash**,
+  tidak ada perubahan pada perangkat.
+- Bukti: `docs/reports/2026-11-11_B4_B6_SVM30_STANDALONE_INTEGRATION_QA.md`.
+
 **Tanggal rencana:** 11 November 2026
 
 **Cabang kerja:** `wahyu`
