@@ -1,0 +1,9 @@
+# Generated from user-provided final_svm.joblib. Contains the full model:
+# never commit these coefficients/support vectors to public GitHub.
+embedded_svm30_model.h
+embedded_svm30_manifest.json
+svm30_golden*.json
+svm30_native.exe
+svm30_native_state.exe
+.venv_svm_reference/
+reference_svm172/

@@ -1,5 +1,28 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 11 November 2026 — Backup embedded AI B1–B3 PASS (offline)
+
+Karena USB Raspberry Pi–PCB xHCI bermasalah, disiapkan
+alternatif inferensi tanpa Raspberry Pi memakai model asli
+**SVM RBF 30 fitur / 125 support vector** (`final_svm.joblib`).
+Modul C++ ekstraksi streaming `src/embedded_svm30_features.cpp`
+dan klasifikasi libsvm RBF `src/embedded_svm30_classifier.cpp`
+berhasil diimplementasi, **belum diaktifkan pada firmware utama**.
+
+Referensi sklearn **1.7.2** dan helper pengguna dibandingkan
+terhadap native C++ pada **199 rekaman valid: 0 perbedaan
+prediksi kelas**, max error fitur **0,0229167 ADC** dan
+max error skor pasangan kelas **3,6055e-6**. Sepuluh
+kasus sesi rusak ditolak. Build AVR uji terisolasi PASS
+**22.356 byte Flash, 431 byte SRAM global**, parameter model
+di PROGMEM (header privat diabaikan Git).
+Build utama `mega2560` tetap 34.760B Flash/3.899B RAM,
+tanpa perubahan perilaku. **B4 integrasi Nextion, B5
+uji stack/latensi, B6 flash/validasi fisik belum dilakukan**;
+perangkat dengan layar `Initializing Systems` tetap
+hardware NO-GO. Laporan:
+`docs/reports/2026-11-11_B1_B3_EMBEDDED_SVM30_QA.md`.
+
 ## 11 November 2026 12:28 WIB — Nextion stuck in Initializing Systems
 
 Operator melaporkan PCB dan LCD masih menyala setelah G2 gagal,

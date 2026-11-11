@@ -7,6 +7,30 @@
 **Status:** **RANCANGAN TEKNIS + FEASIBILITY SOURCE**, belum ada model tertanam/flash ke MCU atau pengujian Nextion fisik.
 **Kebutuhan pengguna:** saat USB Raspberry Pi–PCB bermasalah, sistem tetap dapat menjalankan **sensor → fitur → AI embedded → hasil roasting di Nextion**, tanpa Raspberry Pi dan tanpa penyimpanan CSV untuk sementara.
 
+## Progres pelaksanaan B1–B3 (11 November 2026)
+
+- **B1 PASS offline:** model final SHA-pinned dan helper asli
+  dijadikan referensi `scikit-learn==1.7.2`. Golden output
+  untuk **199 rekaman valid** disimpan privat (tidak di-Git).
+- **B2 PASS native C++:** 30 fitur diperoleh dari streaming 900
+  pembacaan (statistik online, empat sensor model); selisih
+  maksimum terhadap NumPy **0,0229167 ADC**. Input
+  kurang/salah/duplikat ditolak.
+- **B3 PASS native parity + AVR compile-only:** **199/199 kelas
+  sama dengan Python**, tiga pairwise SVM score memiliki
+  selisih maksimum **3,6055×10⁻⁶**. Header 125
+  support vectors privat disimpan di Flash PROGMEM.
+  Program uji AVR **22.356B Flash, 431B SRAM global**.
+- **B0 belum selesai:** layar Nextion sebelumnya tertahan
+  di `Initializing Systems`; masalah USB xHCI belum
+  dibuktikan pulih. **B4–B6 belum dilaksanakan** dan
+  firmware SVM **belum dihubungkan ke `main.cpp`/Nextion**.
+- Laporan: `docs/reports/2026-11-11_B1_B3_EMBEDDED_SVM30_QA.md`.
+
+Angka memori di bagian kelayakan berikut berasal dari firmware
+**sebelum integrasi B4**, tidak boleh dijumlahkan begitu saja
+sebagai bukti ukuran atau keamanan stack firmware standalone lengkap.
+
 ## Keputusan arsitektur
 
 **Mode backup independen Pi:** Nextion (tombol `START AI TEST`) → ATmega2560 (akuisisi 30 siklus, sensor ADS1115, kendali valve) → **akumulator fitur SVM** → **inferensi SVM pada AVR** → Nextion `pResult`.

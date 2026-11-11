@@ -1,5 +1,17 @@
 # Smart Coffee E-Nose v2
 
+**Embedded SVM backup B1–B3 (11 November 2026):**
+Model akhir `final_svm.joblib` berisi **SVM RBF 30 fitur /
+125 support vector** telah diekspor ke header AVR PROGMEM
+**privat**, tanpa retraining. Modul C++ streaming dan SVM
+memenuhi **199/199 prediksi identik** dibandingkan dengan
+referensi sklearn 1.7.2 pada rekaman 30 siklus. Uji AVR
+compile-only berhasil (22.356B Flash, 431B global SRAM
+untuk program uji saja). **Belum terintegrasi dengan
+`main.cpp` dan belum bisa menampilkan hasil pada
+Nextion fisik**: B0 boot hardware dan B4–B6 tetap outstanding.
+Dokumentasi: `docs/reports/2026-11-11_B1_B3_EMBEDDED_SVM30_QA.md`.
+
 **11 November 2026 — kandidat SVM 9 fitur pada Pi 5:**
 Model `SVC(kernel='rbf',C=1,gamma='scale',class_weight='balanced')`
 telah dilatih pada **133 CSV tervalidasi** dan diuji pada **66 CSV**

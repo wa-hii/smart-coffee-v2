@@ -1,5 +1,24 @@
 # Catatan perubahan proyek
 
+## 11 November 2026 — B1–B3 port SVM30 final ke C++ ATmega (offline)
+
+- B1: hash sumber model asli dan fitur dipertahankan, 199
+  golden reference dari helper Python asli + sklearn 1.7.2
+  dikunci dalam `private/`, tidak dipublikasikan.
+- B2: 30 fitur ADC absolut streaming, Welford/slope/STD
+  populasi/area sesuai helper; 199/199 vektor lolos
+  toleransi, 10 sesi rusak ditolak.
+- B3: parameter SVM 125 support vector + scaler ke AVR
+  PROGMEM (header privat); model libsvm RBF class vote
+  memiliki **0 mismatch dari 199** dan skor pairwise max
+  selisih **3,6055e-6**. Native QA dan build AVR
+  terisolasi PASS (22.356B Flash / 431B SRAM global).
+  Default firmware tetap nonaktif, build lama unchanged.
+- Tidak ada flashing, pembacaan USB, pompa/valve, update Nextion,
+  atau perubahan user `platformio.ini`. B0 dan B4–B6
+  masih outstanding.
+- Detail: `docs/reports/2026-11-11_B1_B3_EMBEDDED_SVM30_QA.md`.
+
 ## 11 November 2026 — rencana backup offline MCU SVM30 tanpa Raspberry Pi
 
 - Menyusun rencana arsitektur `sensor → ATmega2560 (streaming 30 fitur +
