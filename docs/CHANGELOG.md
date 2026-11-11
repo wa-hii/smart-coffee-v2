@@ -1,5 +1,19 @@
 # Catatan perubahan proyek
 
+## 11 November 2026 — B6 preflight COM5 Windows, hardware NO-GO
+
+- Memverifikasi COM5 FT232R serial `A10KMM3SA` melalui
+  enumerasi Windows saja, **tanpa membuka UART**.
+  Receiver lama PID 14628 masih connected ke COM5
+  menurut status/log 15:16 WIB, tidak dihentikan.
+- Checksum model SVM30 dan firmware standalone Intel
+  HEX privat cocok; backup Flash/EEPROM, bukti Nextion
+  `pHome`, SOP program/reset masih belum ada.
+- Menambahkan preflight yang **tidak pernah membuka COM**
+  dan 8 test gates safety. Status akhir **NO_GO**;
+  belum ada flashing fisik atau uji 15 menit.
+- Laporan `docs/reports/2026-11-11_B6_COM5_WINDOWS_PREFLIGHT.md`.
+
 ## 11 November 2026 — Integrasi standalone B4 dan QA B5 (B6 hardware NO-GO)
 
 - Firmware ATmega main kini memiliki jalur compile-time gated

@@ -1,5 +1,24 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 11 November 2026 — B6 COM5 Windows preflight NO-GO
+
+Pengguna memindahkan koneksi ATmega ke COM5 laptop Windows.
+PnP mendeteksi adaptor FTDI `0403:6001`, serial
+`A10KMM3SA`, berbeda dari FT232R `A10KNJBL`
+yang ada di Pi sebelumnya. Namun, proses penerima
+`pythonw.exe` PID 14628 `lcd_acquisition_service.py
+--port auto --baud 115200` masih **connected ke COM5**
+menurut status/log pukul 15:16 WIB. Proses tidak dihentikan.
+
+Firmware standalone privat dan SHA-256 model **valid**,
+tetapi belum ada backup Flash/EEPROM, verifikasi koneksi
+programmer serta Nextion `pHome` baru, atau persetujuan
+SOP upload spesifik. `scripts/svm30_b6_preflight.py`
+melaporkan **NO_GO** tanpa membuka COM5.
+**Tidak ada flashing, restart, DTR, pembacaan serial,
+operasi pompa/valve atau modifikasi HMI.**
+Lihat `docs/reports/2026-11-11_B6_COM5_WINDOWS_PREFLIGHT.md`.
+
 ## 11 November 2026 — SVM30 standalone B4 compile PASS, B6 hardware BLOCKED
 
 Profil standalone yang **tidak membutuhkan Raspberry Pi atau CSV**
