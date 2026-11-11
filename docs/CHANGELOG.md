@@ -1,5 +1,17 @@
 # Catatan perubahan proyek
 
+## 11 November 2026 — precheck G2 dan artefak final SVM 30 fitur
+
+- Pi 5 Tailscale SSH/USB sysfs precheck PASS; terdeteksi FT232
+  `A10KNJBL` di `/dev/ttyUSB0` dengan **disconnect/re-enumerate
+  pukul 10.35 WIB**. G2 serial live tidak dijalankan karena
+  SOP onsite serta review sambungan/identitas board belum lengkap.
+- Enam file SVM pengguna dicatat berdasarkan SHA256; metadata model
+  utama melaporkan SVM RBF **30 fitur/176 sesi** berbeda dari
+  kandidat lokal 9 fitur/133 sesi. Joblib belum dieksekusi
+  atau dipasang pada Pi. File bertanda `maybe` terpisah.
+- Laporan: `docs/reports/2026-11-11_G2_PRECHECK_AND_USER_FINAL_SVM.md`.
+
 ## 11 November 2026 — SVM 9 fitur dilatih di Pi dan adapter balik diuji
 
 - SVM RBF sekarang kandidat yang diminta pengguna; RF500 tetap

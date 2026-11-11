@@ -1,5 +1,24 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 11 November 2026 — G2 precheck NO-GO dan file final SVM pengguna
+
+Pengguna mengunggah enam file SVM (termasuk `final_svm.joblib`,
+`final_svm_info.json`, dan helper). Metadata final menunjukkan
+**SVM RBF 30 fitur, C=1, gamma=0.1, 176 sesi**; berbeda dari kandidat
+SVM **9 fitur** yang sebelumnya disiapkan di Pi. Kedua pipeline
+**tidak bisa dipertukarkan** dan file baru belum di-deserialize/di-deploy.
+
+Precheck SSH/sysfs G2 atas Pi 5 pukul 11.46 WIB menunjukkan FT232R
+`A10KNJBL` masih terdeteksi sebagai `/dev/ttyUSB0`, port tanpa
+pemilik, ModemManager/getty inactive, throttled=0x0. Akan tetapi,
+kernel melaporkan **hub USB disabled (EMI?) dan disconnect/reconnect
+pukul 10.35 WIB**. Probe G2 lama masih mengunci serial FT232 berbeda
+`A10KMM3S`, dan konfirmasi operator **onsite** belum ada.
+**Tidak ada port serial yang dibuka, G2 live NOT RUN / NO-GO.**
+Kondisi IDLE yang diberikan pengguna dicatat, tetapi tidak
+dianggap bukti bahwa masalah USB/kelistrikan sudah beres.
+Lihat `docs/reports/2026-11-11_G2_PRECHECK_AND_USER_FINAL_SVM.md`.
+
 ## 11 November 2026 — model aktif kandidat SVM RBF 9 fitur
 
 Atas arahan pengguna, penelitian beralih dari kandidat RF500 menuju
