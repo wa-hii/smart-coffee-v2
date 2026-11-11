@@ -70,7 +70,33 @@ def assess(snapshot: dict) -> list[str]:
     return blockers
 
 
-def inspect(*, operator_reported_phome: bool = False) -> dict:
+def _validated_readback(directory: Path | None) -> tuple[bool, str]:
+    if directory is None:
+        return False, "NOT_PROVIDED"
+    d = directory.resolve()
+    if d.parent != (ROOT / "private" / "b6_com5_readback").resolve():
+        return False, "INVALID_PRIVATE_BACKUP_LOCATION"
+    try:
+        from svm30_b6_verify_readback import verify
+        result = verify(d)
+        flash = result["files"]["flash_readback.hex"]
+        eeprom = result["files"]["eeprom_readback.hex"]
+        if (flash["address_coverage_bytes"] < 261406 or
+                eeprom["address_coverage_bytes"] != 4096 or
+                result["device_signature"] != "0x1e9801"):
+            return False, "BACKUP_COVERAGE_INSUFFICIENT"
+        if flash["unrepresented_suffix_bytes"]:
+            return True, (
+                "BACKUP_HASH_AND_IHEX_VALID_BUT_ERASED_SUFFIX_NOT_MEASURED:"
+                + str(flash["unrepresented_suffix_bytes"])
+            )
+        return True, "BACKUP_HASH_AND_IHEX_FULLY_REPRESENTED"
+    except (OSError, ValueError, KeyError, TypeError):
+        return False, "BACKUP_OFFLINE_VERIFICATION_FAILED"
+
+
+def inspect(*, operator_reported_phome: bool = False,
+            verified_readback_dir: Path | None = None) -> dict:
     # Safe Windows enumeration does not call Serial(), open(), or avrdude.
     from serial.tools import list_ports
 
@@ -112,6 +138,7 @@ def inspect(*, operator_reported_phome: bool = False) -> dict:
         and hashlib.sha256(image.read_bytes()).hexdigest()
             == manifest.get("firmware_hex_sha256")
     )
+    backup_ok, backup_note = _validated_readback(verified_readback_dir)
     return dict(
         checked_at=datetime.now(timezone.utc).isoformat(),
         expected_device=EXPECTED_PORT,
@@ -132,7 +159,9 @@ def inspect(*, operator_reported_phome: bool = False) -> dict:
             if operator_reported_phome else "NOT_CONFIRMED"
         ),
         nextion_technical_bench_verified=False,
-        flash_and_eeprom_backups_verified=False,
+        flash_and_eeprom_backups_verified=backup_ok,
+        readback_integrity_note=backup_note,
+        backup_restore_tested=False,
         programmer_and_power_sop_verified=False,
         specific_upload_approval=False,
         port_opened=False,
@@ -149,8 +178,14 @@ def main():
         "--operator-reported-phome", action="store_true",
         help="Operator explicitly reports pHome. Does not authorize serial or flashing."
     )
+    parser.add_argument(
+        "--verified-readback-dir", type=Path, default=None,
+        help="Check existing Flash/EEPROM backup offline; never opens COM5."
+    )
     args = parser.parse_args()
-    report = inspect(operator_reported_phome=args.operator_reported_phome)
+    report = inspect(
+        operator_reported_phome=args.operator_reported_phome,
+        verified_readback_dir=args.verified_readback_dir)
     report["blockers"] = assess(report)
     report["decision"] = "NO_GO" if report["blockers"] else "REVIEW_REQUIRED"
     if args.output:
@@ -164,7 +199,8 @@ def main():
         k: report[k] for k in (
             "decision", "com5_matches_ftdi", "receiver_owns_com5",
             "model_integrity", "firmware_integrity", "blockers",
-            "nextion_boot_evidence", "port_opened", "firmware_flashed")
+            "nextion_boot_evidence", "readback_integrity_note",
+            "port_opened", "firmware_flashed")
     }))
     return 0 if not report["blockers"] else 2
 

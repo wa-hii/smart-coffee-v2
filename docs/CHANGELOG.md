@@ -1,5 +1,25 @@
 # Catatan perubahan proyek
 
+## 11 November 2026 — B6 COM5 Flash/EEPROM read-only backup
+
+- Setelah izin pengguna dan konfirmasi `pHome` sebelumnya,
+  receiver PID 14628 dihentikan secara spesifik ketika
+  `data/raw/.incoming` kosong; autostart/data tidak berubah.
+- Satu sesi `avrdude` no-write `-n` melalui COM5
+  FT232R `A10KMM3SA` berhasil identifikasi ATmega2560
+  `0x1e9801`, backup Flash/EEPROM. EEPROM 4096/4096
+  byte, Flash Intel HEX mencakup prefix 261406/262144
+  byte dan memangkas 738 byte terakhir (diasumsikan
+  FF untuk interpretasi, **tidak diobservasi**).
+- Menambahkan skrip backup guarded dan verifier
+  checksum/cakupan Intel HEX + QA negative parser.
+  Backup, avrdude log dan manifest disimpan privat.
+- B6 physical AI test/flash masih **NO-GO** hingga
+  bukti `pHome` pasca-reset, SOP power/recovery,
+  dan izin spesifik upload. Tidak ada firmware/EEPROM
+  yang ditulis.
+- Laporan `docs/reports/2026-11-11_B6_COM5_FLASH_EEPROM_READBACK.md`.
+
 ## 11 November 2026 — Konfirmasi pHome operator dan B6 preflight ulang
 
 - Operator mengonfirmasi Nextion sekarang sudah masuk

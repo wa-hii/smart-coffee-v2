@@ -10,3 +10,4 @@ reference_svm172/
 svm30_standalone_firmware.hex
 svm30_standalone_firmware_manifest.json
 svm30_b6_preflight_*.json
+b6_com5_readback/

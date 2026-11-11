@@ -1,7 +1,8 @@
 """Pure mock tests for B6 no-touch readiness gating."""
 from __future__ import annotations
 
-from svm30_b6_preflight import assess
+from svm30_b6_preflight import assess, _validated_readback
+from pathlib import Path
 
 
 def test():
@@ -22,6 +23,9 @@ def test():
             bad[key] = None
             assert "COM5_RECEIVER_ACTIVE_OR_UNKNOWN" in assess(bad)
     assert len(assess({})) == 8
+    assert _validated_readback(None) == (False, "NOT_PROVIDED")
+    assert _validated_readback(Path("logs")) == (
+        False, "INVALID_PRIVATE_BACKUP_LOCATION")
     # A report of pHome does not remove serial/backup/flash blockers.
     observer = dict(good)
     observer["receiver_owns_com5"] = True

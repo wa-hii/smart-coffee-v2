@@ -1,5 +1,34 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 11 November 2026 17:09–17:11 WIB — B6 backup Flash/EEPROM COM5 PASS (bersyarat)
+
+Dengan izin pengguna, receiver COM5 `lcd_acquisition_service.py`
+PID **14628** dihentikan secara spesifik memakai
+`Stop-Process -Force` karena `pythonw.exe` tidak
+memiliki jendela untuk `CloseMainWindow()`.
+Sebelum penghentian, tidak ada file .incoming aktif;
+autostart dan CSV tidak diubah. Receiver tidak restart.
+
+`avrdude -c wiring -p m2560 -P COM5 -b 115200 -n`
+berhasil melakukan **satu sesi backup read-only**,
+signature chip **0x1e9801**, Flash dan EEPROM exit 0,
+durasi 73,61 detik. Bukti privat di
+`private/b6_com5_readback/20261111_170948/`.
+EEPROM mencakup 4096/4096 byte. Flash Intel HEX
+mencakup prefix 261406/262144 byte, tanpa internal
+gap, tetapi **738 byte terakhir tidak tercantum**;
+ini konsisten dengan suffix `0xFF` yang dipangkas
+namun **belum dibuktikan terbaca**. File asli dan
+checksum dipertahankan, tidak di-Git.
+
+**Belum ada flash firmware SVM30, EEPROM write atau
+tes AI fisik**. Setelah kemungkinan reset bootloader
+melalui DTR, tampilan Nextion `pHome` belum
+dikonfirmasi kembali oleh operator. Preflight
+tetap NO-GO untuk upload sampai SOP daya/recovery
+dan izin flashing spesifik terpenuhi.
+Laporan `docs/reports/2026-11-11_B6_COM5_FLASH_EEPROM_READBACK.md`.
+
 ## 11 November 2026 — Nextion pHome sudah dikonfirmasi operator, B6 belum GO
 
 Pengguna menyatakan layar Nextion **sudah tampil pHome**
