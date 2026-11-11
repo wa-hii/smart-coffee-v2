@@ -88,3 +88,46 @@ parameter SVM, atau menyalahkan hardware tertentu.
 **B6 output fisik: PASS untuk satu kali alur klasifikasi MCU–Nextion.**
 **B6 ketepatan: FAIL untuk sampel LIGHT yang dilaporkan.**
 Tidak ada akses serial, reset, flashing, kalibrasi EEPROM, modifikasi TFT, atau perubahan firmware fisik pada sesi diagnosis ini. Akar masalah fisik **belum diketahui**.
+
+## Addendum — Pengujian kedua L-TOR menghasilkan LIGHT (sesuai label)
+
+Operator mengonfirmasi bahwa sampel dan kemasan uji fisik
+berasal dari sumber **L-TOR yang sama** dengan dataset
+sebelumnya. Pada **pengujian kedua** menggunakan L-TOR,
+halaman hasil Nextion kali ini menampilkan **LIGHT**
+(sesuai roast sebenarnya), sedangkan Coffee Origin
+dan Roast Probability/Confidence masih **N/A**.
+
+| Uji fisik | Roast sebenarnya | Prediksi MCU/Nextion | Penilaian |
+|---|---|---|---|
+| 1 | LIGHT (TOR) | DARK | Salah |
+| 2 | LIGHT (TOR) | LIGHT | Benar |
+
+Kedua sesi memperlihatkan bahwa jalur AI MCU–Nextion
+dapat menghasilkan kelas, tetapi prediksinya **tidak
+konsisten untuk sampel/kemasan yang sama**. Dua
+pengamatan ini **tidak cukup** untuk menghitung akurasi
+yang representatif, menentukan repeatability statistik,
+atau memastikan penyebab perbedaan.
+
+Pemeriksaan kode `src/main.cpp` fungsi
+`updateNextionInferenceResult()` mengonfirmasi
+bahwa firmware standalone **secara sengaja** mengisi
+`tOrigin = N/A`, `tRConf = N/A`,
+`tOConf = N/A`, serta mengatur bar
+`jLight`, `jMedium`, `jDark` = 0.
+Klasifikasi origin **belum dimodelkan** dan model
+SVM roasting belum menghasilkan probabilitas
+terkalibrasi. **N/A tidak menunjukkan kerusakan LCD
+atau kegagalan AI Test**.
+
+Prioritas berikutnya adalah mengamankan konsistensi
+pengujian roasting melalui kontrol kondisi fisik
+dan telemetri empat sensor utama. Pengembangan
+origin classifier dan kalibrasi probabilitas
+adalah pekerjaan lanjutan yang terpisah;
+tidak boleh mengarang angka origin/probabilitas
+atau menyamakan skor SVM dengan persentase.
+
+**Belum ada akses COM5, pembacaan ulang hardware,
+reflash, perubahan EEPROM, atau update HMI.**

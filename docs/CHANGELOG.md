@@ -1,5 +1,19 @@
 # Catatan perubahan proyek
 
+## 11 November 2026 — Uji kedua L-TOR benar, origin/probability belum diimplementasikan
+
+- Pengujian fisik kedua untuk sampel L-TOR yang
+  sama menampilkan LIGHT (sesuai label), sementara
+  pengujian pertama menampilkan DARK (salah).
+  Konsistensi hasil masih perlu ditingkatkan.
+- Origin dan Roast Probability/Confidence masih
+  N/A **sesuai desain firmware SVM30 standalone**
+  yang hanya mengklasifikasikan roast dan tidak
+  mempunyai model origin/probabilitas terkalibrasi.
+- Dokumentasi observasi dan batas validitas
+  diperbarui. Tidak melakukan reflash atau
+  akses serial/EEPROM/Nextion TFT.
+
 ## 11 November 2026 — B6 LIGHT terdeteksi DARK
 
 - Uji fisik berhasil memunculkan prediksi di LCD

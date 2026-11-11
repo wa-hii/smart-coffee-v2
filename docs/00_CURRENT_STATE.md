@@ -1,5 +1,24 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 11 November 2026 — Uji L-TOR kedua benar LIGHT, origin dan confidence tetap N/A
+
+Operator melaporkan hasil uji fisik kedua untuk kopi
+L-TOR dari sampel/kemasan sama: **LIGHT** (benar),
+setelah uji pertama **DARK** (salah). Jadi fungsi
+klasifikasi MCU→Nextion terbukti berjalan, namun
+hasil dua pengulangan untuk sampel yang sama tidak
+konsisten. Dua pengamatan tidak membuktikan akurasi
+atau repeatability statistik.
+
+Tampilan Coffee Origin dan Roast Probability/
+Confidence tetap **N/A** sesuai source firmware
+standalone: `tOrigin/tRConf/tOConf=N/A`, progress
+bar probabilitas 0. Belum ada model origin atau
+probabilitas roast terkalibrasi. Tidak ada
+modifikasi firmware, EEPROM, COM5, atau file Nextion.
+Rincian pada
+`docs/reports/2026-11-11_B6_LIGHT_TO_DARK_CLASSIFICATION_INCIDENT.md`.
+
 ## 11 November 2026 — B6 fisik menghasilkan DARK padahal LIGHT
 
 Operator mengonfirmasi AI Test pada LCD Nextion
