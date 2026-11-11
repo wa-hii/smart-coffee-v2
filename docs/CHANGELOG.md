@@ -1,5 +1,19 @@
 # Catatan perubahan proyek
 
+## 11 November 2026 — rencana backup offline MCU SVM30 tanpa Raspberry Pi
+
+- Menyusun rencana arsitektur `sensor → ATmega2560 (streaming 30 fitur +
+  SVM RBF 125 SV di PROGMEM) → Nextion pResult`, tanpa Pi/USB listener
+  atau penyimpanan CSV pada mode backup.
+- Memeriksa model final dari pengguna (30 fitur, 125 SV,
+  `gamma=0.1`), dan baseline compile-only firmware
+  34.760B Flash / 3.899B SRAM. Belum ada model diekspor/di-flash
+  atau prediksi fisik pada Nextion.
+- Rencana memprioritaskan perbaikan boot splash stuck dan masalah
+  xHCI sebelum pengujian hardware serta mengharuskan golden parity
+  terhadap SVM Python sebelum model dipromosikan.
+- Detail: `docs/plans/2026-11-11_BACKUP_STANDALONE_SVM30_ATMEGA2560.md`.
+
 ## 11 November 2026 — G2 USB gagal, FT232R disconnect/xHCI host died
 
 - G2 satu kali dengan izin operator onsite/IDLE, by-id FT232R
