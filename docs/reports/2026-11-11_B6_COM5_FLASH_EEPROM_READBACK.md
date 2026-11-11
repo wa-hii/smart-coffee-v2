@@ -134,3 +134,36 @@ fisik / pembuktian seluruh Flash byte.
 **Firmware SVM30 belum di-flash**, EEPROM tidak
 ditulis, tidak ada TFT Nextion yang di-upload,
 dan receiver tidak dimulai ulang.
+
+## Addendum — kondisi fisik pasca-backup dikonfirmasi operator
+
+Setelah pembacaan Flash dan EEPROM selesai, operator
+menyampaikan bahwa perangkat **masih normal pada `pHome`**,
+pompa/dinamo **tetap menyala sesuai operasi IDLE**, dan
+solenoid valve **tetap diam**. Ini adalah pengamatan
+langsung operator **sesudah** sesi `avrdude`, bukan
+pengukuran tegangan atau log diagnostik MCU.
+
+Pemeriksaan preflight pasif ulang (tanpa membuka COM5)
+memakai `--operator-reported-phome` dan
+`--verified-readback-dir private/b6_com5_readback/20261111_170948`.
+Hasil: identitas FT232R COM5 cocok, receiver tidak
+berjalan, checksum firmware/model cocok, dan cadangan
+readback lolos pemeriksaan integritas berkas dengan
+catatan **738 byte akhir Flash tidak tercatat secara
+eksplisit**.
+
+Status **B6 masih NO-GO untuk flashing** karena:
+
+```text
+PROGRAMMER_POWER_SOP_NOT_VERIFIED
+SPECIFIC_UPLOAD_APPROVAL_MISSING
+```
+
+Persetujuan pengguna sebelumnya hanya untuk menghentikan
+receiver dan **backup read-only**, tidak untuk mengganti
+firmware ATmega. Jalur komunikasi bootloader `wiring`
+telah terbukti bisa membaca signature/memori, namun
+kelayakan listrik dan kemampuan restore image aplikasi
+lama melalui programmer yang sama belum diuji. Jangan
+menafsirkan laporan `pHome` sebagai izin flashing.

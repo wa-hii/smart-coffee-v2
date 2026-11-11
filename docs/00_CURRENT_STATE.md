@@ -1,5 +1,20 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 11 November 2026 — B6 pHome normal sesudah backup, izin flashing pending
+
+Operator mengonfirmasi bahwa **setelah backup COM5**
+Nextion tetap di `pHome`, pompa/dinamo tetap hidup
+sesuai IDLE, dan solenoid valve diam. Pemeriksaan
+pasif terbaru dengan backup Intel HEX yang telah
+diverifikasi menyisakan **dua blockers**:
+`PROGRAMMER_POWER_SOP_NOT_VERIFIED` dan
+`SPECIFIC_UPLOAD_APPROVAL_MISSING`. COM5 masih
+terdeteksi, receiver lama tetap berhenti, model/
+firmware kandidat dan backup tidak berubah.
+**Tidak ada flashing/pengujian AI fisik baru**.
+Lihat addendum laporan
+`docs/reports/2026-11-11_B6_COM5_FLASH_EEPROM_READBACK.md`.
+
 ## 11 November 2026 17:09–17:11 WIB — B6 backup Flash/EEPROM COM5 PASS (bersyarat)
 
 Dengan izin pengguna, receiver COM5 `lcd_acquisition_service.py`
