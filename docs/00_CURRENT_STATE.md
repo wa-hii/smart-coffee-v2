@@ -1,5 +1,19 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 11 November 2026 pukul 11:59–12:00 WIB — G2 FAILED, xHCI host died
+
+Operator mengizinkan G2 dan menyatakan alat IDLE serta berada di dekat
+PCB. Setelah precheck by-id FT232R `A10KNJBL`, satu pembacaan serial
+pasif 12 detik dicoba melalui Pi. **serial.open() gagal dengan
+`Errno 19: No such device` sebelum ada data UART dibaca**.
+Kernel 11:59:29 WIB mencatat `xHCI host controller not responding`,
+`HC died; cleaning up`, lalu FT232R disconnect. Pada 12:00:48
+SSH Pi masih berjalan dan throttled=0x0, tetapi `/dev/ttyUSB0`
+dan FT232R tidak tersedia lagi. Tidak ada TX serial, START,
+flashing, atau operasi aktuator yang diperintahkan program.
+**G2/G3 HARDWARE NO-GO**, tidak diulang atau di-reset remote.
+Laporan: `docs/reports/2026-11-11_G2_USB_XHCI_FAILURE_1200.md`.
+
 ## 11 November 2026 — G2 precheck NO-GO dan file final SVM pengguna
 
 Pengguna mengunggah enam file SVM (termasuk `final_svm.joblib`,

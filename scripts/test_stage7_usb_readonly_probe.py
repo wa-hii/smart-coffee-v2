@@ -9,7 +9,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from stage7_usb_readonly_probe import (
-    ACK, BoundedLines, ClassifiedFrames, EXPECTED_BY_ID,
+    ACK, BoundedLines, ClassifiedFrames, EXPECTED_BY_ID, CURRENT_BY_ID,
     MAX_LINE, capture, validate_gate,
 )
 
@@ -75,6 +75,9 @@ def main():
             )
         validate_gate(ACK, "I_CONFIRM_IDLE", "I_AM_ONSITE",
                       12, EXPECTED_BY_ID, path)
+        validate_gate(ACK, "I_CONFIRM_IDLE", "I_AM_ONSITE",
+                      12, CURRENT_BY_ID, path)
+        assert CURRENT_BY_ID != EXPECTED_BY_ID
         path.write_text("exists", encoding="utf8")
         must_fail(
             lambda: validate_gate(

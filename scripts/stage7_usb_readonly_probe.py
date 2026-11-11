@@ -20,6 +20,14 @@ EXPECTED_BY_ID = (
     "/dev/serial/by-id/"
     "usb-FTDI_FT232R_USB_UART_A10KMM3S-if00-port0"
 )
+# 2026-11-11: the onsite operator confirmed the currently attached Pi/PCB.
+# Permit this independently observed FT232R by-id path for G2 ONLY.
+# Do not accept /dev/ttyUSB0 directly or an arbitrary serial adaptor.
+CURRENT_BY_ID = (
+    "/dev/serial/by-id/"
+    "usb-FTDI_FT232R_USB_UART_A10KNJBL-if00-port0"
+)
+APPROVED_BY_ID = frozenset((EXPECTED_BY_ID, CURRENT_BY_ID))
 ACK = "I_APPROVE_CUSTOM_PCB_USB_RX_G2"
 MAX_LINE = 4096
 MAX_DURATION = 30
@@ -120,7 +128,7 @@ class ClassifiedFrames:
             })
 
     def result(self, *, duration: int, bytes_read: int,
-               overflow: int, opened: bool) -> dict:
+               overflow: int, opened: bool, port: str = EXPECTED_BY_ID) -> dict:
         sensor_frames = self.classes["valid_sensor_sample"]
         return {
             "status": ("VALID_SENSOR_DATA_SEEN" if sensor_frames else
@@ -129,7 +137,7 @@ class ClassifiedFrames:
                        "SERIAL_DATA_INCONCLUSIVE"),
             "transport": "FT232R_USB_SERIAL_PASSIVE_G2",
             "timestamp_utc": datetime.now(timezone.utc).isoformat(),
-            "port": EXPECTED_BY_ID,
+            "port": port,
             "baud": 115200,
             "duration_limit_s": duration,
             "hardware_serial_opened": opened,
@@ -156,7 +164,7 @@ def validate_gate(ack: str, idle: str, supervised: str, duration: int,
         raise ValueError("idle_state_not_confirmed")
     if supervised != "I_AM_ONSITE":
         raise ValueError("onsite_supervision_not_confirmed")
-    if port != EXPECTED_BY_ID:
+    if port not in APPROVED_BY_ID:
         raise ValueError("only_known_FT232R_board_allowed")
     if not 5 <= duration <= MAX_DURATION:
         raise ValueError("duration_outside_5_to_30_seconds")
@@ -196,7 +204,7 @@ def capture(port: str, duration: int) -> dict:
         tty.close()
     return metrics.result(
         duration=duration, bytes_read=received,
-        overflow=reader.discarded_long, opened=True,
+        overflow=reader.discarded_long, opened=True, port=port,
     )
 
 

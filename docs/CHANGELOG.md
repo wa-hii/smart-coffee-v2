@@ -1,5 +1,20 @@
 # Catatan perubahan proyek
 
+## 11 November 2026 — G2 USB gagal, FT232R disconnect/xHCI host died
+
+- G2 satu kali dengan izin operator onsite/IDLE, by-id FT232R
+  `A10KNJBL`, durasi batas 12 detik, 115200 baud, TX=0.
+- Port serial gagal di-open `Errno 19` sebelum menerima UART.
+  Kernel 11:59:29 WIB melaporkan `xHCI host controller not responding`
+  dan `HC died; cleaning up`; FT232R hilang dari `lsusb`
+  serta `/dev/ttyUSB0`. Pi tetap dapat diakses SSH.
+- Tidak ada perintah START/aktuator atau flashing, dan **tidak**
+  ada percobaan ulang pembukaan USB. Perlu pemeriksaan onsite
+  kabel, PSU, VBUS/backfeed, ground, port FT232R sebelum G2 baru.
+- Probe allowlist diperbarui untuk by-id serial FT232R `A10KNJBL`
+  tanpa melonggarkan aturan izin, supervision dan source UART.
+  Mock test PASS. Bukti: `docs/reports/2026-11-11_G2_USB_XHCI_FAILURE_1200.md`.
+
 ## 11 November 2026 — precheck G2 dan artefak final SVM 30 fitur
 
 - Pi 5 Tailscale SSH/USB sysfs precheck PASS; terdeteksi FT232
