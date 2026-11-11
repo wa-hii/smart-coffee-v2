@@ -81,6 +81,56 @@ perlu dikonfirmasi oleh operator (tidak diukur jarak jauh).
 
 ## Gate tindak lanjut
 
+## Addendum 12:28 WIB — LCD Nextion tertahan di layar startup
+
+Operator secara langsung mengonfirmasi bahwa **PCB ATmega2560 dan
+LCD Nextion masih menyala**, tetapi layar **tetap berada pada
+`Initializing Systems`**. Belum ada informasi bahwa pompa/valve
+bergerak. Kejadian muncul setelah G2 gagal membuka serial dan
+kernel xHCI melaporkan host controller dead.
+
+Diagnostik **read-only via SSH** pukul 12:28:53 WIB:
+Pi masih hidup, `get_throttled=0x0`, `lsusb` menampilkan root
+hub saja, FT232R belum enumerasi ulang, tidak ada
+`/dev/ttyUSB*` maupun `/dev/serial/by-id/`; log xHCI terakhir
+tetap menunjukkan kegagalan pukul 11:59:29. Tidak ada usaha
+serial open, reset, flash atau reboot tambahan.
+
+Inspeksi **source firmware repo, bukan bukti firmware yang terpasang**:
+
+- `src/main.cpp:setup()` menjalankan
+  `Serial.begin(115200)`, `nextion.begin(9600)`,
+  `actuator.begin()`, `scanI2C()`, `sensors.begin()`,
+  `sensors.loadCalibration()`, lalu baru mengaktifkan scheduler.
+- `serialCallback()` memanggil `nextion.poll()`, kemudian
+  memanggil `showNextionPage("pHome")` apabila
+  `!nextionHomeSent && millis()-nextionBootMs >= 3000`.
+- Jadi layar tetap di `pSplash` lebih lama dari beberapa detik
+  **tidak sesuai alur source terakhir**, bisa disebabkan setup
+  tertahan sebelum scheduler, MCU/Nextion reset, komunikasi
+  USART2 `9600` gagal, file HMI dan firmware aktual berbeda,
+  atau persoalan daya. Tidak ada bukti yang cukup untuk
+  menentukan salah satu secara pasti.
+- `scanI2C()` menggunakan `Wire.endTransmission()` pada
+  126 alamat sebelum scheduler; I²C yang terkunci merupakan
+  hipotesis yang harus diperiksa nanti, bukan diagnosis pasti.
+- HMI Nextion menyala tidak menjamin MCU berfungsi atau
+  perintah UART2 berhasil diterima.
+
+**Safety action:** STOP G2/G3, jangan kirim `#start`,
+flash, reset/reboot berulang, memaksa re-enumeration USB
+atau melepas kabel saat perangkat aktif. Operator periksa
+apakah pompa/valve tetap OFF, ada LED abnormal/panas,
+apakah supply PCB/Nextion stabil, dan kondisi USB
+secara visual. Setelah aman menurut SOP, isolasi daya
+dan tinjau kabel/port, rail VBUS/GND, PSU terpisah
+dan gangguan beban pompa/valve sebelum percobaan G2 baru.
+
+**Belum dilakukan:** pemeriksaan tegangan multimeter,
+identifikasi versi firmware di flash, penyadapan
+UART2/logic analyzer, pemeriksaan koneksi I²C fisik,
+pengujian Nextion TFT, atau perbaikan firmware.
+
 1. **STOP G2/G3** dan jangan ulang serial open/reboot/USB
    unbind/reset lewat remote untuk sementara.
 2. Operator di lokasi memeriksa apakah LED PCB/Nextion tetap

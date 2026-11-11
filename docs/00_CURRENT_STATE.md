@@ -1,5 +1,20 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 11 November 2026 12:28 WIB — Nextion stuck in Initializing Systems
+
+Operator melaporkan PCB dan LCD masih menyala setelah G2 gagal,
+tetapi Nextion tertahan pada splash `Initializing Systems`.
+Source `src/main.cpp` terakhir semestinya mengirim `page pHome`
+melalui Serial2 9600 baud setelah sekitar 3 detik di
+`serialCallback()`; scheduler baru aktif **sesudah** setup
+sensor dan scan I²C selesai. Ini hipotesis masalah startup
+MCU / UART Nextion / I²C / supply, **bukan bukti diagnosis
+spesifik**, karena firmware fisik belum dapat diidentifikasi.
+Pi read-only check 12:28 menunjukkan FT232R tetap hilang dan
+`/dev/ttyUSB0` belum pulih. Hardware G2/G3 tetap NO-GO,
+tidak ada percobaan reset/serial ulang. Lihat addendum
+`docs/reports/2026-11-11_G2_USB_XHCI_FAILURE_1200.md`.
+
 ## 11 November 2026 pukul 11:59–12:00 WIB — G2 FAILED, xHCI host died
 
 Operator mengizinkan G2 dan menyatakan alat IDLE serta berada di dekat
