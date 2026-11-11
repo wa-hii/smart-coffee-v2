@@ -7,6 +7,7 @@ Status: **inferensi fisik menghasilkan kelas di Nextion, tetapi akurasi sampel p
 
 - Setelah firmware SVM30 berhasil dipasang, pengguna melaporkan kondisi pHome, pompa dan valve normal pada IDLE.
 - Pengguna membuka pTestRun dan menyelesaikan proses AI Test; hasil akhir yang muncul adalah **DARK**, sedangkan sampel sebenarnya **LIGHT**.
+- **Identitas asal sampel telah dikonfirmasi pengguna: L-TOR (Light Toraja).**
 - Asal kopi, jumlah dan temperatur sampel, usia pemanasan sensor, kurva ADC selama proses, 30 fitur hasil MCU, serta skor SVM fisik tidak tersedia. Firmware standalone memang tidak menyimpan 900 pembacaan ke CSV maupun telemetri fitur.
 - Kelas yang muncul membuktikan fungsi inferensi lokal dapat menghasilkan output Nextion, **tidak membuktikan** ketepatan model maupun karakteristik ADC saat uji.
 
@@ -36,6 +37,43 @@ Kasus replay L-CAT_B80 memiliki beberapa fitur MQ8 dengan z-score sekitar -2,3 s
 Jangan membalik label DARK menjadi LIGHT: dari 72 prediksi DARK replay, 52 di antaranya memang DARK dan 18 lainnya MEDIUM. Memodifikasi label hasil hanya menyembunyikan masalah.
 
 Output analisis: private/svm30_b6_light_dark_replay_diagnosis.json (gitignored).
+
+## Addendum — Perbandingan khusus origin TOR (L-TOR)
+
+Pengguna mengklarifikasi bahwa sampel fisik yang menampilkan
+DARK adalah **L-TOR**. Pada 199 rekaman golden replay,
+terdapat **34 rekaman origin TOR**, dengan distribusi:
+
+| Label TOR sebenarnya | Prediksi DARK | Prediksi LIGHT | Prediksi MEDIUM | Total |
+|---|---:|---:|---:|---:|
+| DARK | 8 | 0 | 2 | 10 |
+| LIGHT | **0** | **13** | **1** | **14** |
+| MEDIUM | 1 | 0 | 9 | 10 |
+| **Total** | **9** | **13** | **12** | **34** |
+
+Jadi **13/14 (92,9%) rekaman L-TOR replay sesuai label
+LIGHT**, dan satu-satunya yang tidak sesuai
+adalah **L-TOR_B70.csv → MEDIUM**; **tidak ada
+L-TOR → DARK** pada corpus replay ini. Empat kesalahan
+TOR total terdiri atas dua DARK→MEDIUM, satu
+MEDIUM→DARK, dan satu LIGHT→MEDIUM.
+
+Ini adalah **pencocokan label pada replay yang tersedia**,
+yang bisa mencakup sampel training dan bukan
+validasi independen. Ukuran sampel L-TOR hanya
+14 dan belum tersedia nilai ADC dari run fisik;
+ketiadaan error LIGHT→DARK dalam 14 replay
+**tidak membuktikan** bahwa model mustahil
+mengeluarkan DARK untuk kopi Toraja baru.
+
+**Implikasi:** Salah klasifikasi L-TOR fisik lebih jauh
+dari pola contoh L-TOR yang telah diuji. Prioritaskan
+perbandingan nilai ADC/final 30 fitur pada run fisik
+terhadap distribusi L-TOR replay, termasuk respons
+TGS822, TGS2602, TGS816, MQ8, identitas perangkat,
+conditioning udara/sensor, serta waktu fase valve.
+Belum ada dasar untuk menukar label, mengganti
+parameter SVM, atau menyalahkan hardware tertentu.
 
 ## Pemeriksaan aman berikutnya
 

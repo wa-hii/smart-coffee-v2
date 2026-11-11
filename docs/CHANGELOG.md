@@ -15,6 +15,10 @@
   model atau melakukan reflash.
 - Laporan:
   docs/reports/2026-11-11_B6_LIGHT_TO_DARK_CLASSIFICATION_INCIDENT.md.
+- Klarifikasi origin operator: **L-TOR**. Pemeriksaan
+  34 replay TOR mendapati **13/14 L-TOR sesuai LIGHT,
+  1/14 MEDIUM, 0/14 DARK**. Kasus fisik L-TOR→DARK
+  memerlukan diagnostik sensor/fitur, bukan remap kelas.
 
 ## 11 November 2026 — B6 COM5 upload SVM30 standalone sukses terverifikasi
 

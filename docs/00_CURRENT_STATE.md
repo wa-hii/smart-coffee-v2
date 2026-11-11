@@ -4,7 +4,7 @@
 
 Operator mengonfirmasi AI Test pada LCD Nextion
 telah selesai dan menampilkan DARK untuk kopi
-yang sebenarnya LIGHT. Ini membuktikan hasil
+yang sebenarnya **L-TOR (Light Toraja)**. Ini membuktikan hasil
 klasifikasi MCU tampil di LCD tetapi **prediksi
 fisik pertama salah**.
 
@@ -17,6 +17,13 @@ run fisik, akar masalah belum terbukti.
 Tidak ada perubahan firmware/COM5/EEPROM/TFT.
 Laporan:
 docs/reports/2026-11-11_B6_LIGHT_TO_DARK_CLASSIFICATION_INCIDENT.md.
+
+Replay **khusus TOR** memiliki 34 sesi: dari
+14 sesi L-TOR, **13 terprediksi LIGHT, 1 MEDIUM,
+0 DARK**. Dengan demikian kasus fisik L-TOR→DARK
+tidak muncul dalam replay TOR yang tersedia.
+Penyebabnya tetap belum dapat ditentukan tanpa
+fitur/ADC fisik yang tersimpan.
 
 ## 11 November 2026 — B6 standalone AI Test siap, menunggu START dari Nextion fisik
 
