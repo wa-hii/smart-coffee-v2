@@ -1,5 +1,39 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 12 November 2026 — SVM30 dibekukan pada branch baru; RF500 Pi disiapkan
+
+Branch `backup/atmega-svm30-standalone-20261112`
+berhasil dibuat dan dipush pada commit
+`7db96db006f780a9e78dcbea3830b21a170ae6cd`.
+Branch `wahyu` tetap aktif dengan perubahan
+lokal pengguna aman. Artefak model dan image
+privat tetap diabaikan Git.
+
+SSH Pi 5 `enose-v3@enose-pi5` berhasil;
+RF500 `final_model.joblib` SHA256
+`b2b6e8d8ff03e92c695c1b0b55a8c06ea9d4178249c9ce012203e602ff1bcf5d`
+valid di staging, dan replay 900 sampel
+→ prediksi RF → paket protokol/ACK mock
+lulus **di Pi**. Pyserial 3.5 terpasang
+pada venv staging saja. FT232R Pi
+`A10KNJBL` sempat tidak terdeteksi,
+kemudian muncul kembali pada
+`/dev/ttyUSB0`; port belum dibuka dan
+stabilitas saat serial-open belum diuji.
+
+Kandidat pasangan MCU `rf30_return_bench`
+berhasil kompilasi (35.748 byte Flash,
+3.917 byte SRAM global), SHA256 HEX
+`13b764d4f8b4aad3c09413bdc7a18094c1e90bf18be83dec5b6b2cb103e92440`.
+Disimpan privat di
+`private/rf30_pi_restore_image/20261112/`.
+**ATmega masih menjalankan SVM30 standalone
+yang terakhir di-flash pada B6**, belum
+diubah/di-reset/diakses serial selama pekerjaan
+ini. Pi RF belum menghasilkan pResult fisik.
+Rincian:
+`docs/reports/2026-11-12_RESTORE_PI5_RF500_STAGING.md`.
+
 ## 11 November 2026 — Uji L-TOR kedua benar LIGHT, origin dan confidence tetap N/A
 
 Operator melaporkan hasil uji fisik kedua untuk kopi

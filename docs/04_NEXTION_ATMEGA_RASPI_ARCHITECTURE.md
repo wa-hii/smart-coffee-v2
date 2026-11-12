@@ -1,5 +1,21 @@
 # Rancangan Integrasi Nextion–ATmega2560–Raspberry Pi 5
 
+**Update 12 November 2026 — kembali ke arsitektur RF500 Pi:**
+Skema ATmega standalone SVM30 dibekukan pada branch
+`backup/atmega-svm30-standalone-20261112`.
+RF500 asli (500 pohon, 3 fitur ADC absolut) telah
+berhasil dijalankan **secara offline di Pi 5**,
+parser 900 ADC + RF result packet + ACK mock PASS.
+FT232 Pi `A10KNJBL` kembali terdeteksi
+di `/dev/ttyUSB0` dan pyserial 3.5 staged.
+Build pasangan RF Pi `rf30_return_bench` dengan
+`ENABLE_PI_RF30_RETURN=1` lulus compile-only.
+**Firmware fisik ATmega masih standalone SVM30**;
+hingga ada flash RF yang terverifikasi dan
+pengujian live 30 siklus, jangan mengklaim
+Pi→ATmega→Nextion telah berjalan.
+Lihat `docs/reports/2026-11-12_RESTORE_PI5_RF500_STAGING.md`.
+
 **Update 11 November 2026 — adapter SVM30:**
 Pipeline AI Test sekarang memiliki kandidat SVM RBF sembilan fitur
 `median_phase_response`, `mean_phase_response`,

@@ -1,5 +1,32 @@
 # Catatan perubahan proyek
 
+## 12 November 2026 — Cabang cadangan standalone dan staging RF500 Pi
+
+- Menyimpan skema ATmega standalone SVM30 pada
+  branch baru `backup/atmega-svm30-standalone-20261112`
+  tanpa mengubah working tree pengguna.
+- Verifikasi Pi SSH melalui host key tersimpan,
+  model RF500 (hash pinned) serta replay
+  900-sampel + ACK simulasi **PASS**.
+  Memasang pyserial 3.5 hanya di venv Pi;
+  staging skrip readiness dengan checksum terverifikasi.
+- FT232R Pi sempat tidak terdeteksi lalu muncul
+  sebagai `/dev/ttyUSB0`; **tidak dibuka**,
+  belum ada pembuktian serial live.
+- Mengemas firmware kandidat RF30 Pi Return,
+  35.748 byte Flash, 3.917 byte SRAM global,
+  serta image rollback SVM30 tetap privat.
+  Tidak mengubah firmware fisik, EEPROM, Nextion,
+  layanan produksi, atau port USB aktif.
+- Menambahkan readiness fail-closed
+  `pi_rf30_pi5_readiness.py` dan test,
+  pemeriksaan image RF bootloader-safe dan test.
+- **RF500 Pi belum dipasang ke MCU**:
+  butuh SOP jalur programmer, upload satu kali,
+  uji G2/G3 dan hasil pResult nyata.
+  Laporan:
+  `docs/reports/2026-11-12_RESTORE_PI5_RF500_STAGING.md`.
+
 ## 11 November 2026 — Uji kedua L-TOR benar, origin/probability belum diimplementasikan
 
 - Pengujian fisik kedua untuk sampel L-TOR yang
