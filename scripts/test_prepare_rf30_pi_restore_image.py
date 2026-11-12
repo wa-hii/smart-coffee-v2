@@ -26,8 +26,12 @@ def main() -> None:
     source = Path(__file__).resolve().parents[1] / (
         ".pio/build/rf30_return_bench/firmware.hex")
     result = validate_pi_rf30_ihex(source)
-    assert result["flash_payload_bytes"] == 35748
-    assert result["highest_address"] == 35747
+    # The exact flash size legitimately changes when a bounded I2C boot
+    # guard is added. Test the application-range invariant, not a stale
+    # firmware build size.
+    assert 30000 <= result["flash_payload_bytes"] < 253952
+    assert result["highest_address"] == result["flash_payload_bytes"] - 1
+    assert result["application_limit_bytes"] == 253952
     with TemporaryDirectory() as directory:
         file = Path(directory) / "bad.hex"
         original = source.read_text(encoding="ascii")

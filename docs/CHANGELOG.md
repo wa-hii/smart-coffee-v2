@@ -1,5 +1,21 @@
 # Catatan perubahan proyek
 
+## 12 November 2026 — G2 PCB kedua dan kandidat RF30 startup guard
+
+- Membaca FT232R PCB kedua selama 8 detik dengan izin
+  operator: port berhasil dibuka, **0 byte RX**, tanpa
+  gangguan kernel USB baru; tidak ada perintah TX.
+- Memperkuat startup profil RF30 host: timeout Wire
+  25ms dan tanpa scan I²C penuh sebelum scheduler HMI.
+  Build default dan SVM30 tetap tak berubah perilakunya.
+- RF30 build 35.770 B Flash / 3.917 B SRAM global dan
+  regresi offline lulus. Bundle privat khusus PCB kedua
+  disalin ke Pi dengan hash identik, **tidak di-flash**.
+- Firmware/EEPROM PCB kedua belum di-backup; rollback
+  COM5/PCB lama tidak berlaku. Live RF500 masih blocked.
+- Laporan:
+  `docs/reports/2026-11-12_SECOND_PCB_G2_RX_ZERO_BOOTGUARD_RF30_STAGED.md`.
+
 ## 12 November 2026 — Koreksi identitas PCB dan diagnosis pasif startup Nextion
 
 - Operator memastikan FT232R Pi terhubung ke PCB ATmega2560

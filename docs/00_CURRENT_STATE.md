@@ -1,5 +1,30 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 12 November 2026 — PCB kedua berhasil serial-open tetapi 0 byte; RF30 bootguard staged
+
+Dengan persetujuan operator, G2 passive probe FT232R Pi
+`A10KNJBL` dibuka **sekali selama 8 detik** (115200 baud)
+dan ditutup kembali; `SERIAL_DATA_INCONCLUSIVE`, **0 byte RX,
+0 perintah dikirim**, tanpa disconnect atau xHCI dead baru
+di journal kernel. Ini belum mengidentifikasi firmware PCB
+kedua maupun penyebab Nextion tetap `Initializing Systems`.
+
+Kandidat RF30 khusus PCB kedua diperkuat timeout I²C 25ms
+dan melewati scan seluruh alamat I²C saat boot, tanpa
+mengubah default, SVM30, HMI atau kontrak inferensi.
+Firmware RF30 kompilasi PASS (**35.770 B Flash**, **3.917 B
+SRAM global**), pengujian regresi offline PASS. Image
+privat SHA256 `26833b3cda23d65bae6b33b796331efa0f803071aa283e592ab6fffabeafebb6`
+disalin ke Pi staging dan checksum cocok.
+
+**ATmega PCB kedua belum di-flash**, firmware aslinya
+belum diketahui, backup Flash+EEPROM belum ada dan
+jalur bootloader belum diverifikasi. Backup SVM30 milik
+PCB lama **bukan rollback PCB kedua**. Uji RF500 E2E
+tetap BLOCKED sampai verifikasi onsite, backup khusus
+alat ini, dan izin upload spesifik. Laporan:
+`docs/reports/2026-11-12_SECOND_PCB_G2_RX_ZERO_BOOTGUARD_RF30_STAGED.md`.
+
 ## 12 November 2026 — Koreksi PCB target: alat kedua, Nextion masih initializing
 
 Operator mengonfirmasi FT232R `A10KNJBL` terhubung dari Pi via

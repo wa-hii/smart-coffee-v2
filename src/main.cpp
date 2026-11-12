@@ -288,8 +288,12 @@ void setup() {
 
   actuator.begin();
 
-  // Avoid a blocking full-bus I2C scan in the no-Pi backup image.
-#if SMART_COFFEE_STANDALONE_SVM30
+  // The RF30 Pi-return build also needs a bounded boot before the Nextion
+  // scheduler can advance pSplash -> pHome. Do not scan all 126 I2C
+  // addresses on startup of these supervised profiles: a faulty I2C
+  // device/wire can otherwise leave the HMI indefinitely initializing.
+  // Keep the legacy default startup behavior unchanged.
+#if SMART_COFFEE_STANDALONE_SVM30 || ENABLE_PI_RF30_RETURN
   Wire.begin();
   Wire.setWireTimeout(25000UL, true);
 #else
