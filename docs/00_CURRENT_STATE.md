@@ -1,5 +1,26 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 12 November 2026 — Pi 5 kembali online dan RF500 replay PASS setelah boot ulang
+
+Pi berhasil diakses kembali via Tailscale/SSH setelah gangguan
+sekitar 15:42 WIB. Boot baru teridentifikasi pada 15:45 WIB
+berdasarkan uptime; kernel monotonic merekam USB FT232R
+`A10KNJBL` terpasang sekitar 3,96 detik setelah boot.
+Tujuh pemeriksaan pasif selama sekitar 90 detik konsisten:
+`/dev/ttyUSB0` tersedia, `throttled=0x0`, tidak ditemukan
+USB disconnect pada log boot saat dicek. Penyebab reboot
+sebelumnya belum teridentifikasi; stabilitas serial-open dan
+900-sampel belum diuji.
+
+Readiness RF500 di Pi tidak memiliki blocker host; hash model
+valid dan replay 900 data dengan model asli serta ACK simulasi
+PASS. Windows saat pemeriksaan tidak memiliki port COM,
+sedangkan FTDI Pi berbeda dari COM5 yang sebelumnya dipakai
+flashing. **Firmware RF30 belum di-flash ke ATmega.**
+Menunggu verifikasi fisik, jalur programmer, SOP dan izin
+spesifik upload. Laporan:
+`docs/reports/2026-11-12_PI5_POST_REBOOT_RF500_READINESS.md`.
+
 **Peringatan 12 November 2026 ±15:42 WIB:** Pi `enose-pi5`
 tidak lagi terjangkau melalui SSH/Tailscale (timeout,
 ping tanpa balasan, Tailscale offline). Pemeriksaan FT232R

@@ -1,5 +1,18 @@
 # Catatan perubahan proyek
 
+## 12 November 2026 — Pi 5 pulih setelah reboot; readiness RF500 diuji ulang
+
+- SSH/Tailscale pulih; boot baru ditemukan setelah Pi sempat offline.
+- Tujuh sampel observasi pasif dalam sekitar 90 detik
+  menunjukkan FT232R `A10KNJBL` dan daya Pi terdeteksi
+  konsisten tanpa flag undervoltage. Penyebab restart belum diketahui.
+- Host RF500 readiness dan replay 900 sampel menggunakan model asli
+  PASS; ACK masih simulasi, serial tidak dibuka.
+- **Flash RF30 ditahan**: jalur FTDI Pi berbeda dari Windows COM5,
+  Windows tanpa COM, programmer Pi belum tersedia dan izin
+  flashing spesifik belum diperoleh.
+- Laporan: `docs/reports/2026-11-12_PI5_POST_REBOOT_RF500_READINESS.md`.
+
 ## 12 November 2026 — Koreksi status koneksi Pi setelah pemeriksaan FT232R
 
 - Pukul ±15:42 WIB, Pi tidak lagi dapat dijangkau via SSH,
