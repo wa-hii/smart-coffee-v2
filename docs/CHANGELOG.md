@@ -1,5 +1,18 @@
 # Catatan perubahan proyek
 
+## 12 November 2026 — Uji pasif FT232R sebelum RF500 Pi Return
+
+- Lima sampel pemeriksaan Pi selama sekitar 61 detik:
+  FT232R `A10KNJBL` tetap `/dev/ttyUSB0`, daya
+  `throttled=0x0`. Log boot tanpa `disconnect` hingga
+  15:38:45 WIB; tidak ada serial-open maupun aksi fisik.
+- Build kandidat RF30 return dan delapan QA offline PASS;
+  checksum HEX RF30 dan rollback SVM30 cocok dengan manifest.
+- Flash RF30 tetap **NO-GO** sampai identitas adaptor/MCU,
+  SOP daya/rollback dan izin spesifik dikonfirmasi. Uji USB
+  saat data live belum dilakukan.
+- Laporan: `docs/reports/2026-11-12_RF30_PI_FT232R_PASSIVE_STABILITY_CHECK.md`.
+
 ## 12 November 2026 — Cabang cadangan standalone dan staging RF500 Pi
 
 - Menyimpan skema ATmega standalone SVM30 pada

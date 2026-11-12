@@ -1,5 +1,23 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 12 November 2026 — FT232R Pi pasif stabil, firmware RF30 belum di-flash
+
+SSH Pi terhubung; FT232R Pi `A10KNJBL` terpasang sebagai
+`/dev/ttyUSB0` sejak 15:22:01 WIB. Lima pemeriksaan pasif
+selama sekitar 61 detik mempertahankan by-id yang sama dengan
+`get_throttled=0x0`; log boot hingga 15:38:45 WIB tidak
+menunjukkan USB disconnect. **Ini bukan bukti kestabilan
+serial-open atau akuisisi 900 sampel.** Tidak ada port yang dibuka.
+
+Build RF30 return dan delapan QA offline PASS, checksum image
+RF30/rollback SVM30 cocok. Firmware **SVM30 standalone tetap
+terpasang sebagaimana terakhir diverifikasi**; status fisik
+terkini belum dibaca. Perlu konfirmasi bahwa FTDI Pi
+`A10KNJBL` dan FTDI Windows COM5 `A10KMM3SA` menuju MCU
+yang dimaksud, SOP daya/rollback dan izin flashing eksplisit
+sebelum pindah ke Pi RF500. Laporan:
+`docs/reports/2026-11-12_RF30_PI_FT232R_PASSIVE_STABILITY_CHECK.md`.
+
 ## 12 November 2026 — SVM30 dibekukan pada branch baru; RF500 Pi disiapkan
 
 Branch `backup/atmega-svm30-standalone-20261112`
