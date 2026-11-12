@@ -1,5 +1,24 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 12 November 2026 — PCB kedua: AVRDUDE bootloader timeout, belum boleh flash
+
+SSH/Tailscale ke Pi 5 aktif dan FT232R `A10KNJBL` terdeteksi.
+`avrdude` 7.1 arm64 disiapkan di staging Pi dengan dependensi
+terisolasi tanpa sudo atau instalasi sistem. Satu percobaan
+read-only `-p m2560 -c wiring -b 115200 -n -v` via
+FT232R berakhir dengan `stk500v2_recv() timeout`, dihentikan
+setelah 20 detik (exit 124). **Tidak ada signature MCU
+atau backup Flash/EEPROM PCB kedua.** Tidak ada upload.
+
+Pi tetap terhubung pascapercobaan, tidak ada error xHCI atau
+disconnect baru yang teramati; ada disconnect/reconnect
+FT232R pada 17:01 sebelum uji. RF500 dan firmware kandidat
+RF30 bootguard tetap terverifikasi di staging Pi, namun
+`HOST_STAGED_NOT_MCU_VERIFIED` dan live masih dinonaktifkan.
+**NO-GO** untuk flashing sampai jalur reset/bootloader/ISP
+terverifikasi dan backup spesifik PCB kedua tersedia. Rincian:
+`docs/reports/2026-11-12_SECOND_PCB_AVRDUDE_SIGNATURE_TIMEOUT_NO_FLASH.md`.
+
 ## 12 November 2026 — PCB kedua berhasil serial-open tetapi 0 byte; RF30 bootguard staged
 
 Dengan persetujuan operator, G2 passive probe FT232R Pi

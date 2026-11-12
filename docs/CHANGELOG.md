@@ -1,5 +1,20 @@
 # Catatan perubahan proyek
 
+## 12 November 2026 — Programer Pi siap; signature PCB kedua belum terbaca
+
+- `avrdude` 7.1 dan pustaka arm64 disiapkan secara
+  terisolasi di staging Pi tanpa sudo/instalasi sistem.
+- Satu percobaan `wiring` 115200 read-only dibatasi
+  20 detik: `stk500v2_recv() timeout`, exit 124;
+  MCU tidak memberi signature; tidak ada backup atau flash.
+- Pi/FT232R tetap terhubung sesudah uji, tanpa indikasi
+  error xHCI baru. Firmware RF30 dan model RF500
+  tetap staged dengan checksum cocok.
+- **NO-GO** upload; perlu konfirmasi DTR/reset,
+  wiring Serial0, bootloader/ISP serta backup Flash/EEPROM
+  spesifik PCB kedua. Laporan:
+  `docs/reports/2026-11-12_SECOND_PCB_AVRDUDE_SIGNATURE_TIMEOUT_NO_FLASH.md`.
+
 ## 12 November 2026 — G2 PCB kedua dan kandidat RF30 startup guard
 
 - Membaca FT232R PCB kedua selama 8 detik dengan izin
