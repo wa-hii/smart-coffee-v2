@@ -1,5 +1,21 @@
 # Rancangan Integrasi Nextion–ATmega2560–Raspberry Pi 5
 
+**Kondisi aktual PCB kedua, 12 November 2026 sore:** operator
+menegaskan FT232R Pi serial `A10KNJBL` sekarang terpasang
+ke **PCB ATmega2560 lain** dari PCB yang pernah menjalankan
+SVM30 pada COM5. Firmware fisik PCB kedua **belum
+diidentifikasi**; LCD dilaporkan tertahan di `Initializing
+Systems`. Pembacaan UART 8 detik mendapatkan 0 byte,
+sedangkan upaya identifikasi bootloader `wiring`/115200
+melalui Pi berakhir `stk500v2_recv() timeout`. Karena
+belum ada signature programmer dan backup Flash/EEPROM
+**PCB kedua** yang terverifikasi, firmware RF30 baru
+tersedia sebagai **kandidat terkompilasi di staging Pi**,
+bukan firmware yang sudah terpasang. Bridge inferensi
+live belum dinyalakan. Pemeriksaan otomatis non-invasif:
+`scripts/pi_rf30_second_pcb_release_gate.py`.
+Laporan: `docs/reports/2026-11-12_SECOND_PCB_RELEASE_GATE_FINAL.md`.
+
 **Update 12 November 2026 — kembali ke arsitektur RF500 Pi:**
 Skema ATmega standalone SVM30 dibekukan pada branch
 `backup/atmega-svm30-standalone-20261112`.
@@ -10,7 +26,9 @@ FT232 Pi `A10KNJBL` kembali terdeteksi
 di `/dev/ttyUSB0` dan pyserial 3.5 staged.
 Build pasangan RF Pi `rf30_return_bench` dengan
 `ENABLE_PI_RF30_RETURN=1` lulus compile-only.
-**Firmware fisik ATmega masih standalone SVM30**;
+**Pada PCB lama yang diprogram COM5, firmware fisik
+terakhir terverifikasi adalah standalone SVM30. Status
+firmware PCB kedua yang kini digunakan tidak diketahui.**
 hingga ada flash RF yang terverifikasi dan
 pengujian live 30 siklus, jangan mengklaim
 Pi→ATmega→Nextion telah berjalan.

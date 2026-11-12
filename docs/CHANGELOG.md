@@ -1,5 +1,20 @@
 # Catatan perubahan proyek
 
+## 12 November 2026 — Release gate PCB kedua diuji langsung di Pi
+
+- Menambahkan skrip status release RF30 fail-closed
+  dengan verifikasi checksum model, firmware, FT232R,
+  tool programmer, power dan bukti backup asli PCB kedua.
+- QA mock PASS; skrip terpasang pada Pi, output live
+  `NO_GO_PHYSICAL_DEPLOYMENT` karena backup dan
+  signature MCU kedua belum terverifikasi.
+- Memperbaiki dokumen arsitektur agar tidak
+  menyebut firmware SVM30 milik PCB lama sebagai
+  firmware yang terpasang di PCB kedua.
+- Firmware dan EEPROM tidak disentuh; bridge AI
+  tetap belum diaktifkan. Laporan:
+  `docs/reports/2026-11-12_SECOND_PCB_RELEASE_GATE_FINAL.md`.
+
 ## 12 November 2026 — Permintaan deployment RF30 PCB kedua, signature masih timeout
 
 - SSH Pi, FT232R, checksum kandidat RF30 dan model RF500

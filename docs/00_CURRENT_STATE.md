@@ -1,5 +1,18 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 12 November 2026 sore — Preflight deployment PCB kedua fail-closed
+
+USB FT232R Pi `A10KNJBL` tetap aktif dan model RF500
+serta firmware RF30 kandidat valid. Skrip baru
+`scripts/pi_rf30_second_pcb_release_gate.py` dibuat,
+lulus tes offline, disalin dan dieksekusi pada Pi secara
+read-only. Status **`NO_GO_PHYSICAL_DEPLOYMENT`**:
+backup Flash/EEPROM asli PCB kedua belum dapat diverifikasi,
+dan programmer belum membaca signature MCU pada sesi ini.
+Tidak ada upload/EEPROM write/bridge live. Firmware
+terpasang di PCB kedua tetap tidak diketahui.
+Detail: `docs/reports/2026-11-12_SECOND_PCB_RELEASE_GATE_FINAL.md`.
+
 ## 12 November 2026 pukul 17:15 — Upload RF30 PCB kedua tidak dapat diteruskan
 
 Operator mengizinkan upload ke PCB kedua dan menyatakan prasyarat
