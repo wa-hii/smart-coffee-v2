@@ -1,5 +1,13 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+**Peringatan 12 November 2026 ±15:42 WIB:** Pi `enose-pi5`
+tidak lagi terjangkau melalui SSH/Tailscale (timeout,
+ping tanpa balasan, Tailscale offline). Pemeriksaan FT232R
+pasif 15:22–15:38 tetap tercatat, **tetapi status USB
+terbaru tidak diketahui**. Pemeriksaan tahap 1 menjadi
+**PARTIAL/BLOCKED** untuk kesiapan live dan firmware RF30
+**TIDAK di-flash**. Lihat addendum laporan FT232R di bawah.
+
 ## 12 November 2026 — FT232R Pi pasif stabil, firmware RF30 belum di-flash
 
 SSH Pi terhubung; FT232R Pi `A10KNJBL` terpasang sebagai

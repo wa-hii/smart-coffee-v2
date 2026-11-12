@@ -35,3 +35,11 @@ Readiness Pi sebelumnya mengembalikan `HOST_STAGED_NOT_MCU_VERIFIED` dengan hash
 3. Perlu persetujuan spesifik untuk satu kali flashing image RF30 ke ATmega dan operator di dekat alat. Setelah flash, buktikan `FW_HELLO`/`fw_build_id`, ACK protokol, kestabilan USB selama akuisisi dan hasil `pResult` dalam uji terawasi.
 
 **Keputusan:** poin 1 selesai untuk batas pemeriksaan pasif. **Poin 2: PREPARED / NO-GO untuk flashing tanpa persetujuan dan verifikasi identitas board.** Bridge live dan uji L-TOR belum dijalankan. Working tree pengguna, dataset mentah, HMI, layanan dan perangkat fisik dibiarkan apa adanya.
+
+## Addendum pukul 15:42 WIB — Pi menjadi tidak terjangkau
+
+Setelah laporan awal dibuat, pemeriksaan penutup melalui SSH kembali menghasilkan **`Connection timed out`**. `ping -n 2 enose-pi5` kehilangan 2/2 paket; `tailscale status` pada Windows melaporkan `enose-pi5` **offline (last seen sekitar 1 menit)** dan `tailscale ping --c 2 enose-pi5` berakhir `no reply`. Pada pengecekan sekitar **15:42:24 WIB** SSH tetap gagal.
+
+Ini membatalkan anggapan bahwa Pi dapat diandalkan untuk pengujian live saat ini. **Pemeriksaan pasif FT232R sebelum timeout tetap valid pada jendela pengamatan itu**, tetapi status Pi/USB terbaru setelah putus jaringan **tidak diketahui**. Tidak ada bukti apakah penyebabnya Wi-Fi/Tailscale, reboot, power, USB, atau faktor lain; tidak boleh mengklaim FT232R sebagai penyebab.
+
+**Keputusan akhir yang diperbarui:** poin 1 **PARTIAL/BLOCKED** untuk kesiapan end-to-end karena host tidak terjangkau; poin 2 flashing **NO-GO**. Tidak dilakukan tindakan reset, serial open, flashing atau akses aktuator. Setelah Pi terhubung kembali, ulangi pemeriksaan uptime, daya, sysfs dan log kernel (apakah boot baru atau USB disconnect) sebelum evaluasi ulang.

@@ -1,5 +1,17 @@
 # Catatan perubahan proyek
 
+## 12 November 2026 — Koreksi status koneksi Pi setelah pemeriksaan FT232R
+
+- Pukul ±15:42 WIB, Pi tidak lagi dapat dijangkau via SSH,
+  ping maupun Tailscale. Tidak ada pembacaan serial atau
+  log kernel setelah putus jaringan, sehingga penyebab
+  belum diketahui.
+- Status kesiapan poin 1 diperbarui **PARTIAL/BLOCKED**:
+  USB stabil hanya selama observasi pasif sebelumnya;
+  koneksi Pi live tidak stabil/tersedia saat pemeriksaan akhir.
+  Poin 2 tetap **NO-GO** untuk flash.
+- Catatan kronologis ditambahkan pada laporan FT232R.
+
 ## 12 November 2026 — Uji pasif FT232R sebelum RF500 Pi Return
 
 - Lima sampel pemeriksaan Pi selama sekitar 61 detik:
