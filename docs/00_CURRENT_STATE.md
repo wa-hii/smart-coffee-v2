@@ -1,5 +1,22 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 12 November 2026 pukul 17:15 — Upload RF30 PCB kedua tidak dapat diteruskan
+
+Operator mengizinkan upload ke PCB kedua dan menyatakan prasyarat
+fisik telah dipenuhi. Pemeriksaan SSH/FT232R dan SHA256 model
+RF500/firmware RF30 di Pi PASS, tetapi **satu pemeriksaan ulang
+signature** `avrdude -p m2560 -c wiring -b 115200 -n`
+tetap gagal dengan `stk500v2_recv() timeout` (batas 15 detik,
+exit 124). Bootloader tidak memberikan signature, maka **tidak
+ada penulisan Flash/EEPROM atau aktivasi bridge RF500**.
+
+`lsusb` hanya mendeteksi FT232R, tidak ada USB ISP programmer
+lain; backup/EEPROM PCB kedua tidak ditemukan pada lokasi
+Pi yang diperiksa. Pi dan USB tetap terhubung setelah uji.
+Status **NO-GO fisik** sampai programmer/bootloader benar-benar
+berkomunikasi dan backup/rollback khusus PCB ini terverifikasi.
+Laporan: `docs/reports/2026-11-12_SECOND_PCB_RF30_UPLOAD_ATTEMPT_BOOTLOADER_UNRESPONSIVE.md`.
+
 ## 12 November 2026 — PCB kedua: AVRDUDE bootloader timeout, belum boleh flash
 
 SSH/Tailscale ke Pi 5 aktif dan FT232R `A10KNJBL` terdeteksi.

@@ -1,5 +1,19 @@
 # Catatan perubahan proyek
 
+## 12 November 2026 — Permintaan deployment RF30 PCB kedua, signature masih timeout
+
+- SSH Pi, FT232R, checksum kandidat RF30 dan model RF500
+  berhasil diverifikasi ulang.
+- Satu percobaan read-only identifikasi bootloader
+  `wiring/115200` tetap timeout (exit 124, 15 detik).
+  Tidak ada operasi flash/EEPROM karena programmer tidak
+  berhasil membaca signature.
+- `lsusb` tidak menampilkan ISP USB programmer lain;
+  tidak ditemukan backup PCB kedua di lokasi Pi yang diperiksa.
+  Aktivasi bridge RF500 ditahan sampai MCU terverifikasi.
+- Detail:
+  `docs/reports/2026-11-12_SECOND_PCB_RF30_UPLOAD_ATTEMPT_BOOTLOADER_UNRESPONSIVE.md`.
+
 ## 12 November 2026 — Programer Pi siap; signature PCB kedua belum terbaca
 
 - `avrdude` 7.1 dan pustaka arm64 disiapkan secara
