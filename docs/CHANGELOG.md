@@ -1,5 +1,18 @@
 # Catatan perubahan proyek
 
+## 12 November 2026 — Koreksi identitas PCB dan diagnosis pasif startup Nextion
+
+- Operator memastikan FT232R Pi terhubung ke PCB ATmega2560
+  **berbeda** dari perangkat yang sebelumnya menjalankan SVM30.
+- Nextion PCB kedua masih `Initializing Systems`; host USB
+  terdeteksi normal, firmware MCU belum diketahui.
+- Menelusuri source startup, I²C scan dan peralihan `pHome`;
+  tidak dapat menisbahkan masalah ke RF500 atau FT232R saja.
+- Backup/rollback COM5 PCB lama **tidak boleh dipakai** sebagai
+  backup PCB kedua. Tidak ada akses serial, flash, reset atau
+  pengendalian aktuator.
+- Laporan: `docs/reports/2026-11-12_SECOND_PCB_NEXTION_INITIALIZING_REMOTE_PREFLIGHT.md`.
+
 ## 12 November 2026 — Pi 5 pulih setelah reboot; readiness RF500 diuji ulang
 
 - SSH/Tailscale pulih; boot baru ditemukan setelah Pi sempat offline.

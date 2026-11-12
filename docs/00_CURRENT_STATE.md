@@ -1,5 +1,27 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 12 November 2026 — Koreksi PCB target: alat kedua, Nextion masih initializing
+
+Operator mengonfirmasi FT232R `A10KNJBL` terhubung dari Pi via
+USB ke **PCB ATmega2560 yang berbeda** dari perangkat SVM30
+Windows COM5 pada 11 November. Nextion PCB kedua menunjukkan
+`Initializing Systems` dan alat dilaporkan IDLE. Dengan demikian,
+firmware terpasang dan backup Flash/EEPROM **PCB kedua belum
+diketahui**; **jangan gunakan backup COM5/SVM30 alat lama sebagai
+rollback** atau klaim image SVM30 sudah berada di PCB kedua.
+
+SSH Pi, FT232R `/dev/ttyUSB0`, dan status Pi `throttled=0x0`
+PASS pasif, tanpa pemilik port terdeteksi; tidak dilakukan
+serial-open karena kemungkinan DTR/reset dan riwayat xHCI.
+Pada source repo, MCU seharusnya mengirim `pHome` sekitar
+3 detik setelah startup bila scheduler berjalan. Firmware
+fisik belum diidentifikasi, sehingga kemungkinan inisialisasi
+I²C terhambat, masalah UART2/HMI, atau masalah firmware/daya
+belum dapat dibedakan. **RF500 live dan flash ditahan** sampai
+jalur perangkat aman, backup khusus PCB kedua tersedia dan
+persetujuan spesifik diberikan. Laporan:
+`docs/reports/2026-11-12_SECOND_PCB_NEXTION_INITIALIZING_REMOTE_PREFLIGHT.md`.
+
 ## 12 November 2026 — Pi 5 kembali online dan RF500 replay PASS setelah boot ulang
 
 Pi berhasil diakses kembali via Tailscale/SSH setelah gangguan
