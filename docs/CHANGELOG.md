@@ -1,5 +1,19 @@
 # Catatan perubahan proyek
 
+## 13 November 2026 — Hentikan diagnosis aktif setelah temuan daya Pi
+
+- Periksa read-only kondisi Pi/USB pada tahap
+  tindak lanjut PCB kedua, tanpa membuka serial.
+- Temuan: `throttled=0x50000` dan dua kejadian
+  `Undervoltage detected!` pada journal boot.
+- Tetapkan STOP untuk hardware/flash/EEPROM,
+  serta tuntut inspeksi onsite suplai, RESET dan
+  potensi konflik/backfeed sebelum uji selanjutnya.
+- Tidak ada firmware, layanan, data, HMI ataupun
+  konfigurasi permanen Pi yang diubah.
+- Laporan:
+  `docs/reports/2026-11-13_SECOND_PCB_POWER_STOP_CONDITION.md`.
+
 ## 13 November 2026 — Identifikasi pasif PCB kedua dan akar masalah splash
 
 - Membaca laporan preflight PCB kedua, memverifikasi

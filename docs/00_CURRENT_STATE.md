@@ -1,5 +1,24 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 13 November 2026 sore — STOP akibat undervoltage Pi yang terkonfirmasi
+
+Saat melanjutkan diagnosis PCB kedua, Raspberry Pi 5
+melaporkan `get_throttled=0x50000` (flag historis
+undervoltage dan throttling). Journal boot memperlihatkan
+**dua kejadian `Undervoltage detected!`** sekitar
+18.06.52 dan 18.07.09 WIB, masing-masing disusul
+`Voltage normalised`. Uptime pendek menunjukkan
+ada kemungkinan boot ulang sejak audit pasif sebelumnya,
+namun penyebab reboot belum ditentukan.
+USB FT232R tetap terenumerasi pada `ttyUSB0`;
+ini **bukan bukti daya PCB/Nextion stabil**.
+
+**STOP pengujian hardware**: jangan buka ulang serial,
+reset, flash, jalankan akuisisi/aktuator atau deploy RF500.
+Perlu konfirmasi operator onsite dan pemeriksaan suplai/
+backfeed sebelum melanjutkan. Laporan lengkap:
+`docs/reports/2026-11-13_SECOND_PCB_POWER_STOP_CONDITION.md`.
+
 ## 13 November 2026 pukul 17.58 — Diagnosis firmware PCB kedua via Pi read-only
 
 USB PCB kedua **kembali** terhubung ke Raspberry Pi 5,
