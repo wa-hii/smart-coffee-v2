@@ -22,7 +22,7 @@ Metadata per Baris:
 
 Cara Pakai:
   python 3_collect_data.py
-  python 3_collect_data.py --port COM5 --sample M-TOR --batch B32
+  python 3_collect_data.py --port COM11 --sample M-TOR --batch B32 --arm-hardware
   python 3_collect_data.py --no-plot
 ═══════════════════════════════════════════════════════════════════════════════
 """
@@ -61,6 +61,7 @@ except Exception:
 
 # ─── Konfigurasi Akuisisi Default ──────────────────────────────────────────────
 BAUD_RATE        = 115200
+CURRENT_PCB_PORT = 'COM11'  # FT232RL onboard PCB kedua; override via --port untuk alat lain
 OUTPUT_DIR       = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'data', 'raw'))
 ACQ_PURGE_S      = 25   # Durasi purging per run (detik)
 ACQ_COLLECT_S    = 5   # Durasi collecting per run (detik)
@@ -127,7 +128,8 @@ SENSOR_CONFIG = {
 # ─── CLI Argument Parser ──────────────────────────────────────────────────────
 def parse_args():
     p = argparse.ArgumentParser(description='E-NOSE Kopi — Pengumpulan Raw Data')
-    p.add_argument('--port',        type=str, default=None, help='Port Serial (misal COM3)')
+    p.add_argument('--port',        type=str, default=CURRENT_PCB_PORT,
+                   help='Port Serial (default COM11; override untuk alat lain)')
     p.add_argument('--sample',      type=str, default=None, help='Sample ID (misal L-MAN, M-TEM, D-RAT)')
     p.add_argument('--roast-level', type=str, default=None, help='Roast Level (light, medium, dark)')
     p.add_argument('--origin',      type=str, default=None, help='Asal Kopi (Origin)')
@@ -173,7 +175,7 @@ def prompt_port():
         except ValueError:
             return idx
     else:
-        return input("Masukkan nama port Serial (misal COM3")
+        return input("Masukkan nama port Serial (misal COM11): ")
 
 def prompt_metadata():
     """Meminta input Sample ID, Roast Level, Origin, dan Batch ID secara interaktif."""

@@ -1,5 +1,25 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 13 November 2026 pukul 16.39 — Konfigurasi perangkat aktif ke COM11
+
+Operator memastikan PCB kedua FT232RL onboard sekarang **COM11**.
+`python scripts/check_usb_receiver.py --expect-port COM11
+--usb-serial A10KNJBLA` menegaskan VID:PID `0403:6001`,
+USB serial `A10KNJBLA`, dan tidak membuka port. PlatformIO
+untuk `mega2560` serta `nextion_test` kini menyetel
+`upload_port=COM11`, `monitor_port=COM11`, baud 115200.
+Contoh collector dan dashboard, skrip pemasangan autosave,
+dan petunjuk receiver diperbarui untuk COM11.
+
+Shortcut Windows Startup existing `Smart Coffee E-Nose Receiver.lnk`
+dicadangkan secara privat lalu disesuaikan dengan pin USB serial
+`A10KNJBLA`; perubahan dilakukan menggunakan `-SkipLaunch`,
+**tanpa menyalakan receiver**. Receiver tetap berhenti sehingga
+port tidak diperebutkan. Receiver multi-alat COM5/COM6/COM7,
+backup B6/SVM30 dan data CSV asli tetap dipertahankan.
+Ini **hanya konfigurasi Windows**, bukan pemulihan bootloader.
+Laporan: `docs/reports/2026-11-13_COM11_ACTIVE_CONFIGURATION.md`.
+
 ## 13 November 2026 — Audit ulang: FT232RL adalah IC ONBOARD PCB kedua
 
 Operator memastikan **FT232RL berada di PCB custom ATmega2560**;

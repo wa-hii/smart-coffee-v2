@@ -1,5 +1,22 @@
 # Catatan perubahan proyek
 
+## 13 November 2026 — Migrasi konfigurasi aktif ke COM11
+
+- Menetapkan COM11 sebagai port upload/monitor PlatformIO
+  untuk kedua environment, tanpa menjalankan upload.
+- Skrip manual collector, contoh dashboard, pemasangan
+  receiver single-device dan pemeriksaan USB diperbarui.
+- Pemeriksaan USB read-only memakai ID FT232RL
+  `A10KNJBLA`; skrip test membuktikan serial
+  COM5 perangkat lain tidak dapat salah dipilih.
+- Shortcut Startup Windows existing dicadangkan,
+  dipin berdasarkan USB serial, tidak dijalankan
+  karena bootloader ATmega belum respons dan
+  receiver dapat memonopoli COM11.
+- Tidak menyentuh firmware, EEPROM, HMI, CSV,
+  atau konfigurasi receiver tiga perangkat.
+  Laporan: `docs/reports/2026-11-13_COM11_ACTIVE_CONFIGURATION.md`.
+
 ## 13 November 2026 — Audit ulang komprehensif FT232RL onboard
 
 - Memperbaiki interpretasi topologi: FT232RL merupakan

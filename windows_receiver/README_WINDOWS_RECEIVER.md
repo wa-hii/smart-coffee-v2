@@ -1,5 +1,35 @@
 # Smart Coffee E-Nose USB receiver otomatis (Windows)
 
+## PCB kedua yang aktif — COM11 (13 November 2026)
+
+Saat ini FT232RL **onboard PCB kedua** muncul sebagai **COM11**, VID:PID
+`0403:6001`, USB serial Windows **`A10KNJBLA`**. Untuk receiver satu
+alat, lebih aman *pinning* ke identitas USB daripada nomor COM, agar tidak
+salah memilih PCB ketika Windows mengubah nomor port:
+
+```powershell
+python scripts/check_usb_receiver.py --expect-port COM11 --usb-serial A10KNJBLA
+python scripts/receiver_preflight.py
+python scripts/lcd_acquisition_service.py --port auto --usb-serial A10KNJBLA --baud 115200
+```
+
+Baris ketiga **hanya dijalankan ketika sesi Take Data benar-benar akan
+dimulai dan tidak ada programmer/serial monitor lain**. Selama diagnosis
+bootloader RF30, receiver sengaja dibiarkan **berhenti** supaya COM11
+tidak terkunci. Update shortcut Startup yang sekarang secara aman tanpa
+menjalankan receiver:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File windows_receiver/install_autostart.ps1 -AppRoot . -UsbSerial A10KNJBLA -PythonwPath "C:\Users\wahyu\AppData\Local\Programs\Python\Python314\pythonw.exe" -SkipLaunch
+```
+
+Parameter `-PythonwPath` digunakan karena checkout pengembangan ini
+menjalankan Python sistem, bukan `.venv` receiver portabel.
+Ini hanya berlaku untuk **PCB kedua**. Skrip historis COM5/COM6/COM7
+untuk perangkat-perangkat lain tetap digunakan sesuai identitas masing-masing.
+Perubahan port **tidak** memperbaiki timeout STK500v2 pada bootloader
+ATmega2560 dan **bukan izin untuk flash**.
+
 **Memakai 3 alat E-Nose di satu laptop?** Gunakan paket receiver v6
 `Smart_Coffee_ENose_USB_Receiver_Windows_v6_ThreeDevices_Diagnostics.zip` dan ikuti
 `windows_receiver/README_THREE_DEVICES.md`, **bukan** menjalankan tiga

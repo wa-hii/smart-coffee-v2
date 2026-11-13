@@ -8,7 +8,7 @@ Membaca data serial dari ATmega dan menampilkan plot 10 sensor secara live.
 
 Cara pakai:
   pip install pyserial matplotlib numpy
-  python 5_realtime_dashboard.py --port COM5
+  python 5_realtime_dashboard.py --port COM11 --no-start
   python 5_realtime_dashboard.py                 # mode interaktif
 
 Fitur:
@@ -16,7 +16,7 @@ Fitur:
   • Indikator phase (Collecting / Purging / Idle)
   • Statistik live (min, max, mean per sensor)
   • Otomatis kirim #start; ke ATmega
-  • Bisa dijalankan bersamaan tanpa mengganggu firmware
+  • Port serial tidak boleh dibuka bersamaan dengan receiver atau programmer
 ═══════════════════════════════════════════════════════════════════════════════
 """
 
@@ -81,7 +81,7 @@ def prompt_port():
         except ValueError:
             return idx
     else:
-        return input("Masukkan nama port Serial (misal COM5): ").strip()
+        return input("Masukkan nama port Serial (misal COM11): ").strip()
 
 
 # ─── Data Store (thread-safe) ─────────────────────────────────────────────────
@@ -379,7 +379,7 @@ def main():
     parser = argparse.ArgumentParser(
         description='E-NOSE Kopi — Real-Time Sensor Dashboard')
     parser.add_argument('--port', type=str, default=None,
-                        help='Port Serial ATmega, misal COM5')
+                        help='Port Serial ATmega PCB kedua, misal COM11')
     parser.add_argument('--baud', type=int, default=BAUD_RATE)
     parser.add_argument('--no-start', action='store_true',
                         help='Jangan kirim #start; (hanya monitor)')

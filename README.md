@@ -1,5 +1,28 @@
 # Smart Coffee E-Nose v2
 
+**Perangkat aktif per 13 November 2026 — PCB kedua FT232RL onboard,
+Windows COM11:** VID:PID `0403:6001`, serial USB Windows
+`A10KNJBLA`. `platformio.ini` menetapkan `upload_port` dan
+`monitor_port` ke COM11 pada profil `mega2560` dan `nextion_test`.
+Verifikasi USB **tanpa membuka COM**:
+
+```powershell
+python scripts/check_usb_receiver.py --expect-port COM11 --usb-serial A10KNJBLA
+python scripts/receiver_preflight.py
+```
+
+Receiver autosave Windows khusus PCB ini menggunakan
+`--port auto --usb-serial A10KNJBLA --baud 115200`, mengikuti
+serial USB jika nomor COM berubah. Shortcut Startup Windows telah
+disesuaikan namun **receiver tidak dijalankan**, agar COM11 tersedia
+untuk pemrograman. Script COM5/COM6/COM7 dan backup SVM30 milik
+perangkat lain **tidak diubah**. Nomor COM11 hanya mengonfirmasi
+FT232RL USB, **bukan** ATmega2560/bootloader: upaya signature STK500v2
+sebelumnya timeout. **Jangan upload firmware** sampai jalur programmer,
+backup Flash dan EEPROM asli PCB kedua terverifikasi. Build RF30
+`scripts/platformio_rf30_bench.ini` tetap *compile-only*.
+Rincian: `docs/reports/2026-11-13_COM11_ACTIVE_CONFIGURATION.md`.
+
 **Backup standalone SVM30 B4 (11 November 2026):**
 Profil opsional `scripts/platformio_svm30_standalone.ini`
 sekarang menghubungkan SensorArray ADS1115 → 900 sampel
