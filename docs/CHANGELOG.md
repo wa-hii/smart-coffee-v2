@@ -1,5 +1,20 @@
 # Catatan perubahan proyek
 
+## 13 November 2026 — Konfirmasi LCD masih pada splash pascaperbaikan daya
+
+- Mengunci observasi operator bahwa LCD PCB kedua
+  tetap pada `Initializing Systems` meski
+  suplai Raspberry Pi pulih.
+- Memastikan secara offline bahwa `pSplash` HMI
+  acuan tidak memiliki perpindahan `page pHome`
+  mandiri; source mengirimkannya melalui
+  `Serial2/9600` setelah sensor dan scheduler siap.
+- Menyusun pohon diagnosis TXD2 → RX Nextion
+  yang memerlukan pengukuran onsite untuk
+  membedakan MCU, I²C dan wiring/HMI fisik.
+- Tidak menjalankan flashing, EEPROM, serial TX
+  ataupun kontrol aktuator; RF500 tetap ditahan.
+
 ## 13 November 2026 — Diagnosis ulang PCB kedua setelah PSU custom stabil
 
 - Pi 5 boot baru: `get_throttled=0x0`,

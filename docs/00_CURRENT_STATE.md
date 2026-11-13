@@ -1,5 +1,24 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 13 November 2026 — Operator konfirmasi Nextion tetap tertahan
+
+Setelah Pi 5 normal kembali (`get_throttled=0x0`),
+operator memastikan LCD fisik **masih** menampilkan
+`Initializing Systems`. Audit source/HMI offline
+menunjukkan `pSplash` acuan tidak memiliki literal
+`page pHome` atau `EVT:HMI_READY`; pada firmware
+yang diperiksa, perintah `page pHome` dari
+`Serial2/9600` baru dikirim task serial **setelah**
+sensor dan scheduler diinisialisasi.
+
+Belum ada bukti firmware/TFT fisik cocok dengan repo.
+Prioritas **pengukuran TXD2 menuju Nextion RX**
+pada startup dengan operator onsite dan
+instrumentasi yang sesuai; jika tidak ada
+paket, baru lanjutkan inspeksi RESET/clock/I²C
+dan backup chip sebelum flashing. Laporan:
+`docs/reports/2026-11-13_NEXTION_STILL_INITIALIZING_AFTER_POWER_RECOVERY.md`.
+
 ## 13 November 2026 pukul 18.43 — Uji ulang pasca-PSU aman: Pi PASS, MCU tetap UNKNOWN
 
 Setelah operator memperbaiki daya PSU custom,
