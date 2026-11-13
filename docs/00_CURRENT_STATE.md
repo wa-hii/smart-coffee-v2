@@ -1,5 +1,34 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 13 November 2026 pukul 19.17 — UART0 status tidak dibalas, bootloader tetap timeout
+
+PCB kedua di Pi 5 FT232R `A10KNJBL` pada `/dev/ttyUSB0`,
+`get_throttled=0x0` dan PMIC sekitar 5,10–5,12 V.
+Uji non-kontrol satu kali `#status;` pada UART0/115200
+(DTR/RTS false) mengirim 8 byte melalui driver,
+tetapi RX **0 byte** selama sekitar 12 detik.
+Tidak ada USB disconnect, EEPROM write atau aktuasi.
+
+Satu uji ulang `avrdude 7.1 -c wiring -p m2560
+-b 115200 -n` melalui Pi setelah perbaikan
+catu tetap `stk500v2_recv(): timeout`
+dibatasi 18 detik, **tidak ada signature**.
+Tidak ada jalur flashing dari host USB
+yang terbukti berfungsi.
+
+Build isolasi UART0/Serial2 **compile-only** telah dibuat
+pada `diagnostics/uart_nextion/` dan
+`scripts/platformio_uart_nextion_diag.ini`:
+heartbeat/status UART0 dan probe Nextion
+`page pHome` + `sendme` (balasan page 0x66),
+tanpa I²C, EEPROM, RF500 atau aktuator ON.
+Hasil `SUCCESS`, 4.750 byte Flash,
+SHA256 `87be0d01364f170190204be05e8310a2b920dea077d34380520c0ce75254c936`;
+disalin ke staging Pi **tanpa flash MCU**.
+Butuh programmer ISP, backup Flash+EEPROM PCB kedua
+dan persetujuan sebelum uji fisik diagnostik.
+Laporan: `docs/reports/2026-11-13_UART0_NEXTION_FINAL_REMOTE_DEBUG_AND_DIAGNOSTIC_STAGING.md`.
+
 ## 13 November 2026 — Operator konfirmasi Nextion tetap tertahan
 
 Setelah Pi 5 normal kembali (`get_throttled=0x0`),

@@ -1,5 +1,23 @@
 # Catatan perubahan proyek
 
+## 13 November 2026 — UART0 status handshake, percobaan bootloader, diagnostik UART2
+
+- Menjalankan satu `#status;` non-kontrol
+  pada Pi FT232R `/dev/ttyUSB0`; 8 byte
+  diteruskan ke driver, RX 0 byte.
+- Memastikan AVRDUDE read-only `wiring/115200`
+  pada boot/catu yang kini stabil tetap
+  timeout, tanpa signature dan tanpa flash.
+- Menambahkan firmware **build-only** terpisah
+  yang mengisolasi UART0/UART2 tanpa
+  I²C, EEPROM, model AI atau aktuator ON.
+- Kandidat mengirim heartbeat/status UART0
+  dan menguji Nextion `page pHome`/balasan
+  `sendme`; build PlatformIO PASS, image
+  SHA256 terverifikasi di staging Pi.
+- Laporan dokumentasi:
+  `docs/reports/2026-11-13_UART0_NEXTION_FINAL_REMOTE_DEBUG_AND_DIAGNOSTIC_STAGING.md`.
+
 ## 13 November 2026 — Konfirmasi LCD masih pada splash pascaperbaikan daya
 
 - Mengunci observasi operator bahwa LCD PCB kedua
