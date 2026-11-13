@@ -1,5 +1,26 @@
 # Catatan perubahan proyek
 
+## 13 November 2026 — Persiapan Mega CH340 COM12 untuk ISP PCB kedua
+
+- Verifikasi CH340 COM12 `1A86:7523` dan
+  FT232RL target COM11 `0403:6001` secara terpisah.
+- Uji bootloader Mega COM12 read-only berhasil:
+  ATmega2560 signature `0x1e9801`.
+- Backup read-only Mega COM12 menghasilkan
+  all-FF: tidak dapat dijamin restore, sketch
+  belum ditimpa.
+- Download ArduinoISP resmi SHA-pinned ke
+  folder privat, wrapper C++ dengan assert
+  D10 RESET / D50–D52 SPI / 19200 baud.
+- Build ArduinoISP compile-only PASS;
+  tambah pemeriksaan signature ISP target
+  yang tertahan sampai wiring dikonfirmasi.
+- Catat SOP kabel, pemisahan suplai 5 V,
+  risiko auto-reset dan pengalamatan Flash
+  ATmega2560 di atas 128 KiB.
+- Laporan:
+  `docs/reports/2026-11-13_COM12_MEGA_ARDUINOISP_PROGRAMMER_PREFLIGHT.md`.
+
 ## 13 November 2026 — Uji akses bootloader COM11 dan DTR setelah relokasi USB
 
 - FT232RL PCB kedua kembali pada Windows

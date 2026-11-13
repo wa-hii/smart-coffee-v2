@@ -1,5 +1,32 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 13 November 2026 malam — Arduino Mega CH340 COM12 siap menjadi calon ISP
+
+Board **tambahan** Arduino Mega 2560 (CH340 VID:PID
+`1A86:7523`) ditemukan pada **COM12**,
+berbeda dari PCB E-Nose kedua dengan
+FT232RL `A10KNJBLA` pada **COM11**.
+AVRDUDE read-only `wiring/115200` terhadap
+COM12 **berhasil** membaca signature
+`0x1e9801` (identitas MCU **programmer**).
+
+Sketch ArduinoISP resmi (SHA-pinned) berhasil
+diambil dan di-build untuk COM12 melalui wrapper
+C++ yang mengunci RESET D10, MOSI D51,
+MISO D50, SCK D52, dan protokol
+`stk500v1/19200` setelah upload.
+Namun readback sketch lama COM12
+menghasilkan `ALL_FF_READBACK_NOT_RECOVERABLE`;
+**tidak ada upload ke COM12** sampai operator
+mengizinkan overwriting sketch tersebut.
+
+PCB target belum terhubung melalui kabel ISP
+yang terverifikasi. Tidak ada penulisan
+Flash/EEPROM E-Nose, tidak ada
+akses ISP MCU target, dan RF500 belum live.
+Laporan:
+`docs/reports/2026-11-13_COM12_MEGA_ARDUINOISP_PROGRAMMER_PREFLIGHT.md`.
+
 ## 13 November 2026 pukul 20.16 — COM11 kembali Windows, flash tetap terblokir
 
 PCB kedua FT232RL onboard kembali terlihat di Windows
