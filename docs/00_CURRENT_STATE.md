@@ -1,5 +1,22 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 13 November 2026 pukul 17.33 — Semua opsi UART teruji tetap tanpa signature
+
+Setelah `wiring/115200` timeout, operator mengizinkan
+metode flashing lain untuk PCB kedua FT232RL onboard
+`COM11`, serial `A10KNJBLA`. Dua alternatif
+read-only terikat waktu `arduino/115200` dan
+`wiring/57600` **keduanya timeout**.
+Satu probe RX-only Windows 115200 selama 8 detik
+memperoleh **0 byte** tanpa menulis serial.
+Tidak ada USB ISP programmer yang terdeteksi
+dan tidak ada bukti FT232RL terhubung ke
+jalur SPI ISP. **ATmega2560 signature masih tidak
+terbaca; firmware tidak di-flash; EEPROM tidak ditulis.**
+Perlu inspeksi DTR#/RESET atau ISP hardware.
+Laporan:
+`docs/reports/2026-11-13_COM11_BOOTLOADER_ALTERNATIVE_PROTOCOLS_AND_UART_RX.md`.
+
 ## 13 November 2026 pukul 17.10 — Upload RF30 COM11 tetap timeout, NO FLASH
 
 Perangkat FT232RL onboard PCB kedua terdeteksi sebagai `COM11`

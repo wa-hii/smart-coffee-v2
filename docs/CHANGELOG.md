@@ -1,5 +1,25 @@
 # Catatan perubahan proyek
 
+## 13 November 2026 — Alternatif COM11 bootloader + UART RX probe
+
+- Membuat dan menguji `com11_alternative_bootloader_probe.py`
+  dengan pengamanan identitas FT232RL dan batas waktu
+  14 detik per profil: `arduino/115200` serta
+  `wiring/57600` keduanya timeout.
+- Membuat probe Windows RX-only 8 detik,
+  `com11_uart_readonly_diagnostic.py`:
+  RX = 0 byte, TX = 0 byte, tidak flash/EEPROM.
+- Pengujian mock mendukung fail-closed dan
+  menguji tidak ada perintah UART TX pada probe RX.
+- Tidak ada programmer ISP USB terdeteksi.
+  Jalur FT232RL ke ISP belum dapat dibuktikan;
+  alternatif hardware memerlukan akses pin
+  RESET/MOSI/MISO/SCK yang benar.
+- Bukti hardware disimpan di direktori privat
+  `private/com11_second_pcb_deployment/`,
+  tidak masuk Git.
+  Laporan: `docs/reports/2026-11-13_COM11_BOOTLOADER_ALTERNATIVE_PROTOCOLS_AND_UART_RX.md`.
+
 ## 13 November 2026 — RF30 guarded COM11 deploy dan pemeriksaan Pi
 
 - Menambahkan `com11_rf30_verified_deploy.py` dengan pin identitas
