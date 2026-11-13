@@ -1,5 +1,32 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 13 November 2026 pukul 17.58 — Diagnosis firmware PCB kedua via Pi read-only
+
+USB PCB kedua **kembali** terhubung ke Raspberry Pi 5,
+FT232R serial `A10KNJBL` pada `/dev/ttyUSB0`, dan
+Windows tidak memiliki port COM aktif. SSH Pi berhasil,
+`vcgencmd get_throttled=0x0`, port tidak dipegang proses lain.
+Ada USB disconnect historis 17.03 dan reconnect terbaru
+17.48; tidak ada disconnect baru selama uji.
+
+Skrip baru `scripts/pi_second_pcb_passive_id.py` dijalankan
+45 detik @ 115200 baud (DTR/RTS diatur false sebelum open,
+tanpa TX). Hasil **RX=0 byte**, `FW_HELLO` tidak terlihat,
+tidak ada reset/disconnect teramati saat pengujian.
+Log raw (kosong) dan metadata disimpan di
+`private/second_pcb_pi_readonly/` yang di-ignore Git.
+Source terkini **tidak mencetak data pada state IDLE**;
+hasil 0 byte **belum dapat mengidentifikasi firmware fisik**.
+
+Kontrak Nextion `Serial2/9600`, HMI 12 halaman/23 event,
+dan build RF30 bounded-I²C PASS offline. `scanI2C()`
+default mendahului scheduler sehingga hang Wire merupakan
+kandidat penyebab splash, namun wiring/firmware/TFT fisik
+masih tidak diketahui. Pi RF500 siap staging, tetapi
+`live_activation_allowed=false` dan **tidak di-deploy**.
+Laporan:
+`docs/reports/2026-11-13_SECOND_PCB_FIRMWARE_ID_AND_ROOT_CAUSE.md`.
+
 ## 13 November 2026 pukul 17.33 — Semua opsi UART teruji tetap tanpa signature
 
 Setelah `wiring/115200` timeout, operator mengizinkan

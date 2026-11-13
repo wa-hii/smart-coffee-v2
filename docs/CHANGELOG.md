@@ -1,5 +1,25 @@
 # Catatan perubahan proyek
 
+## 13 November 2026 — Identifikasi pasif PCB kedua dan akar masalah splash
+
+- Membaca laporan preflight PCB kedua, memverifikasi
+  kondisi SSH, catu Pi, FT232R `A10KNJBL`, by-id
+  `ttyUSB0`, dan absennya pemegang port.
+- Menambahkan listener `pi_second_pcb_passive_id.py`
+  dan QA no-TX; durasi 45 detik, UART0 115200,
+  DTR/RTS false sebelum open, tanpa reset sengaja.
+- Pembacaan langsung selesai **0 byte**; log mentah
+  dan metadata di `private/second_pcb_pi_readonly/`,
+  hash cocok, tanpa USB disconnect baru.
+- Mengonfirmasi firmware source diam pada IDLE;
+  identitas firmware terpasang masih UNKNOWN.
+  Audit jalur `pHome`, potensi hang I²C sebelum
+  scheduler, HMI 12 halaman/23 event dan image RF30.
+- RF500 hanya dinyatakan staged; belum diaktifkan,
+  tidak ada flash/EEPROM write, tidak ada operasi aktuator.
+  Laporan:
+  `docs/reports/2026-11-13_SECOND_PCB_FIRMWARE_ID_AND_ROOT_CAUSE.md`.
+
 ## 13 November 2026 — Alternatif COM11 bootloader + UART RX probe
 
 - Membuat dan menguji `com11_alternative_bootloader_probe.py`

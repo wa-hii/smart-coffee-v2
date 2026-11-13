@@ -1,5 +1,18 @@
 # Smart Coffee E-Nose v2
 
+**Kondisi perangkat 13 November 2026 sore:** PCB
+ATmega2560 **kedua** saat ini kembali tersambung
+melalui FT232R `A10KNJBL` ke **Raspberry Pi 5**
+sebagai `/dev/ttyUSB0`, bukan COM11 Windows.
+Pembacaan pasif 45 detik @ 115200 selesai dengan
+0 byte RX tanpa pesan error/disconnect baru; karena
+firmware terkini tidak mengirim ADC saat IDLE,
+**firmware fisik tetap belum teridentifikasi**.
+Layar masih dilaporkan `Initializing Systems`.
+Tidak ada flashing, EEPROM write, perintah kontrol,
+atau deploy RF500. Laporan:
+`docs/reports/2026-11-13_SECOND_PCB_FIRMWARE_ID_AND_ROOT_CAUSE.md`.
+
 **Perangkat aktif per 13 November 2026 — PCB kedua FT232RL onboard,
 Windows COM11:** VID:PID `0403:6001`, serial USB Windows
 `A10KNJBLA`. `platformio.ini` menetapkan `upload_port` dan
