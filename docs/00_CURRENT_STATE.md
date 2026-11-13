@@ -1,5 +1,29 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 13 November 2026 pukul 20.16 — COM11 kembali Windows, flash tetap terblokir
+
+PCB kedua FT232RL onboard kembali terlihat di Windows
+COM11, VID:PID `0403:6001`, USB serial `A10KNJBLA`.
+Receiver dan programmer tidak aktif. Build RF30
+compile-only **PASS**, 35.770 byte aplikasi;
+SHA256 build terkini **persis sama** dengan
+image kandidat `26833b3cda23d65bae6b33b796331efa0f803071aa283e592ab6fffabeafebb6`.
+Build diagnostik UART/Nextion juga PASS.
+
+Satu eksekusi guarded deploy di COM11 mencoba
+identifikasi ATmega `-c wiring -b 115200 -n`
+tetapi **timeout 20 detik**; backup dan
+flash tidak dijalankan. Satu pulsa DTR
+140 ms dilanjut RX-only 12 detik pada
+115200 menghasilkan **0 byte** dan
+tidak ada `FW_HELLO`.
+Signature AVR dan jalur DTR/reset fisik
+belum terbukti. **Wajib akses/pengecekan
+ISP atau perbaikan fisik UART/reset sebelum
+flash**. RF500 tetap ditahan.
+Laporan:
+`docs/reports/2026-11-13_COM11_SECOND_PCB_BOOTLOADER_FLASH_ATTEMPT_2013.md`.
+
 ## 13 November 2026 pukul 19.17 — UART0 status tidak dibalas, bootloader tetap timeout
 
 PCB kedua di Pi 5 FT232R `A10KNJBL` pada `/dev/ttyUSB0`,

@@ -1,5 +1,22 @@
 # Catatan perubahan proyek
 
+## 13 November 2026 — Uji akses bootloader COM11 dan DTR setelah relokasi USB
+
+- FT232RL PCB kedua kembali pada Windows
+  COM11, serial `A10KNJBLA`; receiver idle.
+- Build RF30 35.770 byte berhasil, checksum
+  hasil build cocok dengan kandidat pinned.
+  Build UART/Nextion diagnostik juga PASS.
+- Prosedur upload terjaga gagal sejak
+  identifikasi signature `wiring/115200`:
+  timeout 20 detik, **NO FLASH/EEPROM WRITE**.
+- Uji satu pulsa DTR dan capture UART0
+  12 detik, RX 0 byte, tidak ada `FW_HELLO`.
+  Tidak ada bukti reset mencapai MCU.
+- Menambahkan skrip `com11_single_dtr_boot_capture.py`
+  dan tes mock tanpa TX, serta laporan
+  syarat ISP/backup sebelum penulisan MCU.
+
 ## 13 November 2026 — UART0 status handshake, percobaan bootloader, diagnostik UART2
 
 - Menjalankan satu `#status;` non-kontrol
