@@ -1,5 +1,20 @@
 # Catatan perubahan proyek
 
+## 13 November 2026 — Pemeriksaan ulang PSU custom 5V pada kondisi idle
+
+- Mendokumentasikan konfirmasi operator: daya Pi berasal
+  dari power supply 5 V custom; indikator merah tidak berkedip.
+- Melakukan delapan pembacaan `EXT5V_V` PMIC Pi secara read-only
+  (minimum 4,93522 V; maksimum 4,97408 V; rata-rata 4,96738 V).
+- Status `get_throttled` tetap `0x50000`, sebagai bukti
+  kejadian startup historis; tidak menunjukkan undervoltage
+  aktif selama pemantauan idle.
+- Pengujian startup di bawah beban, MCU/Nextion dan RF500 live
+  tetap memerlukan inspeksi onsite dan persetujuan.
+  Tidak ada penulisan firmware, EEPROM atau konfigurasi Pi.
+- Laporan:
+  `docs/reports/2026-11-13_SECOND_PCB_POWER_RECHECK_CUSTOM_5V.md`.
+
 ## 13 November 2026 — Hentikan diagnosis aktif setelah temuan daya Pi
 
 - Periksa read-only kondisi Pi/USB pada tahap

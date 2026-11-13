@@ -1,5 +1,22 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 13 November 2026 pukul 18.25 — PSU custom 5V kembali normal saat idle, belum lolos startup
+
+Operator mengonfirmasi Raspberry Pi 5 menggunakan **PSU 5 V
+custom**, telah mengukur sekitar 5 V dan LED merah tidak
+berkedip. Pembacaan PMIC Pi secara read-only menunjukkan
+`EXT5V_V` **4,93522–4,97408 V** pada delapan sampel idle,
+rata-rata **4,96738 V**, serta temperatur **36,7°C**.
+`get_throttled=0x50000` tetap menunjukkan kejadian
+undervoltage dan throttling historis sejak boot,
+tanpa flag gangguan aktif. USB FT232R tetap tersedia.
+
+**Batas:** kondisi idle terlihat normal, namun startup/
+transien dan kemampuan PSU+jalur USB-C di bawah beban belum
+terverifikasi. Tidak dilakukan serial-open, reset, uji aktuator,
+flash, perubahan Pi, atau aktivasi RF500. Laporan:
+`docs/reports/2026-11-13_SECOND_PCB_POWER_RECHECK_CUSTOM_5V.md`.
+
 ## 13 November 2026 sore — STOP akibat undervoltage Pi yang terkonfirmasi
 
 Saat melanjutkan diagnosis PCB kedua, Raspberry Pi 5
