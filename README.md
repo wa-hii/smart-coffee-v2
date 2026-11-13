@@ -23,6 +23,21 @@ backup Flash dan EEPROM asli PCB kedua terverifikasi. Build RF30
 `scripts/platformio_rf30_bench.ini` tetap *compile-only*.
 Rincian: `docs/reports/2026-11-13_COM11_ACTIVE_CONFIGURATION.md`.
 
+**13 November 2026 sore — percobaan deployment terverifikasi COM11:**
+Skrip `scripts/com11_rf30_verified_deploy.py` menolak adaptor salah,
+receiver aktif, image RF30 salah, signature MCU hilang, dan backup
+Flash/EEPROM yang tidak lengkap. Setelah semua lolos, baru tersedia
+tahap upload Flash aplikasi dan verifikasi tanpa EEPROM write.
+Pada satu eksekusi live ke COM11 `A10KNJBLA`, AVRDUDE `wiring`
+115200 **timeout 20 detik**, sehingga proses berhenti di
+`BOOTLOADER_SIGNATURE_NOT_VERIFIED_NO_FLASH`. Tidak ada firmware
+yang diubah. Bukti privat berada di
+`private/com11_second_pcb_deployment/`. Pi 5 pada pemeriksaan
+berikutnya kembali dapat diakses melalui SSH, dan image/model
+di staging tetap cocok SHA256, tetapi USB masih berada di Windows
+sehingga `live_activation_allowed=false`.
+Laporan: `docs/reports/2026-11-13_COM11_RF30_BOUNDED_DEPLOYMENT_ATTEMPT.md`.
+
 **Backup standalone SVM30 B4 (11 November 2026):**
 Profil opsional `scripts/platformio_svm30_standalone.ini`
 sekarang menghubungkan SensorArray ADS1115 → 900 sampel

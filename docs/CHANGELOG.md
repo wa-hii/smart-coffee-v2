@@ -1,5 +1,23 @@
 # Catatan perubahan proyek
 
+## 13 November 2026 — RF30 guarded COM11 deploy dan pemeriksaan Pi
+
+- Menambahkan `com11_rf30_verified_deploy.py` dengan pin identitas
+  FT232RL, validasi image, guard receiver/dataset, pembacaan
+  signature, backup asli lengkap, dan tahap upload/verify kondisional.
+- Menambahkan mock QA termasuk timeout signature, backup gagal,
+  backup Flash yang tidak lengkap, identitas salah, dan jalur
+  sukses simulasi; tidak pernah menjalankan flash saat QA.
+- Percobaan hardware di COM11 berhenti saat bootloader
+  `stk500v2_ReceiveMessage(): timeout` (20 detik).
+  Backup dan upload tidak dilakukan; evidence ditulis
+  di `private/com11_second_pcb_deployment/`, di-ignore Git.
+- Raspberry Pi kembali dapat diakses via Tailscale, hash model
+  RF500 dan kandidat RF30 di staging sesuai; USB FT232RL
+  tidak terpasang ke Pi karena sedang di laptop.
+  Tidak ada aktivasi bridge atau akuisisi fisik.
+- Laporan: `docs/reports/2026-11-13_COM11_RF30_BOUNDED_DEPLOYMENT_ATTEMPT.md`.
+
 ## 13 November 2026 — Migrasi konfigurasi aktif ke COM11
 
 - Menetapkan COM11 sebagai port upload/monitor PlatformIO

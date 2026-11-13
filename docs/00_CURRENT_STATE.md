@@ -1,5 +1,24 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 13 November 2026 pukul 17.10 — Upload RF30 COM11 tetap timeout, NO FLASH
+
+Perangkat FT232RL onboard PCB kedua terdeteksi sebagai `COM11`
+USB serial `A10KNJBLA`; receiver background tidak aktif dan
+`data/raw/.incoming` kosong. Skrip guarded deployment
+`scripts/com11_rf30_verified_deploy.py` dijalankan dengan
+otorisasi upload, tetapi tahap pertama
+`avrdude 6.3 -c wiring -p m2560 -P COM11 -b 115200 -n -v`
+berakhir `stk500v2_ReceiveMessage(): timeout` (dibatasi 20 detik).
+**Signature tidak ada, backup PCB kedua tidak bisa dilakukan,
+Flash dan EEPROM tidak ditulis.**
+
+Pi 5 kemudian kembali online via SSH `enose-v3@enose-pi5`;
+`throttled=0x0`, hash RF500 dan kandidat RF30 cocok.
+Pi memang tidak memiliki `/dev/ttyUSB0` karena kabel USB berada
+di laptop Windows. Runtime inference live tetap tidak aktif.
+Rincian dan bukti privat:
+`docs/reports/2026-11-13_COM11_RF30_BOUNDED_DEPLOYMENT_ATTEMPT.md`.
+
 ## 13 November 2026 pukul 16.39 — Konfigurasi perangkat aktif ke COM11
 
 Operator memastikan PCB kedua FT232RL onboard sekarang **COM11**.
