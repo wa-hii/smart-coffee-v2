@@ -1,5 +1,21 @@
 # Catatan perubahan proyek
 
+## 13 November 2026 — Diagnosis ulang PCB kedua setelah PSU custom stabil
+
+- Pi 5 boot baru: `get_throttled=0x0`,
+  `EXT5V_V` lima kali di kisaran 5,11344–5,14560 V
+  tanpa undervoltage terdeteksi.
+- FT232R `A10KNJBL` terenumerasi di Pi pada
+  `/dev/ttyUSB0`; serial passive 30 detik
+  115200 baud, DTR/RTS false, RX=0 byte,
+  TX=0 byte, tanpa disconnect baru.
+- Raw UART dan metadata disimpan privat di
+  `private/second_pcb_pi_readonly/`, bukan Git.
+- Firmware fisik MCU belum teridentifikasi;
+  kontrak startup Nextion dan build RF30 hanya
+  PASS offline. RF500 live tetap ditahan.
+- Laporan: `docs/reports/2026-11-13_SECOND_PCB_POST_POWER_RECOVERY_DIAGNOSIS.md`.
+
 ## 13 November 2026 — Pemeriksaan ulang PSU custom 5V pada kondisi idle
 
 - Mendokumentasikan konfirmasi operator: daya Pi berasal

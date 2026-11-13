@@ -1,5 +1,27 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 13 November 2026 pukul 18.43 — Uji ulang pasca-PSU aman: Pi PASS, MCU tetap UNKNOWN
+
+Setelah operator memperbaiki daya PSU custom,
+Pi 5 boot baru dengan `get_throttled=0x0`,
+`EXT5V_V=5,11746 V`, suhu 36,7°C.
+Lima sampel idle PMIC 5,11344–5,14560 V
+semuanya tanpa flag undervoltage/throttling;
+tidak ada `Undervoltage detected` pada boot yang
+diperiksa. FT232R `A10KNJBL` tetap pada
+`/dev/ttyUSB0`.
+
+Probe read-only ulang 30 detik @ 115200 selesai:
+`rx_bytes=0`, `uart_tx_bytes=0`, tidak ada
+USB disconnect baru, dan tidak ada `FW_HELLO`.
+Raw + metadata disimpan privat di
+`private/second_pcb_pi_readonly/diagnostics_20261113_after_power_fix_passive_01/`.
+Karena source normal dapat diam saat idle,
+**firmware fisik dan akar masalah Nextion
+belum teridentifikasi**. RF500 tetap ditahan,
+tidak ada flashing/EEPROM/perintah aktuator.
+Laporan: `docs/reports/2026-11-13_SECOND_PCB_POST_POWER_RECOVERY_DIAGNOSIS.md`.
+
 ## 13 November 2026 pukul 18.25 — PSU custom 5V kembali normal saat idle, belum lolos startup
 
 Operator mengonfirmasi Raspberry Pi 5 menggunakan **PSU 5 V
