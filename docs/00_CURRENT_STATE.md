@@ -1,5 +1,26 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 13 November 2026 — FT232R PCB kedua di Windows COM11, bootloader timeout
+
+Operator memindah FT232R dari Pi ke laptop Windows.
+`python -m serial.tools.list_ports -v` mengidentifikasi
+`COM11`, `0403:6001`, serial `A10KNJBLA` (FTDI; selaras
+dengan adaptor `A10KNJBL` yang sebelumnya di Pi).
+Receiver auto `pythonw.exe` PID 15160 sempat memiliki
+COM11; setelah memastikan tidak ada file `.incoming`,
+receiver dihentikan dan dibiarkan berhenti untuk pengujian
+programmer.
+
+Satu percobaan read-only `avrdude 6.3 -p m2560
+-c wiring -P COM11 -b 115200 -n -v` menghasilkan
+`stk500v2_ReceiveMessage(): timeout`; signature
+ATmega2560 tidak terbaca, tidak dilakukan upload.
+Backup Flash/EEPROM PCB kedua tidak ditemukan dalam
+inventaris privat saat ini. Firmware RF30 dan model
+Pi masih staged; **NO-GO physical deployment**.
+Laporan:
+`docs/reports/2026-11-13_COM11_WINDOWS_FT232R_BOOTLOADER_TIMEOUT.md`.
+
 ## 12 November 2026 sore — Preflight deployment PCB kedua fail-closed
 
 USB FT232R Pi `A10KNJBL` tetap aktif dan model RF500

@@ -1,5 +1,19 @@
 # Catatan perubahan proyek
 
+## 13 November 2026 — COM11 Windows terdeteksi, bootloader belum respons
+
+- FT232R pada PCB kedua pindah ke COM11 Windows
+  (FTDI `0403:6001`, serial `A10KNJBLA`).
+- Receiver otomatis PID 15160 dihentikan sesudah
+  memeriksa folder akuisisi sementara kosong;
+  receiver tetap berhenti untuk mencegah perebutan COM11.
+- Upaya AVRDUDE 6.3 membaca signature ATmega2560
+  dengan `wiring/115200` pada COM11 masih timeout.
+  Tidak ada upload firmware/EEPROM/HMI dan data
+  maupun konfigurasi PCB lama tidak disentuh.
+- Laporan:
+  `docs/reports/2026-11-13_COM11_WINDOWS_FT232R_BOOTLOADER_TIMEOUT.md`.
+
 ## 12 November 2026 — Release gate PCB kedua diuji langsung di Pi
 
 - Menambahkan skrip status release RF30 fail-closed
