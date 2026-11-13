@@ -1,5 +1,27 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 13 November 2026 — Audit ulang: FT232RL adalah IC ONBOARD PCB kedua
+
+Operator memastikan **FT232RL berada di PCB custom ATmega2560**;
+COM11 Windows `VID:PID 0403:6001`, serial `A10KNJBLA`
+memvalidasi enumerasi FT232R-family, **bukan** keberadaan
+bootloader/komunikasi ATmega. TIDAK perlu menambah adaptor
+FT232RL eksternal. Tidak ada tombol RESET fisik, namun
+auto-reset **mungkin** tersedia bila DTR# FT232RL pin 2
+dirutekan lewat kapasitor ke RESET ATmega; net PCB belum
+diverifikasi. Upaya `wiring`/115200 sebelumnya timeout.
+
+Build RF30 (35.770 Flash, 3.917 global RAM) dan SHA256
+kandidat cocok, HMI 12 halaman/23 event dan QA 900 sampel
+PASS offline. **Origin/confidence RF500 masih N/A by design**.
+`platformio.ini` lokal masih `upload_port=COM4`, tidak
+diubah. Receiver otomatis Windows dihentikan dan COM11
+sekarang bebas; file status receiver lama bukan status live.
+**Pi di Tailscale saat audit tercatat OFFLINE**, ping
+`100.103.211.125` dan SSH timeout. Flash/EEPROM/Nextion
+fisik PCB kedua masih belum terverifikasi. Laporan:
+`docs/reports/2026-11-13_FULL_AUDIT_SECOND_PCB_ONBOARD_FT232RL_COM11.md`.
+
 ## 13 November 2026 — FT232R PCB kedua di Windows COM11, bootloader timeout
 
 Operator memindah FT232R dari Pi ke laptop Windows.

@@ -1,5 +1,22 @@
 # Catatan perubahan proyek
 
+## 13 November 2026 — Audit ulang komprehensif FT232RL onboard
+
+- Memperbaiki interpretasi topologi: FT232RL merupakan
+  **IC onboard PCB kedua**, bukan modul FT232RL eksternal.
+  Enumerasi COM11 tidak sama dengan MCU siap diprogram.
+- QA build RF30, checksum kandidat, Nextion dan parser
+  900 ADC PASS offline; upload tidak dijalankan.
+- Menemukan status Pi 5 offline di Tailscale pada pemeriksaan
+  terbaru; diagnosis Pi live kini terpisah dari diagnosis
+  bootloader ATmega dan startup Nextion.
+- Membukukan risiko `upload_port=COM4` yang stale,
+  receiver Windows yang dihentikan, serta origin/confidence
+  yang memang N/A oleh desain RF500 kandidat.
+- Rencana diagnosis net DTR#/RESET dan ISP serta syarat
+  backup khusus PCB kedua: lihat
+  `docs/reports/2026-11-13_FULL_AUDIT_SECOND_PCB_ONBOARD_FT232RL_COM11.md`.
+
 ## 13 November 2026 — COM11 Windows terdeteksi, bootloader belum respons
 
 - FT232R pada PCB kedua pindah ke COM11 Windows
