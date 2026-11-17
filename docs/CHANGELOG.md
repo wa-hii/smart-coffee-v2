@@ -1,5 +1,23 @@
 # Catatan perubahan proyek
 
+## 17 November 2026 — Upload dan verifikasi ArduinoISP programmer COM6
+
+- Operator mengizinkan penimpaan sketch Arduino Mega CH340 COM6.
+- PlatformIO upload ArduinoISP ke **COM6** sukses,
+  ATmega2560 signature `0x1e9801`, **5406 byte Flash
+  ditulis dan diverifikasi**.
+- Uji runtime COM6 `stk500v1 @ 19200`:
+  sign-on `30 20` diterima dan membalas `14 10`,
+  memastikan sketch ArduinoISP berjalan.
+- Skrip baru `com6_arduinoisp_runtime_check.py`
+  dan mock QA lulus, tanpa menggunakan COM11
+  atau memanggil programming mode target.
+- PCB E-Nose belum terhubung melalui ISP yang
+  terverifikasi; receiver tetap aktif, tidak
+  ada Flash/EEPROM target ditulis.
+- Laporan:
+  `docs/reports/2026-11-17_COM6_ARDUINOISP_UPLOAD_VERIFY_AND_RUNTIME_SIGNON.md`.
+
 ## 17 November 2026 — Persiapan COM6 Mega sebagai ISP untuk PCB E-Nose COM11
 
 - Verifikasi USB CH340 programmer **COM6** dan FT232RL

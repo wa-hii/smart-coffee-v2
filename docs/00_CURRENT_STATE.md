@@ -1,5 +1,25 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 17 November 2026 — ArduinoISP pada Mega COM6 telah di-upload, diverifikasi dan berjalan
+
+Atas **izin eksplisit operator** menimpa sketch Mega CH340 COM6,
+`pio run -c scripts/platformio_com6_arduinoisp.ini -e mega_as_isp -t upload`
+**SUCCESS**. Signature programmer `0x1e9801`, AVRDUDE menulis
+**5406 byte** Flash dan memverifikasi **5406 byte PASS**.
+Image SHA256:
+`fd40f224c2aa009afa3606d0931305a4f5df46f405a15d43775aa68afb35f408`.
+Perintah STK500v1 sign-on pada COM6 @19200:
+`30 20` → **`14 10`**, `ARDUINOISP_SIGNON_PASS`.
+Programmer **READY**.
+
+**PCB E-Nose kedua COM11 belum diakses melalui ISP**: kabel
+RESET/MOSI/MISO/SCK/GND dan catu target belum dikonfirmasi.
+Receiver COM11 yang sebelumnya aktif **tidak dihentikan**.
+Tidak ada erase/write ke PCB E-Nose, backup target
+belum didapatkan, dan RF500 live tetap **NO-GO**.
+Laporan:
+`docs/reports/2026-11-17_COM6_ARDUINOISP_UPLOAD_VERIFY_AND_RUNTIME_SIGNON.md`.
+
 ## 17 November 2026 — Calon ISP berpindah ke Mega CH340 COM6; COM11 target tetap aman
 
 Windows mendeteksi **Arduino Mega CH340 COM6** (`1A86:7523`) dan
