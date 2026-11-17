@@ -1,5 +1,48 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 17 November 2026, 20.50 WIB — Dark–Toraja N/A akibat mismatch API bridge; FIXED, retest diperlukan
+
+Tes Dark–Toraja (D-TOR) via Nextion menghasilkan
+Roast `N/A`. Listener permanen PID 2675 hidup
+tetapi tidak mencatat `ACQ_START`, 900 sampel
+atau hasil; direktori recordings kosong.
+Tes ulang read-only `#status;` setelah
+listener dihentikan menghasilkan 1457 byte
+balasan, `FW_HELLO`, build-id sesuai
+dan ADS1115 4/4 PASS.
+
+Instrumentasi diagnosa akhirnya menunjukkan
+akar masalah nyata:
+`TypeError: HostSession.feed() got an unexpected keyword argument 'predictor'`.
+Listener baru sebelumnya meng-import bridge
+versi lama dari root staging Pi, sehingga
+semua frame dibuang tanpa memulai sesi model.
+**Ini bukan misclassification D-TOR.**
+
+Versi bridge repo yang mendukung `predictor`
+SHA256 `799a506c08f057667e81e9e40ae51a6b6059b435907482341945d299ab4acc71`
+telah disalin ke folder rilis `always_on`
+**tanpa** mengubah versi lama.
+Listener diperbaiki untuk memvalidasi
+direktori modul/API/build-id **sebelum** membuka
+serial, plus heartbeat RX dan pencatatan
+alasan frame prestart ditolak. QA offline
+dan preflight Pi PASS; replay 900 sampel
+`D-CAT_B70` offline PASS.
+
+Listener baru PID **3174** kembali
+`RF500_PERSISTENT_READY`, memegang
+`/dev/ttyUSB0`, `FW_HELLO` teramati,
+dan heartbeat menunjukkan
+`prestart_start_rejections=0`.
+Model dan firmware tidak di-flash ulang,
+Pi tetap `throttled=0x0`.
+**Retest fisik Dark–Toraja setelah fix
+belum dilakukan**; label Dark lama tetap
+berstatus N/A tanpa prediksi yang sah.
+Laporan:
+`docs/reports/2026-11-17_PI5_DARK_TORAJA_NA_STALE_RF30_BRIDGE_FIXED.md`.
+
 ## 17 November 2026 sekitar 20.15 WIB — Pi5 listener RF500 permanen ACTIVE dan boot autorun terdaftar
 
 Pengguna menyatakan ground truth sampel AI Test pertama

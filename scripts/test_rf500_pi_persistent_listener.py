@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 import json
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from rf500_pi_persistent_listener import PersistentHandler
+from rf500_pi_persistent_listener import (
+    PersistentHandler, verify_bridge_compatibility,
+)
 from test_rf30_pi_result_bridge import frames
 
 
@@ -73,6 +77,68 @@ def test_fail_closed() -> None:
         print("RF500_PERSISTENT_INVALID_SESSION_BLOCKS_RESULT_AND_RECOVERS_PASS")
 
 
+def test_prestart_diagnostics() -> None:
+    """Unexpected frames never cause a guessed session or a model TX."""
+    with TemporaryDirectory() as root:
+        dest = Path(root) / "recordings"
+        model_calls = []
+        controller = PersistentHandler(
+            predictor=lambda _: model_calls.append("ILLEGAL_PREDICTION"),
+            archive_dir=dest)
+        trace = StringIO()
+        with redirect_stdout(trace):
+            controller.receive(b"\xff\x00\n")
+            controller.receive(
+                b'{"timestamp":1,"cycle":1,"phase":"purging","sample_idx":1}\n')
+            controller.receive(
+                b'{"event":"ACQ_START","mode":"ai_test","fw_build_id":"WRONG","cycles_total":30,"purge_s":25,"collect_s":5,"ai_session_token":"B1F503A9"}\n')
+        assert controller.prestart_frames == 3
+        assert controller.prestart_non_json == 1
+        assert controller.prestart_sensor_frames == 1
+        assert controller.prestart_start_rejections == 1
+        assert controller.session.token is None
+        assert not model_calls
+        assert not list(dest.glob("*"))
+        printed = trace.getvalue()
+        assert "RF500_PRESTART_NONJSON_FRAME" in printed
+        assert "RF500_SENSOR_FRAME_WITHOUT_ACQ_START" in printed
+        assert "RF500_ACQ_START_FRAME_RECEIVED" in printed
+        assert "RF500_PRESTART_FRAME_REJECTED" in printed
+        # Valid next ACQ_START still opens a fresh session without serial re-open.
+        command, status = controller.receive(frames()[1])
+        assert command is None and status["status"] == "CAPTURE_STARTED"
+        print("RF500_PERSISTENT_PRESTART_DIAGNOSTICS_FAIL_CLOSED_PASS")
+
+
+def test_bridge_api_release_gate() -> None:
+    # Reject a stale bridge module before opening USB, loading model or
+    # running an apparently healthy but unusable listener.
+    from unittest.mock import patch
+    import rf500_pi_persistent_listener as app
+    verify_bridge_compatibility()
+    with patch.object(app.bridge_module, "__file__", "/tmp/old_bridge.py"):
+        try:
+            verify_bridge_compatibility()
+        except RuntimeError as exc:
+            assert "RF30_BRIDGE_NOT_SAME_RELEASE_DIRECTORY" in str(exc)
+        else:
+            raise AssertionError("stale_bridge_path_not_rejected")
+    class OldFeed:
+        @staticmethod
+        def feed(self, line):
+            return None
+    with patch.object(app, "HostSession", OldFeed):
+        try:
+            verify_bridge_compatibility()
+        except RuntimeError as exc:
+            assert "RF30_BRIDGE_PREDICTOR_API_MISSING" in str(exc)
+        else:
+            raise AssertionError("stale_bridge_api_not_rejected")
+    print("RF500_PERSISTENT_PINNED_BRIDGE_API_GATE_PASS")
+
+
 if __name__ == "__main__":
     test_two_successful_sessions()
     test_fail_closed()
+    test_prestart_diagnostics()
+    test_bridge_api_release_gate()

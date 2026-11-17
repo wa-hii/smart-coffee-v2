@@ -1,5 +1,31 @@
 # Catatan perubahan proyek
 
+## 17 November 2026 — Perbaikan Dark–Toraja N/A akibat bridge API lama pada Pi
+
+- AI Test Dark–Toraja menunjukkan N/A,
+  log listener lama tidak memuat `ACQ_START`
+  maupun prediksi.
+- Diagnosis via instrumentasi:
+  `HostSession.feed(...predictor=...)`
+  tidak didukung oleh modul `rf30_pi_result_bridge`
+  versi lama di Pi; setiap frame ditolak
+  sebelum sesi dimulai.
+- Salin bridge yang benar ke direktori rilis
+  `always_on`, tanpa menimpa staging asli.
+- Tambah API/version/directory startup guard
+  untuk fail-fast, log frame prestart/heartbeat
+  untuk memperjelas gangguan di masa depan.
+- Tambah preflight read-only Pi dan tes
+  regresi API mismatch + dua sesi berturut-turut.
+- Hasil Pi: preflight PASS; replay model 900
+  sampel offline PASS. Listener PID 3174 READY,
+  `prestart_start_rejections=0`.
+- Masih perlu pengujian Dark–Toraja fisik
+  setelah perbaikan; tidak ada akurasi model
+  yang dapat dinilai dari percobaan N/A.
+- Laporan:
+  `docs/reports/2026-11-17_PI5_DARK_TORAJA_NA_STALE_RF30_BRIDGE_FIXED.md`.
+
 ## 17 November 2026 — Listener Pi5 permanen dengan autostart dan capture 900 sampel
 
 - Ground truth tes pertama dari pengguna:

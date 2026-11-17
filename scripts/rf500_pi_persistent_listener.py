@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 from datetime import datetime, timezone
+import inspect
 import json
 import os
 from pathlib import Path
@@ -24,6 +25,7 @@ import subprocess
 import sys
 import time
 
+import rf30_pi_result_bridge as bridge_module
 from rf30_pi_result_bridge import (
     BoundedLineFramer, BUILD_ID, HostSession, ReturnProtocolError,
     USB_BY_ID, strict_json,
@@ -40,7 +42,25 @@ MAX_ARCHIVE_RECORDS = 1100
 ALLOWED_FRAME_ERRORS = 8
 
 
+def verify_bridge_compatibility() -> None:
+    """Prevent old staged RF30 module silently rejecting every AI Test.
+
+    Prior incident: listener in always_on imported an older bridge from
+    rf30_staging root that lacked HostSession.feed(predictor=...), causing
+    every frame to be discarded and the LCD to show N/A after 30 cycles.
+    """
+    expected_dir = Path(__file__).resolve().parent
+    actual_module = Path(bridge_module.__file__).resolve()
+    if actual_module.parent != expected_dir:
+        raise RuntimeError("RF30_BRIDGE_NOT_SAME_RELEASE_DIRECTORY")
+    if "predictor" not in inspect.signature(HostSession.feed).parameters:
+        raise RuntimeError("RF30_BRIDGE_PREDICTOR_API_MISSING")
+    if bridge_module.BUILD_ID != "take30-ai30-rfhost-20261110":
+        raise RuntimeError("RF30_BRIDGE_BUILD_ID_INCOMPATIBLE")
+
+
 def verify_host(port: Path, model: Path, metadata: Path) -> None:
+    verify_bridge_compatibility()
     if (port != PORT or not USB_BY_ID.fullmatch(str(port))
             or FTDI_SERIAL not in port.name):
         raise RuntimeError("WRONG_USB_FTDI_TARGET_STOP")
@@ -111,6 +131,11 @@ class PersistentHandler:
         self.successful_sessions = 0
         self.bad_frames = 0
         self.last_sensor_time = time.monotonic()
+        self.prestart_frames = 0
+        self.prestart_non_json = 0
+        self.prestart_sensor_frames = 0
+        self.prestart_start_rejections = 0
+        self.last_prestart_event = None
 
     def abandon(self, reason: str) -> dict:
         if self.session.token is not None:
@@ -126,6 +151,41 @@ class PersistentHandler:
 
     def receive(self, raw: bytes) -> tuple[bytes | None, dict]:
         """Return optional vetted result command. Caller alone owns UART TX."""
+        # Diagnostic only: show WHY a real acquisition was not recognized.
+        # Do not forward any unvalidated frames to the model or ATmega.
+        if not self.quarantine and self.session.token is None:
+            self.prestart_frames += 1
+            try:
+                start_probe = strict_json(raw.decode("utf8"))
+                event = start_probe.get("event")
+                if isinstance(event, str):
+                    self.last_prestart_event = event[:48]
+                if event == "ACQ_START":
+                    print("RF500_ACQ_START_FRAME_RECEIVED", json.dumps({
+                        "mode": start_probe.get("mode"),
+                        "fw_build_id": start_probe.get("fw_build_id"),
+                        "cycles_total": start_probe.get("cycles_total"),
+                        "purge_s": start_probe.get("purge_s"),
+                        "collect_s": start_probe.get("collect_s"),
+                        "token_present": bool(start_probe.get("ai_session_token")),
+                    }), flush=True)
+                elif event in ("FW_HELLO", "ACQ_STOP", "ACQ_COMPLETE",
+                               "AI_AWAITING_RESULT", "AI_RESULT_TIMEOUT",
+                               "ACQ_TIMING_FAULT", "AI_RESULT_UNAVAILABLE"):
+                    print("RF500_PRESTART_FIRMWARE_EVENT", event, flush=True)
+                elif event is None and "phase" in start_probe and "sample_idx" in start_probe:
+                    self.prestart_sensor_frames += 1
+                    if self.prestart_sensor_frames <= 3 or self.prestart_sensor_frames % 100 == 0:
+                        print("RF500_SENSOR_FRAME_WITHOUT_ACQ_START", json.dumps({
+                            "count": self.prestart_sensor_frames,
+                            "cycle": start_probe.get("cycle"),
+                            "phase": start_probe.get("phase"),
+                            "sample_idx": start_probe.get("sample_idx"),
+                        }), flush=True)
+            except (ValueError, UnicodeError, TypeError):
+                self.prestart_non_json += 1
+                if self.prestart_non_json <= 3 or self.prestart_non_json % 100 == 0:
+                    print("RF500_PRESTART_NONJSON_FRAME", self.prestart_non_json, flush=True)
         if self.quarantine:
             # A new explicit, contract-valid ACQ_START is the sole way
             # to recover, without reopening serial/causing DTR reset.
@@ -155,6 +215,13 @@ class PersistentHandler:
             command, status = self.session.feed(
                 raw, allow_predict=True, predictor=self.predictor)
         except (ReturnProtocolError, KeyError, TypeError, ValueError) as exc:
+            if self.session.token is None:
+                self.prestart_start_rejections += 1
+                print("RF500_PRESTART_FRAME_REJECTED", json.dumps({
+                    "count": self.prestart_start_rejections,
+                    "reason": type(exc).__name__ + ":" + str(exc)[:120],
+                    "last_event": self.last_prestart_event,
+                }), flush=True)
             return None, self.abandon(type(exc).__name__ + ":" + str(exc)[:120])
         state = status["status"]
         if state == "CAPTURE_STARTED":
@@ -203,6 +270,10 @@ def listen_forever(port: Path, model_path: Path, metadata_path: Path,
     conn.dtr = False
     conn.rts = False
     handler = PersistentHandler(predictor=predict, archive_dir=archive_dir)
+    rx_bytes_total = 0
+    rx_frames_total = 0
+    last_any_rx = time.monotonic()
+    last_heartbeat = time.monotonic()
     stop = False
     def request_stop(_sig, _frame):
         nonlocal stop
@@ -220,9 +291,28 @@ def listen_forever(port: Path, model_path: Path, metadata_path: Path,
         framer = BoundedLineFramer()
         while not stop:
             data = conn.read(512)
+            now = time.monotonic()
+            if data:
+                rx_bytes_total += len(data)
+                last_any_rx = now
+            if now - last_heartbeat >= 45:
+                print("RF500_TRANSPORT_HEARTBEAT", json.dumps({
+                    "rx_bytes_total": rx_bytes_total,
+                    "rx_frames_total": rx_frames_total,
+                    "last_rx_age_s": round(now - last_any_rx, 1),
+                    "active_capture": handler.session.token is not None,
+                    "quarantine": handler.quarantine,
+                    "prestart_frames": handler.prestart_frames,
+                    "prestart_non_json": handler.prestart_non_json,
+                    "prestart_sensor_frames": handler.prestart_sensor_frames,
+                    "prestart_start_rejections": handler.prestart_start_rejections,
+                    "last_prestart_event": handler.last_prestart_event,
+                    "successful_sessions": handler.successful_sessions,
+                }), flush=True)
+                last_heartbeat = now
             if not data:
                 if (handler.session.token and not handler.quarantine
-                    and time.monotonic()-handler.last_sensor_time > MAX_IDLE_ACTIVE_S):
+                    and now-handler.last_sensor_time > MAX_IDLE_ACTIVE_S):
                     handler.abandon("UART_SENSOR_IDLE_TIMEOUT")
                 continue
             try:
@@ -232,6 +322,7 @@ def listen_forever(port: Path, model_path: Path, metadata_path: Path,
                 framer = BoundedLineFramer()
                 continue
             for line in lines:
+                rx_frames_total += 1
                 command, status = handler.receive(line)
                 if command is not None:
                     # No arbitrary command may be sent; only session-bound
