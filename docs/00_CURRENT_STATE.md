@@ -1,5 +1,29 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 17 November 2026 malam — RF30 berhasil di-flash COM4, boot UART0 PASS
+
+USB FT232RL `A10KMZQJA` pada **COM4** (perangkat E-Nose yang
+pernah berhasil di-flash 17 Oktober 2026) ditargetkan atas
+instruksi operator. **Berbeda dari COM11 `A10KNJBLA`**.
+Bootloader `wiring/115200` PASS `0x1e9801`.
+Sebelum penulisan dilakukan backup Flash 262144 byte dan
+EEPROM 4096 byte COM4, termasuk baca langsung 738 byte
+suffix `FF` memakai terminal AVRDUDE; dua pembacaan
+sebelumnya cocok. Backup tidak di-push.
+
+Kandidat RF30 SHA256
+`26833b3cda23d65bae6b33b796331efa0f803071aa283e592ab6fffabeafebb6`
+**35.770 byte ditulis dan di-verify**, lalu verifikasi
+terpisah PASS. Uji UART0 read-only awal menerima 0 byte;
+setelah satu DTR reset 140 ms menerima 991 byte dengan
+`FW_HELLO`, `build_id=take30-ai30-rfhost-20261110`,
+`ADS1115 4/4`, Nextion `Serial2@9600` dan
+`Sistem siap`. EEPROM/fuse/lockbits tidak ditulis.
+Kalibrasi belum tersedia; HMI `pHome` fisik,
+aktuator, dan model RF Pi **BELUM** diverifikasi.
+Laporan:
+`docs/reports/2026-11-17_COM4_RF30_FLASH_VERIFIED_BACKUP_AND_UART_BOOT.md`.
+
 ## 17 November 2026 pukul 18.18 — percobaan upload RF30 COM11 tetap timeout
 
 Operator mengizinkan langsung upload via laptop COM11.

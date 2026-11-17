@@ -1,5 +1,24 @@
 # Catatan perubahan proyek
 
+## 17 November 2026 — RF30 COM4 ter-upload, terverifikasi dan boot
+
+- Identifikasi FT232RL `A10KMZQJA` pada COM4,
+  berbeda dari target historis COM11; riwayat firmware
+  E-Nose 12 halaman COM4 telah tersedia.
+- Uji bootloader PASS `0x1e9801`.
+- Backup asli Flash 256KiB dan EEPROM 4KiB
+  konsisten melalui dua readback dan dump langsung
+  suffix 738 byte `FF`; file disimpan privat.
+- Flash kandidat RF30 35.770 byte **PASS**,
+  verifikasi Flash terpisah **PASS**.
+- Capture UART0 setelah reset DTR sekali:
+  `FW_HELLO`, `ADS1115 4/4`, `Sistem siap`
+  PASS; kalibrasi sensor belum tersedia.
+- HMI fisik, aktuator, dan inference Raspberry Pi
+  masih menunggu pengujian terpisah.
+- Laporan:
+  `docs/reports/2026-11-17_COM4_RF30_FLASH_VERIFIED_BACKUP_AND_UART_BOOT.md`.
+
 ## 17 November 2026 — percobaan flashing RF30 via COM11 (dihentikan aman)
 
 - Operator meminta upload USB langsung ke PCB E-Nose COM11.
