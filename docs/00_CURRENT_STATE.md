@@ -1,5 +1,27 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 17 November 2026, 19.39 WIB — listener RF500 Pi5 live READY
+
+Setelah operator mengonfirmasi AI Test sebelumnya sudah
+berhenti di menu, dilakukan aktivasi listener RF500
+melalui `/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A10KMZQJ-if00-port0`
+Pi 5. Versi lama terhenti karena frame NUL/serial
+startup sebelum `ACQ_START`. Bridge diperbaiki
+untuk mengabaikan maksimal 8 frame corrupt
+**sebelum** start dan tetap fail-closed setelah
+`ACQ_START`. QA offline PASS.
+
+Versi baru di-stage terpisah dan proses **PID 2264**
+berstatus `RF30_SERIAL_LISTENER_READY_SUPERVISED`;
+`fuser /dev/ttyUSB0` cocok dengan PID,
+`throttled=0x0`. Jendela listener 1260 detik.
+Belum ada bukti 900 frame, ACK hasil fisik
+atau perubahan `pResult` saat laporan ditulis.
+Log Pi:
+`~/smart-coffee-stage7/rf30_staging/com4_integration_20261117/live_rf500_01/listener.log`.
+Laporan:
+`docs/reports/2026-11-17_PI5_RF500_LIVE_LISTENER_READY_COM4.md`.
+
 ## 17 November 2026 — Raspberry Pi 5 menerima E-Nose FT232RL COM4; RF500 offline PASS
 
 Setelah COM4 dicabut dari Windows dan dipindah ke

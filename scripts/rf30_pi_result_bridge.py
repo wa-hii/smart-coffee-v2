@@ -99,6 +99,7 @@ def validate_start(event:dict)->str:
 class HostSession:
     def __init__(self):
         self.token=None
+        self.prestart_noise_frames=0
         self.capture=[]
         self.samples=0
         self.complete=False
@@ -108,6 +109,18 @@ class HostSession:
         self.terminal=False
         self.last_ts=-1
         self.error=None
+
+    def reject_or_skip_corrupt_startup(self, reason: str):
+        # FT232RL DTR/MCU boot may produce isolated binary/NUL UART frames.
+        # Ignore only BEFORE a validated ACQ_START and only within a small
+        # bounded budget. Once a session starts, corrupted data remains fatal.
+        if self.token is not None:
+            raise ReturnProtocolError(reason)
+        self.prestart_noise_frames+=1
+        if self.prestart_noise_frames>8:
+            raise ReturnProtocolError("too_many_corrupt_prestart_frames")
+        return None, {"status":"PRESTART_SERIAL_NOISE_IGNORED",
+                      "skipped":self.prestart_noise_frames}
 
     def feed(self, line:bytes|str,*,model_path=None,metadata_path=None,
              model=None,allow_predict=False,predictor=None):
@@ -120,12 +133,13 @@ class HostSession:
             return None, {"status":"IGNORED_AFTER_TERMINAL"}
         if isinstance(line,bytes):
             if len(line)>MAX_FRAME or b"\x00" in line:
-                raise ReturnProtocolError("invalid_or_oversized_serial_frame")
+                return self.reject_or_skip_corrupt_startup(
+                    "invalid_or_oversized_serial_frame")
             try: line=line.decode("utf8")
             except UnicodeDecodeError as e:
-                raise ReturnProtocolError("invalid_serial_encoding") from e
+                return self.reject_or_skip_corrupt_startup("invalid_serial_encoding")
         if len(line.encode("utf8"))>MAX_FRAME:
-            raise ReturnProtocolError("oversized_serial_frame")
+            return self.reject_or_skip_corrupt_startup("oversized_serial_frame")
         # Duplicate JSON keys, NaN and non-objects are not acceptable.
         try:
             obj=strict_json(line)
@@ -304,6 +318,15 @@ def live_run(port:Path, expected_serial:str, model_path:Path, metadata_path:Path
                            model_path=model_path,metadata_path=metadata_path,model=model)
                 except ReturnProtocolError:
                     raise
+                # Progress visibility without weakening 900-row / token gates.
+                if status["status"]=="CAPTURE_STARTED":
+                    print("RF30_LIVE_CAPTURE_STARTED_30_CYCLES",flush=True)
+                elif status["status"]=="SAMPLE_ACCEPTED" and session.samples%30==0:
+                    print(f"RF30_LIVE_CYCLE_COMPLETE {session.samples//30}/30",flush=True)
+                elif status["status"]=="PRESTART_SERIAL_NOISE_IGNORED":
+                    print(f"RF30_PRESTART_SERIAL_NOISE_SKIPPED {status['skipped']}/8",flush=True)
+                elif status["status"] in ("CAPTURE_COMPLETE","RESULT_READY_FOR_SUPERVISED_TX"):
+                    print(f"RF30_LIVE_{status['status']}",flush=True)
                 if command is not None:
                     if transmitted:
                         raise ReturnProtocolError("duplicate_tx_attempt")

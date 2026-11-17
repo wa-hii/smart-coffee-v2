@@ -94,6 +94,21 @@ def main():
         not_started=HostSession()
         _,status=not_started.feed(message[0])
         assert status["status"]=="WAITING_FOR_AI_START"
+        # FTDI/ATmega boot can send isolated NUL/binary frames.
+        # Strictly bounded tolerance applies ONLY before ACQ_START.
+        noisy=HostSession()
+        _,status=noisy.feed(b"\x00\xff\r\n")
+        assert status["status"]=="PRESTART_SERIAL_NOISE_IGNORED"
+        _,status=noisy.feed(message[1])
+        assert status["status"]=="CAPTURE_STARTED"
+        fail(lambda:noisy.feed(b"\x00\xff\r\n"),
+             "invalid_or_oversized_serial_frame")
+        too_noisy=HostSession()
+        for _ in range(8):
+            _,status=too_noisy.feed(b"\x00\n")
+            assert status["status"]=="PRESTART_SERIAL_NOISE_IGNORED"
+        fail(lambda:too_noisy.feed(b"\x00\n"),
+             "too_many_corrupt_prestart_frames")
         fail(lambda:_bad(message[:53]+message[54:]),"bad_cycle_phase_or_index")
         wrong_await=json.loads(message[-1]);wrong_await["token"]="00000001"
         fail(lambda:_bad(message[:-1]+[(json.dumps(wrong_await)+"\n").encode()]),

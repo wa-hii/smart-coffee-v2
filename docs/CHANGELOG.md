@@ -1,5 +1,25 @@
 # Catatan perubahan proyek
 
+## 17 November 2026 — Perbaikan noise startup dan aktivasi listener live Pi5
+
+- Saat pertama kali menjalankan listener, ditemukan
+  frame serial NUL/corrupt pada startup; listener
+  lama berhenti tanpa mengirim prediksi.
+- Perbaiki `HostSession`: toleransi maksimal
+  8 frame rusak hanya sebelum `ACQ_START`;
+  setelah start tetap fatal.
+- Tambah log progres per 30 sampel/1 siklus,
+  tes regresi prestart noise dan batas keamanan PASS.
+- Salin versi bridge ke staging baru Pi tanpa
+  menimpa bridge sebelumnya. Listener PID 2264
+  berhasil membuka `/dev/ttyUSB0`
+  dan melaporkan
+  `RF30_SERIAL_LISTENER_READY_SUPERVISED`.
+- Tidak mengirim perintah aktuator. Hasil AI live
+  dan ACK MCU belum diverifikasi pada tahap READY.
+- Laporan:
+  `docs/reports/2026-11-17_PI5_RF500_LIVE_LISTENER_READY_COM4.md`.
+
 ## 17 November 2026 — Integrasi Pi5/COM4, status UART PASS dan RF500 replay offline
 
 - Pemetaan USB FT232RL COM4 serial `A10KMZQJ`
