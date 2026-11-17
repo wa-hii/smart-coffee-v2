@@ -1,5 +1,24 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 17 November 2026 — Calon ISP berpindah ke Mega CH340 COM6; COM11 target tetap aman
+
+Windows mendeteksi **Arduino Mega CH340 COM6** (`1A86:7523`) dan
+**PCB E-Nose kedua FT232RL COM11** (`A10KNJBLA`).
+Bootloader Mega programmer COM6 **PASS signature `0x1e9801`**
+melalui read-only `wiring/115200`. COM11 saat diperiksa
+sedang dipantau oleh `lcd_acquisition_service.py`; proses
+tidak dihentikan atau port dibuka.
+
+Build ArduinoISP khusus COM6 **PASS**, Flash 5406 byte,
+RAM 482 byte, **belum di-upload**. Percobaan backup sketch
+lama COM6 menghasilkan Flash `ALL_FF_READBACK_NOT_RECOVERABLE`,
+sehingga **belum ada backup yang tepercaya**.
+Menunggu izin eksplisit penimpaan sketch COM6, pemasangan
+dan verifikasi jalur ISP, lalu shutdown receiver secara terawasi
+sebelum mencoba signature target.
+Dokumentasi:
+`docs/reports/2026-11-17_COM6_MEGA_ISP_PREFLIGHT_COM11_TARGET.md`.
+
 ## 13 November 2026 malam — Arduino Mega CH340 COM12 siap menjadi calon ISP
 
 Board **tambahan** Arduino Mega 2560 (CH340 VID:PID

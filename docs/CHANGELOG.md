@@ -1,5 +1,25 @@
 # Catatan perubahan proyek
 
+## 17 November 2026 — Persiapan COM6 Mega sebagai ISP untuk PCB E-Nose COM11
+
+- Verifikasi USB CH340 programmer **COM6** dan FT232RL
+  target **COM11** secara terpisah; signature Mega
+  COM6 read-only `0x1e9801` PASS.
+- Build ulang ArduinoISP dengan profil PlatformIO
+  khusus COM6, hasil PASS (Flash 5406 B; RAM 482 B).
+- Readback Flash/EEPROM sketch lama Mega COM6
+  tetap **tidak dapat dipercaya** (Flash `ALL_FF`);
+  tidak dilakukan upload/erase.
+- Penjaga pengujian ISP target dibuat:
+  membutuhkan konfirmasi sketch terpasang,
+  jumper dan daya aman, serta receiver berhenti.
+  Receiver Windows COM11 yang terdeteksi aktif
+  dibiarkan utuh.
+- QA pengujian port tertukar, target USB terlepas
+  saat ISP, dan fail-closed pada receiver aktif PASS.
+- Laporan:
+  `docs/reports/2026-11-17_COM6_MEGA_ISP_PREFLIGHT_COM11_TARGET.md`.
+
 ## 13 November 2026 — Persiapan Mega CH340 COM12 untuk ISP PCB kedua
 
 - Verifikasi CH340 COM12 `1A86:7523` dan

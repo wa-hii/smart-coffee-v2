@@ -16,13 +16,16 @@ from com12_mega_isp_preflight import AVRDUDE, OUT, PROGRAMMER_PORT, check
 from svm30_b6_verify_readback import parse_intel_hex
 
 
-def backup() -> dict:
-    status = check()
-    OUT.mkdir(parents=True, exist_ok=True)
-    target = OUT / ("programmer_original_" + datetime.now().strftime("%Y%m%d_%H%M%S_%f"))
+def backup(*, port: str = PROGRAMMER_PORT, output_root: Path = OUT,
+           preflight=check) -> dict:
+    status = preflight()
+    if status.get("programmer_port") != port or port not in ("COM6", "COM12"):
+        raise RuntimeError("PROGRAMMER_PORT_PRECHECK_MISMATCH")
+    output_root.mkdir(parents=True, exist_ok=True)
+    target = output_root / ("programmer_original_" + datetime.now().strftime("%Y%m%d_%H%M%S_%f"))
     target.mkdir(exist_ok=False)
     argv = [str(AVRDUDE), "-C", str(AVRDUDE.with_name("avrdude.conf")),
-            "-p", "m2560", "-c", "wiring", "-P", PROGRAMMER_PORT, "-b", "115200",
+            "-p", "m2560", "-c", "wiring", "-P", port, "-b", "115200",
             "-n", "-v", "-U", "flash:r:flash_readback.hex:i",
             "-U", "eeprom:r:eeprom_readback.hex:i"]
     status.update({"backup_dir": str(target), "readback_attempted": True,
@@ -57,7 +60,7 @@ def backup() -> dict:
             status["error"] = str(exc)
     (target / "backup_result.json").write_text(
         json.dumps(status, ensure_ascii=False, indent=2) + "\n", encoding="utf8")
-    print("COM12_ORIGINAL_PROGRAMMER_BACKUP", json.dumps({
+    print(f"{port}_ORIGINAL_PROGRAMMER_BACKUP", json.dumps({
         "readback_verified": status["readback_verified"],
         "avrdude_exit_code": exit_code,
         "backup_dir": str(target),
