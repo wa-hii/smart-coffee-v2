@@ -1,5 +1,33 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 17 November 2026 sekitar 20.15 WIB — Pi5 listener RF500 permanen ACTIVE dan boot autorun terdaftar
+
+Pengguna menyatakan ground truth sampel AI Test pertama
+adalah **Light–Toraja (L-TOR)**. Hasil RF500 `light`
+**benar untuk satu sampel**, bukan estimasi akurasi model.
+
+Dibuat `scripts/rf500_pi_persistent_listener.py`
+yang tetap membuka satu UART0 FT232RL Pi
+`/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A10KMZQJ-if00-port0`
+melintasi beberapa AI Test (tanpa keluar seusai ACK),
+menerima 30 siklus / 900 sampel dengan validasi ketat,
+dan mengirim hanya hasil roast yang valid.
+Setelah `AI_RESULT_ACK`, 900 frame mentah dan
+manifest SHA256 disimpan secara privat di Pi.
+QA dua sesi offline + fail-closed corrupt frame PASS.
+
+Autostart dipasang melalui `crontab @reboot` user
+`enose-v3` yang sudah diverifikasi; `cron.service`
+aktif, dan wrapper memiliki lock, USB identity
+guard dan restart backoff. Pada Pi
+`RF500_PERSISTENT_READY` tampil dan
+`fuser /dev/ttyUSB0` menunjuk PID 2675
+(Pi power `throttled=0x0`).
+**Belum ada reboot sungguhan atau AI Test kedua
+dengan versi listener baru** saat pelaporan.
+Laporan:
+`docs/reports/2026-11-17_PI5_RF500_PERSISTENT_AUTOBOOT_LISTENER.md`.
+
 ## 17 November 2026, sekitar 19.59–20.01 WIB — AI Test RF500 live Light, MCU ACK PASS
 
 Operator menekan Start AI Test di Nextion setelah listener
@@ -11,8 +39,9 @@ RF500 Pi5 PID 2264 READY. Log Pi asli menunjukkan
 `samples=900`, `serial_tx=true`. Operator melihat
 hasil Light di Nextion. **Integrasi end-to-end satu sesi PASS**.
 
-Ground truth roasting sampel belum diketahui, sehingga
-**akurasi model belum dapat dinilai**. Listener tidak
+Ground truth setelah sesi dikonfirmasi **Light–Toraja (L-TOR)**;
+prediksi Light **benar pada satu percobaan ini**,
+tetapi **akurasi model secara keseluruhan belum dapat dinilai**. Listener tidak
 menyimpan 900 frame raw ke CSV. Pada pemeriksaan
 sekitar 20.01 WIB, PID 2264 telah selesai,
 port `/dev/ttyUSB0` tidak lagi dipegang proses,

@@ -70,9 +70,12 @@ Pi tidak memverifikasi tampilan fisik melalui kamera.
 Nextion → ATmega akuisisi → Raspberry Pi RF500 →
 ATmega ACK → Nextion menampilkan hasil.
 
-**Belum berarti akurasi model PASS:** label roasting
-sebenarnya sampel fisik belum diberikan operator,
-dan satu tes belum mengukur repeatability atau
+**Pembaruan ground truth (setelah laporan dibuat):**
+operator mengonfirmasi sampel fisik merupakan
+**Light–Toraja (L-TOR)**, sehingga prediksi `light`
+**benar pada satu percobaan tersebut**. Ini belum
+menetapkan nilai akurasi keseluruhan; satu tes
+belum mengukur repeatability atau
 generalisasi terhadap sampel, batch, dan origin lain.
 Prediksi `origin` dan probabilitas terkalibrasi
 belum tersedia pada bridge ini.
@@ -90,9 +93,8 @@ divalidasi secara eksperimen.
 
 ## Tindak lanjut
 
-1. Catat sampel fisik yang diuji (roast level asli,
-   origin, batch dan pengulangan) untuk membandingkan
-   prediksi `light` dengan ground truth.
+1. Catat sampel L-TOR sebagai satu hasil benar.
+   Identitas batch dan pengulangan belum disebutkan.
 2. Lakukan beberapa pengulangan sampel yang diketahui
    berlabel Light/Medium/Dark dan buat confusion matrix.
 3. Tambahkan penyimpanan aman 900 frame raw pada

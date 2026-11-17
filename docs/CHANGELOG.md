@@ -1,5 +1,29 @@
 # Catatan perubahan proyek
 
+## 17 November 2026 — Listener Pi5 permanen dengan autostart dan capture 900 sampel
+
+- Ground truth tes pertama dari pengguna:
+  **Light–Toraja (L-TOR)**. RF500 memprediksi
+  Light benar pada satu tes; evaluasi akurasi
+  keseluruhan belum dilakukan.
+- Tambah persistent RF500 listener: satu serial
+  untuk banyak sesi AI Test, validasi lengkap
+  900 sampel dan ACK MCU, reset session tanpa
+  menutup port, fail-closed terhadap sesi rusak.
+- Simpan 900 frame NDJSON dan manifest SHA256
+  privat di Pi setelah MCU ACK; sesi lama
+  tidak memiliki data raw tersimpan.
+- Tambah boot supervisor singleton `flock`,
+  backoff restart, cek FT232RL dan autostart
+  user `cron @reboot` tanpa sudo.
+- QA dua sesi dan corrupted session PASS.
+  Listener Pi5 **RF500_PERSISTENT_READY**,
+  `/dev/ttyUSB0` PID 2675.
+- Reboot sungguhan dan AI Test kedua dengan listener
+  permanen belum dilakukan.
+- Laporan:
+  `docs/reports/2026-11-17_PI5_RF500_PERSISTENT_AUTOBOOT_LISTENER.md`.
+
 ## 17 November 2026 — AI Test live RF500 Light, 900 sampel, ACK fisik PASS
 
 - Listener Pi5 berhasil menerima 30/30 siklus
@@ -10,9 +34,10 @@
 - Operator mengamati Light pada LCD Nextion.
 - Listener selesai normal, melepaskan USB serial;
   Pi tetap `throttled=0x0`.
-- Ini membuktikan satu tes end-to-end berhasil,
-  **bukan akurasi model**, karena label kopi asli
-  dan repeatability belum diketahui.
+- Label asli kopi kemudian dikonfirmasi sebagai
+  **Light–Toraja (L-TOR)**: satu hasil cocok.
+  Repeatability dan akurasi keseluruhan
+  tetap belum diketahui.
 - Laporan:
   `docs/reports/2026-11-17_PI5_RF500_FIRST_LIVE_AI_TEST_LIGHT_PASS.md`.
 
