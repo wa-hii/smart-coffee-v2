@@ -1,5 +1,24 @@
 # Catatan perubahan proyek
 
+## 17 November 2026 — Integrasi Pi5/COM4, status UART PASS dan RF500 replay offline
+
+- Pemetaan USB FT232RL COM4 serial `A10KMZQJ`
+  menjadi `/dev/ttyUSB0` Pi5; `throttled=0x0`.
+- Validasi hash model RF500 500 pohon, dependency
+  Python dan modul bridge pada venv Pi5 PASS.
+- Tambah script handshake `#status;` non-kontrol
+  khusus USB E-Nose COM4, mock QA PASS.
+- Live handshake Pi ↔ MCU: 8 TX / 1459 RX,
+  `FW_HELLO`, build-id cocok, 4/4 ADS1115,
+  `Sistem siap`, kalibrasi belum tersedia.
+- Offline replay 900 data `D-CAT_B70` RF500:
+  hasil `dark`, paket host `#rf30:...`
+  terbentuk, MCU ACK disimulasikan.
+- Tidak ada real AI Test, perintah aktuator,
+  penulisan EEPROM, ataupun layanan daemon.
+- Laporan:
+  `docs/reports/2026-11-17_PI5_COM4_RF30_STATUS_RF500_OFFLINE_VALIDATION.md`.
+
 ## 17 November 2026 — RF30 COM4 ter-upload, terverifikasi dan boot
 
 - Identifikasi FT232RL `A10KMZQJA` pada COM4,

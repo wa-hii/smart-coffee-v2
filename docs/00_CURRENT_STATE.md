@@ -1,5 +1,34 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 17 November 2026 — Raspberry Pi 5 menerima E-Nose FT232RL COM4; RF500 offline PASS
+
+Setelah COM4 dicabut dari Windows dan dipindah ke
+Raspberry Pi 5, FT232RL yang sama terbaca sebagai
+`/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A10KMZQJ-if00-port0`
+→ `/dev/ttyUSB0`; Pi power `throttled=0x0`.
+Model RF500 500 pohon yang sudah dipasang di
+`~/smart-coffee-stage7/rf30_staging` SHA256
+`b2b6e8d8ff03e92c695c1b0b55a8c06ea9d4178249c9ce012203e602ff1bcf5d`
+dan semua dependency/diverifikasi. Tidak ada pemegang port.
+
+Skrip non-kontrol `pi_com4_rf30_status_handshake.py` di Pi
+mengirim satu `#status;` dan menerima **1459 byte**:
+`FW_HELLO`, `build_id=take30-ai30-rfhost-20261110`,
+`Sistem siap`, ADS1115 **4/4**, kalibrasi R0
+masih tidak tersedia. Tidak memulai siklus/aktuator
+atau menulis EEPROM/Flash. Script dan tiga QA offline
+diletakkan dalam folder staging baru
+`com4_integration_20261117/`.
+
+Uji replay Pi dengan data 900 baris `D-CAT_B70`
+berhasil menghasilkan prediksi `dark`
+dan paket `#rf30:B1F503A9:dark;` **offline saja**
+(ACK MCU simulasi). **LIVE RF500, 30-siklus,
+ACK MCU fisik dan tampilan hasil Nextion belum dilakukan.**
+Baseline HMI 60s tidak sama dengan R0 EEPROM.
+Laporan:
+`docs/reports/2026-11-17_PI5_COM4_RF30_STATUS_RF500_OFFLINE_VALIDATION.md`.
+
 ## 17 November 2026 malam — RF30 berhasil di-flash COM4, boot UART0 PASS
 
 USB FT232RL `A10KMZQJA` pada **COM4** (perangkat E-Nose yang
