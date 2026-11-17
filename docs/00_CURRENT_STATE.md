@@ -1,5 +1,25 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 17 November 2026, sekitar 19.59–20.01 WIB — AI Test RF500 live Light, MCU ACK PASS
+
+Operator menekan Start AI Test di Nextion setelah listener
+RF500 Pi5 PID 2264 READY. Log Pi asli menunjukkan
+`RF30_LIVE_CAPTURE_STARTED_30_CYCLES`, **30/30 siklus**,
+`RF30_LIVE_CAPTURE_COMPLETE`,
+`RF30_LIVE_RESULT_READY_FOR_SUPERVISED_TX` dan
+`SUPERVISED_RF30_MCU_ACK` dengan `roast=light`,
+`samples=900`, `serial_tx=true`. Operator melihat
+hasil Light di Nextion. **Integrasi end-to-end satu sesi PASS**.
+
+Ground truth roasting sampel belum diketahui, sehingga
+**akurasi model belum dapat dinilai**. Listener tidak
+menyimpan 900 frame raw ke CSV. Pada pemeriksaan
+sekitar 20.01 WIB, PID 2264 telah selesai,
+port `/dev/ttyUSB0` tidak lagi dipegang proses,
+dan daya Pi `throttled=0x0`.
+Laporan:
+`docs/reports/2026-11-17_PI5_RF500_FIRST_LIVE_AI_TEST_LIGHT_PASS.md`.
+
 ## 17 November 2026, 19.39 WIB — listener RF500 Pi5 live READY
 
 Setelah operator mengonfirmasi AI Test sebelumnya sudah

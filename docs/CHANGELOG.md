@@ -1,5 +1,21 @@
 # Catatan perubahan proyek
 
+## 17 November 2026 — AI Test live RF500 Light, 900 sampel, ACK fisik PASS
+
+- Listener Pi5 berhasil menerima 30/30 siklus
+  (900 sampel) dari Start AI Test Nextion.
+- Model menghasilkan roast `light`;
+  Pi mengirim hasil dan menerima
+  `SUPERVISED_RF30_MCU_ACK` fisik.
+- Operator mengamati Light pada LCD Nextion.
+- Listener selesai normal, melepaskan USB serial;
+  Pi tetap `throttled=0x0`.
+- Ini membuktikan satu tes end-to-end berhasil,
+  **bukan akurasi model**, karena label kopi asli
+  dan repeatability belum diketahui.
+- Laporan:
+  `docs/reports/2026-11-17_PI5_RF500_FIRST_LIVE_AI_TEST_LIGHT_PASS.md`.
+
 ## 17 November 2026 — Perbaikan noise startup dan aktivasi listener live Pi5
 
 - Saat pertama kali menjalankan listener, ditemukan
