@@ -1,5 +1,22 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 17 November 2026 pukul 18.18 — percobaan upload RF30 COM11 tetap timeout
+
+Operator mengizinkan langsung upload via laptop COM11.
+FT232RL target `A10KNJBLA` terdeteksi; kandidat RF30
+SHA-256 `26833b3cda23d65bae6b33b796331efa0f803071aa283e592ab6fffabeafebb6`
+valid. Receiver Windows PID 25316 terdeteksi pada COM11,
+folder `data/raw/.incoming` kosong, lalu receiver dihentikan
+untuk pengujian eksklusif. Prosedur guarded upload
+`scripts/com11_rf30_verified_deploy.py --upload`
+berhenti pada `stk500v2_ReceiveMessage(): timeout`
+(20 detik, status `BOOTLOADER_SIGNATURE_NOT_VERIFIED_NO_FLASH`).
+**Tidak ada backup, penulisan Flash atau EEPROM pada PCB target.**
+Receiver kemudian **berhasil dijalankan ulang**
+(PID 14204, log `CONNECTED COM11` pada 18.18 WIB).
+Laporan:
+`docs/reports/2026-11-17_COM11_USB_RF30_FLASH_RETRY_STOP_BOOTLOADER_TIMEOUT.md`.
+
 ## 17 November 2026 — ArduinoISP pada Mega COM6 telah di-upload, diverifikasi dan berjalan
 
 Atas **izin eksplisit operator** menimpa sketch Mega CH340 COM6,

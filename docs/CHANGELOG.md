@@ -1,5 +1,18 @@
 # Catatan perubahan proyek
 
+## 17 November 2026 — percobaan flashing RF30 via COM11 (dihentikan aman)
+
+- Operator meminta upload USB langsung ke PCB E-Nose COM11.
+  Identitas FT232RL `A10KNJBLA` dan checksum image RF30 cocok.
+- Receiver COM11 dihentikan untuk akses eksklusif
+  setelah memeriksa proses dan folder incoming kosong.
+- AVRDUDE `wiring/115200` timeout saat membaca
+  signature target; **tidak ada Flash/EEPROM write**.
+- Receiver dibuka kembali dan log menegaskan
+  `CONNECTED COM11` dengan PID 14204.
+- Laporan:
+  `docs/reports/2026-11-17_COM11_USB_RF30_FLASH_RETRY_STOP_BOOTLOADER_TIMEOUT.md`.
+
 ## 17 November 2026 — Upload dan verifikasi ArduinoISP programmer COM6
 
 - Operator mengizinkan penimpaan sketch Arduino Mega CH340 COM6.
