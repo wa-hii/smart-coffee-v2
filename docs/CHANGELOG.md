@@ -1,5 +1,23 @@
 # Catatan perubahan proyek
 
+## 18 November 2026 — Siapkan paket RF500 untuk Pi kedua, SSH auth blocked
+
+- Tailscale `100.94.161.96` (raspberrypi)
+  terdeteksi dan ping sukses; SSH user `enose-v3`,
+  `pi`, `wahyu` ditolak autentikasi.
+- Tambah penguncian FTDI `A10KMM3S` untuk board
+  utama COM5, tetap mendukung default alat COM4
+  `A10KMZQJ` dan tidak mengizinkan ttyUSB generik.
+- Siapkan supervisor/installer autostart Pi kedua,
+  Windows SCP deploy dan dokumentasi keamanan.
+- QA lokal: mock dua sesi/900 sampel, fail-closed,
+  API compatibility, USB identity guard dan
+  parse PowerShell PASS.
+- Tidak ada instalasi di Pi kedua; model RF500
+  asli juga belum bisa disalin dari Pi pertama.
+- Laporan:
+  `docs/reports/2026-11-18_PI2_100_94_161_96_RF500_DEPLOY_SSH_BLOCKED.md`.
+
 ## 18 November 2026 — Port firmware RF30 COM4 ke alat E-Nose COM5 berhasil
 
 - Identifikasi port COM5 FT232RL `A10KMM3SA`

@@ -5,6 +5,7 @@ Does not deserialize the joblib model or open UART/USB.
 """
 from __future__ import annotations
 
+import argparse
 import hashlib
 import inspect
 import json
@@ -15,6 +16,9 @@ from rf500_pi_persistent_listener import PORT, verify_bridge_compatibility, veri
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--serial-live", type=Path, default=PORT)
+    args = parser.parse_args()
     work = Path(__file__).resolve().parent
     # The exact same folder as the persistent listener MUST contain its bridge.
     verify_bridge_compatibility()
@@ -26,7 +30,7 @@ def main() -> None:
     base = Path.home() / "smart-coffee-stage7/rf30_staging"
     model = base / "final_model.joblib"
     metadata = base / "final_model_info.json"
-    verify_host(PORT, model, metadata)
+    verify_host(args.serial_live, model, metadata)
     details = {
         "status": "PERSISTENT_BRIDGE_AND_MODEL_READ_ONLY_PREFLIGHT_PASS",
         "bridge_module": str(Path(rf30_pi_result_bridge.__file__).resolve()),
@@ -34,6 +38,7 @@ def main() -> None:
             (work / "rf30_pi_result_bridge.py").read_bytes()).hexdigest(),
         "model_sha256": hashlib.sha256(model.read_bytes()).hexdigest(),
         "api_predictor_param": True,
+        "target_usb": str(args.serial_live),
         "serial_opened": False,
         "model_deserialized": False,
         "firmware_touched": False,

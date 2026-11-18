@@ -1,5 +1,30 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 18 November 2026 — Pi kedua 100.94.161.96 terjangkau, RF500 belum terpasang (SSH ditolak)
+
+User memindahkan USB dari board utama E-Nose COM5
+ke Raspberry Pi 5 berbeda di Tailscale IP
+`100.94.161.96`. Node Tailscale terdeteksi
+hostname `raspberrypi` dan ping berhasil,
+tetapi akun SSH `enose-v3`, `pi`, `wahyu`
+menjawab `Permission denied (publickey,password)`.
+**Tidak ada akses shell atau transfer ke Pi kedua.**
+
+Disiapkan paket `scripts/pi_rf500_com5_second/`
+dan guard FTDI baru `A10KMM3S` (Linux, perlu
+diverifikasi di Pi) untuk board COM5 Windows
+`A10KMM3SA`; listener pertama tetap dikunci
+ke `A10KMZQJ`. Paket berisi script
+staging Windows SCP, installer Pi, supervisor
+autostart, pemeriksaan hash model, USB identity,
+Pi power dan regresi offline dua sesi.
+Model RF500 asli belum ada di laptop dan harus
+disalin dari Pi pertama setelah aksesnya tersedia.
+QA lokal PASS, **Pi kedua belum listener READY,
+AI Test 900 sampel dan MCU ACK belum dilakukan**.
+Laporan:
+`docs/reports/2026-11-18_PI2_100_94_161_96_RF500_DEPLOY_SSH_BLOCKED.md`.
+
 ## 18 November 2026, 15.26 WIB — COM5 E-Nose kedua berhasil di-flash RF30 sama dengan COM4
 
 Atas instruksi operator, firmware RF30 **identik dengan

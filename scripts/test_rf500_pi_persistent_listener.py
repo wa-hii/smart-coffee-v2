@@ -137,8 +137,38 @@ def test_bridge_api_release_gate() -> None:
     print("RF500_PERSISTENT_PINNED_BRIDGE_API_GATE_PASS")
 
 
+def test_second_device_is_pinned() -> None:
+    """COM5 Raspberry Pi must not use generic ttyUSB or COM4 FTDI symlink."""
+    from unittest.mock import patch
+    import rf500_pi_persistent_listener as app
+    import sklearn
+    with TemporaryDirectory() as root:
+        fake_model = Path(root) / "final_model.joblib"
+        fake_meta = Path(root) / "final_model_info.json"
+        fake_model.touch()
+        fake_meta.touch()
+        with patch.object(app, "verify_bridge_compatibility"), \
+             patch.object(app, "verify_artifact"), \
+             patch.object(app, "EXPECTED_SKLEARN_VERSION", sklearn.__version__), \
+             patch.object(app.subprocess, "run") as run, \
+             patch.object(app.Path, "is_symlink", return_value=True), \
+             patch.object(app.Path, "exists", return_value=True), \
+             patch.object(app.Path, "resolve", return_value=Path("/dev/ttyUSB1")):
+            run.return_value.returncode = 0
+            run.return_value.stdout = "throttled=0x0"
+            app.verify_host(app.SERIAL_PORTS["A10KMM3S"], fake_model, fake_meta)
+            try:
+                app.verify_host(Path("/dev/ttyUSB0"), fake_model, fake_meta)
+            except RuntimeError as exc:
+                assert "WRONG_USB_FTDI_TARGET_STOP" in str(exc)
+            else:
+                raise AssertionError("generic USB device was allowed")
+    print("RF500_SECOND_DEVICE_USB_PIN_GUARD_PASS")
+
+
 if __name__ == "__main__":
     test_two_successful_sessions()
     test_fail_closed()
     test_prestart_diagnostics()
     test_bridge_api_release_gate()
+    test_second_device_is_pinned()

@@ -1,0 +1,2 @@
+# Keep Pi bash launchers executable after copying directly from Windows.
+scripts/pi_rf500_com5_second/*.sh text eol=lf
