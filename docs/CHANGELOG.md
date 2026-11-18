@@ -1,5 +1,27 @@
 # Catatan perubahan proyek
 
+## 18 November 2026 — Port firmware RF30 COM4 ke alat E-Nose COM5 berhasil
+
+- Identifikasi port COM5 FT232RL `A10KMM3SA`
+  dan signature ATmega2560 `0x1e9801` PASS.
+- Buat backup Flash/EEPROM terkini,
+  verifikasi suffix FF 738 byte dan cocokkan
+  aplikasi dengan image SVM30 historis.
+- Flash RF30 identik dengan build COM4
+  sebanyak 35.770 byte, verifikasi AVRDUDE
+  utama dan terpisah PASS.
+- Uji UART0 read-only setelah reset:
+  `FW_HELLO`, build-id RF30, Nextion Serial2,
+  ADS1115 4/4 dan `Sistem siap` PASS.
+- Baca ulang EEPROM, checksum **identik**
+  dengan sebelum flashing. Tidak mengubah
+  TFT Nextion atau EEPROM.
+- Uji HMI fisik dan Random Forest Pi5 pada COM5
+  belum dilakukan; listener Pi5 COM4 yang lama
+  tidak otomatis cocok dengan FTDI COM5 baru.
+- Laporan:
+  `docs/reports/2026-11-18_COM5_RF30_PORT_OF_COM4_FLASH_AND_UART_PASS.md`.
+
 ## 17 November 2026 — Perbaikan Dark–Toraja N/A akibat bridge API lama pada Pi
 
 - AI Test Dark–Toraja menunjukkan N/A,

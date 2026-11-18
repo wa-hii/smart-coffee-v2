@@ -1,5 +1,39 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 18 November 2026, 15.26 WIB — COM5 E-Nose kedua berhasil di-flash RF30 sama dengan COM4
+
+Atas instruksi operator, firmware RF30 **identik dengan
+yang telah berhasil pada COM4** di-upload ke alat E-Nose
+lain yang kini berada pada **Windows COM5**,
+FT232RL `A10KMM3SA`, ATmega2560 signature
+`0x1e9801` PASS. Riwayat alat ini memakai
+SVM30 standalone; aplikasi lama **cocok** dengan
+image SVM30 historis dan sudah di-backup sebelum
+ditimpa. Backup Flash 262144 byte, EEPROM 4096 byte
+dan terminal dump suffix 738 byte FF tervalidasi,
+lokasi privat `private/com5_rf30_migration/backup_20261118_152056_053864/`.
+
+Kandidat RF30 SHA256
+`26833b3cda23d65bae6b33b796331efa0f803071aa283e592ab6fffabeafebb6`
+telah **ditulis dan diverifikasi 35770 byte**,
+termasuk verifikasi terpisah. Satu uji boot DTR
+menerima 991 byte UART0 `FW_HELLO`,
+`build_id=take30-ai30-rfhost-20261110`,
+Nextion `Serial2@9600`, ADS1115 4/4,
+`Sistem siap`. EEPROM setelah flash **identik
+dengan sebelum flash** (SHA256
+`a1f1161f0af472c902873d1050eb5f1813e883d27f823ca959ab22b9fb40c769`).
+Firmware tetap mengeluhkan kalibrasi R0 belum ada.
+
+**COM5 sekarang RF30 host-Pi, BUKAN lagi SVM30 standalone.**
+Tampilan fisik Nextion, aktuator, AI Test 30 siklus,
+dan inferensi Pi5 pada alat COM5 **belum diuji**.
+Listener Pi5 COM4 sebelumnya **terikat FTDI berbeda**,
+jadi perlu integrasi per-device baru ketika COM5
+dipindah ke Pi; belum ada perubahan pada Pi tersebut.
+Laporan:
+`docs/reports/2026-11-18_COM5_RF30_PORT_OF_COM4_FLASH_AND_UART_PASS.md`.
+
 ## 17 November 2026, 20.50 WIB — Dark–Toraja N/A akibat mismatch API bridge; FIXED, retest diperlukan
 
 Tes Dark–Toraja (D-TOR) via Nextion menghasilkan
