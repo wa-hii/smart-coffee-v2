@@ -1,5 +1,45 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 19 November 2026 sekitar 17.42 WIB — Pi5 auto-save Take Data READY; password boot sudah auto-login
+
+Pi `enose-v3@enose-pi5` menerima lima sesi
+`labeled_data` (total 4.500 frame), tetapi
+listener lama membuang semuanya dari jalur
+penyimpanan karena validasi `ai_test` saja.
+Log tidak berisi seluruh ADC sehingga CSV lama
+tidak dapat direkonstruksi.
+
+Ditambahkan `scripts/pi_labeled_take_data.py`
+dan dispatcher dua-mode pada persistent RF500
+listener. Data Take Data disimpan streaming
+ke `~/smart-coffee-stage7/data/raw/.incoming/`,
+setelah 30 siklus/900 sampel valid secara
+atomik dipublikasikan sebagai CSV final dan
+manifest hash ke `data/raw/`.
+Incomplete/stale diarahkan ke `data/raw/incomplete/`.
+Tidak ada model dipakai pada labeled_data,
+dan jalur AI Test RF500 tetap utuh.
+
+QA dua sesi labeled, penolakan incomplete,
+recovery crash, regresi AI, serta replay offline
+900 frame sensor nyata di Pi semuanya PASS.
+**Belum ada pengujian Take Data fisik baru
+setelah update**. Versi lama dicadangkan privat,
+proses IDLE PID 841 dihentikan dengan SIGTERM,
+supervisor existing menjalankan versi baru
+**PID 2362** pada `/dev/ttyUSB0`;
+`RF500_PERSISTENT_READY` dan
+`TAKE_DATA_RECOVERY_STARTUP` terlihat pada log.
+
+Pemeriksaan boot: getty tty1
+`--autologin enose-v3`, LightDM
+`autologin-user=enose-v3`, serta user
+`cron @reboot` listener **sudah aktif**.
+Password akun dan autentikasi SSH tetap
+dipertahankan. Tidak dilakukan reboot fisik.
+Laporan:
+`docs/reports/2026-11-19_PI5_TAKE_DATA_AUTOSAVE_RF500_SHARED_LISTENER.md`.
+
 ## 18 November 2026 — Pi kedua 100.94.161.96 terjangkau, RF500 belum terpasang (SSH ditolak)
 
 User memindahkan USB dari board utama E-Nose COM5

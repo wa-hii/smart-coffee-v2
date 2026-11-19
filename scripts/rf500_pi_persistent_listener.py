@@ -33,6 +33,7 @@ from rf30_pi_result_bridge import (
 from roast_rf30_pi_inference import (
     EXPECTED_SKLEARN_VERSION, predict_capture, verify_artifact,
 )
+from pi_labeled_take_data import LabeledTakeRecorder, LabeledDataError
 
 # Separate pinned FT232RL bridges for the two E-Nose boards. The strings
 # are Linux FTDI IDs; Windows appends interface suffix 'A' (A10KMZQJA and
@@ -130,9 +131,13 @@ def archive_complete_session(archive_dir: Path, capture: list[str],
 
 
 class PersistentHandler:
-    def __init__(self, *, predictor, archive_dir: Path):
+    def __init__(self, *, predictor, archive_dir: Path,
+                 take_data_dir: Path | None = None):
         self.predictor = predictor
         self.archive_dir = archive_dir
+        self.labeled = LabeledTakeRecorder(
+            take_data_dir if take_data_dir is not None
+            else archive_dir.parent / "take_data")
         self.session = HostSession()
         self.quarantine = False
         self.seen_sessions = 0
@@ -159,6 +164,54 @@ class PersistentHandler:
 
     def receive(self, raw: bytes) -> tuple[bytes | None, dict]:
         """Return optional vetted result command. Caller alone owns UART TX."""
+        # Two disjoint protocols share ONE long-lived UART FD. Do not give
+        # labeled training rows to the AI predict/inference path.
+        if self.labeled.active:
+            try:
+                obj = strict_json(raw.decode("utf8"))
+            except (ValueError, UnicodeError):
+                obj = None
+            if isinstance(obj, dict) and obj.get("event") == "ACQ_START":
+                old = self.labeled.abort("new_acq_start_before_prior_complete")
+                print("TAKE_DATA_INCOMPLETE", json.dumps(old), flush=True)
+                if obj.get("mode") == "labeled_data":
+                    try:
+                        ready = self.labeled.start(obj)
+                        print("TAKE_DATA_CAPTURE_STARTED", json.dumps(ready), flush=True)
+                        return None, ready
+                    except (LabeledDataError, OSError) as exc:
+                        print("TAKE_DATA_START_REJECTED", str(exc)[:180], flush=True)
+                        return None, {"status": "LABELED_START_REJECTED"}
+                # AI mode may start only after the old labeled session is
+                # quarantined; then use the existing strict AI gates below.
+            else:
+                status = self.labeled.receive(raw)
+                if status["status"] == "LABELED_SAMPLE_ACCEPTED" and self.labeled.rows % 30 == 0:
+                    print("TAKE_DATA_CYCLE_COMPLETE", self.labeled.rows // 30, "/30", flush=True)
+                elif status["status"] == "LABELED_CSV_SAVED_900_VALID":
+                    print("TAKE_DATA_CSV_SAVED_900_VALID", json.dumps(status), flush=True)
+                elif status["status"] == "LABELED_INCOMPLETE_QUARANTINED":
+                    print("TAKE_DATA_INCOMPLETE", json.dumps(status), flush=True)
+                return None, status
+
+        if self.session.token is None:
+            try:
+                probe = strict_json(raw.decode("utf8"))
+            except (ValueError, UnicodeError):
+                probe = None
+            if (isinstance(probe, dict) and probe.get("event") == "ACQ_START"
+                    and probe.get("mode") == "labeled_data"):
+                try:
+                    # Recover from previously failed AI session only on a new,
+                    # validated explicit labeled start.
+                    status = self.labeled.start(probe)
+                    self.quarantine = False
+                    self.session = HostSession()
+                    print("TAKE_DATA_CAPTURE_STARTED", json.dumps(status), flush=True)
+                    return None, status
+                except (LabeledDataError, OSError) as exc:
+                    print("TAKE_DATA_START_REJECTED", str(exc)[:180], flush=True)
+                    return None, {"status": "LABELED_START_REJECTED"}
         # Diagnostic only: show WHY a real acquisition was not recognized.
         # Do not forward any unvalidated frames to the model or ATmega.
         if not self.quarantine and self.session.token is None:
@@ -265,7 +318,7 @@ class PersistentHandler:
 
 
 def listen_forever(port: Path, model_path: Path, metadata_path: Path,
-                   archive_dir: Path) -> None:
+                   archive_dir: Path, take_data_dir: Path) -> None:
     verify_host(port, model_path, metadata_path)
     import joblib
     clf = joblib.load(model_path)
@@ -277,7 +330,13 @@ def listen_forever(port: Path, model_path: Path, metadata_path: Path,
                          rtscts=False, dsrdtr=False, exclusive=True)
     conn.dtr = False
     conn.rts = False
-    handler = PersistentHandler(predictor=predict, archive_dir=archive_dir)
+    handler = PersistentHandler(predictor=predict, archive_dir=archive_dir,
+                                take_data_dir=take_data_dir)
+    recovered = handler.labeled.recover_stale_partials()
+    print("TAKE_DATA_RECOVERY_STARTUP", json.dumps({
+        "previous_partial_files_quarantined": recovered,
+        "take_data_csv_root": str(take_data_dir),
+    }), flush=True)
     rx_bytes_total = 0
     rx_frames_total = 0
     last_any_rx = time.monotonic()
@@ -316,9 +375,14 @@ def listen_forever(port: Path, model_path: Path, metadata_path: Path,
                     "prestart_start_rejections": handler.prestart_start_rejections,
                     "last_prestart_event": handler.last_prestart_event,
                     "successful_sessions": handler.successful_sessions,
+                    "take_data_active": handler.labeled.active,
+                    "take_data_rows": handler.labeled.rows,
                 }), flush=True)
                 last_heartbeat = now
             if not data:
+                stale = handler.labeled.check_timeout(now)
+                if stale is not None:
+                    print("TAKE_DATA_INCOMPLETE", json.dumps(stale), flush=True)
                 if (handler.session.token and not handler.quarantine
                     and now-handler.last_sensor_time > MAX_IDLE_ACTIVE_S):
                     handler.abandon("UART_SENSOR_IDLE_TIMEOUT")
@@ -342,6 +406,9 @@ def listen_forever(port: Path, model_path: Path, metadata_path: Path,
                     conn.flush()
                     print("RF500_RESULT_SENT_AWAIT_MCU_ACK", flush=True)
     finally:
+        if handler.labeled.active:
+            print("TAKE_DATA_INCOMPLETE", json.dumps(
+                handler.labeled.abort("listener_process_stopping")), flush=True)
         if conn.is_open:
             conn.close()
         print("RF500_PERSISTENT_LISTENER_STOPPED", flush=True)
@@ -353,9 +420,12 @@ def main() -> int:
     parser.add_argument("--model", type=Path, required=True)
     parser.add_argument("--metadata", type=Path, required=True)
     parser.add_argument("--archive-dir", type=Path, required=True)
+    parser.add_argument("--take-data-dir", type=Path,
+                        default=Path.home() / "smart-coffee-stage7/data/raw")
     args = parser.parse_args()
     try:
-        listen_forever(args.serial_live, args.model, args.metadata, args.archive_dir)
+        listen_forever(args.serial_live, args.model, args.metadata,
+                       args.archive_dir, args.take_data_dir)
         return 0
     except (OSError, RuntimeError, ValueError) as exc:
         print("RF500_PERSISTENT_START_OR_IO_FAILED", type(exc).__name__, str(exc)[:180],

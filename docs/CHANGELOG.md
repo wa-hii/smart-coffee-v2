@@ -1,5 +1,29 @@
 # Catatan perubahan proyek
 
+## 19 November 2026 — Take Data auto-save Pi5, satu UART dengan RF500; auto-login diverifikasi
+
+- Audit lima sesi labeled_data yang tidak disimpan
+  oleh listener RF500 lama (4.500 frame terhitung);
+  tidak mengklaim data hilang dapat direkonstruksi
+  dari log progres.
+- Tambah recorder CSV 30 siklus / 900 sampel
+  dengan validasi metadata, 10 ADC, suhu/kelembapan,
+  staging disk yang di-fsync, publish tanpa overwrite,
+  sidecar SHA256, incomplete dan crash recovery.
+- Integrasikan dengan persistent AI Test RF500
+  melalui **satu port serial yang tetap terbuka**;
+  Take Data tidak menjalankan AI atau mengirim perintah MCU.
+- Regression test serta replay offline 900 sampel
+  fisik lama di Pi PASS tanpa mempublikasikan label sintetis.
+- Backup listener lama. Pi proses baru PID 2362
+  menerima `FW_HELLO` dan `RF500_PERSISTENT_READY`;
+  uji Take Data fisik berikutnya belum dilakukan.
+- Verifikasi console getty dan LightDM sudah
+  auto-login `enose-v3`, cron listener `@reboot`
+  aktif; **tidak menghapus password akun/SSH**.
+- Laporan:
+  `docs/reports/2026-11-19_PI5_TAKE_DATA_AUTOSAVE_RF500_SHARED_LISTENER.md`.
+
 ## 18 November 2026 — Siapkan paket RF500 untuk Pi kedua, SSH auth blocked
 
 - Tailscale `100.94.161.96` (raspberrypi)
