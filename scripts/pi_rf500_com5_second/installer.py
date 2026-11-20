@@ -29,6 +29,7 @@ EXPECTED_USB = Path("/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A10KMM3S-if00-po
 SOURCE_FILES = (
     "rf500_pi_persistent_listener.py", "rf30_pi_result_bridge.py",
     "roast_rf30_pi_inference.py", "rf500_pi_verify_staged_bridge.py",
+    "pi_labeled_take_data.py", "roast_rf30_pi_stream_replay.py",
     "boot_supervisor.sh",
 )
 

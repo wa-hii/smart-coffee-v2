@@ -3,7 +3,7 @@
 # The ORIGINAL RF500 model and metadata must be supplied from Pi5 #1;
 # this script never retrains or creates a replacement model.
 param(
-    [Parameter(Mandatory = $true)][string]$SshUser,
+    [string]$SshUser = "raspi5",
     [string]$HostIP = "100.94.161.96",
     [string]$ModelPath,
     [string]$MetadataPath,
@@ -28,7 +28,11 @@ if (-not $StageCodeOnly) {
 }
 
 $remote = "${SshUser}@${HostIP}"
-$opts = @('-o','StrictHostKeyChecking=accept-new','-o','ConnectTimeout=10')
+$opts = @('-o','StrictHostKeyChecking=yes','-o','ConnectTimeout=10')
+$pi2Identity = Join-Path $env:USERPROFILE '.ssh\id_ed25519_enose_pi2'
+if (Test-Path -LiteralPath $pi2Identity -PathType Leaf) {
+    $opts += @('-i', $pi2Identity)
+}
 $work = 'smart-coffee-stage7/rf30_staging/com5_integration/always_on'
 $stage = 'smart-coffee-stage7/rf30_staging'
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -45,8 +49,10 @@ Invoke-Checked 'ssh' ($opts + @($remote, "mkdir -p ~/$work ~/$stage && chmod 700
 
 $sources = @(
     (Join-Path $scripts 'rf500_pi_persistent_listener.py'),
+    (Join-Path $scripts 'pi_labeled_take_data.py'),
     (Join-Path $scripts 'rf30_pi_result_bridge.py'),
     (Join-Path $scripts 'roast_rf30_pi_inference.py'),
+    (Join-Path $scripts 'roast_rf30_pi_stream_replay.py'),
     (Join-Path $scripts 'rf500_pi_verify_staged_bridge.py'),
     (Join-Path $here 'installer.py'),
     (Join-Path $here 'boot_supervisor.sh')

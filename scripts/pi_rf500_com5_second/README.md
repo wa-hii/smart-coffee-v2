@@ -7,6 +7,50 @@ Windows COM5 `A10KMM3SA` (Linux diperkirakan `A10KMM3S`).
 Jangan salin pengaturan FTDI Raspberry Pi pertama
 `A10KMZQJ` ke Pi ini.
 
+## Update 20 November 2026 — akses akun dan modul penyimpanan CSV
+
+Username Pi kedua telah diketahui: `raspi5`. Tailscale IP
+target tetap `100.94.161.96`, tetapi akses SSH dari
+komputer konektor Windows **masih belum diotorisasi**.
+User dapat login melalui terminalnya sendiri.
+Komputer konektor sudah menyiapkan kunci SSH khusus
+`~/.ssh/id_ed25519_enose_pi2`, yang **hanya kunci
+publiknya** perlu ditambahkan pengguna ke
+`~/.ssh/authorized_keys` di Pi kedua. Jangan
+menyalin kunci privat atau password ke GitHub/chat.
+
+Model RF500 asli dan metadata berhasil diambil dari
+Pi pertama ke folder privat Windows
+`%LOCALAPPDATA%\SmartCoffee\pi2_rf500_20261120`,
+hash model diverifikasi
+`b2b6e8d8ff03e92c695c1b0b55a8c06ea9d4178249c9ce012203e602ff1bcf5d`.
+Model tetap tidak di-push ke repository.
+
+Paket deploy **terbaru** sekarang menyalin
+`pi_labeled_take_data.py` dan
+`roast_rf30_pi_stream_replay.py` selain file
+RF500 lama. Ini wajib supaya listener dapat
+menjalankan **Take Data (CSV 900 baris)** dan
+**AI Test** tanpa error `ModuleNotFoundError`.
+Installer memeriksa semua dependensi tersebut
+sebelum membuka serial.
+
+Setelah kunci publik diotorisasi, dari PowerShell
+Windows di root repo:
+
+```powershell
+./scripts/pi_rf500_com5_second/deploy_from_windows.ps1 `
+  -SshUser raspi5 `
+  -ModelPath "$env:LOCALAPPDATA\SmartCoffee\pi2_rf500_20261120\final_model.joblib" `
+  -MetadataPath "$env:LOCALAPPDATA\SmartCoffee\pi2_rf500_20261120\final_model_info.json" `
+  -EnableAutostart
+```
+
+**Belum ada program terpasang pada Pi kedua** ketika
+bagian ini diperbarui. Jangan memulai AI Test
+sampai `COM5_PI2_PERSISTENT_LISTENER_READY`
+terkonfirmasi pada perangkat kedua.
+
 ## Kondisi autentikasi 18 November 2026
 
 Alamat Tailscale dapat diping dari laptop Windows,
