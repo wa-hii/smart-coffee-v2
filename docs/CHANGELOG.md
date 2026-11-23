@@ -1,5 +1,21 @@
 # Catatan perubahan proyek
 
+## 23 November 2026 — Pi5 kedua COM5 RF500 + Take Data listener siap (idle)
+
+- Deploy ke `raspi5@raspberrypi` (`100.94.161.96`) dari
+  listener Pi pertama; identitas FTDI `A10KMM3S` cocok dengan COM5.
+- Replikasi model RF500 asli beserta metadata dan kode
+  listener/recorder; hash model cocok, dependensi Python
+  diuji pada Debian 13/Python 3.13.5.
+- PyPI di target tidak dapat dijangkau, sehingga *site-packages*
+  lingkungan Pi pertama dipindahkan lewat arsip terverifikasi.
+- Preflight perangkat/bridge PASS, cron `@reboot` tercatat,
+  listener PID 2123 `RF500_PERSISTENT_READY`, belum ada sesi
+  akuisisi; Pi pertama tetap berjalan.
+- Pengujian reboot, 30-siklus AI Test, CSV Take Data dan
+  MCU ACK nyata belum dijalankan. Tidak ada aksi HMI/MCU aktif.
+- Laporan: `docs/reports/2026-11-23_PI5_2_RF500_COM5_READY.md`.
+
 ## 23 November 2026 — COM3 RF30 commit 37095d0f build/flash/upload PASS; sensor 0/4
 
 - Build commit `37095d0f` terpisah dengan

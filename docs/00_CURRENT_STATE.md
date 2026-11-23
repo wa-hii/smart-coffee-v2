@@ -1,5 +1,33 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 23 November 2026 malam — Pi5 kedua `raspi5@raspberrypi` READY untuk COM5
+
+Atas permintaan operator, program *persistent listener* RF500 + pencatatan
+Take Data dari `enose-v3@enose-pi5` dipasang di Pi5 kedua
+`raspi5@raspberrypi` (Tailscale `100.94.161.96`) tanpa mengganggu
+listener Pi pertama. Target FT232RL terverifikasi melalui udev:
+`0403:6001`, serial Linux `A10KMM3S`,
+`/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A10KMM3S-if00-port0`
+→ `/dev/ttyUSB0` (alat yang sebelumnya Windows COM5 `A10KMM3SA`).
+
+Model `final_model.joblib` dicocokkan SHA256
+`b2b6e8d8ff03e92c695c1b0b55a8c06ea9d4178249c9ce012203e602ff1bcf5d`;
+kode listener dan recorder CSV juga identik checksum dengan Pi sumber.
+Pi kedua Debian 13/ARM64/Python 3.13.5; dependensi versi sama
+disalin dari Pi pertama setelah PyPI tidak terjangkau. *Import test*
+scikit-learn 1.7.2, NumPy 2.5.4, SciPy 1.18.1, joblib 1.6.0,
+pyserial 3.5 PASS; preflight USB, daya, bridge, metadata PASS.
+
+Cron `@reboot` didaftarkan dan diverifikasi. Supervisor PID 2114
+memulai listener PID 2123, log mencatat `RF500_PERSISTENT_READY`
+dan `TAKE_DATA_RECOVERY_STARTUP`; heartbeat menunjukkan
+`active_capture=false`, `take_data_active=false`,
+`successful_sessions=0`. **Belum dilakukan AI Test / Take Data
+fisik baru maupun pengujian reboot autostart.** HMI menurut operator
+telah berada di halaman menu; tidak dikendalikan lewat sesi ini.
+Tidak ada penulisan Flash/EEPROM, perintah aktuator atau kalibrasi.
+Laporan: `docs/reports/2026-11-23_PI5_2_RF500_COM5_READY.md`.
+
 ## 23 November 2026 — COM3 (FT232RL A10KN6X9A) berhasil di-flash dari commit 37095d0f
 
 Atas permintaan pengguna, source **commit `37095d0fddb3be818405729a818e6cbf33cc9a0c`**

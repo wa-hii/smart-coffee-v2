@@ -1,5 +1,25 @@
 # Raspberry Pi 5 kedua — integrasi RF500 untuk board utama COM5
 
+## Status 23 November 2026 — deployment berhasil; listener idle READY
+
+- Pi kedua `raspi5@raspberrypi` (`100.94.161.96`) telah menerima
+  source RF500, `pi_labeled_take_data.py`, model asli dan metadata.
+- USB terverifikasi `0403:6001`/`A10KMM3S` → `ttyUSB0`;
+  Pi power `throttled=0x0`; validasi model dan bridge PASS.
+- PyPI gagal diakses, dependensi pada Debian 13/Python 3.13.5
+  dicopy dari lingkungan Pi pertama dalam tar terverifikasi;
+  *import* lima library utama PASS.
+- `installer.py --check` PASS, `--install` terverifikasi di cron,
+  `--start` menghasilkan `COM5_PI2_PERSISTENT_LISTENER_READY`.
+  Supervisor PID awal 2114, child listener 2123;
+  log `RF500_PERSISTENT_READY`, *capture* idle.
+- **Belum teruji:** AI Test 900 frame, Take Data CSV baru,
+  RF500→ATmega ACK fisik, dan boot ulang Pi. HMI menu dilaporkan
+  aman oleh operator; sesi ini tidak menekan tombol apa pun.
+
+Catatan di bawah tentang keadaan *belum dipasang* adalah
+**riwayat per 18–20 November**, bukan status sekarang.
+
 Target **khusus**: Tailscale `100.94.161.96`, hostname terdeteksi
 `raspberrypi`, board utama ATmega2560 ber-firmware
 `take30-ai30-rfhost-20261110`, dan adaptor USB FT232RL
