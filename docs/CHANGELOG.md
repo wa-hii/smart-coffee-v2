@@ -1,5 +1,24 @@
 # Catatan perubahan proyek
 
+## 23 November 2026 — COM3 RF30 commit 37095d0f build/flash/upload PASS; sensor 0/4
+
+- Build commit `37095d0f` terpisah dengan
+  `ENABLE_PI_RF30_RETURN=1`, 35.770 byte;
+  SHA256 identik dengan firmware RF30 COM4.
+- Identifikasi FT232RL COM3 `A10KN6X9A`,
+  ATmega2560 signature PASS, backup original
+  Flash 262144 byte/EEPROM 4096 byte plus
+  FF suffix fisik 738 byte PASS.
+- Upload dan verifikasi independen 35770 byte
+  PASS; EEPROM tidak ditulis dan tidak berubah.
+- UART `FW_HELLO` dan build ID RF30 terbaca
+  setelah DTR reset; namun ADS1115 0/4
+  dan SHT30 tidak terdeteksi. Jangan mulai
+  akuisisi sebelum memeriksa catu daya/I²C.
+- Menambahkan skrip deployment guarded,
+  skrip passive boot, serta laporan hasil:
+  `docs/reports/2026-11-23_COM3_COMMIT_37095D0F_RF30_FLASH_VERIFIED_SENSOR_I2C_MISSING.md`.
+
 ## 19 November 2026 — Take Data auto-save Pi5, satu UART dengan RF500; auto-login diverifikasi
 
 - Audit lima sesi labeled_data yang tidak disimpan

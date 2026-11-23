@@ -1,5 +1,37 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 23 November 2026 — COM3 (FT232RL A10KN6X9A) berhasil di-flash dari commit 37095d0f
+
+Atas permintaan pengguna, source **commit `37095d0fddb3be818405729a818e6cbf33cc9a0c`**
+diekstrak di folder build terisolasi, dibangun dengan
+`ENABLE_PI_RF30_RETURN=1`, dan menghasilkan HEX
+**35.770 byte** dengan SHA256
+`26833b3cda23d65bae6b33b796331efa0f803071aa283e592ab6fffabeafebb6`.
+HEX ini **identik byte-for-byte** dengan RF30 yang berhasil di COM4.
+
+Windows **COM3 = FT232RL `A10KN6X9A`**, bootloader
+ATmega2560 signature `0x1e9801` PASS. Original
+Flash 262144 byte dan EEPROM 4096 byte dibaca
+dan dicadangkan lengkap, termasuk validasi
+suffix FF 738 byte. Upload 35770 byte dan
+verifikasi Flash terpisah PASS. EEPROM setelah
+flash sama checksum aslinya.
+
+Boot UART `FW_HELLO` di COM3 PASS
+(build `take30-ai30-rfhost-20261110`,
+Serial2 Nextion @9600). **PERHATIAN:**
+seluruh ADS1115 **0/4** (`0x48`–`0x4B`)
+serta SHT30 `0x44` **tidak terdeteksi**,
+sehingga **belum aman untuk Take Data/AI Test**
+sebelum sensor dan wiring/catu daya diperiksa.
+HMI fisik belum dicek; tidak dilakukan
+perintah aktuator.
+
+Backup/log privat:
+`private/com3_commit_37095d0f/`.
+Laporan:
+`docs/reports/2026-11-23_COM3_COMMIT_37095D0F_RF30_FLASH_VERIFIED_SENSOR_I2C_MISSING.md`.
+
 ## 19 November 2026 sekitar 17.42 WIB — Pi5 auto-save Take Data READY; password boot sudah auto-login
 
 Pi `enose-v3@enose-pi5` menerima lima sesi
