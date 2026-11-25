@@ -138,7 +138,7 @@ def test_bridge_api_release_gate() -> None:
 
 
 def test_second_device_is_pinned() -> None:
-    """COM5 Raspberry Pi must not use generic ttyUSB or COM4 FTDI symlink."""
+    """Known FT232RL boards are whitelisted, generic ttyUSB stays blocked."""
     from unittest.mock import patch
     import rf500_pi_persistent_listener as app
     import sklearn
@@ -157,6 +157,7 @@ def test_second_device_is_pinned() -> None:
             run.return_value.returncode = 0
             run.return_value.stdout = "throttled=0x0"
             app.verify_host(app.SERIAL_PORTS["A10KMM3S"], fake_model, fake_meta)
+            app.verify_host(app.SERIAL_PORTS["A10KN6X9"], fake_model, fake_meta)
             try:
                 app.verify_host(Path("/dev/ttyUSB0"), fake_model, fake_meta)
             except RuntimeError as exc:

@@ -35,12 +35,13 @@ from roast_rf30_pi_inference import (
 )
 from pi_labeled_take_data import LabeledTakeRecorder, LabeledDataError
 
-# Separate pinned FT232RL bridges for the two E-Nose boards. The strings
-# are Linux FTDI IDs; Windows appends interface suffix 'A' (A10KMZQJA and
-# A10KMM3SA respectively). Never choose the first /dev/ttyUSB* blindly.
+# Explicitly pinned FT232RL bridges for tested E-Nose boards. Windows appends
+# interface suffix 'A' to these Linux FTDI IDs (e.g. COM3 A10KN6X9A).
+# Never choose the first /dev/ttyUSB* blindly.
 SERIAL_PORTS = {
     "A10KMZQJ": Path("/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A10KMZQJ-if00-port0"),
     "A10KMM3S": Path("/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A10KMM3S-if00-port0"),
+    "A10KN6X9": Path("/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A10KN6X9-if00-port0"),
 }
 PORT = SERIAL_PORTS["A10KMZQJ"]  # Backward-compatible first-Pi default.
 FTDI_SERIAL = "A10KMZQJ"

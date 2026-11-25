@@ -1,5 +1,43 @@
 # Kondisi Aktual Smart Coffee E-Nose v2 — audit Tahap 0–1, 9 Oktober 2026
 
+## 25 November 2026 malam — Pi pertama dialihkan ke USB ATmega eks-COM3
+
+ATmega2560 yang sebelumnya dikenali Windows COM3 (FT232RL Windows
+A10KN6X9A) kini tersambung ke enose-v3@enose-pi5 melalui USB Type-B.
+Linux melihat FT232RL A10KN6X9 sebagai /dev/ttyUSB0 melalui symlink
+/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A10KN6X9-if00-port0.
+Pi throttled=0x0; USB tidak menunjukkan disconnect baru sejak
+17.27.56 WIB. Laptop tidak perlu disambung ke COM3 bersamaan.
+
+Listener dan supervisor semula terkunci pada FTDI board sebelumnya
+A10KMZQJ sehingga supervisor terus menunggu perangkat lama.
+Perbaikan yang dilaksanakan:
+
+- Tambah A10KN6X9 ke SERIAL_PORTS (default board lama tetap),
+  arahkan rf500_pi_boot_supervisor.sh ke A10KN6X9 dan perbarui
+  verifier read-only agar menerima --serial-live.
+- Backup tiga skrip sebelum mengubahnya di
+  ~/smart-coffee-stage7/rf30_staging/com4_integration_20261117/always_on/backup_before_com3_20261125_2045/.
+- Regression listener offline dan preflight Pi terhadap FTDI,
+  API bridge, model SHA256, serta daya PASS.
+- Supervisor lama dihentikan saat idle; satu orphan sleep 120
+  yang menahan cron.lock dihentikan. Supervisor baru dijalankan
+  tanpa reboot Pi dan tanpa flashing ATmega.
+- Pukul 20.49 WIB supervisor PID 3824, listener PID 3831
+  satu-satunya pemilik /dev/ttyUSB0. Log RF500_PERSISTENT_READY,
+  baud 115200, model verified. Cron @reboot tetap mengacu ke
+  supervisor yang sudah diperbarui; reboot aktual belum diuji.
+
+**Batas hasil:** USB enumeration, kesiapan serial di sisi Pi,
+listener READY, dan penerimaan UART pasif: heartbeat
+rx_bytes_total=993 serta rx_frames_total=17 (12 frame non-JSON,
+0 frame sensor). FW_HELLO belum terlihat setelah restart,
+tidak ada ACQ_START atau sensor frame pada sesi baru. Komunikasi
+Nextion Serial2–ATmega, ADS1115 dan AI Test/ACK fisik belum
+terverifikasi. Pada pemeriksaan COM3 sebelumnya, ADS1115 0/4;
+pastikan sensor normal sebelum tes gas. Tidak ada perintah
+pompa/valve, akuisisi, atau reset aktif yang dikirim.
+
 ## 23 November 2026 malam — Pi5 kedua `raspi5@raspberrypi` READY untuk COM5
 
 Atas permintaan operator, program *persistent listener* RF500 + pencatatan

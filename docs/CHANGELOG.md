@@ -1,5 +1,21 @@
 # Catatan perubahan proyek
 
+## 25 November 2026 — Pi5 pertama kini mendengarkan ATmega eks-COM3
+
+- Identifikasi FT232RL Pi A10KN6X9, symlink ttyUSB0 dan daya normal;
+  port board lama A10KMZQJ tidak terpasang.
+- Tambah USB whitelist ketiga untuk RF500; supervisor Pi pertama
+  kini pin ke A10KN6X9 dan verifier read-only mendukung
+  --serial-live. Regression lokal PASS.
+- Backup skrip Pi pertama; kode dideploy dengan checksum cocok,
+  preflight model/bridge PASS. Restart saat idle, bersihkan orphan
+  lock sleep; supervisor PID 3824 mengaktifkan listener PID 3831
+  dengan RF500_PERSISTENT_READY. Heartbeat menerima 993 byte /
+  17 frame UART awal, tetapi belum ada frame sensor atau ACQ_START.
+- Tidak membuka port kedua, tidak memulai test atau mengubah
+  firmware/Nextion. FW_HELLO, ADS1115, ACQ_START dan frame sensor
+  perlu diverifikasi nyata saat pengujian HMI.
+
 ## 23 November 2026 — Pi5 kedua COM5 RF500 + Take Data listener siap (idle)
 
 - Deploy ke `raspi5@raspberrypi` (`100.94.161.96`) dari
