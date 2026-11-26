@@ -20,6 +20,8 @@ public:
   // Best-effort UI; sensor acquisition never waits for LCD serial delivery.
   bool tryText(const char *object, const char *value);
   bool tryProgress(const char *object, uint8_t percent);
+  bool tryWaveformFrame(uint8_t id, const uint8_t (&values)[4]);
+  void clearWaveform(uint8_t id);
   void value(const char *object, int value);
   void progress(const char *object, uint8_t percent);
   void touch(const char *object, bool enabled);

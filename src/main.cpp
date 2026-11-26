@@ -24,7 +24,11 @@
 #include "actuator.h"
 #include "inference.h"
 #include "nextion_transport.h"
+#include "nextion_waveform.h"
 #include "sensor.h"
+#ifndef SMART_COFFEE_NEXTION_WAVEFORM_UI
+#define SMART_COFFEE_NEXTION_WAVEFORM_UI 0
+#endif
 #ifndef SMART_COFFEE_STANDALONE_SVM30
 #define SMART_COFFEE_STANDALONE_SVM30 0
 #endif
@@ -174,6 +178,7 @@ void updateNextionCalibrationPage();
 void stopBaselineCapture(const char *reason);
 void updateNextionRunStatus();
 void updateNextionSensorSnapshot();
+void updateNextionWaveform();
 void updateNextionInferenceResult();
 void buildTakeFilename(char *buffer, size_t size, bool withExtension = true);
 void restoreNextionPageAfterBoot();
@@ -714,6 +719,9 @@ void showNextionPage(const char *pageName) {
   strncpy(nextionPageName, pageName, sizeof(nextionPageName) - 1);
   nextionPageName[sizeof(nextionPageName) - 1] = '\0';
   if (strcmp(pageName, "pDataRun") == 0) {
+#if SMART_COFFEE_NEXTION_WAVEFORM_UI
+    nextion.clearWaveform(NextionWaveform::DATA_ID);
+#endif
     nextionSensorIndex = 0;
     nextionRunUiSlot = 0;
     updateNextionRunStatus();
@@ -726,6 +734,10 @@ void showNextionPage(const char *pageName) {
   } else if (strcmp(pageName, "pSettings") == 0) {
     updateNextionSettingsPage();
   } else if (strcmp(pageName, "pTestRun") == 0) {
+#if SMART_COFFEE_NEXTION_WAVEFORM_UI
+    nextion.clearWaveform(NextionWaveform::TEST_ID);
+    nextionRunUiSlot = 0;
+#endif
     updateNextionTestRunPage();
   } else if (strcmp(pageName, "pCal") == 0) {
     updateNextionCalibrationPage();
@@ -830,6 +842,8 @@ void updateNextionTestRunPage() {
   nextion.text("tTestId", testId);
 #if SMART_COFFEE_STANDALONE_SVM30
   nextion.text("tPi", "LOCAL MCU");
+#elif SMART_COFFEE_NEXTION_WAVEFORM_UI && ENABLE_PI_RF30_RETURN
+  nextion.text("tPi", "PI RF");
 #else
   nextion.text("tPi", "AI N/A");
 #endif
@@ -878,6 +892,36 @@ void updateNextionTestRunStatus() {
                               : static_cast<uint8_t>(
                                     (doneSeconds * 100UL) / totalSeconds);
 
+#if SMART_COFFEE_NEXTION_WAVEFORM_UI
+  // Spread AI status updates over the existing UI slots. The ADC callback
+  // never waits for a burst of LCD status commands on the 9600-baud link.
+  const uint8_t slot = nextionRunUiSlot;
+  nextionRunUiSlot = (nextionRunUiSlot + 1) % 8;
+  switch (slot) {
+  case 0:
+    nextion.tryProgress("jAI", percent);
+    break;
+  case 1:
+    nextion.tryText("tStep1", acqState == AcqState::PAUSED ? "PAUSED" :
+                    effectiveState == AcqState::PURGING ? "RUNNING" : "DONE");
+    break;
+  case 2:
+    nextion.tryText("tStep2", acqState == AcqState::PAUSED ? "PAUSED" :
+                    effectiveState == AcqState::COLLECTING ? "RUNNING" : "WAIT");
+    break;
+  case 3: nextion.tryText("tStep3", "WAIT"); break;
+  case 4: nextion.tryText("tStep4", "WAIT"); break;
+  case 5: {
+    char eta[28] = {};
+    snprintf(eta, sizeof(eta), "EST. REMAINING %02lu:%02lu",
+             (unsigned long)(remaining / 60UL),
+             (unsigned long)(remaining % 60UL));
+    nextion.tryText("tEta", eta);
+    break;
+  }
+  default: break;
+  }
+#else
   nextion.progress("jAI", percent);
   if (acqState == AcqState::PAUSED) {
     nextion.text("tStep1", "PAUSED");
@@ -897,6 +941,7 @@ void updateNextionTestRunStatus() {
            static_cast<unsigned long>(remaining / 60UL),
            static_cast<unsigned long>(remaining % 60UL));
   nextion.text("tEta", eta);
+#endif
 }
 
 void updateNextionCalibrationPage() {
@@ -1063,6 +1108,31 @@ void updateNextionSensorSnapshot() {
   }
 }
 
+void updateNextionWaveform() {
+#if SMART_COFFEE_NEXTION_WAVEFORM_UI
+  const bool data = acqMode == AcquisitionMode::LABELED_DATA &&
+                    strcmp(nextionPageName, "pDataRun") == 0;
+  const bool test = acqMode == AcquisitionMode::AI_TEST &&
+                    strcmp(nextionPageName, "pTestRun") == 0;
+  if ((!data && !test) || !sensorsReady ||
+      (acqState != AcqState::PURGING && acqState != AcqState::COLLECTING)) return;
+  // Initial display channels: same subset used by the existing SVM bench.
+  // All ten original ADC readings still go to the host unchanged.
+  const uint8_t indices[4] = {SENSOR_TGS822, SENSOR_TGS2602,
+                              SENSOR_TGS816, SENSOR_MQ8};
+  uint8_t values[4];
+  for (uint8_t ch = 0; ch < 4; ++ch) {
+    if (!sensors.adcAvailable(indices[ch])) return;
+    const uint16_t raw = sensors.getAdc(indices[ch]);
+    if (raw > 32767U) return; // negative signed ADC; skip display frame
+    values[ch] = NextionWaveform::scale(raw, data ? NextionWaveform::DATA_HEIGHT
+                                                 : NextionWaveform::TEST_HEIGHT);
+  }
+  nextion.tryWaveformFrame(data ? NextionWaveform::DATA_ID
+                                : NextionWaveform::TEST_ID, values);
+#endif
+}
+
 void updateNextionInferenceResult() {
 #if SMART_COFFEE_STANDALONE_SVM30
   const char *label = AiRf30Return::label(aiRf30Roast);
@@ -1084,12 +1154,14 @@ void updateNextionInferenceResult() {
   }
 
   nextion.text("tRoast", resultReady ? displayLabel : "N/A");
+#if !SMART_COFFEE_NEXTION_WAVEFORM_UI
   nextion.text("tRConf", "N/A");
   nextion.text("tOrigin", "N/A");
   nextion.text("tOConf", "N/A");
   nextion.progress("jLight", 0);
   nextion.progress("jMedium", 0);
   nextion.progress("jDark", 0);
+#endif
 }
 
 void restoreNextionPageAfterBoot() {
@@ -1294,9 +1366,11 @@ void handleNextionEvent(const char *event) {
   } else if (strcmp(event, "EVT:RETRY") == 0) {
     showNextionPage("pHome");
   } else if (strcmp(event, "EVT:EXIT") == 0) {
+#if !SMART_COFFEE_NEXTION_WAVEFORM_UI
     stopAcquisition();
     sendNextionAlert("System active", "Power off dilakukan manual",
                      "Hardware tetap aman");
+#endif
   } else {
     Serial.print(F("{\"warn\":\"Unknown Nextion event\",\"event\":\""));
     Serial.print(event);
@@ -1340,6 +1414,13 @@ void uiCallback() {
        acqState == AcqState::PAUSED)) {
     updateNextionRunStatus();
   }
+#if SMART_COFFEE_NEXTION_WAVEFORM_UI
+  if (acqMode == AcquisitionMode::AI_TEST &&
+      (acqState == AcqState::PURGING || acqState == AcqState::COLLECTING ||
+       acqState == AcqState::PAUSED)) {
+    updateNextionTestRunStatus();
+  }
+#endif
 }
 
 void expireAiRf30Reply() {
@@ -1562,11 +1643,14 @@ void adsCallback() {
     }
     sensors.printJsonData(acqStateName(), acqCycle, acqSampleIdx);
 #endif
+    updateNextionWaveform();
   }
 
   // State changes run on absolute deadlines in loop(), not AFTER an ADC
   // sample. LCD refresh runs separately on best-effort 125ms slots.
+#if !SMART_COFFEE_NEXTION_WAVEFORM_UI
   if (acqMode == AcquisitionMode::AI_TEST) {
     updateNextionTestRunStatus();
   }
+#endif
 }

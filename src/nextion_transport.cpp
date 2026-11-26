@@ -1,6 +1,7 @@
 #include "nextion_transport.h"
 
 #include <string.h>
+#include <stdio.h>
 
 NextionTransport::NextionTransport(HardwareSerial &serial) : serial_(serial) {}
 
@@ -90,6 +91,33 @@ bool NextionTransport::tryProgress(const char *object, uint8_t percent) {
   }
   progress(object, percent);
   return true;
+}
+
+bool NextionTransport::tryWaveformFrame(uint8_t id,
+                                        const uint8_t (&values)[4]) {
+  // Reserve the entire four-channel frame before sending any bytes.
+  // No partial frame, blocking write or transparent serial mode.
+  char frame[60];
+  size_t used = 0;
+  for (uint8_t ch = 0; ch < 4; ++ch) {
+    const int n = snprintf(frame + used, sizeof(frame) - used,
+                           "add %u,%u,%u", (unsigned)id, (unsigned)ch,
+                           (unsigned)values[ch]);
+    if (n < 0 || used + (size_t)n + 3 > sizeof(frame)) return false;
+    used += (size_t)n;
+    frame[used++] = (char)0xFF;
+    frame[used++] = (char)0xFF;
+    frame[used++] = (char)0xFF;
+  }
+  if (serial_.availableForWrite() < (int)used) return false;
+  serial_.write(reinterpret_cast<const uint8_t *>(frame), used);
+  return true;
+}
+
+void NextionTransport::clearWaveform(uint8_t id) {
+  char cmd[16];
+  snprintf(cmd, sizeof(cmd), "cle %u,255", (unsigned)id);
+  command(cmd);
 }
 
 void NextionTransport::value(const char *object, int value) {
