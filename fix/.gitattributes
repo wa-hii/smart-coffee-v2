@@ -1,0 +1,5 @@
+# Preserve exact SHA-256 of frozen artifacts on Windows and Linux.
+* -text
+*.hex binary
+*.HMI binary
+*.tft binary

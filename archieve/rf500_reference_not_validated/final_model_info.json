@@ -1,0 +1,19 @@
+{
+  "model": "RandomForestClassifier",
+  "n_estimators": 500,
+  "features": [
+    "tgs822_max_mean",
+    "tgs822_purging_mean_mean",
+    "mq8_max_mean"
+  ],
+  "classes": [
+    "dark",
+    "light",
+    "medium"
+  ],
+  "n_train": 176,
+  "oob_score": 0.8352,
+  "nested_cv_weighted_acc": 0.8011,
+  "nested_cv_macro_f1": 0.7492,
+  "note": "OOB adalah estimasi realistis dari RF itu sendiri. Generalisasi sesungguhnya ke batch baru: lihat nested_cv_weighted_acc (~80%)."
+}

@@ -1,5 +1,22 @@
 # Smart Coffee E-Nose v2
 
+## Paket deployment acuan — 27 November 2026
+
+**Gunakan [`fix/`](fix/README.md)** untuk firmware ATmega2560 Waveform RF30,
+Nextion Basic TFT/HMI V5, dan runtime listener Raspberry Pi 5 yang sudah
+lulus pengujian fisik G3 dan komunikasi G4. Verifikasi checksum dengan
+`python fix/verify_release.py`. Sebelum flashing alat lain, verifikasi
+identitas USB, signature MCU, backup Flash/EEPROM, serta model LCD.
+
+Versi lama ada di [`archieve/`](archieve/README.md); direktori `archive/`
+historis tetap dipertahankan. Folder `src/`, `scripts/` dan `nextion/`
+tetap merupakan workspace pengembangan, bukan pilihan binary deployment.
+RF500 lama **belum lolos klasifikasi Medium/Dark**, sehingga disimpan sebagai
+referensi terpisah, bukan model AI fix. Lihat batas QA di `fix/README.md`.
+
+Bagian di bawah ini mencatat riwayat konfigurasi/perangkat sebelumnya;
+jangan menganggap COM lama sebagai port perangkat saat ini.
+
 **Kondisi perangkat 13 November 2026 sore:** PCB
 ATmega2560 **kedua** saat ini kembali tersambung
 melalui FT232R `A10KNJBL` ke **Raspberry Pi 5**

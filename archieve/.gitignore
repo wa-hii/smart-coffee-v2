@@ -1,0 +1,3 @@
+# Local working-copy archive may contain user edits; preserve privately.
+/local_nextion_versions/
+/rf500_reference_not_validated/final_model.joblib
