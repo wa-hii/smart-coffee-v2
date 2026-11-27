@@ -8,5 +8,6 @@ Nama `archieve` mengikuti permintaan pengguna. Folder `archive/` historis yang s
 - `legacy_source/supervisor_A10KN6X9.sh`: backup supervisor sebelum rebind A10KMZQJ, diambil dari Pi.
 - `legacy_source/tracked_nextion_pre_v5.zip`: HMI historis dari Git. `local_nextion_versions/`: salinan HMI/TFT lokal lama (termasuk kandidat dan perubahan pengguna), tidak dipush. File yang terkunci dicatat dalam `fix/manifest.json` dan tetap ada di lokasi aslinya.
 - `rf500_reference_not_validated/`: model lama dan metadata; klasifikasi lintas roasting belum lolos. Joblib lokal tidak dipublikasikan. SHA-256 tercatat dalam manifest.
+- `verified_v5_rollback/`: HMI dan TFT V5 yang teruji fisik, dipertahankan byte-identik setelah promosi V7. Untuk rollback UI yang disetujui operator; firmware dan runtime Pi sama. `manifest_v5.json` adalah catatan manifest historis sebelum perpindahan path.
 
 Sumber build dan aset lama asli tidak dihapus/dipindah agar editor, skrip, Git history dan perubahan pengguna tetap aman. Ini adalah arsip salinan, bukan penghapusan file asli. Backup Flash/EEPROM board spesifik tetap di `private/`, bukan arsip firmware yang boleh dipasang ke board lain.

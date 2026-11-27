@@ -3,8 +3,9 @@
 ## Paket deployment acuan — 27 November 2026
 
 **Gunakan [`fix/`](fix/README.md)** untuk firmware ATmega2560 Waveform RF30,
-Nextion Basic TFT/HMI V5, dan runtime listener Raspberry Pi 5 yang sudah
-lulus pengujian fisik G3 dan komunikasi G4. Verifikasi checksum dengan
+Nextion Basic TFT/HMI V7, dan runtime listener Raspberry Pi 5. Firmware dan
+protokol lulus G3/G4 fisik dengan V5; UI V7 lulus compile dan simulator, belum
+diuji pada LCD fisik. V5 tetap tersedia untuk rollback. Verifikasi checksum dengan
 `python fix/verify_release.py`. Sebelum flashing alat lain, verifikasi
 identitas USB, signature MCU, backup Flash/EEPROM, serta model LCD.
 

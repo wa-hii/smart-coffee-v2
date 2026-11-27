@@ -51,6 +51,7 @@ def main():
     finish()
 
 def finish():
+    assert not (FIX/'nextion/RoastSense_NX4827T043_011_WAVEFORM_RF30_V7.HMI').exists(), 'V7 promoted; do not regenerate historical V5 manifest'
     # Preserve previous local HMI/TFT (including unsaved-to-Git user edits)
     # in an ignored archive. Never move/overwrite files open in Nextion Editor.
     n=ROOT/'nextion/NX4827T043_011'

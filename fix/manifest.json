@@ -1,8 +1,7 @@
 {
-  "release": "waveform_rf30_v5_20261127",
-  "scope": "hardware_and_transport_verified_model_accuracy_failed",
+  "release": "waveform_rf30_v7_ui_20261127",
+  "scope": "firmware_and_transport_physically_verified_with_v5_v7_ui_compile_simulator_verified_model_accuracy_failed",
   "firmware_commit": "de053ec6",
-  "hmi_commit": "2c16aa44",
   "deployment_evidence": "bdc31cac",
   "g3_g4_evidence": "95b23846",
   "local_locked_not_copied": [
@@ -14,12 +13,10 @@
   ],
   "files_sha256": {
     "fix/.gitattributes": "f2c0f491ad317554b668d206b2e1608fb68cd7667f06d717341711d9e5ec3bf9",
-    "fix/README.md": "c3dd0b5a805cdcd7c2b9242dcb80323454e9e37f7e8790993e212f39ffc188e4",
+    "fix/README.md": "4c2a68dd42c761bc8513b4016887d4428ee1a64acc3c30513678e079d9ed0d01",
     "fix/verify_release.py": "a9dd74f6d49dcc5314138cb5f3dbac0d16963f3a5465a40ecfca3ab653ac86cd",
     "fix/atmega2560/firmware.hex": "ae5b34eca58e68837f318308a8d8f7ab5db37380cd233a7e1b61361593216621",
     "fix/atmega2560/source_de053ec6.zip": "f65e8fc63a64913bc10a4e7a8d9977a2688451d9deffa6d5f1ad9a7923a4efd8",
-    "fix/nextion/RoastSense_NX4827T043_011_WAVEFORM_RF30_V5.HMI": "5268b934b50977d88ce3ef28ad426768c485d4247353bc82340a44f50a0fe7af",
-    "fix/nextion/RoastSense_NX4827T043_011_WAVEFORM_RF30_V5.tft": "6c5ca75cb8e25596db483eef46925b3eebae3d40abb93cf20e73c1130c4c51d7",
     "fix/raspberry_pi5/boot_supervisor_template.sh": "9b37c594118cb5326abf394ee18ab2d0397e077875dd7c826e2959ac8bc5d1b6",
     "fix/raspberry_pi5/requirements-verified.txt": "54d9004a1993b399a951b3fee2b87aa99e7f83a45796cb5534920112066a34e5",
     "fix/raspberry_pi5/deployed_enose_pi5/rf500_pi_boot_supervisor.sh": "601bfa92af23b62151a2192fe0f3ae21402a8b94cc7b9665a537006d6aec73ef",
@@ -31,7 +28,7 @@
     "fix/raspberry_pi5/runtime/roast_rf30_pi_inference.py": "b54478288dc93ccb39f8ce91f4c018fcc5812b48e3760def126a0a7c5444e037",
     "fix/raspberry_pi5/runtime/roast_rf30_pi_stream_replay.py": "fa00fec9750a2f7a2a9e34295813bcef7ba83883b4826984d4e282b3bf92dc2b",
     "archieve/.gitattributes": "82ecd9638434fb18626b2b0f3f81781bdb3a893f36a4e0c165131ff62ac0c047",
-    "archieve/README.md": "dd530bcfa65e87b4466f3eaf7ecfe79041bd0840b0cd81fbd084976ed4709622",
+    "archieve/README.md": "a32abc5205c9f869140cb934ec532fd018e1a0d73a2c3d17e04afe5f2e3eaa75",
     "archieve/legacy_source/firmware_629f4c15.zip": "f3ee294b3add43f48d4d78b4a487de5d3616ebbb007c885af5b8c621ca410ebe",
     "archieve/legacy_source/firmware_e8d367e9.zip": "27f0655cb6cbb14b89c9d2998501f90c8c2c8934df1cab289ffa3a583a7c84fd",
     "archieve/legacy_source/listener_pre_waveform_629f4c15.zip": "ddfac42ede2b74c91a7e96af3a920c4e9599c67f27156111201b3af2715a125d",
@@ -55,6 +52,15 @@
     "archieve/local_nextion_versions/project/RoastSense_NX4827T043_011_WAVEFORM_RF30_V5_COMPILE_TEST.HMI": "7e0042f7a1ed75c02e59996570344244ad965969dd48e984f7fe24b308b0904a",
     "archieve/local_nextion_versions/project/RoastSense_NX4827T043_011_WAVEFORM_RF30_WORKING.HMI": "887a122bd5084001f3ba5363bc5822cdd28f1bca38e232e16d11b0331fa68a2c",
     "archieve/local_nextion_versions/project/RoastSense_RECOVERED_12P_34ac89d.HMI": "85076d236ea72af317aa2c731227abf51f74e926a6ce39394a349657c590dc5e",
-    "archieve/local_nextion_versions/project/RoastSense_UI_FIX_QA.HMI": "d4f53baff5ea232ba6a3d4ac292d9002587827effe4257c7e6b96b402e4f4451"
-  }
+    "archieve/local_nextion_versions/project/RoastSense_UI_FIX_QA.HMI": "d4f53baff5ea232ba6a3d4ac292d9002587827effe4257c7e6b96b402e4f4451",
+    "archieve/verified_v5_rollback/RoastSense_NX4827T043_011_WAVEFORM_RF30_V5.HMI": "5268b934b50977d88ce3ef28ad426768c485d4247353bc82340a44f50a0fe7af",
+    "archieve/verified_v5_rollback/RoastSense_NX4827T043_011_WAVEFORM_RF30_V5.tft": "6c5ca75cb8e25596db483eef46925b3eebae3d40abb93cf20e73c1130c4c51d7",
+    "fix/nextion/RoastSense_NX4827T043_011_WAVEFORM_RF30_V7.HMI": "709cde6dce86b0d425c0072490d66abe29b8c61e3270bc522f7d81ab7b687e7e",
+    "fix/nextion/RoastSense_NX4827T043_011_WAVEFORM_RF30_V7.tft": "75589f599893c5300fbedcd1e6f9e2395d004934d846d54c5bd4efb2b4b2e64e",
+    "archieve/verified_v5_rollback/manifest_v5.json": "b6f331b90bd8326b12def351d16c819289752ca28378e1403aa6004361bbddfa"
+  },
+  "hmi_baseline_commit": "2c16aa44",
+  "preferred_nextion": "V7",
+  "nextion_v7_physical_test": "PENDING",
+  "nextion_v5_rollback": "archieve/verified_v5_rollback/"
 }
