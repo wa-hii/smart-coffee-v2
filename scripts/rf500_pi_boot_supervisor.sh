@@ -5,9 +5,9 @@
 set -u
 BASE=/home/enose-v3/smart-coffee-stage7/rf30_staging
 WORK="$BASE/com4_integration_20261117/always_on"
-# 25 November: this Pi is now connected to the formerly Windows COM3 board.
+# 27 November: enose-pi5 is connected to FTDI A10KMZQJ.
 # Keep the USB identity pinned; do not auto-select ttyUSB0.
-FTDI=/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A10KN6X9-if00-port0
+FTDI=/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A10KMZQJ-if00-port0
 PYTHON="$BASE/.venv/bin/python"
 export PYTHONPATH="$BASE${PYTHONPATH:+:$PYTHONPATH}"
 mkdir -p "$WORK/recordings"
@@ -31,7 +31,7 @@ while true; do
         code=$?
         echo "$(date -Is) RF500_SUPERVISOR_CHILD_EXIT $code"
     else
-        echo "$(date -Is) RF500_SUPERVISOR_WAIT_FTDI_A10KN6X9"
+        echo "$(date -Is) RF500_SUPERVISOR_WAIT_FTDI_A10KMZQJ"
     fi
     attempt=$((attempt+1))
     # Exponential bounded backoff prevents continuous DTR resets on
