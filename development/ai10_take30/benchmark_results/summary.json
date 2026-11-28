@@ -1,0 +1,306 @@
+{
+  "train_n": 133,
+  "diagnostic_c_n": 66,
+  "counts": {
+    "('a', 'dark')": 18,
+    "('a', 'light')": 17,
+    "('a', 'medium')": 20,
+    "('b', 'dark')": 24,
+    "('b', 'light')": 28,
+    "('b', 'medium')": 26,
+    "('c', 'dark')": 18,
+    "('c', 'light')": 14,
+    "('c', 'medium')": 34
+  },
+  "device_counts": {
+    "UNKNOWN": 121,
+    "ALAT_1": 31,
+    "ALAT_3": 26,
+    "ALAT_2": 21
+  },
+  "strict_rejected": [],
+  "prior_invalid": [
+    "L-MING_B75_8d9adafb31744b538fa663e1fef1b18c_INCOMPLETE.csv",
+    "L-TOR_B75_ad0a30d7ece544609ad4efcb742504e2_INCOMPLETE.csv",
+    "M-GAW_B75_bc7301af72124e398d4edb8626b1836e_INCOMPLETE.csv",
+    "M-TEM_B73_a00116bc923c42b888da60e07fad130c_INCOMPLETE.csv"
+  ],
+  "duplicate_identity": [
+    "M-TEM_B62_20261019_175906.csv"
+  ],
+  "winners": [
+    {
+      "cycles": 5,
+      "minutes": 2.5,
+      "features": "raw3",
+      "model": "ET",
+      "n_features": 3,
+      "origin_ba": 0.7143777317690362,
+      "origin_f1": 0.7164346877058362,
+      "origin_acc": 0.7142857142857143,
+      "origin_recall_light": 0.8222222222222222,
+      "origin_recall_medium": 0.6304347826086957,
+      "origin_recall_dark": 0.6904761904761905,
+      "batch_ba": 0.7498734759604325,
+      "batch_f1": 0.7509259259259259,
+      "batch_acc": 0.7518796992481203,
+      "batch_recall_light": 0.9111111111111111,
+      "batch_recall_medium": 0.6956521739130435,
+      "batch_recall_dark": 0.6428571428571429,
+      "selection_score": 0.7143777317690362,
+      "c_ba": 0.4193899782135076,
+      "c_f1": 0.28503160827172397,
+      "c_acc": 0.3181818181818182,
+      "c_recall_light": 1.0,
+      "c_recall_medium": 0.14705882352941177,
+      "c_recall_dark": 0.1111111111111111,
+      "c_confusion": [
+        [
+          14,
+          0,
+          0
+        ],
+        [
+          29,
+          5,
+          0
+        ],
+        [
+          4,
+          12,
+          2
+        ]
+      ]
+    },
+    {
+      "cycles": 10,
+      "minutes": 5.0,
+      "features": "raw3",
+      "model": "RF",
+      "n_features": 3,
+      "origin_ba": 0.7519898780768347,
+      "origin_f1": 0.7545577728504558,
+      "origin_acc": 0.7518796992481203,
+      "origin_recall_light": 0.8222222222222222,
+      "origin_recall_medium": 0.6956521739130435,
+      "origin_recall_dark": 0.7380952380952381,
+      "batch_ba": 0.744375431331953,
+      "batch_f1": 0.7452838329967725,
+      "batch_acc": 0.7443609022556391,
+      "batch_recall_light": 0.8666666666666667,
+      "batch_recall_medium": 0.6521739130434783,
+      "batch_recall_dark": 0.7142857142857143,
+      "selection_score": 0.744375431331953,
+      "c_ba": 0.4291938997821351,
+      "c_f1": 0.3031366294524189,
+      "c_acc": 0.3333333333333333,
+      "c_recall_light": 1.0,
+      "c_recall_medium": 0.17647058823529413,
+      "c_recall_dark": 0.1111111111111111,
+      "c_confusion": [
+        [
+          14,
+          0,
+          0
+        ],
+        [
+          28,
+          6,
+          0
+        ],
+        [
+          1,
+          15,
+          2
+        ]
+      ]
+    },
+    {
+      "cycles": 15,
+      "minutes": 7.5,
+      "features": "raw3",
+      "model": "SVM",
+      "n_features": 3,
+      "origin_ba": 0.7511387163561075,
+      "origin_f1": 0.7559331880900508,
+      "origin_acc": 0.7518796992481203,
+      "origin_recall_light": 0.8,
+      "origin_recall_medium": 0.7391304347826086,
+      "origin_recall_dark": 0.7142857142857143,
+      "batch_ba": 0.7519898780768347,
+      "batch_f1": 0.7550756736803249,
+      "batch_acc": 0.7518796992481203,
+      "batch_recall_light": 0.8222222222222222,
+      "batch_recall_medium": 0.6956521739130435,
+      "batch_recall_dark": 0.7380952380952381,
+      "selection_score": 0.7511387163561075,
+      "c_ba": 0.49564270152505446,
+      "c_f1": 0.398162358440412,
+      "c_acc": 0.4090909090909091,
+      "c_recall_light": 1.0,
+      "c_recall_medium": 0.2647058823529412,
+      "c_recall_dark": 0.2222222222222222,
+      "c_confusion": [
+        [
+          14,
+          0,
+          0
+        ],
+        [
+          25,
+          9,
+          0
+        ],
+        [
+          4,
+          10,
+          4
+        ]
+      ]
+    },
+    {
+      "cycles": 20,
+      "minutes": 10.0,
+      "features": "raw3",
+      "model": "SVM",
+      "n_features": 3,
+      "origin_ba": 0.7432022084195996,
+      "origin_f1": 0.7484420500873616,
+      "origin_acc": 0.7443609022556391,
+      "origin_recall_light": 0.8,
+      "origin_recall_medium": 0.7391304347826086,
+      "origin_recall_dark": 0.6904761904761905,
+      "batch_ba": 0.7514607775477341,
+      "batch_f1": 0.7543738171075106,
+      "batch_acc": 0.7518796992481203,
+      "batch_recall_light": 0.8444444444444444,
+      "batch_recall_medium": 0.6956521739130435,
+      "batch_recall_dark": 0.7142857142857143,
+      "selection_score": 0.7432022084195996,
+      "c_ba": 0.49564270152505446,
+      "c_f1": 0.39999999999999997,
+      "c_acc": 0.4090909090909091,
+      "c_recall_light": 1.0,
+      "c_recall_medium": 0.2647058823529412,
+      "c_recall_dark": 0.2222222222222222,
+      "c_confusion": [
+        [
+          14,
+          0,
+          0
+        ],
+        [
+          25,
+          9,
+          0
+        ],
+        [
+          2,
+          12,
+          4
+        ]
+      ]
+    },
+    {
+      "cycles": 30,
+      "minutes": 15.0,
+      "features": "raw3",
+      "model": "LR",
+      "n_features": 3,
+      "origin_ba": 0.7510927076144468,
+      "origin_f1": 0.7519268100482422,
+      "origin_acc": 0.7518796992481203,
+      "origin_recall_light": 0.8888888888888888,
+      "origin_recall_medium": 0.6739130434782609,
+      "origin_recall_dark": 0.6904761904761905,
+      "batch_ba": 0.7887048539222453,
+      "batch_f1": 0.7906227781941162,
+      "batch_acc": 0.7894736842105263,
+      "batch_recall_light": 0.8888888888888888,
+      "batch_recall_medium": 0.7391304347826086,
+      "batch_recall_dark": 0.7380952380952381,
+      "selection_score": 0.7510927076144468,
+      "c_ba": 0.5600684718331777,
+      "c_f1": 0.5,
+      "c_acc": 0.5303030303030303,
+      "c_recall_light": 0.9285714285714286,
+      "c_recall_medium": 0.5294117647058824,
+      "c_recall_dark": 0.2222222222222222,
+      "c_confusion": [
+        [
+          13,
+          1,
+          0
+        ],
+        [
+          16,
+          18,
+          0
+        ],
+        [
+          1,
+          13,
+          4
+        ]
+      ]
+    }
+  ],
+  "selected_10cycle": {
+    "cycles": 10,
+    "minutes": 5.0,
+    "features": "raw3",
+    "model": "RF",
+    "n_features": 3,
+    "origin_ba": 0.7519898780768347,
+    "origin_f1": 0.7545577728504558,
+    "origin_acc": 0.7518796992481203,
+    "origin_recall_light": 0.8222222222222222,
+    "origin_recall_medium": 0.6956521739130435,
+    "origin_recall_dark": 0.7380952380952381,
+    "batch_ba": 0.744375431331953,
+    "batch_f1": 0.7452838329967725,
+    "batch_acc": 0.7443609022556391,
+    "batch_recall_light": 0.8666666666666667,
+    "batch_recall_medium": 0.6521739130434783,
+    "batch_recall_dark": 0.7142857142857143,
+    "selection_score": 0.744375431331953,
+    "c_ba": 0.4291938997821351,
+    "c_f1": 0.3031366294524189,
+    "c_acc": 0.3333333333333333,
+    "c_recall_light": 1.0,
+    "c_recall_medium": 0.17647058823529413,
+    "c_recall_dark": 0.1111111111111111,
+    "c_confusion": [
+      [
+        14,
+        0,
+        0
+      ],
+      [
+        28,
+        6,
+        0
+      ],
+      [
+        1,
+        15,
+        2
+      ]
+    ]
+  },
+  "versions": {
+    "python": "3.14.3",
+    "sklearn": "1.9.0",
+    "numpy": "2.4.2",
+    "pandas": "3.0.3"
+  },
+  "seed": 42,
+  "selection": "min(origin CV BA,batch CV BA); C not used for selection",
+  "release_approved": false,
+  "limitations": [
+    "C previously explored; no prospective holdout",
+    "manual kept selection; origin and device confounding; specimen identity unknown",
+    "no physical cross-device or 10-cycle deployment validation"
+  ],
+  "candidate_gate": "require prospective independent two-device validation; no automatic hardware or model deployment"
+}
